@@ -15,8 +15,4 @@
     <PackageReference Include="NLog" Version="4.5.11" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Clients\Discord\Services\" />
-  </ItemGroup>
-
 </Project>

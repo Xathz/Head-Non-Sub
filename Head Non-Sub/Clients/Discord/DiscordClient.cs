@@ -26,13 +26,12 @@ namespace HeadNonSub.Clients.Discord {
             _Services = new ServiceCollection().AddSingleton(_DiscordClient)
                 .AddSingleton<CommandService>()
                 .AddSingleton<DiscordClientCommandService>()
-                .AddSingleton<Commands.WhitelistCommands>()
-                .AddSingleton<Commands.HelpCommands>()
-                .AddSingleton<Commands.ToolCommands>()
                 .BuildServiceProvider();
 
             _DiscordClient.Log += Log;
             _DiscordClient.Connected += Connected;
+            _DiscordClient.GuildAvailable += GuildAvailable;
+            _DiscordClient.GuildMembersDownloaded += GuildMembersDownloaded;
             _DiscordClient.MessageReceived += MessageReceived;
 
             await _DiscordClient.LoginAsync(TokenType.Bot, SettingsManager.Configuration.DiscordToken);
@@ -44,13 +43,16 @@ namespace HeadNonSub.Clients.Discord {
 
         public static async Task StopAsync() => await _DiscordClient.StopAsync();
 
-        public static async Task SendMessageToChannelAsync(ulong channelId, string message) {
+        public static async Task<ulong?> SendMessageToChannelAsync(ulong channelId, string message) {
             try {
                 if (_DiscordClient.GetChannel(channelId) is IMessageChannel channel) {
-                    _ = channel.SendMessageAsync(message);
+                    return (await channel.SendMessageAsync(message)).Id;
                 }
+
+                return null;
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
+                return null;
             }
         }
 
@@ -97,6 +99,21 @@ namespace HeadNonSub.Clients.Discord {
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
+        }
+
+        private static async Task GuildAvailable(SocketGuild arg) {
+            LoggingManager.Log.Info($"Guild {arg.Name} ({arg.Id}) has become available");
+
+            try {
+                arg.DownloadUsersAsync();
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+            }
+        }
+
+        private static async Task GuildMembersDownloaded(SocketGuild arg) {
+            LoggingManager.Log.Info($"Full memberlist was downloaded for {arg.Name} ({arg.Id})");
+
         }
 
         private static async Task MessageReceived(SocketMessage e) {

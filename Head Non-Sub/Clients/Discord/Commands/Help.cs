@@ -4,7 +4,7 @@ using Discord.Commands;
 
 namespace HeadNonSub.Clients.Discord.Commands {
 
-    public class HelpCommands : ModuleBase<SocketCommandContext> {
+    public class Help : ModuleBase<SocketCommandContext> {
 
         // https://discordapp.com/developers/docs/resources/channel#embed-limits
 
@@ -22,7 +22,10 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 Text = $"{Constants.ApplicationName} by {Constants.Creator}"
             };
 
-            return ReplyAsync(embed: builder.Build());
+            ulong reply = ReplyAsync(embed: builder.Build()).Result.Id;
+
+            DiscordMessageTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            return Task.CompletedTask;
         }
 
     }

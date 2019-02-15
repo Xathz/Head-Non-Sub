@@ -28,6 +28,7 @@ namespace HeadNonSub {
             Directory.CreateDirectory(Constants.WorkingDirectory);
             Directory.CreateDirectory(Constants.LogDirectory);
             Directory.CreateDirectory(Constants.TemporaryDirectory);
+            Directory.CreateDirectory(Constants.ContentDirectory);
 
             LoggingManager.Initialize();
             SettingsManager.Load();
@@ -60,7 +61,12 @@ namespace HeadNonSub {
                     string message = input.Replace(args[0], "").Replace(args[1], "").Trim();
 
                     if (args.Length >= 2) {
-                        _ = DiscordClient.SendMessageToChannelAsync(ulong.Parse(args[1]), message);
+                        ulong? reply = DiscordClient.SendMessageToChannelAsync(ulong.Parse(args[1]), message).Result;
+                        if (reply.HasValue) {
+                            Console.WriteLine($"Message was sent: {reply.Value}");
+                        } else {
+                            Console.WriteLine("Message was not set, the reply message id was null.");
+                        }
                     } else {
                         Console.WriteLine("Check the command and try again. Example: message 0000000000000000 Some message!");
                     }

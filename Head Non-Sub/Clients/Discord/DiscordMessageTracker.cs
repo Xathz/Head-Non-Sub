@@ -18,6 +18,11 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="replyId">Message reply id.</param>
         public static void Track(ulong server, ulong channel, ulong userId, ulong messageId, ulong replyId) {
             _SentMessages.Add((DateTime.Now, server, channel, userId, messageId, replyId));
+
+            // Remove oldest
+            if (_SentMessages.Count > 250) {
+                _SentMessages.RemoveAt(0);
+            }
         }
 
         /// <summary>
@@ -31,14 +36,14 @@ namespace HeadNonSub.Clients.Discord {
         /// Get the most recent message id by user.
         /// </summary>
         public static ulong? MostRecentMessage(ulong server, ulong channel, ulong userId) {
-            return _SentMessages.OrderBy(x => x.dateTime).Where(x => x.server == server & x.channel == channel & x.userId == userId).Select(x => x.messageId).FirstOrDefault();
+            return _SentMessages.OrderByDescending(x => x.dateTime).Where(x => x.server == server & x.channel == channel & x.userId == userId).Select(x => x.messageId).FirstOrDefault();
         }
 
         /// <summary>
         /// Get the most recent reply id by user.
         /// </summary>
         public static ulong? MostRecentReply(ulong server, ulong channel, ulong userId) {
-            return _SentMessages.OrderBy(x => x.dateTime).Where(x => x.server == server & x.channel == channel & x.userId == userId).Select(x => x.replyId).FirstOrDefault();
+            return _SentMessages.OrderByDescending(x => x.dateTime).Where(x => x.server == server & x.channel == channel & x.userId == userId).Select(x => x.replyId).FirstOrDefault();
         }
 
     }

@@ -7,7 +7,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
     [Group("whitelist")]
     [RequireOwner]
-    public class WhitelistCommands : ModuleBase<SocketCommandContext> {
+    public class Whitelist : ModuleBase<SocketCommandContext> {
 
         [Command("add")]
         [RequireOwner]

@@ -5,7 +5,7 @@ using HeadNonSub.Extensions;
 
 namespace HeadNonSub.Clients.Discord.Commands {
 
-    public class InsultCommands : ModuleBase<SocketCommandContext> {
+    public class Insult : ModuleBase<SocketCommandContext> {
 
         // https://discordapp.com/developers/docs/resources/channel#embed-limits
 
@@ -27,7 +27,10 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 "Nani the FUCK?"
             };
 
-            return ReplyAsync(responses.PickRandom());
+            ulong reply = ReplyAsync(responses.PickRandom()).Result.Id;
+
+            DiscordMessageTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            return Task.CompletedTask;
         }
 
     }

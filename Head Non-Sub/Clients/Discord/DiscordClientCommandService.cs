@@ -21,22 +21,10 @@ namespace HeadNonSub.Clients.Discord {
             _Services = services;
 
             _Commands.CommandExecuted += CommandExecutedAsync;
-            _DiscordClient.JoinedGuild += JoinedGuild;
-            _DiscordClient.GuildAvailable += GuildAvailable;
             _DiscordClient.MessageReceived += MessageReceivedAsync;
         }
 
         public async Task InitializeAsync() => await _Commands.AddModulesAsync(Assembly.GetEntryAssembly(), _Services);
-
-        private async Task JoinedGuild(SocketGuild arg) {
-            LoggingManager.Log.Info($"Joined guild: {arg.Name} ({arg.Id})");
-
-        }
-
-        private async Task GuildAvailable(SocketGuild arg) {
-            LoggingManager.Log.Info($"Guild {arg.Name} ({arg.Id}) has become available");
-
-        }
 
         private async Task MessageReceivedAsync(SocketMessage rawMessage) {
             if (!(rawMessage is SocketUserMessage message)) { return; }
@@ -60,6 +48,7 @@ namespace HeadNonSub.Clients.Discord {
 
         private async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result) {
             if (!command.IsSpecified) {
+                // Disable message feedback if it was not a real command
                 //await context.Channel.SendMessageAsync($"Invalid command. `@{_DiscordClient.CurrentUser.Username} help` for info and commands.");
                 return;
             }
@@ -73,6 +62,7 @@ namespace HeadNonSub.Clients.Discord {
 
                 switch (result.Error) {
                     default:
+                        // Disable message feedback for errors
                         //await context.Channel.SendMessageAsync($"{context.User.Mention} {result.ErrorReason}");
                         break;
                 }

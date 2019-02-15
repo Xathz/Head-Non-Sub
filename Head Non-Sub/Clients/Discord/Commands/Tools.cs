@@ -1,0 +1,140 @@
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Discord;
+using Discord.Commands;
+using Discord.WebSocket;
+using HeadNonSub.Clients.Discord.Attributes;
+using HeadNonSub.Clients.Discord.Services;
+using HeadNonSub.Extensions;
+
+namespace HeadNonSub.Clients.Discord.Commands {
+
+    public class Tools : ModuleBase<SocketCommandContext> {
+
+        // https://discordapp.com/developers/docs/resources/channel#embed-limits
+
+        [Command("ping")]
+        [RequireContext(ContextType.Guild)]
+        public Task PingAsync() {
+            DateTime now = DateTime.Now.ToUniversalTime();
+
+            ulong reply = ReplyAsync($"{now.Subtract(Context.Message.CreatedAt.DateTime).TotalMilliseconds.ToString("N0")}ms" +
+                $"```Ping: {Context.Message.CreatedAt.DateTime.ToString(Constants.DateTimeFormat)}{Environment.NewLine}Pong: {now.ToString(Constants.DateTimeFormat)}```").Result.Id;
+
+            DiscordMessageTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            return Task.CompletedTask;
+        }
+
+        [Command("random", RunMode = RunMode.Async)]
+        [RequireContext(ContextType.Guild)]
+        public Task RandomAsync([Remainder]string type = "") {
+            SocketGuildUser user = null;
+
+            if (type == "sub") {
+                user = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 428052879371272192 || r.Id == 328732005024137217)).PickRandom();
+
+            } else if (type == "non-sub" || type == "nonsub") {
+                user = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 508752510216044547)).PickRandom();
+
+            } else if (type == "tier3" || type == "t3") {
+                user = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 493641643765792768)).PickRandom();
+
+            } else if (type == "admin") {
+                user = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 372244721625464845)).PickRandom();
+
+            } else if (type == "mod") {
+                user = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 336022934621519874)).PickRandom();
+
+            } else if (type == "5'8\"" || type == "5'8") {
+                user = Context.Guild.Users.Where(x => x.Id == 177657233025400832).FirstOrDefault();
+
+            } else {
+                return ReplyAsync("**Valid roles are:** sub *(includes twitch and patreon roles)*, nonsub, tier3, admin, mod, 5'8\"");
+            }
+
+            // If it is a valid user
+            if (user is SocketGuildUser) {
+                EmbedBuilder builder = new EmbedBuilder() {
+                    Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
+                    Title = $"Picking a random {type}...",
+                    ThumbnailUrl = "https://cdn.discordapp.com/emojis/425366701794656276.gif"
+                };
+
+                //builder.AddField("Criteria", type);
+
+                builder.Footer = new EmbedFooterBuilder() {
+                    Text = $"Random user requested by {Context.User.ToString()}"
+                };
+
+                IUserMessage message = ReplyAsync(embed: builder.Build()).Result;
+
+                Task.Delay(10000).Wait();
+
+                builder.Title = $"{user.Username} ({user.ToString()})";
+                builder.ThumbnailUrl = null;
+                builder.Fields.Clear();
+
+                builder.AddField("Account created", $"{user.CreatedAt.DateTime.ToShortDateString()} {user.CreatedAt.DateTime.ToShortTimeString()}", true);
+
+                if (user.JoinedAt.HasValue) {
+                    builder.AddField("Joined server", $"{user.JoinedAt.Value.DateTime.ToShortDateString()} {user.JoinedAt.Value.DateTime.ToShortTimeString()}", true);
+                }
+
+                builder.AddField("Congratulations", $"{user.Mention}");
+
+                message.ModifyAsync(x => { x.Embed = builder.Build(); }).Wait();
+
+                DiscordMessageTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, message.Id);
+            } else {
+                ReplyAsync("Failed to select a random user.");
+            }
+
+            return Task.CompletedTask;
+        }
+
+        [Command("undo")]
+        [RequireContext(ContextType.Guild)]
+        public Task UndoAsync() {
+            ulong? reply = DiscordMessageTracker.MostRecentReply(Context.Guild.Id, Context.Channel.Id, Context.User.Id);
+            ulong? message = DiscordMessageTracker.MostRecentMessage(Context.Guild.Id, Context.Channel.Id, Context.User.Id);
+
+            Context.Message.DeleteAsync().Wait();
+
+            if (reply.HasValue) {
+                Context.Channel.DeleteMessageAsync(reply.Value);
+                DiscordMessageTracker.Untrack(reply.Value);
+            }
+
+            if (message.HasValue) {
+                Context.Channel.DeleteMessageAsync(message.Value);
+                DiscordMessageTracker.Untrack(message.Value);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        [Command("servermap", RunMode = RunMode.Async)]
+        [AdministratorOrWhitelistedUser]
+        [RequireContext(ContextType.Guild)]
+        public Task ServerMapAsync() {
+            ulong reply;
+
+            try {
+                ServerMap map = new ServerMap(Context);
+                string jsonFile = map.Generate();
+
+                Context.User.SendFileAsync(jsonFile, $"{Context.Guild.Name} (`{Context.Guild.Id}`): Server Map");
+                reply = ReplyAsync($"{Context.User.Mention} the server map was sent to you privately. The message may be blocked if you reject direct messages.").Result.Id;
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                reply = ReplyAsync(ex.Message).Result.Id;
+            }
+
+            DiscordMessageTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            return Task.CompletedTask;
+        }
+
+    }
+
+}

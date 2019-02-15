@@ -76,6 +76,11 @@ namespace HeadNonSub {
         public static string TemporaryDirectory => Path.Combine(WorkingDirectory, "Temp");
 
         /// <summary>
+        /// Content files for the application.
+        /// </summary>
+        public static string ContentDirectory => Path.Combine(WorkingDirectory, "Content");
+
+        /// <summary>
         /// Settings file location.
         /// </summary>
         public static string SettingsFile => Path.Combine(WorkingDirectory, $"{ExecutableName}.settings");
