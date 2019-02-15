@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RootNamespace>HeadNonSub</RootNamespace>
+    <StartupObject>HeadNonSub.Program</StartupObject>
+    <Authors>Xathz</Authors>
+    <Description>Non-subs are the worst, they come in here and act like they own the place. At least I am the head of them all.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Discord.Net" Version="2.0.1" />
+  </ItemGroup>
+
+</Project>
