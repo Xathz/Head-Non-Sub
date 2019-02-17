@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 
@@ -16,7 +17,19 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 Title = $"{Context.Client.CurrentUser.Username} Information and Commands"
             };
 
-            builder.AddField("Am I a real non-sub?", ":eyes:");
+            builder.AddField("Information", "Some commands are hidden :eyes:");
+
+            builder.AddField("Commands", string.Join(Environment.NewLine,
+                                        $"`!gimme` {Constants.DoubleSpace} U get thing.",
+                                        $"`!rnk` {Constants.DoubleSpace} See your rank. People love ranks.",
+                                        $"`@{Context.Guild.CurrentUser.Username} you suck` {Constants.DoubleSpace} :(",
+                                        $"`@{Context.Guild.CurrentUser.Username} yum` {Constants.DoubleSpace} Mmmm tasty!",
+                                        $"`@{Context.Guild.CurrentUser.Username} what` {Constants.DoubleSpace} tt confuse?",
+                                        $"`@{Context.Guild.CurrentUser.Username} you fucked up` {Constants.DoubleSpace} Definitely not getting the deposit back.",
+                                        $"`@{Context.Guild.CurrentUser.Username} random <role>` {Constants.DoubleSpace} Select a random user based on role.",
+                                        $"`@{Context.Guild.CurrentUser.Username} undo` {Constants.DoubleSpace} Undo your and the bots recent message.",
+                                        $"`oof oof` {Constants.DoubleSpace} oof.",
+                                        $"`oof floof` {Constants.DoubleSpace} Awww."));
 
             builder.Footer = new EmbedFooterBuilder() {
                 Text = $"{Constants.ApplicationName} by {Constants.Creator}"

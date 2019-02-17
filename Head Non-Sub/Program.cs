@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using HeadNonSub.Clients.Discord;
+using HeadNonSub.Clients.Twitch;
 using HeadNonSub.Settings;
 
 namespace HeadNonSub {
@@ -39,6 +40,9 @@ namespace HeadNonSub {
 
             // Connect to discord
             await DiscordClient.ConnectAsync();
+
+            // Connect to twitch
+            //TwitchClient.Connect();
 
             // Block and wait
             await UserInputAsync();

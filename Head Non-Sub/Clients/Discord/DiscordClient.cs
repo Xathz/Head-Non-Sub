@@ -14,6 +14,8 @@ namespace HeadNonSub.Clients.Discord {
         private static DiscordSocketClient _DiscordClient;
 
         private static IServiceProvider _Services;
+        private static IServiceProvider _Services_Oof;
+        private static IServiceProvider _Services_Exclamation;
 
         public static async Task ConnectAsync() {
             _DiscordConfig = new DiscordSocketConfig {
@@ -28,6 +30,16 @@ namespace HeadNonSub.Clients.Discord {
                 .AddSingleton<DiscordClientCommandService>()
                 .BuildServiceProvider();
 
+            _Services_Oof = new ServiceCollection().AddSingleton(_DiscordClient)
+                .AddSingleton<CommandService>()
+                .AddSingleton<DiscordClientCommandService_Oof>()
+                .BuildServiceProvider();
+
+            _Services_Exclamation = new ServiceCollection().AddSingleton(_DiscordClient)
+                .AddSingleton<CommandService>()
+                .AddSingleton<DiscordClientCommandService_Exclamation>()
+                .BuildServiceProvider();
+
             _DiscordClient.Log += Log;
             _DiscordClient.Connected += Connected;
             _DiscordClient.GuildAvailable += GuildAvailable;
@@ -38,7 +50,12 @@ namespace HeadNonSub.Clients.Discord {
             await _DiscordClient.StartAsync();
 
             _Services.GetRequiredService<CommandService>().Log += Log;
+            _Services_Oof.GetRequiredService<CommandService>().Log += Log;
+            _Services_Exclamation.GetRequiredService<CommandService>().Log += Log;
+
             await _Services.GetRequiredService<DiscordClientCommandService>().InitializeAsync();
+            await _Services_Oof.GetRequiredService<DiscordClientCommandService_Oof>().InitializeAsync();
+            await _Services_Exclamation.GetRequiredService<DiscordClientCommandService_Exclamation>().InitializeAsync();
         }
 
         public static async Task StopAsync() => await _DiscordClient.StopAsync();
@@ -105,7 +122,7 @@ namespace HeadNonSub.Clients.Discord {
             LoggingManager.Log.Info($"Guild {arg.Name} ({arg.Id}) has become available");
 
             try {
-                arg.DownloadUsersAsync();
+                _ = arg.DownloadUsersAsync();
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
