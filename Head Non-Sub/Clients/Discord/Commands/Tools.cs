@@ -22,7 +22,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             ulong reply = ReplyAsync($"{now.Subtract(Context.Message.CreatedAt.DateTime).TotalMilliseconds.ToString("N0")}ms" +
                 $"```Ping: {Context.Message.CreatedAt.DateTime.ToString(Constants.DateTimeFormat)}{Environment.NewLine}Pong: {now.ToString(Constants.DateTimeFormat)}```").Result.Id;
 
-            DiscordMessageTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             return Task.CompletedTask;
         }
 
@@ -85,7 +85,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
                 message.ModifyAsync(x => { x.Embed = builder.Build(); }).Wait();
 
-                DiscordMessageTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, message.Id);
+                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, message.Id);
             } else {
                 ReplyAsync("Failed to select a random user.");
             }
@@ -96,19 +96,19 @@ namespace HeadNonSub.Clients.Discord.Commands {
         [Command("undo")]
         [RequireContext(ContextType.Guild)]
         public Task UndoAsync() {
-            ulong? reply = DiscordMessageTracker.MostRecentReply(Context.Guild.Id, Context.Channel.Id, Context.User.Id);
-            ulong? message = DiscordMessageTracker.MostRecentMessage(Context.Guild.Id, Context.Channel.Id, Context.User.Id);
+            ulong? reply = UndoTracker.MostRecentReply(Context.Guild.Id, Context.Channel.Id, Context.User.Id);
+            ulong? message = UndoTracker.MostRecentMessage(Context.Guild.Id, Context.Channel.Id, Context.User.Id);
 
             Context.Message.DeleteAsync().Wait();
 
             if (reply.HasValue) {
                 Context.Channel.DeleteMessageAsync(reply.Value);
-                DiscordMessageTracker.Untrack(reply.Value);
+                UndoTracker.Untrack(reply.Value);
             }
 
             if (message.HasValue) {
                 Context.Channel.DeleteMessageAsync(message.Value);
-                DiscordMessageTracker.Untrack(message.Value);
+                UndoTracker.Untrack(message.Value);
             }
 
             return Task.CompletedTask;
@@ -131,7 +131,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 reply = ReplyAsync(ex.Message).Result.Id;
             }
 
-            DiscordMessageTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             return Task.CompletedTask;
         }
 

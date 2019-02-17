@@ -13,7 +13,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         public Task OofAsync() {
             ulong reply = ReplyAsync("oof").Result.Id;
 
-            DiscordMessageTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             return Task.CompletedTask;
         }
 
@@ -23,7 +23,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         public Task YumAsync() {
             ulong reply = Context.Message.Channel.SendFileAsync(Path.Combine(Constants.ContentDirectory, "floof.gif")).Result.Id;
 
-            DiscordMessageTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             return Task.CompletedTask;
         }
 

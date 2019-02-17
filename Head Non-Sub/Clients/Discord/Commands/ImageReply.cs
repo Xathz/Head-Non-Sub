@@ -13,7 +13,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         public Task FuckedUpAsync() {
             ulong reply = Context.Message.Channel.SendFileAsync(Path.Combine(Constants.ContentDirectory, "fucked_up.png")).Result.Id;
 
-            DiscordMessageTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             return Task.CompletedTask;
         }
 
@@ -22,7 +22,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         public Task YumAsync() {
             ulong reply = Context.Message.Channel.SendFileAsync(Path.Combine(Constants.ContentDirectory, "yum.png")).Result.Id;
 
-            DiscordMessageTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             return Task.CompletedTask;
         }
 
@@ -32,7 +32,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         public Task WhatAsync() {
             ulong reply = Context.Message.Channel.SendFileAsync(Path.Combine(Constants.ContentDirectory, "what.png")).Result.Id;
 
-            DiscordMessageTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             return Task.CompletedTask;
         }
 

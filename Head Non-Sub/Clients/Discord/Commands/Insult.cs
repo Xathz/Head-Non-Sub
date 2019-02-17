@@ -29,7 +29,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
             ulong reply = ReplyAsync(responses.PickRandom()).Result.Id;
 
-            DiscordMessageTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             return Task.CompletedTask;
         }
 

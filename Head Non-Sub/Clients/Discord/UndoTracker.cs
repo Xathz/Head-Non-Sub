@@ -4,7 +4,7 @@ using System;
 
 namespace HeadNonSub.Clients.Discord {
 
-    public static class DiscordMessageTracker {
+    public static class UndoTracker {
 
         private static List<(DateTime dateTime, ulong server, ulong channel, ulong userId, ulong messageId, ulong replyId)> _SentMessages = 
                     new List<(DateTime dateTime, ulong server, ulong channel, ulong userId, ulong messageId, ulong replyId)>();

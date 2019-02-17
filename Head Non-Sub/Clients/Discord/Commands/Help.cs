@@ -22,6 +22,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             builder.AddField("Commands", string.Join(Environment.NewLine,
                                         $"`!gimme` {Constants.DoubleSpace} U get thing.",
                                         $"`!rnk` {Constants.DoubleSpace} See your rank. People love ranks.",
+                                        $"`!rave <whatever>` {Constants.DoubleSpace} :crab:",
                                         $"`@{Context.Guild.CurrentUser.Username} you suck` {Constants.DoubleSpace} :(",
                                         $"`@{Context.Guild.CurrentUser.Username} yum` {Constants.DoubleSpace} Mmmm tasty!",
                                         $"`@{Context.Guild.CurrentUser.Username} what` {Constants.DoubleSpace} tt confuse?",
@@ -37,7 +38,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
             ulong reply = ReplyAsync(embed: builder.Build()).Result.Id;
 
-            DiscordMessageTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             return Task.CompletedTask;
         }
 
