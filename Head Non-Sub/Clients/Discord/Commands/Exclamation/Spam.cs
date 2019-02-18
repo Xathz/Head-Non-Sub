@@ -11,21 +11,28 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("rave", RunMode = RunMode.Async)]
         [RequireContext(ContextType.Guild)]
-        [Cooldown(120)]
+        [Cooldown(300)]
         public Task GimmeAsync([Remainder]string input) {
             string[] messages = input.Split(' ');
 
-            // Only work if in 'bot-commands' or 'actual-fucking-spam'
-            if (Context.Channel.Id == 462517221789532170 || Context.Channel.Id == 537727672747294738) {
-
-                foreach (string message in messages) {
-                    ReplyAsync($":crab: {message} :crab:").Wait();
-
-                    Task.Delay(1250).Wait();
+            // Wubby's Fun House
+            if (Context.Guild.Id == 328300333010911242) {
+                // 'bot-commands' or 'actual-fucking-spam'
+                if (Context.Channel.Id != 462517221789532170 || Context.Channel.Id != 537727672747294738) {
+                    return ReplyAsync($"`!rave` is only usable in <#462517221789532170> or <#537727672747294738>.");
                 }
+            }
 
-            } else {
-                ReplyAsync($"`!rave` is only usable in <#462517221789532170> or <#537727672747294738>.");
+            // Cam’s pocket
+            if (Context.Guild.Id == 528475747334225925) {
+                // 'shitposting-cause-xathz'
+                if (Context.Channel.Id != 546863784157904896) { return ReplyAsync($"`!rave` is only usable in <#546863784157904896>."); }
+            }
+
+            foreach (string message in messages) {
+                ReplyAsync($":crab: {message} :crab:").Wait();
+
+                Task.Delay(1250).Wait();
             }
 
             return Task.CompletedTask;
@@ -43,6 +50,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("rnk")]
         [RequireContext(ContextType.Guild)]
+        [Cooldown(3600, true)]
         public Task RnkAsync() {
             ulong reply = Context.Message.Channel.SendFileAsync(Path.Combine(Constants.ContentDirectory, "rnk.png")).Result.Id;
 
