@@ -24,7 +24,7 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         public async Task InitializeAsync() {
-            await _Commands.AddModuleAsync<Commands.Oof>(_Services);
+            await _Commands.AddModuleAsync<Commands.Oof.OofReply>(_Services);
         }
 
         private async Task MessageReceivedAsync(SocketMessage rawMessage) {

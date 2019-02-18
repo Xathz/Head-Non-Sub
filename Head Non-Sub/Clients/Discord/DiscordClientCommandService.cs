@@ -28,10 +28,8 @@ namespace HeadNonSub.Clients.Discord {
         //public async Task InitializeAsync() => await _Commands.AddModulesAsync(Assembly.GetEntryAssembly(), _Services);
 
         public async Task InitializeAsync() {
-            await _Commands.AddModuleAsync<Commands.Fake>(_Services);
+            await _Commands.AddModuleAsync<Commands.FakeChat>(_Services);
             await _Commands.AddModuleAsync<Commands.Help>(_Services);
-            await _Commands.AddModuleAsync<Commands.ImageReply>(_Services);
-            await _Commands.AddModuleAsync<Commands.Insult>(_Services);
             await _Commands.AddModuleAsync<Commands.Tools>(_Services);
             await _Commands.AddModuleAsync<Commands.Whitelist>(_Services);
         } 

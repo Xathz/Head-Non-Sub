@@ -2,11 +2,11 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 
-namespace HeadNonSub.Clients.Discord.Commands {
+namespace HeadNonSub.Clients.Discord.Commands.Oof {
 
     // https://discordapp.com/developers/docs/resources/channel#embed-limits
 
-    public class Oof : ModuleBase<SocketCommandContext> {
+    public class OofReply : ModuleBase<SocketCommandContext> {
 
         [Command("oof")]
         [RequireContext(ContextType.Guild)]

@@ -20,15 +20,14 @@ namespace HeadNonSub.Clients.Discord.Commands {
             builder.AddField("Information", "Some commands are hidden :eyes:");
 
             builder.AddField("Commands", string.Join(Environment.NewLine,
-                                        $"`!gimme` {Constants.DoubleSpace} U get thing.",
-                                        $"`!rnk` {Constants.DoubleSpace} See your rank. People love ranks.",
-                                        $"`!rave <whatever>` {Constants.DoubleSpace} :crab:",
-                                        $"`@{Context.Guild.CurrentUser.Username} you suck` {Constants.DoubleSpace} :(",
-                                        $"`@{Context.Guild.CurrentUser.Username} yum` {Constants.DoubleSpace} Mmmm tasty!",
-                                        $"`@{Context.Guild.CurrentUser.Username} what` {Constants.DoubleSpace} tt confuse?",
-                                        $"`@{Context.Guild.CurrentUser.Username} you fucked up` {Constants.DoubleSpace} Definitely not getting the deposit back.",
-                                        $"`@{Context.Guild.CurrentUser.Username} random <role>` {Constants.DoubleSpace} Select a random user based on role.",
-                                        $"`@{Context.Guild.CurrentUser.Username} undo` {Constants.DoubleSpace} Undo your and the bots recent message.",
+                                        $"`!yum` {Constants.DoubleSpace} Mmmm tasty",
+                                        $"`!gimme` {Constants.DoubleSpace} U get thing",
+                                        $"`!what` {Constants.DoubleSpace} tt confuse",
+                                        $"`!moneyshot` {Constants.DoubleSpace} what she sees",
+                                        $"`!fuckedup` {Constants.DoubleSpace} Definitely not getting the deposit back",
+                                        $"`!rnk` {Constants.DoubleSpace} See your rank. People love ranks",
+                                        $"`@{Context.Guild.CurrentUser.Username} random <role>` {Constants.DoubleSpace} Select a random user based on role",
+                                        $"`@{Context.Guild.CurrentUser.Username} undo` {Constants.DoubleSpace} Undo your and the bots recent message",
                                         $"`oof oof` {Constants.DoubleSpace} oof.",
                                         $"`oof floof` {Constants.DoubleSpace} Awww."));
 
