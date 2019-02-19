@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -9,13 +8,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HeadNonSub.Clients.Discord {
 
-    public class DiscordClientCommandService {
+    public class CommandService_Oof {
 
         private readonly CommandService _Commands;
         private readonly DiscordSocketClient _DiscordClient;
         private readonly IServiceProvider _Services;
 
-        public DiscordClientCommandService(IServiceProvider services) {
+        public CommandService_Oof(IServiceProvider services) {
             _Commands = services.GetRequiredService<CommandService>();
             _DiscordClient = services.GetRequiredService<DiscordSocketClient>();
             _Services = services;
@@ -24,22 +23,16 @@ namespace HeadNonSub.Clients.Discord {
             _DiscordClient.MessageReceived += MessageReceivedAsync;
         }
 
-        // Add all
-        //public async Task InitializeAsync() => await _Commands.AddModulesAsync(Assembly.GetEntryAssembly(), _Services);
-
         public async Task InitializeAsync() {
-            await _Commands.AddModuleAsync<Commands.FakeChat>(_Services);
-            await _Commands.AddModuleAsync<Commands.Help>(_Services);
-            await _Commands.AddModuleAsync<Commands.Tools>(_Services);
-            await _Commands.AddModuleAsync<Commands.Whitelist>(_Services);
-        } 
+            await _Commands.AddModuleAsync<Commands.Oof.OofReply>(_Services);
+        }
 
         private async Task MessageReceivedAsync(SocketMessage rawMessage) {
             if (!(rawMessage is SocketUserMessage message)) { return; }
             if (message.Source != MessageSource.User) { return; }
 
             int argPos = 0;
-            if (!message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos)) { return; }
+            if (!message.HasStringPrefix("oof ", ref argPos, StringComparison.OrdinalIgnoreCase)) { return; }
 
             SocketCommandContext context = new SocketCommandContext(_DiscordClient, message);
 

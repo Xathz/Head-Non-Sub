@@ -8,13 +8,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HeadNonSub.Clients.Discord {
 
-    public class DiscordClientCommandService_Exclamation {
+    public class CommandService_Exclamation {
 
         private readonly CommandService _Commands;
         private readonly DiscordSocketClient _DiscordClient;
         private readonly IServiceProvider _Services;
 
-        public DiscordClientCommandService_Exclamation(IServiceProvider services) {
+        public CommandService_Exclamation(IServiceProvider services) {
             _Commands = services.GetRequiredService<CommandService>();
             _DiscordClient = services.GetRequiredService<DiscordSocketClient>();
             _Services = services;
@@ -25,6 +25,7 @@ namespace HeadNonSub.Clients.Discord {
 
         public async Task InitializeAsync() {
             await _Commands.AddModuleAsync<Commands.Exclamation.Fake>(_Services);
+            // TODO await _Commands.AddModuleAsync<Commands.Exclamation.Poll>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Spam>(_Services);
         }
 

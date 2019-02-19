@@ -8,13 +8,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HeadNonSub.Clients.Discord {
 
-    public class DiscordClientCommandService_Oof {
+    public class CommandService_Mention {
 
         private readonly CommandService _Commands;
         private readonly DiscordSocketClient _DiscordClient;
         private readonly IServiceProvider _Services;
 
-        public DiscordClientCommandService_Oof(IServiceProvider services) {
+        public CommandService_Mention(IServiceProvider services) {
             _Commands = services.GetRequiredService<CommandService>();
             _DiscordClient = services.GetRequiredService<DiscordSocketClient>();
             _Services = services;
@@ -24,7 +24,10 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         public async Task InitializeAsync() {
-            await _Commands.AddModuleAsync<Commands.Oof.OofReply>(_Services);
+            await _Commands.AddModuleAsync<Commands.FakeChat>(_Services);
+            await _Commands.AddModuleAsync<Commands.Help>(_Services);
+            await _Commands.AddModuleAsync<Commands.Tools>(_Services);
+            await _Commands.AddModuleAsync<Commands.Whitelist>(_Services);
         }
 
         private async Task MessageReceivedAsync(SocketMessage rawMessage) {
@@ -32,7 +35,7 @@ namespace HeadNonSub.Clients.Discord {
             if (message.Source != MessageSource.User) { return; }
 
             int argPos = 0;
-            if (!message.HasStringPrefix("oof ", ref argPos, StringComparison.OrdinalIgnoreCase)) { return; }
+            if (!message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos)) { return; }
 
             SocketCommandContext context = new SocketCommandContext(_DiscordClient, message);
 
