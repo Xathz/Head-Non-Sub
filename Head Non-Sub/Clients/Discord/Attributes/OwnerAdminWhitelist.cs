@@ -25,7 +25,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
                 }
 
                 // Whitelist
-                if (SettingsManager.Configuration.DiscordWhitelist.Any(x => x.Key == context.Guild.Id && x.Value.Contains(user.Id))) {
+                if (SettingsManager.Configuration.DiscordWhitelist.Any(x => x.Key == context.Guild.Id & x.Value.Contains(user.Id))) {
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
                 
