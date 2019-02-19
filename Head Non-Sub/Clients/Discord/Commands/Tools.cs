@@ -26,6 +26,19 @@ namespace HeadNonSub.Clients.Discord.Commands {
             return Task.CompletedTask;
         }
 
+        [Command("failfast", RunMode = RunMode.Async)]
+        [OwnerAdminXathz]
+        [RequireContext(ContextType.Guild)]      
+        public Task FailFastAsync() {
+            ReplyAsync("Forcibly disconnecting from Discord, please tell <@!227088829079617536> as soon as possible. Good bye.").Wait();
+
+            LoggingManager.Log.Fatal($"Forcibly disconnected from Discord. Server: {Context.Guild.Name} ({Context.Guild.Id}); Channel: {Context.Channel.Name} ({Context.Channel.Id}); User: {Context.User.Username} ({Context.User.Id})");
+
+            _ = DiscordClient.StopAsync();
+
+            return Task.CompletedTask;
+        }
+
         [Command("random", RunMode = RunMode.Async)]
         [RequireContext(ContextType.Guild)]
         public Task RandomAsync([Remainder]string type = "") {
@@ -115,7 +128,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         }
 
         [Command("servermap", RunMode = RunMode.Async)]
-        [AdministratorOrWhitelistedUser]
+        [OwnerAdminXathz]
         [RequireContext(ContextType.Guild)]
         public Task ServerMapAsync() {
             ulong reply;
