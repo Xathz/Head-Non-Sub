@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
@@ -12,21 +13,25 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("rave", RunMode = RunMode.Async)]
         [RequireContext(ContextType.Guild)]
         [Cooldown(300)]
-        public Task GimmeAsync([Remainder]string input) {
+        public Task RaveAsync([Remainder]string input) {
             string[] messages = input.Split(' ');
 
             // Wubby's Fun House
             if (Context.Guild.Id == 328300333010911242) {
                 // 'bot-commands' or 'actual-fucking-spam'
-                if (Context.Channel.Id != 462517221789532170 || Context.Channel.Id != 537727672747294738) {
-                    return ReplyAsync($"`!rave` is only usable in <#462517221789532170> or <#537727672747294738>.");
+                if (!(Context.Channel.Id == 462517221789532170 || Context.Channel.Id == 537727672747294738)) {
+                    ReplyAsync($"`!rave` is only usable in <#462517221789532170> or <#537727672747294738>.");
+                    return Task.FromException(new UnauthorizedAccessException("Not a valid channel for command."));
                 }
             }
 
             // Cam’s pocket
             if (Context.Guild.Id == 528475747334225925) {
                 // 'shitposting-cause-xathz'
-                if (Context.Channel.Id != 546863784157904896) { return ReplyAsync($"`!rave` is only usable in <#546863784157904896>."); }
+                if (Context.Channel.Id != 546863784157904896) {
+                    ReplyAsync($"`!rave` is only usable in <#546863784157904896>.");
+                    return Task.FromException(new UnauthorizedAccessException("Not a valid channel for command."));
+                }
             }
 
             foreach (string message in messages) {
