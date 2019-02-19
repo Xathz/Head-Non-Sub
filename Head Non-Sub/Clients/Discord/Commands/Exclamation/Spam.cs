@@ -10,17 +10,17 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
     public class Spam : ModuleBase<SocketCommandContext> {
 
-        [Command("rave", RunMode = RunMode.Async)]
+        [Command("rave")]
         [RequireContext(ContextType.Guild)]
-        [Cooldown(300)]
+        [Cooldown(1800)]
         public Task RaveAsync([Remainder]string input) {
             string[] messages = input.Split(' ');
 
             // Wubby's Fun House
             if (Context.Guild.Id == 328300333010911242) {
-                // 'bot-commands' or 'actual-fucking-spam'
-                if (!(Context.Channel.Id == 462517221789532170 || Context.Channel.Id == 537727672747294738)) {
-                    ReplyAsync($"`!rave` is only usable in <#462517221789532170> or <#537727672747294738>.");
+                // 'actual-fucking-spam'
+                if (!(Context.Channel.Id == 537727672747294738)) {
+                    ReplyAsync($"`!rave` is only usable in <#537727672747294738>.");
                     return Task.FromException(new UnauthorizedAccessException("Not a valid channel for command."));
                 }
             }
@@ -45,7 +45,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("gimme")]
         [RequireContext(ContextType.Guild)]
-        [Cooldown(10)]
+        [Cooldown(20)]
         public Task GimmeAsync() {
             ulong reply = ReplyAsync("<:wubbydrugs:361993520040640516>").Result.Id;
 
@@ -65,7 +65,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("moneyshot")]
         [RequireContext(ContextType.Guild)]
-        [Cooldown(10)]
+        [Cooldown(20)]
         public Task MoneyShotAsync() {
             ulong reply = Context.Message.Channel.SendFileAsync(Path.Combine(Constants.ContentDirectory, "moneyshot.png")).Result.Id;
 
@@ -75,7 +75,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("yum")]
         [RequireContext(ContextType.Guild)]
-        [Cooldown(10)]
+        [Cooldown(20)]
         public Task YumAsync() {
             ulong reply = Context.Message.Channel.SendFileAsync(Path.Combine(Constants.ContentDirectory, "yum.png")).Result.Id;
 
@@ -86,7 +86,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("fuckedup")]
         [Alias("ripdeposit")]
         [RequireContext(ContextType.Guild)]
-        [Cooldown(10)]
+        [Cooldown(20)]
         public Task FuckedUpAsync() {
             ulong reply = Context.Message.Channel.SendFileAsync(Path.Combine(Constants.ContentDirectory, "fucked_up.png")).Result.Id;
 
@@ -96,7 +96,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("what")]
         [RequireContext(ContextType.Guild)]
-        [Cooldown(10)]
+        [Cooldown(20)]
         public Task WhatAsync() {
             ulong reply = Context.Message.Channel.SendFileAsync(Path.Combine(Constants.ContentDirectory, "what.png")).Result.Id;
 

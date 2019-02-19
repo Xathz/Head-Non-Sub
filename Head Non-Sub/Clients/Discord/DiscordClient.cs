@@ -14,31 +14,40 @@ namespace HeadNonSub.Clients.Discord {
         private static DiscordSocketClient _DiscordClient;
 
         private static IServiceProvider _Services;
-        private static IServiceProvider _Services_Oof;
         private static IServiceProvider _Services_Exclamation;
+        private static IServiceProvider _Services_Oof;
 
         public static async Task ConnectAsync() {
             _DiscordConfig = new DiscordSocketConfig {
-                MessageCacheSize = 200,
                 DefaultRetryMode = RetryMode.RetryRatelimit,
+                MessageCacheSize = 200,
                 LogLevel = LogSeverity.Info
             };
 
             _DiscordClient = new DiscordSocketClient(_DiscordConfig);
 
             _Services = new ServiceCollection().AddSingleton(_DiscordClient)
-                .AddSingleton<CommandService>()
-                .AddSingleton<DiscordClientCommandService>()
-                .BuildServiceProvider();
-
-            _Services_Oof = new ServiceCollection().AddSingleton(_DiscordClient)
-                .AddSingleton<CommandService>()
-                .AddSingleton<DiscordClientCommandService_Oof>()
+                .AddSingleton(new CommandService(new CommandServiceConfig() {
+                    DefaultRunMode = RunMode.Async,
+                    LogLevel = LogSeverity.Info
+                }))
+                .AddSingleton<CommandService_Mention>()
                 .BuildServiceProvider();
 
             _Services_Exclamation = new ServiceCollection().AddSingleton(_DiscordClient)
-                .AddSingleton<CommandService>()
-                .AddSingleton<DiscordClientCommandService_Exclamation>()
+                .AddSingleton(new CommandService(new CommandServiceConfig() {
+                    DefaultRunMode = RunMode.Async,
+                    LogLevel = LogSeverity.Info
+                }))
+                .AddSingleton<CommandService_Exclamation>()
+                .BuildServiceProvider();
+
+            _Services_Oof = new ServiceCollection().AddSingleton(_DiscordClient)
+                .AddSingleton(new CommandService(new CommandServiceConfig() {
+                    DefaultRunMode = RunMode.Async,
+                    LogLevel = LogSeverity.Info
+                }))
+                .AddSingleton<CommandService_Oof>()
                 .BuildServiceProvider();
 
             _DiscordClient.Log += Log;
@@ -47,19 +56,24 @@ namespace HeadNonSub.Clients.Discord {
             _DiscordClient.GuildMembersDownloaded += GuildMembersDownloaded;
             _DiscordClient.MessageReceived += MessageReceived;
 
+            _Services.GetRequiredService<CommandService>().Log += Log;
+            _Services_Exclamation.GetRequiredService<CommandService>().Log += Log;
+            _Services_Oof.GetRequiredService<CommandService>().Log += Log;
+
+            await _Services.GetRequiredService<CommandService_Mention>().InitializeAsync();
+            await _Services_Exclamation.GetRequiredService<CommandService_Exclamation>().InitializeAsync();
+            await _Services_Oof.GetRequiredService<CommandService_Oof>().InitializeAsync();
+
             await _DiscordClient.LoginAsync(TokenType.Bot, SettingsManager.Configuration.DiscordToken);
             await _DiscordClient.StartAsync();
-
-            _Services.GetRequiredService<CommandService>().Log += Log;
-            _Services_Oof.GetRequiredService<CommandService>().Log += Log;
-            _Services_Exclamation.GetRequiredService<CommandService>().Log += Log;
-
-            await _Services.GetRequiredService<DiscordClientCommandService>().InitializeAsync();
-            await _Services_Oof.GetRequiredService<DiscordClientCommandService_Oof>().InitializeAsync();
-            await _Services_Exclamation.GetRequiredService<DiscordClientCommandService_Exclamation>().InitializeAsync();
         }
 
         public static async Task StopAsync() => await _DiscordClient.StopAsync();
+
+        public static void FailFast() {
+            _ = _DiscordClient.LogoutAsync();
+            Environment.Exit(13);
+        }
 
         public static async Task<ulong?> SendMessageToChannelAsync(ulong channelId, string message) {
             try {

@@ -26,7 +26,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             return Task.CompletedTask;
         }
 
-        [Command("executie", RunMode = RunMode.Async)]
+        [Command("executie")]
         [RequireContext(ContextType.Guild)]
         [Cooldown(120)]
         public Task ExecuteAsync(SocketUser user = null, [Remainder]string reason = "") {

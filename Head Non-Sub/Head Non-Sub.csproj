@@ -9,6 +9,10 @@
     <Description>Non-subs are the worst, they come in here and act like they own the place. At least I am the head of them all.</Description>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
