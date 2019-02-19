@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
+using Discord.WebSocket;
+using HeadNonSub.Settings;
 
 namespace HeadNonSub.Clients.Discord.Attributes {
 
@@ -18,6 +21,19 @@ namespace HeadNonSub.Clients.Discord.Attributes {
         }
 
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services) {
+            if (context.User is SocketGuildUser user) {
+
+                // If the user is an admin bypass cooldown
+                if (user.Roles.Any(x => x.Permissions.Administrator)) {
+                    return Task.FromResult(PreconditionResult.FromSuccess());
+                }
+
+                // If the user is whitelisted bypass the cooldown
+                if (SettingsManager.Configuration.DiscordWhitelist.Any(x => x.Key == context.Guild.Id && x.Value.Contains(user.Id))) {
+                    return Task.FromResult(PreconditionResult.FromSuccess());
+                }
+            }
+
             (bool isAllowed, int secondsRemaining) = CooldownTracker.IsAllowed(context.Guild.Id, context.User.Id, command.Name, _CooldownSeconds, _CooldownPerUser);
 
             if (isAllowed) {

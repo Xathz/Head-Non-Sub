@@ -25,10 +25,10 @@ namespace HeadNonSub.Settings {
         public bool DeleteInvokingMessage { get; set; } = false;
 
         /// <summary>
-        /// List of users (user id's) to act as admins with commands.
+        /// List of users (user id's) to act as admins with commands. Key = server id; Value = hashset of user ids.
         /// </summary>
-        public HashSet<ulong> DiscordWhitelist { get; set; } = new HashSet<ulong>();
-
+        public Dictionary<ulong, HashSet<ulong>> DiscordWhitelist { get; set; } = new Dictionary<ulong, HashSet<ulong>>();
+        
     }
 
 }
