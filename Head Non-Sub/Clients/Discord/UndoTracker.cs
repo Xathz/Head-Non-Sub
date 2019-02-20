@@ -28,23 +28,19 @@ namespace HeadNonSub.Clients.Discord {
         /// <summary>
         /// Untrack a message by a message id or reply id.
         /// </summary>
-        public static void Untrack(ulong id) {
-            _SentMessages.RemoveAll(x => x.replyId == id || x.messageId == id);
-        }
+        public static void Untrack(ulong id) => _SentMessages.RemoveAll(x => x.replyId == id || x.messageId == id);
 
         /// <summary>
         /// Get the most recent message id by user.
         /// </summary>
-        public static ulong? MostRecentMessage(ulong server, ulong channel, ulong userId) {
-            return _SentMessages.OrderByDescending(x => x.dateTime).Where(x => x.server == server & x.channel == channel & x.userId == userId).Select(x => x.messageId).FirstOrDefault();
-        }
+        public static ulong? MostRecentMessage(ulong server, ulong channel, ulong userId) =>
+            _SentMessages.OrderByDescending(x => x.dateTime).Where(x => x.server == server & x.channel == channel & x.userId == userId).Select(x => x.messageId).FirstOrDefault();
 
         /// <summary>
         /// Get the most recent reply id by user.
         /// </summary>
-        public static ulong? MostRecentReply(ulong server, ulong channel, ulong userId) {
-            return _SentMessages.OrderByDescending(x => x.dateTime).Where(x => x.server == server & x.channel == channel & x.userId == userId).Select(x => x.replyId).FirstOrDefault();
-        }
+        public static ulong? MostRecentReply(ulong server, ulong channel, ulong userId) =>
+            _SentMessages.OrderByDescending(x => x.dateTime).Where(x => x.server == server & x.channel == channel & x.userId == userId).Select(x => x.replyId).FirstOrDefault();
 
     }
 

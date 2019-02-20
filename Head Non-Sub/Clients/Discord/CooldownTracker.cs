@@ -18,6 +18,11 @@ namespace HeadNonSub.Clients.Discord {
             if (!_AttemptedCommands.Any(x => x.server == server & x.userId == userId & x.command == command)) {
                 _AttemptedCommands.Add((DateTimeOffset.Now, server, userId, command));
             }
+
+            // Remove oldest
+            if (_AttemptedCommands.Count > 1000) {
+                _AttemptedCommands.RemoveAt(0);
+            }
         }
 
         /// <summary>
