@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
@@ -14,7 +18,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [RequireContext(ContextType.Guild)]
         [Cooldown(1800)]
         public Task RaveAsync([Remainder]string input) {
-            string[] messages = input.Split(' ');
 
             // Wubby's Fun House
             if (Context.Guild.Id == 328300333010911242) {
@@ -34,11 +37,57 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 }
             }
 
-            foreach (string message in messages) {
-                ReplyAsync($":crab: {message} :crab:").Wait();
+            string[] messages = input.Split(' ');
 
+            RaveTracker.Track(Context.Guild.Id, Context.Channel.Id);
+
+            foreach (string message in messages) {
+                if (RaveTracker.IsStopped(Context.Guild.Id, Context.Channel.Id)) { return Task.CompletedTask; }
+
+                ReplyAsync($":crab: {message} :crab:").Wait();
                 Task.Delay(1250).Wait();
             }
+
+            return Task.CompletedTask;
+        }
+
+        [Command("ravestop")]
+        [Alias("stoprave", "stopraves")]
+        [RequireContext(ContextType.Guild)]
+        [OwnerAdminWhitelist]
+        public Task RaveStopAsync() {
+            RaveTracker.Stop(Context.Guild.Id, Context.Channel.Id);
+
+            ulong reply = ReplyAsync("Stopping all raves in this channel... you party pooper.").Result.Id;
+
+            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            return Task.CompletedTask;
+        }
+
+        [Command("raveundo")]
+        [Alias("undorave", "undoraves")]
+        [RequireContext(ContextType.Guild)]
+        [OwnerAdminWhitelist]
+        public Task RaveUndoAsync(int messageCount = 300) {
+            Context.Message.DeleteAsync();
+
+            EmbedBuilder builder = new EmbedBuilder() {
+                Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
+                Title = "Undoing raves...",
+                Description = $"Deleting up to {messageCount} rave messages",
+                ThumbnailUrl = "https://cdn.discordapp.com/emojis/425366701794656276.gif"
+            };
+
+            IUserMessage noticeMessage = ReplyAsync(embed: builder.Build()).Result;
+
+            if (Context.Channel is SocketTextChannel channel) {
+                IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(500).Flatten();
+
+                IAsyncEnumerable<IMessage> toDelete = messages.Where(x => x.Author.Id == Context.Guild.CurrentUser.Id & x.Content.StartsWith(":crab:")).OrderByDescending(x => x.CreatedAt).Take(messageCount);
+                channel.DeleteMessagesAsync(toDelete.ToEnumerable()).Wait();
+            }
+
+            noticeMessage.DeleteAsync();
 
             return Task.CompletedTask;
         }
