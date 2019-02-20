@@ -27,8 +27,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("executie")]
-        [RequireContext(ContextType.Guild)]
         [Cooldown(120)]
+        [RequireContext(ContextType.Guild)]
         public Task ExecuteAsync(SocketUser user = null, [Remainder]string reason = "") {
 
             ReplyAsync($"{user.Mention} you have 10 seconds to say last words before you are executie'd.").Wait();

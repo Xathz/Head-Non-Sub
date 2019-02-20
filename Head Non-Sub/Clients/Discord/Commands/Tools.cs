@@ -28,7 +28,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("failfast")]
         [OwnerAdminXathz]
-        [RequireContext(ContextType.Guild)]      
+        [RequireContext(ContextType.Guild)]
         public Task FailFastAsync() {
             LoggingManager.Log.Fatal($"Forcibly disconnected from Discord. Server: {Context.Guild.Name} ({Context.Guild.Id}); Channel: {Context.Channel.Name} ({Context.Channel.Id}); User: {Context.User.Username} ({Context.User.Id})");
 
@@ -42,32 +42,37 @@ namespace HeadNonSub.Clients.Discord.Commands {
         [Command("random")]
         [RequireContext(ContextType.Guild)]
         public Task RandomAsync([Remainder]string type = "") {
-            SocketGuildUser user = null;
+            SocketGuildUser randomUser = null;
 
             if (type == "sub") {
-                user = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 428052879371272192 || r.Id == 328732005024137217)).PickRandom();
+                randomUser = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 428052879371272192 || r.Id == 328732005024137217)).PickRandom();
 
             } else if (type == "non-sub" || type == "nonsub") {
-                user = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 508752510216044547)).PickRandom();
+                randomUser = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 508752510216044547)).PickRandom();
 
             } else if (type == "tier3" || type == "t3") {
-                user = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 493641643765792768)).PickRandom();
+                randomUser = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 493641643765792768)).PickRandom();
 
             } else if (type == "admin") {
-                user = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 372244721625464845)).PickRandom();
+                randomUser = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 372244721625464845)).PickRandom();
 
             } else if (type == "mod") {
-                user = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 336022934621519874)).PickRandom();
+                randomUser = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 336022934621519874)).PickRandom();
+
+            } else if (type == "tree") {
+                randomUser = Context.Guild.Users.Where(x => x.Id == 339786294895050753).FirstOrDefault();
 
             } else if (type == "5'8\"" || type == "5'8") {
-                user = Context.Guild.Users.Where(x => x.Id == 177657233025400832).FirstOrDefault();
+                randomUser = Context.Guild.Users.Where(x => x.Id == 177657233025400832).FirstOrDefault();
 
             } else {
-                return ReplyAsync("**Valid roles are:** sub *(includes twitch and patreon roles)*, nonsub, tier3, admin, mod, 5'8\"");
+                return ReplyAsync("**Valid roles are:** sub *(includes twitch and patreon roles)*, nonsub, tier3, admin, mod, tree, 5'8\"");
             }
 
             // If it is a valid user
-            if (user is SocketGuildUser) {
+            if (randomUser is SocketGuildUser) {
+                IGuildUser contextUser = Context.User as IGuildUser;
+
                 EmbedBuilder builder = new EmbedBuilder() {
                     Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                     Title = $"Picking a random {type}...",
@@ -75,24 +80,24 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 };
 
                 builder.Footer = new EmbedFooterBuilder() {
-                    Text = $"Random user requested by {Context.User.ToString()}"
+                    Text = $"Random user requested by {(!string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Nickname : contextUser.Username)}"
                 };
 
                 IUserMessage message = ReplyAsync(embed: builder.Build()).Result;
 
                 Task.Delay(10000).Wait();
 
-                builder.Title = $"{user.Username} ({user.ToString()})";
+                builder.Title = $"{(!string.IsNullOrWhiteSpace(randomUser.Nickname) ? randomUser.Nickname : randomUser.Username)} ({randomUser.ToString()})";
                 builder.ThumbnailUrl = null;
                 builder.Fields.Clear();
 
-                builder.AddField("Account created", $"{user.CreatedAt.DateTime.ToShortDateString()} {user.CreatedAt.DateTime.ToShortTimeString()}", true);
+                builder.AddField("Account created", $"{randomUser.CreatedAt.DateTime.ToShortDateString()} {randomUser.CreatedAt.DateTime.ToShortTimeString()}", true);
 
-                if (user.JoinedAt.HasValue) {
-                    builder.AddField("Joined server", $"{user.JoinedAt.Value.DateTime.ToShortDateString()} {user.JoinedAt.Value.DateTime.ToShortTimeString()}", true);
+                if (randomUser.JoinedAt.HasValue) {
+                    builder.AddField("Joined server", $"{randomUser.JoinedAt.Value.DateTime.ToShortDateString()} {randomUser.JoinedAt.Value.DateTime.ToShortTimeString()}", true);
                 }
 
-                builder.AddField("Congratulations", $"{user.Mention}");
+                builder.AddField("Congratulations", $"{randomUser.Mention}");
 
                 message.ModifyAsync(x => { x.Embed = builder.Build(); }).Wait();
 
