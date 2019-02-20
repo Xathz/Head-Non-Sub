@@ -74,8 +74,6 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     ThumbnailUrl = "https://cdn.discordapp.com/emojis/425366701794656276.gif"
                 };
 
-                //builder.AddField("Criteria", type);
-
                 builder.Footer = new EmbedFooterBuilder() {
                     Text = $"Random user requested by {Context.User.ToString()}"
                 };

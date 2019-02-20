@@ -25,7 +25,7 @@ namespace HeadNonSub.Clients.Discord {
 
         public async Task InitializeAsync() {
             await _Commands.AddModuleAsync<Commands.Exclamation.Fake>(_Services);
-            // TODO await _Commands.AddModuleAsync<Commands.Exclamation.Poll>(_Services);
+            await _Commands.AddModuleAsync<Commands.Exclamation.Poll>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Spam>(_Services);
         }
 
