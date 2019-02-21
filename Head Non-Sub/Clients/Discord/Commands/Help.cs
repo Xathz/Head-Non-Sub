@@ -19,7 +19,13 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
             builder.AddField("Information", "Some commands are hidden :eyes:");
 
-            builder.AddField("Commands", string.Join(Environment.NewLine,
+            builder.AddField("Useful", string.Join(Environment.NewLine,
+                            $"`!strawpoll` {Constants.DoubleSpace} Poll Title | Option 1 | Option 2 | Option 3",
+                            $"`!strawpollr` {Constants.DoubleSpace} <strawpoll url>",
+                            $"`@{Context.Guild.CurrentUser.Username} random <role>` {Constants.DoubleSpace} Select a random user based on role",
+                            $"`@{Context.Guild.CurrentUser.Username} undo` {Constants.DoubleSpace} Undo your and the bots recent message"));
+
+            builder.AddField("Memes and Trash", string.Join(Environment.NewLine,
                                         $"`!yum` {Constants.DoubleSpace} Mmmm tasty",
                                         $"`!gimme` {Constants.DoubleSpace} You get thing",
                                         $"`!what` {Constants.DoubleSpace} tt confuse",
@@ -28,8 +34,6 @@ namespace HeadNonSub.Clients.Discord.Commands {
                                         $"`!rnk` {Constants.DoubleSpace} See your rank. People love ranks",
                                         $"`!bigoof` {Constants.DoubleSpace} oof... a big oof",
                                         $"`!1024nude` {Constants.DoubleSpace} Yes the photo is really 1024x768",
-                                        $"`@{Context.Guild.CurrentUser.Username} random <role>` {Constants.DoubleSpace} Select a random user based on role",
-                                        $"`@{Context.Guild.CurrentUser.Username} undo` {Constants.DoubleSpace} Undo your and the bots recent message",
                                         $"`oof oof` {Constants.DoubleSpace} oof.",
                                         $"`oof floof` {Constants.DoubleSpace} Awww."));
 
