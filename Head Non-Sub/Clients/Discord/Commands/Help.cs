@@ -20,8 +20,8 @@ namespace HeadNonSub.Clients.Discord.Commands {
             builder.AddField("Information", "Some commands are hidden :eyes:");
 
             builder.AddField("Useful", string.Join(Environment.NewLine,
-                            $"`!strawpoll` {Constants.DoubleSpace} Poll Title | Option 1 | Option 2 | Option 3",
-                            $"`!strawpollr` {Constants.DoubleSpace} <strawpoll url>",
+                            $"`!strawpoll Poll Title | Option 1 | Option 2 | Option 3` {Constants.DoubleSpace} Make a new strawpoll",
+                            $"`!strawpollr <strawpoll url>` {Constants.DoubleSpace} Get results of a strawpoll",
                             $"`@{Context.Guild.CurrentUser.Username} random <role>` {Constants.DoubleSpace} Select a random user based on role",
                             $"`@{Context.Guild.CurrentUser.Username} undo` {Constants.DoubleSpace} Undo your and the bots recent message"));
 

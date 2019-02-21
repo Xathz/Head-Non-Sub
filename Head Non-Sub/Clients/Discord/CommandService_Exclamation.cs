@@ -19,7 +19,7 @@ namespace HeadNonSub.Clients.Discord {
             _DiscordClient = services.GetRequiredService<DiscordSocketClient>();
             _Services = services;
 
-            _Commands.CommandExecuted += CommandExecutedAsync;
+            _Commands.CommandExecuted += ExecutedAsync;
             _DiscordClient.MessageReceived += MessageReceivedAsync;
         }
 
@@ -52,7 +52,7 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
-        private async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result) {
+        private async Task ExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result) {
             if (!command.IsSpecified) {
                 // Disable message feedback if it was not a real command
                 //await context.Channel.SendMessageAsync($"Invalid command. `@{_DiscordClient.CurrentUser.Username} help` for info and commands.");

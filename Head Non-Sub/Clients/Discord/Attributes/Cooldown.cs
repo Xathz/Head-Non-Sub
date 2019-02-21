@@ -29,7 +29,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
                 }
 
                 // If the user is whitelisted bypass the cooldown
-                if (SettingsManager.Configuration.DiscordWhitelist.Any(x => x.Key == context.Guild.Id & x.Value.Contains(user.Id))) {
+                if (SettingsManager.Configuration.DiscordWhitelist.Any(x => (x.Key == context.Guild.Id) & x.Value.Contains(user.Id))) {
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
             }

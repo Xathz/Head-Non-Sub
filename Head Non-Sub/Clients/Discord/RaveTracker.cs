@@ -40,7 +40,7 @@ namespace HeadNonSub.Clients.Discord {
             bool isStopped = _Raves.Where(x => x.Server == server & x.Channel == channel & x.Active == false).OrderByDescending(x => x.DateTime).Any();
 
             if (isStopped) {
-                _Raves.RemoveAll(x => x.Server == server & x.Channel == channel & x.Active == false);
+                _Raves.RemoveAt(_Raves.FindIndex(x => x.Server == server & x.Channel == channel & x.Active == false));
             }
 
             return isStopped;
