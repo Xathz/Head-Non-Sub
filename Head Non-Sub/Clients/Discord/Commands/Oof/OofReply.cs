@@ -4,12 +4,10 @@ using Discord.Commands;
 
 namespace HeadNonSub.Clients.Discord.Commands.Oof {
 
-    // https://discordapp.com/developers/docs/resources/channel#embed-limits
-
+    [RequireContext(ContextType.Guild)]
     public class OofReply : ModuleBase<SocketCommandContext> {
 
         [Command("oof")]
-        [RequireContext(ContextType.Guild)]
         public Task OofAsync() {
             ulong reply = ReplyAsync("oof").Result.Id;
 
@@ -18,8 +16,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Oof {
         }
 
         [Command("floof")]
-        [Alias("foof", "woof")]
-        [RequireContext(ContextType.Guild)]
         public Task YumAsync() {
             ulong reply = Context.Message.Channel.SendFileAsync(Path.Combine(Constants.ContentDirectory, "floof.gif")).Result.Id;
 

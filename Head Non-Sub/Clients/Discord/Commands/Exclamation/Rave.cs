@@ -9,33 +9,14 @@ using HeadNonSub.Clients.Discord.Attributes;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
-    // https://discordapp.com/developers/docs/resources/channel#embed-limits
-
+    // Wubby's Fun House: 'actual-fucking-spam'; Cam’s Pocket: 'shitposting-cause-xathz'
+    [AllowedChannels(537727672747294738, 546863784157904896)]
+    [RequireContext(ContextType.Guild)]
     public class Rave : ModuleBase<SocketCommandContext> {
 
         [Command("rave")]
         [Cooldown(1800)]
-        [RequireContext(ContextType.Guild)]
         public Task RaveAsync([Remainder]string input) {
-
-            // Wubby's Fun House
-            if (Context.Guild.Id == 328300333010911242) {
-                // 'actual-fucking-spam'
-                if (!(Context.Channel.Id == 537727672747294738)) {
-                    ReplyAsync($"`!rave` is only usable in <#537727672747294738>.");
-                    return Task.FromException(new UnauthorizedAccessException("Not a valid channel for command."));
-                }
-            }
-
-            // Cam’s pocket
-            if (Context.Guild.Id == 528475747334225925) {
-                // 'shitposting-cause-xathz'
-                if (Context.Channel.Id != 546863784157904896) {
-                    ReplyAsync($"`!rave` is only usable in <#546863784157904896>.");
-                    return Task.FromException(new UnauthorizedAccessException("Not a valid channel for command."));
-                }
-            }
-
             string[] messages = input.Split(' ');
 
             RaveTracker.Track(Context.Guild.Id, Context.Channel.Id);
@@ -50,10 +31,27 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             return Task.CompletedTask;
         }
 
+        [Command("ravve")]
+        [Cooldown(1800)]
+        public Task RavveAsync([Remainder] int length = 30) {
+            RaveTracker.Track(Context.Guild.Id, Context.Channel.Id);
+            Random random = new Random();
+
+            for (int i = 0; i < length; i++) {
+                if (RaveTracker.IsStopped(Context.Guild.Id, Context.Channel.Id)) { return Task.CompletedTask; }
+
+                string message = ":crab:".PadLeft(random.Next(0, 35), '.');
+
+                ReplyAsync(message).Wait();
+                Task.Delay(1250).Wait();
+            }
+
+            return Task.CompletedTask;
+        }
+
         [Command("ravestop")]
         [Alias("stoprave", "stopraves")]
         [OwnerAdminWhitelist]
-        [RequireContext(ContextType.Guild)]
         public Task RaveStopAsync() {
             RaveTracker.Stop(Context.Guild.Id, Context.Channel.Id);
 
@@ -66,7 +64,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("raveundo")]
         [Alias("undorave", "undoraves")]
         [OwnerAdminWhitelist]
-        [RequireContext(ContextType.Guild)]
         public Task RaveUndoAsync(int messageCount = 300) {
             if (messageCount == 0 || messageCount > 500) {
                 return ReplyAsync("Must be between 1 and 500.");
@@ -86,7 +83,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             if (Context.Channel is SocketTextChannel channel) {
                 IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(500).Flatten();
 
-                IAsyncEnumerable<IMessage> toDelete = messages.Where(x => x.Author.Id == Context.Guild.CurrentUser.Id & x.Content.StartsWith(":crab:")).OrderByDescending(x => x.CreatedAt).Take(messageCount);
+                IAsyncEnumerable<IMessage> toDelete = messages.Where(x => (x.Author.Id == Context.Guild.CurrentUser.Id) &
+                (x.Content.StartsWith(":crab:")) || (x.Content.StartsWith(".") & x.Content.Contains(":crab:")))
+                .OrderByDescending(x => x.CreatedAt).Take(messageCount);
+
                 channel.DeleteMessagesAsync(toDelete.ToEnumerable()).Wait();
             }
 

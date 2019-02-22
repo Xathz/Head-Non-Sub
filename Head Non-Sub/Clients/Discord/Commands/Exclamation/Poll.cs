@@ -9,12 +9,10 @@ using Discord.Commands;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
-    // https://discordapp.com/developers/docs/resources/channel#embed-limits
-
+    [RequireContext(ContextType.Guild)]
     public class Poll : ModuleBase<SocketCommandContext> {
 
         [Command("trashpoll")]
-        [RequireContext(ContextType.Guild)]
         public Task PollAsync([Remainder]string input) {
             IGuildUser user = Context.User as IGuildUser;
 

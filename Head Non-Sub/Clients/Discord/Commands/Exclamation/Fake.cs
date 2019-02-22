@@ -7,13 +7,11 @@ using HeadNonSub.Clients.Discord.Attributes;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
-    // https://discordapp.com/developers/docs/resources/channel#embed-limits
-
+    [RequireContext(ContextType.Guild)]
     public class Fake : ModuleBase<SocketCommandContext> {
 
         [Command("dating")]
         [Alias("speeddating", "datenight")]
-        [RequireContext(ContextType.Guild)]
         public Task DatingAsync() {
             IUserMessage message = ReplyAsync($"Haha {Context.User.Username}, you are alone.").Result;
             IEmote emote = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 461043064979456012);
@@ -28,7 +26,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("executie")]
         [Cooldown(120)]
-        [RequireContext(ContextType.Guild)]
         public Task ExecuteAsync(SocketUser user = null, [Remainder]string reason = "") {
 
             ReplyAsync($"{user.Mention} you have 10 seconds to say last words before you are executie'd.").Wait();

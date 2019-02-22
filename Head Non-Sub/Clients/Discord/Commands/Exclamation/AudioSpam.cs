@@ -9,8 +9,7 @@ using HeadNonSub.Clients.Discord.Services;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
-    // https://discordapp.com/developers/docs/resources/channel#embed-limits
-
+    [RequireContext(ContextType.Guild)]
     public class AudioSpam : ModuleBase<SocketCommandContext> {
 
         private SocketVoiceChannel ValidateChannel(SocketVoiceChannel channel) {
@@ -36,7 +35,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("ffs")]
         [Cooldown(120)]
-        [RequireContext(ContextType.Guild)]
         public async Task FFSAsync(SocketVoiceChannel channel = null) {
             _ = Context.Message.DeleteAsync();
 
@@ -50,7 +48,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("goodjob")]
         [Cooldown(120)]
-        [RequireContext(ContextType.Guild)]
         public async Task GoodJobAsync(SocketVoiceChannel channel = null) {
             _ = Context.Message.DeleteAsync();
 
@@ -64,7 +61,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("handwarmer")]
         [Cooldown(120)]
-        [RequireContext(ContextType.Guild)]
         public async Task HandWarmerAsync(SocketVoiceChannel channel = null) {
             _ = Context.Message.DeleteAsync();
 
@@ -78,7 +74,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("lifeguard")]
         [Cooldown(120)]
-        [RequireContext(ContextType.Guild)]
         public async Task LifeguardAsync(SocketVoiceChannel channel = null) {
             _ = Context.Message.DeleteAsync();
 
@@ -92,7 +87,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("producer")]
         [Cooldown(120)]
-        [RequireContext(ContextType.Guild)]
         public async Task ProducerAsync(SocketVoiceChannel channel = null) {
             _ = Context.Message.DeleteAsync();
 
@@ -106,7 +100,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("staypositive")]
         [Cooldown(120)]
-        [RequireContext(ContextType.Guild)]
         public async Task JoinChannel(SocketVoiceChannel channel = null) {
             _ = Context.Message.DeleteAsync();
 

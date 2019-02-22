@@ -5,12 +5,10 @@ using Discord.Commands;
 
 namespace HeadNonSub.Clients.Discord.Commands {
 
+    [RequireContext(ContextType.Guild)]
     public class Help : ModuleBase<SocketCommandContext> {
 
-        // https://discordapp.com/developers/docs/resources/channel#embed-limits
-
         [Command("help")]
-        [RequireContext(ContextType.Guild)]
         public Task HelpAsync() {
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),

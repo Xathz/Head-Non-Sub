@@ -5,13 +5,11 @@ using HeadNonSub.Extensions;
 
 namespace HeadNonSub.Clients.Discord.Commands {
 
+    [RequireContext(ContextType.Guild)]
     public class FakeChat : ModuleBase<SocketCommandContext> {
-
-        // https://discordapp.com/developers/docs/resources/channel#embed-limits
 
         [Command("you suck")]
         [Alias("i hate you", "fuck you", "fuck off", "die")]
-        [RequireContext(ContextType.Guild)]
         public Task YouSuckAsync() {
 
             List<string> responses = new List<string> {
@@ -37,7 +35,6 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("you are great")]
         [Alias("i love you", "how are you", "nice to see you", "i like you")]
-        [RequireContext(ContextType.Guild)]
         public Task YouAreGreatAsync() {
 
             List<string> responses = new List<string> {

@@ -48,11 +48,7 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private async Task ExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result) {
-            if (!command.IsSpecified) {
-                // Disable message feedback if it was not a real command
-                //await context.Channel.SendMessageAsync($"Invalid command. `@{_DiscordClient.CurrentUser.Username} help` for info and commands.");
-                return;
-            }
+            if (!command.IsSpecified) { return; }
 
             string logLine = $"{context.User.Username} ({context.User.Id}); Message: {context.Message.Content}; Command: {command.Value.Name}; Result: {result.ToString()}";
 
@@ -63,8 +59,7 @@ namespace HeadNonSub.Clients.Discord {
 
                 switch (result.Error) {
                     default:
-                        // Disable message feedback for errors
-                        //await context.Channel.SendMessageAsync($"{context.User.Mention} {result.ErrorReason}");
+                        await context.Channel.SendMessageAsync($"{context.User.Mention} {result.ErrorReason}");
                         break;
                 }
             }

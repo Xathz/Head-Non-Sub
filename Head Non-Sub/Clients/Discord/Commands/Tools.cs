@@ -10,12 +10,10 @@ using HeadNonSub.Extensions;
 
 namespace HeadNonSub.Clients.Discord.Commands {
 
+    [RequireContext(ContextType.Guild)]
     public class Tools : ModuleBase<SocketCommandContext> {
 
-        // https://discordapp.com/developers/docs/resources/channel#embed-limits
-
         [Command("ping")]
-        [RequireContext(ContextType.Guild)]
         public Task PingAsync() {
             DateTime now = DateTime.Now.ToUniversalTime();
 
@@ -28,7 +26,6 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("failfast")]
         [OwnerAdminXathz]
-        [RequireContext(ContextType.Guild)]
         public Task FailFastAsync() {
             LoggingManager.Log.Fatal($"Forcibly disconnected from Discord. Server: {Context.Guild.Name} ({Context.Guild.Id}); Channel: {Context.Channel.Name} ({Context.Channel.Id}); User: {Context.User.Username} ({Context.User.Id})");
 
@@ -40,7 +37,6 @@ namespace HeadNonSub.Clients.Discord.Commands {
         }
 
         [Command("random")]
-        [RequireContext(ContextType.Guild)]
         public Task RandomAsync([Remainder]string type = "") {
             SocketGuildUser randomUser = null;
 
@@ -110,7 +106,6 @@ namespace HeadNonSub.Clients.Discord.Commands {
         }
 
         [Command("undo")]
-        [RequireContext(ContextType.Guild)]
         public Task UndoAsync() {
             ulong? reply = UndoTracker.MostRecentReply(Context.Guild.Id, Context.Channel.Id, Context.User.Id);
             ulong? message = UndoTracker.MostRecentMessage(Context.Guild.Id, Context.Channel.Id, Context.User.Id);
@@ -132,7 +127,6 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("servermap")]
         [OwnerAdminXathz]
-        [RequireContext(ContextType.Guild)]
         public Task ServerMapAsync() {
             ulong reply;
 

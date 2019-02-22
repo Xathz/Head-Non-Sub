@@ -10,11 +10,10 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
     [Group("whitelist")]
     [OwnerAdminXathz]
+    [RequireContext(ContextType.Guild)]
     public class Whitelist : ModuleBase<SocketCommandContext> {
 
         [Command("add")]
-        [OwnerAdminXathz]
-        [RequireContext(ContextType.Guild)]
         public Task WhitelistAddAsync(SocketUser user = null) {
             if (user == null) {
                 return ReplyAsync($"You must mention a user to add them to the whitelist.");
@@ -37,8 +36,6 @@ namespace HeadNonSub.Clients.Discord.Commands {
         }
 
         [Command("remove")]
-        [OwnerAdminXathz]
-        [RequireContext(ContextType.Guild)]
         public Task WhitelistRemoveAsync(SocketUser user = null) {
             if (user == null) {
                 return ReplyAsync($"You must mention a user to remove them from the whitelist.");

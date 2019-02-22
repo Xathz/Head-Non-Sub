@@ -52,8 +52,7 @@ namespace HeadNonSub.Clients.Discord {
 
         private async Task ExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result) {
             if (!command.IsSpecified) {
-                // Disable message feedback if it was not a real command
-                //await context.Channel.SendMessageAsync($"Invalid command. `@{_DiscordClient.CurrentUser.Username} help` for info and commands.");
+                await context.Channel.SendMessageAsync($"Invalid command. `@{_DiscordClient.CurrentUser.Username} help` for info and commands.");
                 return;
             }
 
@@ -66,8 +65,7 @@ namespace HeadNonSub.Clients.Discord {
 
                 switch (result.Error) {
                     default:
-                        // Disable message feedback for errors
-                        //await context.Channel.SendMessageAsync($"{context.User.Mention} {result.ErrorReason}");
+                        await context.Channel.SendMessageAsync($"{context.User.Mention} {result.ErrorReason}");
                         break;
                 }
             }

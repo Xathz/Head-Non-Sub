@@ -10,12 +10,10 @@ using static StrawPollNET.API;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
-    // https://discordapp.com/developers/docs/resources/channel#embed-limits
-
+    [RequireContext(ContextType.Guild)]
     public class Strawpoll : ModuleBase<SocketCommandContext> {
 
         [Command("strawpoll")]
-        [RequireContext(ContextType.Guild)]
         public Task StrawpollAsync([Remainder]string input) {
             string[] messages = input.Split('|');
 
@@ -36,7 +34,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("strawpollresults")]
         [Alias("strawpollr")]
-        [RequireContext(ContextType.Guild)]
         public Task StrawpollResultsAsync([Remainder]string input) {
             Context.Message.DeleteAsync();
 
