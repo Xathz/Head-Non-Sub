@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord.Commands;
+using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Extensions;
 
 namespace HeadNonSub.Clients.Discord.Commands {
@@ -49,6 +50,24 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 "do you think wubby could still love me as a non-sub?"
             };
             
+            ulong reply = ReplyAsync(responses.PickRandom()).Result.Id;
+
+            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            return Task.CompletedTask;
+        }
+
+        [Command("good bot")]
+        // Xathz
+        [AllowedUsers(227088829079617536)]
+        public Task GoodBotAsync() {
+
+            List<string> responses = new List<string> {
+                "Damn right.",
+                "Yea, fuck them.",
+                "<@227088829079617536> thanks for making me!",
+                "Yea everyone else sucks."
+            };
+
             ulong reply = ReplyAsync(responses.PickRandom()).Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);

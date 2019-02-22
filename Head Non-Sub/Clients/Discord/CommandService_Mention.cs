@@ -52,7 +52,7 @@ namespace HeadNonSub.Clients.Discord {
 
         private async Task ExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result) {
             if (!command.IsSpecified) {
-                await context.Channel.SendMessageAsync($"Invalid command. `@{_DiscordClient.CurrentUser.Username} help` for info and commands.");
+                //await context.Channel.SendMessageAsync($"Invalid command. `@{_DiscordClient.CurrentUser.Username} help` for information and commands.");
                 return;
             }
 
@@ -65,7 +65,7 @@ namespace HeadNonSub.Clients.Discord {
 
                 switch (result.Error) {
                     default:
-                        await context.Channel.SendMessageAsync($"{context.User.Mention} {result.ErrorReason}");
+                        await context.Channel.SendMessageAsync(result.ErrorReason);
                         break;
                 }
             }

@@ -50,7 +50,6 @@ namespace HeadNonSub.Clients.Discord.Attributes {
                     result = PreconditionResult.FromError($"You have to wait {remaining} before you can use the `{command.Name}` command again.");
                 }
 
-                context.Channel.SendMessageAsync(result.ErrorReason);
                 return Task.FromResult(result);
             }
         }
