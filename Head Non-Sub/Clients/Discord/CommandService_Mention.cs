@@ -65,7 +65,7 @@ namespace HeadNonSub.Clients.Discord {
 
                 switch (result.Error) {
                     default:
-                        await context.Channel.SendMessageAsync(result.ErrorReason);
+                        //await context.Channel.SendMessageAsync(result.ErrorReason);
                         break;
                 }
             }

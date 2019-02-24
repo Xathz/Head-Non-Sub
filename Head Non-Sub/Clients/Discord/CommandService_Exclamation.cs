@@ -28,6 +28,7 @@ namespace HeadNonSub.Clients.Discord {
             await _Commands.AddModuleAsync<Commands.Exclamation.Fake>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Poll>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Rave>(_Services);
+            await _Commands.AddModuleAsync<Commands.Exclamation.Rythm>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Spam>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Strawpoll>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Yam>(_Services);
@@ -65,7 +66,7 @@ namespace HeadNonSub.Clients.Discord {
 
                 switch (result.Error) {
                     default:
-                        await context.Channel.SendMessageAsync($"{context.User.Mention} {result.ErrorReason}");
+                        //await context.Channel.SendMessageAsync(result.ErrorReason);
                         break;
                 }
             }

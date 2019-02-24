@@ -25,7 +25,8 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 $"Alright, {Context.Guild.CurrentUser.Mention} has been warned for '**Being a useless person**'... wait, what?",
                 "but its F E E D I N G T I M E",
                 "Nani the FUCK?",
-                "ok?"
+                "ok?",
+                "I'm subbed on youtube tho"
             };
 
             ulong reply = ReplyAsync(responses.PickRandom()).Result.Id;

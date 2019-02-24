@@ -18,11 +18,6 @@ namespace HeadNonSub.Clients.Discord {
             if (!_AttemptedCommands.Any(x => x.server == server & x.userId == userId & x.command == command)) {
                 _AttemptedCommands.Add((DateTimeOffset.Now, server, userId, command));
             }
-
-            // Remove oldest
-            if (_AttemptedCommands.Count > 1000) {
-                _AttemptedCommands.RemoveAt(0);
-            }
         }
 
         /// <summary>
@@ -46,6 +41,7 @@ namespace HeadNonSub.Clients.Discord {
                 if (dateTimeOffset.AddSeconds(cooldown) >= DateTimeOffset.Now) {
                     return (false, (int)(dateTimeOffset.AddSeconds(cooldown) - DateTimeOffset.Now).TotalSeconds);
                 } else {
+                    //_AttemptedCommands.RemoveAt(_AttemptedCommands.FindIndex(x => x.server == server & x.userId == userId & x.command == command));
                     _AttemptedCommands.RemoveAll(x => x.server == server & x.userId == userId & x.command == command);
 
                     return (true, 0);
