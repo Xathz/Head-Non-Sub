@@ -42,9 +42,17 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     Name = $"Random Song from {randomMessage.Author.Username}"
                 };
 
-                ulong reply = ReplyAsync(embed: builder.Build()).Result.Id;
+                IUserMessage reply = ReplyAsync(embed: builder.Build()).Result;
 
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+                try {
+                    IEmote upvotepost = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 529559392157171731);
+                    IEmote downvotepost = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 529560241751457803);
+
+                    reply.AddReactionAsync(upvotepost).Wait();
+                    reply.AddReactionAsync(downvotepost).Wait();
+                } catch { }
+
+                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply.Id);
                 return Task.CompletedTask;
             } else {
                 ulong reply = ReplyAsync("Failed to pick a random song :(").Result.Id;

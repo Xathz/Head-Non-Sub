@@ -1,6 +1,10 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
@@ -76,6 +80,60 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(20)]
         public Task TenTwentyFourNudeAsync() {
             ulong reply = Context.Message.Channel.SendFileAsync(Path.Combine(Constants.ContentDirectory, "1024_nude.png")).Result.Id;
+
+            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            return Task.CompletedTask;
+        }
+
+        [Command("star")]
+        [Cooldown(20)]
+        public Task StarAsync() {
+            ulong reply = Context.Message.Channel.SendFileAsync(Path.Combine(Constants.ContentDirectory, "star.gif")).Result.Id;
+
+            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            return Task.CompletedTask;
+        }
+
+        [Command("gongboy")]
+        [Cooldown(20)]
+        public Task GongBoyAsync() {
+            ulong reply = Context.Message.Channel.SendFileAsync(Path.Combine(Constants.ContentDirectory, "gongboy.png")).Result.Id;
+
+            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            return Task.CompletedTask;
+        }
+
+        [Command("allthis")]
+        [Cooldown(60)]
+        [AllowedGuilds(328300333010911242)]
+        public Task AllThisAsync() {
+            Context.Message.DeleteAsync();
+
+            if (Context.Channel is SocketTextChannel channel) {
+                IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(Context.Message, Direction.Before, 10).Flatten().OrderByDescending(x => x.CreatedAt);
+                IEmote emote = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 451081265467359253);
+                if (emote is IEmote) {
+                    messages.ForEach(x => {
+                        if (x is IUserMessage message) {
+                            message.AddReactionAsync(emote).Wait();
+                        }
+                    });
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        [Command("night")]
+        [Cooldown(20)]
+        public Task NightAsync() {
+            ulong reply = ReplyAsync(@".　　　　　　　　　　 ✦ 　　　　   　 　　　˚　　　　　　　　　　　　　　*　　　　　　   　　　　　　　　　　　　　　　.　　　　　　　　　　　　　　. 　　 　　　　　　　 ✦ 　　　　　　　　　　 　 ‍ ‍ ‍ ‍ 　　　　 　　　　　　　　　　　　,　　   　
+
+.　　　　　　　　　　　　　.　　　ﾟ　  　　　.　　　　　　　　　　　　　.
+
+　　　　　　,　　　　　　　.　　　　　　    　　　　 　　　　　　　　　　　　　　　　　　 ☀️ 　　　　　　　　　　　　　　　　　　    　      　　　　　        　　　　　　　　　　　　　. 　　　　　　　　　　.　　　　　　　　　　　　　. 　　　　　　　　　　　　　　　　       　   　　　　 　　　　　　　　　　　　　　　　       　   　　　　　　　　　　　　　　　　       　    ✦ 　   　　　,　　　　　　　　　　　    🚀 　　　　 　　,　　　 ‍ ‍ ‍ ‍ 　 　　　　　　　　　　　　.　　　　　 　　 　　　.　　　　　　　　　　　　　 　           　　　　　　　　　　　　　　　　　　　˚　　　 　   　　　　,　　　　　　　　　　　       　    　　　　　　　　　　　　　　　　.　　　  　　    　　　　　 　　　　　.　　　　　　　　　　　　　.　　　　　　　　　　　　　　　* 　　   　　　　　 ✦ 　　　　　　　         　        　　　　 　　 　　　　　　　 　　　　　.　　　　　　　　　　　　　　　　　　.　　　　　    　　. 　 　　　　　.　　　　 🌑 　　　　　   　　　　　.　　　　　　　　　　　.　　　　　　　　　　   　
+
+　˚　　　　　　　　　　　　　　　　　　　　　ﾟ　　　　　.　　　　　　　　　　　　　　　. 　　 　 🌎 ‍ ‍ ‍ ‍ ‍ ‍ ‍ ‍ ‍ ‍ ,　 　　　　　　　　　　　　　　* .　　　　　 　　　　　　　　　　　　　　.　　　　　　　　　　 ✦ 　　　　   　 　　　˚　　　　　　　　　　　　　　*　　　　　　 ").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             return Task.CompletedTask;
