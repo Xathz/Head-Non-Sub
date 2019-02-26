@@ -91,6 +91,11 @@ namespace HeadNonSub {
         public static string AudioDirectory => Path.Combine(ContentDirectory, "Audio");
 
         /// <summary>
+        /// Font files for the application.
+        /// </summary>
+        public static string FontsDirectory => Path.Combine(ContentDirectory, "Fonts");
+
+        /// <summary>
         /// Settings file location.
         /// </summary>
         public static string SettingsFile => Path.Combine(WorkingDirectory, $"{ExecutableName}.settings");
