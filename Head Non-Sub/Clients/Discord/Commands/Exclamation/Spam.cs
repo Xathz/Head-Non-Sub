@@ -103,12 +103,29 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             return Task.CompletedTask;
         }
 
+        [Command("youareallretarded")]
+        [Cooldown(120)]
+        [AllowedGuilds(328300333010911242)]
+        public Task AllRetardedAsync() {
+            if (Context.Channel is SocketTextChannel channel) {
+                IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(Context.Message, Direction.Before, 10).Flatten().OrderByDescending(x => x.CreatedAt);
+                IEmote emote = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 329534564160765954);
+                if (emote is IEmote) {
+                    messages.ForEach(x => {
+                        if (x is IUserMessage message) {
+                            message.AddReactionAsync(emote).Wait();
+                        }
+                    });
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
         [Command("allthis")]
-        [Cooldown(60)]
+        [Cooldown(120)]
         [AllowedGuilds(328300333010911242)]
         public Task AllThisAsync() {
-            Context.Message.DeleteAsync();
-
             if (Context.Channel is SocketTextChannel channel) {
                 IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(Context.Message, Direction.Before, 10).Flatten().OrderByDescending(x => x.CreatedAt);
                 IEmote emote = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 451081265467359253);

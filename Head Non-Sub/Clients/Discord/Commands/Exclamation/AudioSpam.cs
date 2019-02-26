@@ -9,6 +9,7 @@ using HeadNonSub.Clients.Discord.Services;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
+    [OwnerAdminWhitelist]
     [RequireContext(ContextType.Guild)]
     public class AudioSpam : ModuleBase<SocketCommandContext> {
 
