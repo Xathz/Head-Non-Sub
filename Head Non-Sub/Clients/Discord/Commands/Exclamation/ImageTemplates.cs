@@ -42,6 +42,39 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             return Task.CompletedTask;
         }
 
+        [Command("1024says")]
+        public Task TenTwentyFourSaysAsync([Remainder]string input) {
+
+            using (MemoryStream stream = new MemoryStream(100))
+            using (MagickImage image = new MagickImage(Path.Combine(Constants.ContentDirectory, "1024Template.png"))) {
+
+                string text = string.Join(Environment.NewLine, input.SplitIntoChunks(25));
+                int max = (text.Length <= 200 ? text.Length : 200);
+                text = text.Substring(0, max);
+
+                new Drawables()
+                  .FontPointSize(124)
+                  .Font(Path.Combine(Constants.FontsDirectory, "VT323-Regular.ttf"))
+                  .Rotation(3.5)
+                  .SkewX(5.0)
+                  .FillColor(new MagickColor("#FFFFFF"))
+                  .TextAlignment(TextAlignment.Left)
+                  .TextAntialias(true)
+                  .TextEncoding(Encoding.UTF8)
+                  .Text(765, 400, text)
+                  .Draw(image);
+
+                image.Write(stream, MagickFormat.Png);
+
+                stream.Seek(0, SeekOrigin.Begin);
+
+                ulong reply = Context.Message.Channel.SendFileAsync(stream, "1024Says.png").Result.Id;
+                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            }
+
+            return Task.CompletedTask;
+        }
+
     }
 
 }
