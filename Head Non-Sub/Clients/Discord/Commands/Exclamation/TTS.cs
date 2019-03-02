@@ -1,0 +1,60 @@
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Discord.Commands;
+using HeadNonSub.Clients.Discord.Attributes;
+using HeadNonSub.Entities.Streamlabs;
+using HeadNonSub.Extensions;
+using Newtonsoft.Json;
+
+namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
+
+    [RequireContext(ContextType.Guild)]
+    public class TTS : ModuleBase<SocketCommandContext> {
+
+        [Command("tts")]
+        [Cooldown(60)]
+        public Task TTSAsync([Remainder]string input) {
+            Stream oggFile = Generate(input);
+
+            if (oggFile is Stream) {
+                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{input.Truncate(35)}.ogg").Result.Id;
+                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            } else {
+                ulong reply = ReplyAsync("Failed to generate the text to speech.").Result.Id;
+                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private Stream Generate(string text) {
+            Dictionary<string, string> values = new Dictionary<string, string> { { "text", text }, { "voice", "Joanna" } };
+            Polly polly = new Polly();
+
+            HttpClient client = new HttpClient();
+            FormUrlEncodedContent post = new FormUrlEncodedContent(values);
+            HttpResponseMessage jsonResponse = client.PostAsync("https://streamlabs.com/polly/speak", post).Result;
+
+            string json = jsonResponse.Content.ReadAsStringAsync().Result;
+
+            using (StringReader jsonReader = new StringReader(json)) {
+                JsonSerializer jsonSerializer = new JsonSerializer {
+                    DateTimeZoneHandling = DateTimeZoneHandling.Local
+                };
+
+                polly = jsonSerializer.Deserialize(jsonReader, typeof(Polly)) as Polly;
+            }
+
+            if (polly is Polly & polly.Success) {
+                HttpResponseMessage speakResponse = client.GetAsync(polly.SpeakUrl).Result;
+                return speakResponse.Content.ReadAsStreamAsync().Result;
+            }
+
+            return null;
+        }
+
+    }
+
+}
