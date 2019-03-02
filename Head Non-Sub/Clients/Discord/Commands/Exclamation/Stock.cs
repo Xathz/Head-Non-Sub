@@ -6,6 +6,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using HeadNonSub.Entities.TwitchStocks;
 using Newtonsoft.Json;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
@@ -14,12 +15,19 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     public class Stock : ModuleBase<SocketCommandContext> {
 
         private readonly DateTime _Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        private Dictionary<long, double> _Values = new Dictionary<long, double>();
 
         [Command("stock")]
         public Task StockAsync() {
-            GetStocks();
-            KeyValuePair<long, double> recent = _Values.OrderByDescending(x => x.Key).FirstOrDefault();
+            bool fromCache = false;
+            KeyValuePair<long, double> recent;
+
+            if (Cache.Get("stock") is KeyValuePair<long, double> validStock) {
+                fromCache = true;
+                recent = validStock;
+            } else {
+                recent = GetRecentStockValue();
+                Cache.Add("stock", recent);
+            }
 
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
@@ -31,7 +39,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             builder.AddField("Value", $"**${recent.Value.ToString("N2")}** _${recent.Value.ToString("N6")}_");
 
             builder.Footer = new EmbedFooterBuilder() {
-                Text = $"As of {FromUnixTime(recent.Key)} utc"
+                Text = $"As of {FromUnixTime(recent.Key).ToString().ToLower()} utc{(fromCache ? "; from cache" : "")}"
             };
 
             ulong reply = ReplyAsync(embed: builder.Build()).Result.Id;
@@ -40,8 +48,15 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             return Task.CompletedTask;
         }
 
-        private void GetStocks() {
+        private KeyValuePair<long, double> GetRecentStockValue() {
+            Dictionary<long, double> stocks = GetStocks();
+            return stocks.OrderByDescending(x => x.Key).FirstOrDefault();
+        }
+
+        private Dictionary<long, double> GetStocks() {
+            Dictionary<long, double> returnValues = new Dictionary<long, double>();
             Values values = new Values();
+
             WebClient webClient = new WebClient();
             webClient.Headers.Add(HttpRequestHeader.Referer, "https://twitchstocks.com");
             string json = webClient.DownloadString("https://api.twitchstocks.com/api/v1/stocks/38251312/history/1hr");
@@ -69,19 +84,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     }
                 }
 
-                _Values.Add(timestamp.Value, value.Value);
+                returnValues.Add(timestamp.Value, value.Value);
             }
 
+            return returnValues;
         }
 
         private DateTime FromUnixTime(long unixTime) => _Epoch.AddMilliseconds(unixTime);
-
-        private class Values {
-
-            [JsonProperty("data")]
-            public List<List<double>> Data { get; set; }
-
-        }
 
     }
 
