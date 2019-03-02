@@ -75,6 +75,37 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             return Task.CompletedTask;
         }
 
+        [Command("amandasays")]
+        public Task AmandaSaysAsync([Remainder]string input) {
+
+            using (MemoryStream stream = new MemoryStream(100))
+            using (MagickImage image = new MagickImage(Path.Combine(Constants.ContentDirectory, "amandaTemplate.png"))) {
+
+                string text = string.Join(Environment.NewLine, input.SplitIntoChunks(30));
+                int max = (text.Length <= 220 ? text.Length : 220);
+                text = text.Substring(0, max);
+
+                new Drawables()
+                  .FontPointSize(48)
+                  .Font(Path.Combine(Constants.FontsDirectory, "ConcertOne-Regular.ttf"))
+                  .FillColor(new MagickColor("#404040"))
+                  .TextAlignment(TextAlignment.Left)
+                  .TextAntialias(true)
+                  .TextEncoding(Encoding.UTF8)
+                  .Text(730, 260, text)
+                  .Draw(image);
+
+                image.Write(stream, MagickFormat.Png);
+
+                stream.Seek(0, SeekOrigin.Begin);
+
+                ulong reply = Context.Message.Channel.SendFileAsync(stream, "amandaSays.png").Result.Id;
+                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            }
+
+            return Task.CompletedTask;
+        }
+
     }
 
 }

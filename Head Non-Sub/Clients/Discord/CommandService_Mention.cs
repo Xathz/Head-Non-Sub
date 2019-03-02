@@ -64,6 +64,10 @@ namespace HeadNonSub.Clients.Discord {
                 LoggingManager.Log.Warn(logLine);
 
                 switch (result.Error) {
+                    case CommandError.UnmetPrecondition:
+                        await context.Channel.SendMessageAsync(result.ErrorReason);
+                        break;
+
                     default:
                         //await context.Channel.SendMessageAsync(result.ErrorReason);
                         break;

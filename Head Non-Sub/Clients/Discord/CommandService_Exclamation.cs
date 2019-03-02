@@ -31,6 +31,7 @@ namespace HeadNonSub.Clients.Discord {
             await _Commands.AddModuleAsync<Commands.Exclamation.Rave>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Rythm>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Spam>(_Services);
+            await _Commands.AddModuleAsync<Commands.Exclamation.Stock>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Strawpoll>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Yam>(_Services);
         }
@@ -66,6 +67,10 @@ namespace HeadNonSub.Clients.Discord {
                 LoggingManager.Log.Warn(logLine);
 
                 switch (result.Error) {
+                    case CommandError.UnmetPrecondition:
+                        await context.Channel.SendMessageAsync(result.ErrorReason);
+                        break;
+
                     default:
                         //await context.Channel.SendMessageAsync(result.ErrorReason);
                         break;
