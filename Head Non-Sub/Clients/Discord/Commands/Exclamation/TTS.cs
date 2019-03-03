@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -15,11 +16,12 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("tts")]
         [Cooldown(60)]
-        public Task TTSAsync([Remainder]string input) {
-            Stream oggFile = Generate(input);
+        public Task JoannaAsync([Remainder]string input) {
+            string clean = Clean(input);
+            Stream oggFile = Generate(clean, "Joanna");
 
             if (oggFile is Stream) {
-                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{input.Truncate(35)}.ogg").Result.Id;
+                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{clean.Truncate(35)}.ogg").Result.Id;
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             } else {
                 ulong reply = ReplyAsync("Failed to generate the text to speech.").Result.Id;
@@ -29,8 +31,44 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             return Task.CompletedTask;
         }
 
-        private Stream Generate(string text) {
-            Dictionary<string, string> values = new Dictionary<string, string> { { "text", text }, { "voice", "Joanna" } };
+        [Command("tts2")]
+        [Cooldown(60)]
+        public Task JustinAsync([Remainder]string input) {
+            string clean = Clean(input);
+            Stream oggFile = Generate(clean, "Justin");
+
+            if (oggFile is Stream) {
+                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{clean.Truncate(35)}.ogg").Result.Id;
+                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            } else {
+                ulong reply = ReplyAsync("Failed to generate the text to speech.").Result.Id;
+                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        [Command("tts3")]
+        [Cooldown(60)]
+        public Task BrianAsync([Remainder]string input) {
+            string clean = Clean(input);
+            Stream oggFile = Generate(clean, "Brian");
+
+            if (oggFile is Stream) {
+                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{clean.Truncate(35)}.ogg").Result.Id;
+                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            } else {
+                ulong reply = ReplyAsync("Failed to generate the text to speech.").Result.Id;
+                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private string Clean(string input) => input.Replace(Environment.NewLine, " ").Replace("\r\n", " ").Replace("\n", " ").Replace("\r", " ");
+
+        private Stream Generate(string text, string voice) {
+            Dictionary<string, string> values = new Dictionary<string, string> { { "text", text }, { "voice", voice } };
             Polly polly = new Polly();
 
             HttpClient client = new HttpClient();
