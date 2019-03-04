@@ -103,6 +103,15 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             return Task.CompletedTask;
         }
 
+        [Command("true")]
+        [Cooldown(20)]
+        public Task TrueAsync() {
+            ulong reply = Context.Message.Channel.SendFileAsync(Path.Combine(Constants.ContentDirectory, "true.png")).Result.Id;
+
+            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            return Task.CompletedTask;
+        }
+
         [Command("youareallretarded")]
         [Cooldown(120)]
         [AllowedGuilds(328300333010911242)]

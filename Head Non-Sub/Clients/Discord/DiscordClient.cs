@@ -88,6 +88,32 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
+        public static async Task TwitchChannelChange(string channelName, string imageUrl, string title, string description) {
+            try {
+                // '#main (403341336129830918)' on 'Wubby's Fun House (328300333010911242)'
+                if (_DiscordClient.GetChannel(403341336129830918) is IMessageChannel channel) {
+                    string url = imageUrl.Replace("{width}", "1920").Replace("{height}", "1080");
+
+                    EmbedBuilder builder = new EmbedBuilder() {
+                        Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
+                        ImageUrl = url,
+                        Url = $"https://twitch.tv/{channelName}",
+                        Title = title,
+                        Description = description
+                    };
+
+                    builder.Author = new EmbedAuthorBuilder {
+                        Name = channelName,
+                        Url = $"https://twitch.tv/{channelName}"
+                    };
+
+                    await channel.SendMessageAsync(embed: builder.Build());
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+            }
+        }
+
         private static Task Log(LogMessage e) {
             switch (e.Severity) {
                 case LogSeverity.Debug:

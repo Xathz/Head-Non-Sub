@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -13,6 +15,7 @@ namespace HeadNonSub.Clients.Discord {
         private readonly CommandService _Commands;
         private readonly DiscordSocketClient _DiscordClient;
         private readonly IServiceProvider _Services;
+        private readonly HashSet<string> _ValidCommands = new HashSet<string>();
 
         public CommandService_Exclamation(IServiceProvider services) {
             _Commands = services.GetRequiredService<CommandService>();
@@ -21,6 +24,9 @@ namespace HeadNonSub.Clients.Discord {
 
             _Commands.CommandExecuted += ExecutedAsync;
             _DiscordClient.MessageReceived += MessageReceivedAsync;
+
+            // TODO Does not show who deleted the message, if the bot deletes a message it yells at the bot.
+            //_DiscordClient.MessageDeleted += MessageDeletedAsync;
         }
 
         public async Task InitializeAsync() {
@@ -35,6 +41,11 @@ namespace HeadNonSub.Clients.Discord {
             await _Commands.AddModuleAsync<Commands.Exclamation.Strawpoll>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.TTS>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Yam>(_Services);
+
+            _Commands.Commands.ToList().ForEach(x => {
+                _ValidCommands.Add(x.Name);
+                x.Aliases.ToList().ForEach(a => _ValidCommands.Add(a));
+            });
         }
 
         private async Task MessageReceivedAsync(SocketMessage rawMessage) {
@@ -47,14 +58,23 @@ namespace HeadNonSub.Clients.Discord {
             SocketCommandContext context = new SocketCommandContext(_DiscordClient, message);
 
             await _Commands.ExecuteAsync(context, argPos, _Services);
+        }
 
-            // TODO This is a really bad way to do this. Tried many attempts to correctly detect ManageMessages permissions.
-            //      Need to find a good way to detect role, category, channel, and direct permissions.
-            if (SettingsManager.Configuration.DeleteInvokingMessage) {
-                try {
-                    _ = message.DeleteAsync();
-                } catch { }
-            }
+        private async Task MessageDeletedAsync(Cacheable<IMessage, ulong> cache, ISocketMessageChannel channel) {
+            if (!(cache.Value is SocketUserMessage message)) { return; }
+            if (message.Source != MessageSource.User) { return; }
+
+            try {
+                int argPos = 0;
+                if (message.HasStringPrefix("!", ref argPos)) {
+                    string command = message.Content.Substring(1, (message.Content.Contains(' ') ? message.Content.IndexOf(' ') - 1 : message.Content.Length - 1));
+
+                    if (_ValidCommands.Contains(command)) {
+                        await channel.SendMessageAsync($"Please do not delete invoking commands. ```{message.CreatedAt.ToString(Constants.DateTimeFormat)} utc; {message.Author.ToString()}{Environment.NewLine}" +
+                            $"{message.Content}```");
+                    }
+                }
+            } catch { }
         }
 
         private async Task ExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result) {

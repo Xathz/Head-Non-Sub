@@ -37,14 +37,6 @@ namespace HeadNonSub.Clients.Discord {
             SocketCommandContext context = new SocketCommandContext(_DiscordClient, message);
 
             await _Commands.ExecuteAsync(context, argPos, _Services);
-
-            // TODO This is a really bad way to do this. Tried many attempts to correctly detect ManageMessages permissions.
-            //      Need to find a good way to detect role, category, channel, and direct permissions.
-            if (SettingsManager.Configuration.DeleteInvokingMessage) {
-                try {
-                    _ = message.DeleteAsync();
-                } catch { }
-            }
         }
 
         private async Task ExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result) {

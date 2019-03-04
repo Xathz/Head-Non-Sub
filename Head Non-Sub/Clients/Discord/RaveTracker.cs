@@ -15,11 +15,6 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="channel">Channel id.</param>
         public static void Track(ulong server, ulong channel) {
             _Raves.Add(new Rave(DateTime.Now, server, channel, true));
-
-            // Remove oldest
-            if (_Raves.Count > 250) {
-                _Raves.RemoveAt(0);
-            }
         }
 
         /// <summary>

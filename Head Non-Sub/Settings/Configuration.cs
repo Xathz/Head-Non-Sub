@@ -20,9 +20,14 @@ namespace HeadNonSub.Settings {
         public string DiscordToken { get; set; } = string.Empty;
 
         /// <summary>
-        /// Delete the invoking message that ran the command.
+        /// Twitch username.
         /// </summary>
-        public bool DeleteInvokingMessage { get; set; } = false;
+        public string TwitchUsername { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Twitch oauth token.
+        /// </summary>
+        public string TwitchToken { get; set; } = string.Empty;
 
         /// <summary>
         /// List of users (user id's) to act as admins with commands. Key = server id; Value = hashset of user ids.

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -17,7 +16,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("tts")]
         [Cooldown(60)]
         public Task JoannaAsync([Remainder]string input) {
-            string clean = Clean(input);
+            string clean = input.RemoveNewLines();
             Stream oggFile = Generate(clean, "Joanna");
 
             if (oggFile is Stream) {
@@ -34,7 +33,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("tts2")]
         [Cooldown(60)]
         public Task JustinAsync([Remainder]string input) {
-            string clean = Clean(input);
+            string clean = input.RemoveNewLines();
             Stream oggFile = Generate(clean, "Justin");
 
             if (oggFile is Stream) {
@@ -51,7 +50,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("tts3")]
         [Cooldown(60)]
         public Task BrianAsync([Remainder]string input) {
-            string clean = Clean(input);
+            string clean = input.RemoveNewLines();
             Stream oggFile = Generate(clean, "Brian");
 
             if (oggFile is Stream) {
@@ -64,8 +63,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             return Task.CompletedTask;
         }
-
-        private string Clean(string input) => input.Replace(Environment.NewLine, " ").Replace("\r\n", " ").Replace("\n", " ").Replace("\r", " ");
 
         private Stream Generate(string text, string voice) {
             Dictionary<string, string> values = new Dictionary<string, string> { { "text", text }, { "voice", voice } };
