@@ -15,7 +15,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         public Task TTSaysAsync([Remainder]string input) {
 
             using (MemoryStream stream = new MemoryStream(100))
-            using (MagickImage image = new MagickImage(Path.Combine(Constants.ContentDirectory, "ttTemplate.png"))) {
+            using (MagickImage image = new MagickImage(Cache.GetStream("ttsays.png"))) {
 
                 string text = string.Join(Environment.NewLine, input.SplitIntoChunks(26));
                 int max = (text.Length <= 150 ? text.Length : 150);
@@ -46,7 +46,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         public Task TenTwentyFourSaysAsync([Remainder]string input) {
 
             using (MemoryStream stream = new MemoryStream(100))
-            using (MagickImage image = new MagickImage(Path.Combine(Constants.ContentDirectory, "1024Template.png"))) {
+            using (MagickImage image = new MagickImage(Cache.GetStream("1024says.png"))) {
 
                 string text = string.Join(Environment.NewLine, input.SplitIntoChunks(25));
                 int max = (text.Length <= 200 ? text.Length : 200);
@@ -79,7 +79,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         public Task AmandaSaysAsync([Remainder]string input) {
 
             using (MemoryStream stream = new MemoryStream(100))
-            using (MagickImage image = new MagickImage(Path.Combine(Constants.ContentDirectory, "amandaTemplate.png"))) {
+            using (MagickImage image = new MagickImage(Cache.GetStream("amandasays.png"))) {
 
                 string text = string.Join(Environment.NewLine, input.SplitIntoChunks(30));
                 int max = (text.Length <= 220 ? text.Length : 220);

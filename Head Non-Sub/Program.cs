@@ -33,6 +33,8 @@ namespace HeadNonSub {
 
             LoggingManager.Initialize();
             SettingsManager.Load();
+
+            Cache.LoadContent();
         }
 
         private async Task StartAsync() {

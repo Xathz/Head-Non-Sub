@@ -86,6 +86,11 @@ namespace HeadNonSub {
         public static string ContentDirectory => Path.Combine(WorkingDirectory, "Content");
 
         /// <summary>
+        /// Image templates for the application.
+        /// </summary>
+        public static string TemplatesDirectory => Path.Combine(ContentDirectory, "Templates");
+
+        /// <summary>
         /// Audio content files for the application.
         /// </summary>
         public static string AudioDirectory => Path.Combine(ContentDirectory, "Audio");
