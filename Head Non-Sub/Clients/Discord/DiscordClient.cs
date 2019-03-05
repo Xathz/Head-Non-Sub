@@ -114,6 +114,14 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
+        public static async Task SetStatus(string name = "", string url = "") {
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(url)) {
+                await _DiscordClient.SetGameAsync(SettingsManager.Configuration.BotPlaying);
+            } else {
+                await _DiscordClient.SetGameAsync(name, url, ActivityType.Watching);
+            }
+        }
+
         private static Task Log(LogMessage e) {
             switch (e.Severity) {
                 case LogSeverity.Debug:

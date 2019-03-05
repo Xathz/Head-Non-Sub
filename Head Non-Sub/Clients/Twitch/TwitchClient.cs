@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using HeadNonSub.Settings;
 using TwitchLib.Api;
@@ -20,6 +21,9 @@ namespace HeadNonSub.Clients.Twitch {
         private static Client.TwitchClient _TwitchClient;
 
         private static LiveStreamMonitorService _StreamMonitor;
+        private static readonly Dictionary<string, string> _StreamNames = new Dictionary<string, string>() {
+            { "paymoneywubby", "PaymoneyWubby" }
+        };
 
         public static void ConnectApi() {
             try {
@@ -31,7 +35,7 @@ namespace HeadNonSub.Clients.Twitch {
                 _TwitchApi = new TwitchAPI(settings: _ApiSettings);
 
                 _StreamMonitor = new LiveStreamMonitorService(_TwitchApi, 20);
-                _StreamMonitor.SetChannelsByName(new List<string> { "paymoneywubby" });
+                _StreamMonitor.SetChannelsByName(_StreamNames.Keys.ToList());
 
                 _StreamMonitor.Start();
 
@@ -78,15 +82,21 @@ namespace HeadNonSub.Clients.Twitch {
         //}
 
         private static void OnStreamOnline(object sender, OnStreamOnlineArgs e) {
-            _ = Discord.DiscordClient.TwitchChannelChange(e.Channel, e.Stream.ThumbnailUrl, $"{e.Channel} is now live!", e.Stream.Title);
+            string channel = _StreamNames.Where(x => x.Key.ToLower() == e.Channel.ToLower()).FirstOrDefault().Value;
+
+            _ = Discord.DiscordClient.SetStatus($"Watching {channel}!", $"https://twitch.tv/{e.Channel}");
+            _ = Discord.DiscordClient.TwitchChannelChange(channel, e.Stream.ThumbnailUrl, $"{channel} is now live!", e.Stream.Title);
         }
 
         private static void OnStreamUpdate(object sender, OnStreamUpdateArgs e) {
-            
+
         }
 
         private static void OnStreamOffline(object sender, OnStreamOfflineArgs e) {
-            _ = Discord.DiscordClient.TwitchChannelChange(e.Channel, e.Stream.ThumbnailUrl, $"{e.Channel} is now offline", "Thanks for watching");
+            string channel = _StreamNames.Where(x => x.Key.ToLower() == e.Channel.ToLower()).FirstOrDefault().Value;
+
+            _ = Discord.DiscordClient.SetStatus();
+            _ = Discord.DiscordClient.TwitchChannelChange(channel, e.Stream.ThumbnailUrl, $"{channel} is now offline", "Thanks for watching");
         }
 
         private static void OnConnected(object sender, Client.Events.OnConnectedArgs e) {

@@ -23,7 +23,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="server">Server (guild) id.</param>
         /// <param name="channel">Channel id.</param>
         public static void Stop(ulong server, ulong channel) {
-            _Raves.Where(x => x.Server == server & x.Channel == channel).ToList().ForEach(x => x.Active = false);
+            _Raves.Where(x => x.Server == server & x.Channel == channel & x.Active == true).ToList().ForEach(x => x.Active = false);
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace HeadNonSub.Clients.Discord {
             bool isStopped = _Raves.Where(x => x.Server == server & x.Channel == channel & x.Active == false).OrderByDescending(x => x.DateTime).Any();
 
             if (isStopped) {
-                _Raves.RemoveAt(_Raves.FindIndex(x => x.Server == server & x.Channel == channel & x.Active == false));
+                _Raves.RemoveAll(x => x.Server == server & x.Channel == channel & x.Active == false);
             }
 
             return isStopped;
