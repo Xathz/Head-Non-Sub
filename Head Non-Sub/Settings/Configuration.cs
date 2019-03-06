@@ -33,7 +33,12 @@ namespace HeadNonSub.Settings {
         /// List of users (user id's) to act as admins with commands. Key = server id; Value = hashset of user ids.
         /// </summary>
         public Dictionary<ulong, HashSet<ulong>> DiscordWhitelist { get; set; } = new Dictionary<ulong, HashSet<ulong>>();
-        
+
+        /// <summary>
+        /// List of users (user id's) that are blacklisted from using any commands. Key = server id; Value = hashset of user ids.
+        /// </summary>
+        public Dictionary<ulong, HashSet<ulong>> DiscordBlacklist { get; set; } = new Dictionary<ulong, HashSet<ulong>>();
+
     }
 
 }

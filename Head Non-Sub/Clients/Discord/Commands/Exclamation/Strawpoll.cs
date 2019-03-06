@@ -5,12 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Statistics;
 using StrawPollNET.Models;
 using static StrawPollNET.API;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
+    [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
     public class Strawpoll : ModuleBase<SocketCommandContext> {
 

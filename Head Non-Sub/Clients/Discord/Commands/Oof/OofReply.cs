@@ -1,10 +1,12 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using Discord.Commands;
+using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Oof {
 
+    [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
     public class OofReply : ModuleBase<SocketCommandContext> {
 

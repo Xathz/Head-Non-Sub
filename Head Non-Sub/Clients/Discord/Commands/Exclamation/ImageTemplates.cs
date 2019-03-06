@@ -3,12 +3,14 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Discord.Commands;
+using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Extensions;
 using HeadNonSub.Statistics;
 using ImageMagick;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
+    [BlacklistEnforced]
     public class ImageTemplates : ModuleBase<SocketCommandContext> {
 
         [Command("ttsays")]

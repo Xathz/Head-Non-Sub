@@ -9,6 +9,7 @@ using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
+    [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
     public class Spam : ModuleBase<SocketCommandContext> {
 

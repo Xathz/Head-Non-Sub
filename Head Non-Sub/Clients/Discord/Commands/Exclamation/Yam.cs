@@ -6,7 +6,7 @@ using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
-    [AllowedGuilds(528475747334225925)]
+    [BlacklistEnforced, AllowedGuilds(528475747334225925)]
     [RequireContext(ContextType.Guild)]
     public class Yam : ModuleBase<SocketCommandContext> {
 

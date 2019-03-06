@@ -11,7 +11,7 @@ using HeadNonSub.Statistics;
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
     // Wubby's Fun House: 'actual-fucking-spam'; Cam’s Pocket: 'shitposting-cause-xathz'
-    [AllowedChannels(537727672747294738, 546863784157904896)]
+    [BlacklistEnforced, AllowedChannels(537727672747294738, 546863784157904896)]
     [RequireContext(ContextType.Guild)]
     public class Rave : ModuleBase<SocketCommandContext> {
 

@@ -6,10 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
+    [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
     public class Poll : ModuleBase<SocketCommandContext> {
 

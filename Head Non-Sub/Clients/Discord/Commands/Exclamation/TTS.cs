@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
+    [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
     public class TTS : ModuleBase<SocketCommandContext> {
 

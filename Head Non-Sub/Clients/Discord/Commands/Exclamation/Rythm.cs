@@ -11,7 +11,7 @@ using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
-    [AllowedGuilds(328300333010911242)]
+    [BlacklistEnforced, AllowedGuilds(328300333010911242)]
     [RequireContext(ContextType.Guild)]
     public class Rythm : ModuleBase<SocketCommandContext> {
 

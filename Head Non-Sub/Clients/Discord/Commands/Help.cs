@@ -2,10 +2,12 @@
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands {
 
+    [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
     public class Help : ModuleBase<SocketCommandContext> {
 

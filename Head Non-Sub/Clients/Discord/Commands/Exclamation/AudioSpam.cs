@@ -10,7 +10,7 @@ using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
-    [OwnerAdminWhitelist]
+    [BlacklistEnforced, OwnerAdminWhitelist]
     [RequireContext(ContextType.Guild)]
     public class AudioSpam : ModuleBase<SocketCommandContext> {
 

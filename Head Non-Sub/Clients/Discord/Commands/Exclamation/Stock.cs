@@ -6,12 +6,14 @@ using System.Net;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Entities.TwitchStocks;
 using HeadNonSub.Statistics;
 using Newtonsoft.Json;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
+    [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
     public class Stock : ModuleBase<SocketCommandContext> {
 

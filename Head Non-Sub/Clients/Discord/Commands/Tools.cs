@@ -11,6 +11,7 @@ using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands {
 
+    [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
     public class Tools : ModuleBase<SocketCommandContext> {
 
