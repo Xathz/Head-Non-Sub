@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Discord.Commands;
+using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Extensions;
 using HeadNonSub.Statistics;
@@ -12,6 +13,16 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
     [BlacklistEnforced]
     public class ImageTemplates : ModuleBase<SocketCommandContext> {
+
+        private string RequestedBy {
+            get {
+                if (Context.User is SocketGuildUser user) {
+                    return $"{(!string.IsNullOrWhiteSpace(user.Nickname) ? user.Nickname : user.Username)} `{user.ToString()}`";
+                } else {
+                    return $"{Context.User.Username} `{Context.User.ToString()}`";
+                }
+            }
+        }
 
         [Command("ttsays")]
         public Task TTSaysAsync([Remainder]string input) {
@@ -37,7 +48,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
                 stream.Seek(0, SeekOrigin.Begin);
 
-                ulong reply = Context.Message.Channel.SendFileAsync(stream, "ttSays.png").Result.Id;
+                ulong reply = Context.Message.Channel.SendFileAsync(stream, "ttSays.png", text: $"Requested by: {RequestedBy}").Result.Id;
                 if (!Context.IsPrivate) {
                     UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
                     StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
@@ -73,7 +84,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
                 stream.Seek(0, SeekOrigin.Begin);
 
-                ulong reply = Context.Message.Channel.SendFileAsync(stream, "1024Says.png").Result.Id;
+                ulong reply = Context.Message.Channel.SendFileAsync(stream, "1024Says.png", text: $"Requested by: {RequestedBy}").Result.Id;
                 if (!Context.IsPrivate) {
                     UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
                     StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
@@ -107,7 +118,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
                 stream.Seek(0, SeekOrigin.Begin);
 
-                ulong reply = Context.Message.Channel.SendFileAsync(stream, "amandaSays.png").Result.Id;
+                ulong reply = Context.Message.Channel.SendFileAsync(stream, "amandaSays.png", text: $"Requested by: {RequestedBy}").Result.Id;
                 if (!Context.IsPrivate) {
                     UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
                     StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();

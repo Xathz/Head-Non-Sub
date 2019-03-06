@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Entities.Streamlabs;
 using HeadNonSub.Extensions;
@@ -18,19 +19,24 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         private string RequestedBy {
             get {
-                IGuildUser contextUser = Context.User as IGuildUser;
-                return !string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Nickname : contextUser.Username;
+                if (Context.User is SocketGuildUser user) {
+                    return $"{(!string.IsNullOrWhiteSpace(user.Nickname) ? user.Nickname : user.Username)} `{user.ToString()}`";
+                } else {
+                    return $"{Context.User.Username} `{Context.User.ToString()}`";
+                }
             }
         }
 
         [Command("tts")]
         [Cooldown(60)]
         public Task JoannaAsync([Remainder]string input) {
+            Context.Message.DeleteAsync();
+
             string clean = input.RemoveNewLines();
             Stream oggFile = Generate(clean, "Joanna");
 
             if (oggFile is Stream) {
-                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{clean.Truncate(35)}.ogg", text: $"Requested by: {RequestedBy}").Result.Id;
+                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{clean.Truncate(35)}.ogg", text: $"Requested by: {RequestedBy}{Environment.NewLine}```{clean}```").Result.Id;
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
                 StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
                 StatisticsManager.Statistics.Commands(Context.Guild.Id).TTSMessage(clean);
@@ -45,11 +51,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("tts2")]
         [Cooldown(60)]
         public Task JustinAsync([Remainder]string input) {
+            Context.Message.DeleteAsync();
+
             string clean = input.RemoveNewLines();
             Stream oggFile = Generate(clean, "Justin");
 
             if (oggFile is Stream) {
-                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{clean.Truncate(35)}.ogg", text: $"Requested by: {RequestedBy}").Result.Id;
+                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{clean.Truncate(35)}.ogg", text: $"Requested by: {RequestedBy}{Environment.NewLine}```{clean}```").Result.Id;
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
                 StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
                 StatisticsManager.Statistics.Commands(Context.Guild.Id).TTSMessage(clean);
@@ -64,11 +72,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("tts3")]
         [Cooldown(60)]
         public Task BrianAsync([Remainder]string input) {
+            Context.Message.DeleteAsync();
+
             string clean = input.RemoveNewLines();
             Stream oggFile = Generate(clean, "Brian");
 
             if (oggFile is Stream) {
-                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{clean.Truncate(35)}.ogg", text: $"Requested by: {RequestedBy}").Result.Id;
+                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{clean.Truncate(35)}.ogg", text: $"Requested by: {RequestedBy}{Environment.NewLine}```{clean}```").Result.Id;
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
                 StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
                 StatisticsManager.Statistics.Commands(Context.Guild.Id).TTSMessage(clean);
