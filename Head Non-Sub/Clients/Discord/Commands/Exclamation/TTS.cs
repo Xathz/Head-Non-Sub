@@ -30,32 +30,54 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("tts")]
         [Cooldown(60)]
         public Task JoannaAsync([Remainder]string input) {
-            GenerateAndSend(input, "Joanna").Wait();
+            GenerateAndSend(input, "Joanna");
             return Task.CompletedTask;
         }
 
         [Command("tts2")]
         [Cooldown(60)]
         public Task JustinAsync([Remainder]string input) {
-            GenerateAndSend(input, "Justin").Wait();
+            GenerateAndSend(input, "Justin");
             return Task.CompletedTask;
         }
 
         [Command("tts3")]
         [Cooldown(60)]
         public Task BrianAsync([Remainder]string input) {
-            GenerateAndSend(input, "Brian").Wait();
+            GenerateAndSend(input, "Brian");
             return Task.CompletedTask;
         }
 
-        private Task GenerateAndSend(string text, string voice) {
+        [Command("tts4")]
+        [Cooldown(60)]
+        public Task MizukiAsync([Remainder]string input) {
+            GenerateAndSend(input, "Mizuki");
+            return Task.CompletedTask;
+        }
+
+        private void GenerateAndSend(string text, string voice) {
+            string clean = text.RemoveNewLines();
+
+            if (string.IsNullOrWhiteSpace(clean)) {
+                ulong reply = ReplyAsync("You need to enter text... for _text_ to speech to work you idiot.").Result.Id;
+                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+                return;
+            }
+
+            if (clean.Length > 550) {
+                ulong reply = ReplyAsync("The text must be 550 or less characters including spaces.").Result.Id;
+                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+                return;
+            }
+
             Context.Message.DeleteAsync();
 
-            string clean = text.RemoveNewLines();
+            string filename = clean.Truncate(40).ToLower();
+            if (filename.EndsWith("_")) { filename = filename.Remove(filename.Length - 1, 1); }
             Stream oggFile = Generate(clean, voice);
 
             if (oggFile is Stream) {
-                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{clean.Truncate(35)}.ogg", text: $"● {RequestedBy}{Environment.NewLine}```{clean}```").Result.Id;
+                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{filename}.ogg", text: $"● {RequestedBy}{Environment.NewLine}```{clean}```").Result.Id;
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
                 StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
                 StatisticsManager.Statistics.Commands(Context.Guild.Id).TTSMessage(clean);
@@ -63,8 +85,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 ulong reply = ReplyAsync("Failed to generate the text to speech.").Result.Id;
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             }
-
-            return Task.CompletedTask;
         }
 
         private Stream Generate(string text, string voice) {

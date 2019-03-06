@@ -13,6 +13,14 @@ namespace HeadNonSub.Clients.Discord.Commands {
     [RequireContext(ContextType.Guild)]
     public class Whitelist : ModuleBase<SocketCommandContext> {
 
+        private string User(SocketUser user) {
+            if (user is SocketGuildUser guildUser) {
+                return $"{(!string.IsNullOrWhiteSpace(guildUser.Nickname) ? guildUser.Nickname : guildUser.Username)} `{guildUser.ToString()}`";
+            } else {
+                return $"{Context.User.Username} `{Context.User.ToString()}`";
+            }
+        }
+
         [Command("add")]
         public Task WhitelistAddAsync(SocketUser user = null) {
             if (user == null) {
@@ -20,7 +28,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             }
 
             if (SettingsManager.Configuration.DiscordWhitelist.Any(x => x.Key == Context.Guild.Id && x.Value.Contains(user.Id))) {
-                return ReplyAsync($"{user.Username} (`{user.Id}`) is already whitelisted.");
+                return ReplyAsync($"{User(user)} is already whitelisted.");
             } else {
                 if (SettingsManager.Configuration.DiscordWhitelist.ContainsKey(Context.Guild.Id)) {
                     SettingsManager.Configuration.DiscordWhitelist[Context.Guild.Id].Add(user.Id);
@@ -29,9 +37,9 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 }
 
                 SettingsManager.Save();
-                LoggingManager.Log.Info($"{user.Username} ({user.Id}) was added to the whitelist by {Context.User.Username} ({Context.User.Id})");
+                LoggingManager.Log.Info($"{user.ToString()} ({user.Id}) was added to the whitelist by {Context.User.ToString()} ({Context.User.Id})");
 
-                return ReplyAsync($"{user.Username} (`{user.Id}`) was added to the whitelist.");
+                return ReplyAsync($"{User(user)} was added to the whitelist.");
             }
         }
 
@@ -45,11 +53,11 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 SettingsManager.Configuration.DiscordWhitelist[Context.Guild.Id].Remove(user.Id);
 
                 SettingsManager.Save();
-                LoggingManager.Log.Info($"{user.Username} ({user.Id}) was removed from the whitelist by {Context.User.Username} ({Context.User.Id})");
+                LoggingManager.Log.Info($"{user.ToString()} ({user.Id}) was removed from the whitelist by {Context.User.ToString()} ({Context.User.Id})");
 
-                return ReplyAsync($"{user.Username} (`{user.Id}`) was removed from the whitelist.");
+                return ReplyAsync($"{User(user)} was removed from the whitelist.");
             } else {
-                return ReplyAsync($"{user.Username} (`{user.Id}`) is not on the whitelist.");
+                return ReplyAsync($"{User(user)} is not on the whitelist.");
             }
         }
 
