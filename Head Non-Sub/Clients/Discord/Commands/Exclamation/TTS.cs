@@ -30,55 +30,32 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("tts")]
         [Cooldown(60)]
         public Task JoannaAsync([Remainder]string input) {
-            Context.Message.DeleteAsync();
-
-            string clean = input.RemoveNewLines();
-            Stream oggFile = Generate(clean, "Joanna");
-
-            if (oggFile is Stream) {
-                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{clean.Truncate(35)}.ogg", text: $"Requested by: {RequestedBy}{Environment.NewLine}```{clean}```").Result.Id;
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-                StatisticsManager.Statistics.Commands(Context.Guild.Id).TTSMessage(clean);
-            } else {
-                ulong reply = ReplyAsync("Failed to generate the text to speech.").Result.Id;
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            }
-
+            GenerateAndSend(input, "Joanna").Wait();
             return Task.CompletedTask;
         }
 
         [Command("tts2")]
         [Cooldown(60)]
         public Task JustinAsync([Remainder]string input) {
-            Context.Message.DeleteAsync();
-
-            string clean = input.RemoveNewLines();
-            Stream oggFile = Generate(clean, "Justin");
-
-            if (oggFile is Stream) {
-                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{clean.Truncate(35)}.ogg", text: $"Requested by: {RequestedBy}{Environment.NewLine}```{clean}```").Result.Id;
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-                StatisticsManager.Statistics.Commands(Context.Guild.Id).TTSMessage(clean);
-            } else {
-                ulong reply = ReplyAsync("Failed to generate the text to speech.").Result.Id;
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            }
-
+            GenerateAndSend(input, "Justin").Wait();
             return Task.CompletedTask;
         }
 
         [Command("tts3")]
         [Cooldown(60)]
         public Task BrianAsync([Remainder]string input) {
+            GenerateAndSend(input, "Brian").Wait();
+            return Task.CompletedTask;
+        }
+
+        private Task GenerateAndSend(string text, string voice) {
             Context.Message.DeleteAsync();
 
-            string clean = input.RemoveNewLines();
-            Stream oggFile = Generate(clean, "Brian");
+            string clean = text.RemoveNewLines();
+            Stream oggFile = Generate(clean, voice);
 
             if (oggFile is Stream) {
-                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{clean.Truncate(35)}.ogg", text: $"Requested by: {RequestedBy}{Environment.NewLine}```{clean}```").Result.Id;
+                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{clean.Truncate(35)}.ogg", text: $"● {RequestedBy}{Environment.NewLine}```{clean}```").Result.Id;
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
                 StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
                 StatisticsManager.Statistics.Commands(Context.Guild.Id).TTSMessage(clean);

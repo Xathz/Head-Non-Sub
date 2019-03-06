@@ -37,6 +37,7 @@ namespace HeadNonSub.Clients.Discord {
             await _Commands.AddModuleAsync<Commands.Exclamation.Rave>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Rythm>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Spam>(_Services);
+            await _Commands.AddModuleAsync<Commands.Exclamation.Stats>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Stock>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Strawpoll>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.TTS>(_Services);
