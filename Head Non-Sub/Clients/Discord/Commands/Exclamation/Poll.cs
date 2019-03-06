@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -77,6 +78,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, message.Id);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 

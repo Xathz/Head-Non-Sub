@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands {
 
@@ -42,6 +43,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             ulong reply = ReplyAsync(embed: builder.Build()).Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 

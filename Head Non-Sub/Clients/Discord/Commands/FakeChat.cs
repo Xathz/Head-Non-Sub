@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Extensions;
+using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands {
 
@@ -32,6 +33,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             ulong reply = ReplyAsync(responses.PickRandom()).Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -54,6 +56,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             ulong reply = ReplyAsync(responses.PickRandom()).Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -72,6 +75,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             ulong reply = ReplyAsync(responses.PickRandom()).Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 

@@ -6,6 +6,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
+using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -28,6 +29,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 Task.Delay(1250).Wait();
             }
 
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -46,6 +48,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 Task.Delay(1250).Wait();
             }
 
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -58,6 +61,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             ulong reply = ReplyAsync("Stopping all raves in this channel... you party pooper.").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -92,6 +96,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             noticeMessage.DeleteAsync();
 
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 

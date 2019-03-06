@@ -4,6 +4,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
+using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -21,6 +22,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, message.Id);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -45,6 +47,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             message.AddReactionAsync(new Emoji("🍆"));
 
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 

@@ -59,8 +59,10 @@ namespace HeadNonSub {
             if (input == "exit") {
                 LoggingManager.Log.Info("Exiting...");
 
+                StatisticsManager.Save();
+
                 await DiscordClient.StopAsync();
-                await Task.Delay(2000);
+                await Task.Delay(3000);
 
                 return;
             } else if (input.StartsWith("message")) {

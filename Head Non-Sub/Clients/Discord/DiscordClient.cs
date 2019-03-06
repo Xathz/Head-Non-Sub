@@ -4,6 +4,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Settings;
+using HeadNonSub.Statistics;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HeadNonSub.Clients.Discord {
@@ -71,6 +72,8 @@ namespace HeadNonSub.Clients.Discord {
         public static async Task StopAsync() => await _DiscordClient.StopAsync();
 
         public static void FailFast() {
+            StatisticsManager.Save();
+
             _ = _DiscordClient.LogoutAsync();
             Environment.Exit(13);
         }

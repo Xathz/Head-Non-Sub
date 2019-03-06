@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using HeadNonSub.Statistics;
 using StrawPollNET.Models;
 using static StrawPollNET.API;
 
@@ -29,6 +30,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply.Value);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -72,6 +74,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply.Value);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 

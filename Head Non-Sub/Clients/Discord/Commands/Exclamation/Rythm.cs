@@ -7,6 +7,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Extensions;
+using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -53,6 +54,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 } catch { }
 
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply.Id);
+                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
                 return Task.CompletedTask;
             } else {
                 ulong reply = ReplyAsync("Failed to pick a random song :(").Result.Id;

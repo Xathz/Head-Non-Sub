@@ -6,6 +6,7 @@ using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Entities.Streamlabs;
 using HeadNonSub.Extensions;
+using HeadNonSub.Statistics;
 using Newtonsoft.Json;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
@@ -22,6 +23,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             if (oggFile is Stream) {
                 ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{clean.Truncate(35)}.ogg").Result.Id;
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
+                StatisticsManager.Statistics.Commands(Context.Guild.Id).TTSMessage(clean);
             } else {
                 ulong reply = ReplyAsync("Failed to generate the text to speech.").Result.Id;
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
@@ -39,6 +42,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             if (oggFile is Stream) {
                 ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{clean.Truncate(35)}.ogg").Result.Id;
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
+                StatisticsManager.Statistics.Commands(Context.Guild.Id).TTSMessage(clean);
             } else {
                 ulong reply = ReplyAsync("Failed to generate the text to speech.").Result.Id;
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
@@ -56,6 +61,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             if (oggFile is Stream) {
                 ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{clean.Truncate(35)}.ogg").Result.Id;
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
+                StatisticsManager.Statistics.Commands(Context.Guild.Id).TTSMessage(clean);
             } else {
                 ulong reply = ReplyAsync("Failed to generate the text to speech.").Result.Id;
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);

@@ -7,6 +7,7 @@ using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Clients.Discord.Services;
 using HeadNonSub.Extensions;
+using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands {
 
@@ -21,6 +22,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 $"```Ping: {Context.Message.CreatedAt.DateTime.ToString(Constants.DateTimeFormat)}{Environment.NewLine}Pong: {now.ToString(Constants.DateTimeFormat)}```").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -28,11 +30,11 @@ namespace HeadNonSub.Clients.Discord.Commands {
         [OwnerAdminXathz]
         public Task FailFastAsync() {
             LoggingManager.Log.Fatal($"Forcibly disconnected from Discord. Server: {Context.Guild.Name} ({Context.Guild.Id}); Channel: {Context.Channel.Name} ({Context.Channel.Id}); User: {Context.User.Username} ({Context.User.Id})");
-
             ReplyAsync("Forcibly disconnecting from Discord, please tell <@!227088829079617536> as soon as possible. Good bye.").Wait();
 
-            DiscordClient.FailFast();
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
 
+            DiscordClient.FailFast();
             return Task.CompletedTask;
         }
 
@@ -98,6 +100,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 message.ModifyAsync(x => { x.Embed = builder.Build(); }).Wait();
 
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, message.Id);
+                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             } else {
                 ReplyAsync("Failed to select a random user.");
             }
@@ -122,6 +125,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 UndoTracker.Untrack(message.Value);
             }
 
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -142,6 +146,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             }
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 

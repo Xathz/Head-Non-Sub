@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using HeadNonSub.Entities.TwitchStocks;
+using HeadNonSub.Statistics;
 using Newtonsoft.Json;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
@@ -45,6 +46,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             ulong reply = ReplyAsync(embed: builder.Build()).Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 

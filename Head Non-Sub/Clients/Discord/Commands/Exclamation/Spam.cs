@@ -5,6 +5,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
+using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -17,6 +18,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             ulong reply = ReplyAsync("<:wubbydrugs:361993520040640516>").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -26,6 +28,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("rnk.png"), "rnk.png").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -35,6 +38,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("moneyshot.png"), "moneyshot.png").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -44,6 +48,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("yum.png"), "yum.png").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -54,6 +59,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("fucked_up.png"), "fucked_up.png").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -63,6 +69,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("what.png"), "what.png").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -72,6 +79,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("big_oof.gif"), "big_oof.gif").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -81,6 +89,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("1024_nude.png"), "1024_nude.png").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -90,6 +99,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("star.gif"), "star.gif").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -99,6 +109,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("gongboy.png"), "gongboy.png").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -109,6 +120,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("true.png"), "true.png").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -118,6 +130,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("potato.png"), "potato.png").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -137,6 +150,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 }
             }
 
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -156,6 +170,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 }
             }
 
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
@@ -171,6 +186,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 　˚　　　　　　　　　　　　　　　　　　　　　ﾟ　　　　　.　　　　　　　　　　　　　　　. 　　 　 🌎 ‍ ‍ ‍ ‍ ‍ ‍ ‍ ‍ ‍ ‍ ,　 　　　　　　　　　　　　　　* .　　　　　 　　　　　　　　　　　　　　.　　　　　　　　　　 ✦ 　　　　   　 　　　˚　　　　　　　　　　　　　　*　　　　　　 ").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 

@@ -27,7 +27,7 @@ namespace HeadNonSub.Statistics {
         /// <summary>
         /// Increase the execute count by one. Will use <see cref="CallerMemberNameAttribute"/> if <paramref name="caller"/> is not specified.
         /// </summary>
-        public void Execute([CallerMemberName] string caller = "") {
+        public void Executed([CallerMemberName] string caller = "") {
             if (string.IsNullOrWhiteSpace(caller)) { return; }
 
             _ExecuteCount.AddOrUpdate(caller, 1, (key, value) => ++value);
