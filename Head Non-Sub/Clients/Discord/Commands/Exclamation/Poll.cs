@@ -13,7 +13,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     public class Poll : ModuleBase<SocketCommandContext> {
 
         [Command("trashpoll")]
-        public Task PollAsync([Remainder]string input) {
+        public Task TrashPollAsync([Remainder]string input) {
             IGuildUser user = Context.User as IGuildUser;
 
             StringBuilder content = new StringBuilder();

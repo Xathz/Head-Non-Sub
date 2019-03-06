@@ -70,7 +70,9 @@ namespace HeadNonSub.Settings {
                     jsonSerializer.Serialize(jsonWriter, Configuration, typeof(Configuration));
                 }
 
-                File.Copy(Constants.SettingsFile, Path.ChangeExtension(tempFile, "previous"), true);
+                if (File.Exists(Constants.SettingsFile)) {
+                    File.Copy(Constants.SettingsFile, Path.ChangeExtension(tempFile, "previous"), true);
+                }   
                 File.Copy(tempFile, Constants.SettingsFile, true);
                 File.Delete(tempFile);
 

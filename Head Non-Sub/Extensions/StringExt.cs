@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HeadNonSub.Extensions {
 
@@ -36,9 +37,19 @@ namespace HeadNonSub.Extensions {
         public static string Truncate(this string input, int maxLength) => string.IsNullOrEmpty(input) ? input : input.Length <= maxLength ? input : input.Substring(0, maxLength);
 
         /// <summary>
-        /// Removes all new lines and line breaks from a string.
+        /// Remove all new lines and line breaks from a string.
         /// </summary>
         public static string RemoveNewLines(this string input) => input.Replace(Environment.NewLine, " ").Replace("\r\n", " ").Replace("\n", " ").Replace("\r", " ");
+
+        /// <summary>
+        /// Split a string by all possible new line and return characters.
+        /// </summary>
+        public static List<string> SplitByNewLines(this string input) => input.Split(new string[] { Environment.NewLine, "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+        /// <summary>
+        /// Split a string by spaces.
+        /// </summary>
+        public static List<string> SplitBySpace(this string input) => input.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
 
     }
 

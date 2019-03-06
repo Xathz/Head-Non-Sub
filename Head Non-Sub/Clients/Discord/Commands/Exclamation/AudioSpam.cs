@@ -101,7 +101,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("staypositive")]
         [Cooldown(120)]
-        public async Task JoinChannel(SocketVoiceChannel channel = null) {
+        public async Task StayPositiveChannel(SocketVoiceChannel channel = null) {
             _ = Context.Message.DeleteAsync();
 
             if (ValidateChannel(channel) is SocketVoiceChannel validatedChannel) {

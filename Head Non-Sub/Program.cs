@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using HeadNonSub.Clients.Discord;
 using HeadNonSub.Clients.Twitch;
 using HeadNonSub.Settings;
+using HeadNonSub.Statistics;
 
 namespace HeadNonSub {
 
@@ -33,6 +34,7 @@ namespace HeadNonSub {
 
             LoggingManager.Initialize();
             SettingsManager.Load();
+            StatisticsManager.Load();
 
             Cache.LoadContent();
         }

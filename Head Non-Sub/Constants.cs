@@ -105,6 +105,11 @@ namespace HeadNonSub {
         /// </summary>
         public static string SettingsFile => Path.Combine(WorkingDirectory, $"{ExecutableName}.settings");
 
+        /// <summary>
+        /// Statistics file location.
+        /// </summary>
+        public static string StatisticsFile => Path.Combine(WorkingDirectory, "Statistics.dat");
+     
     }
 
 }

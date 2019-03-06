@@ -187,7 +187,8 @@ namespace HeadNonSub.Clients.Discord {
             if (!(e.Channel is IPrivateChannel channel)) { return; }
             if (e.Source != MessageSource.User) { return; }
 
-            await message.Channel.SendMessageAsync($"No commands are available via direct message. Please @ the bot (`@{_DiscordClient.CurrentUser.Username}`) on the server.");
+            // Accepting commands to HeadNonSub.Clients.Discord.Commands.Exclamation.ImageTemplates
+            //await message.Channel.SendMessageAsync($"No commands are available via direct message. Please @ the bot (`@{_DiscordClient.CurrentUser.Username}`) on the server.");
         }
 
     }

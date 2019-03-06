@@ -8,7 +8,6 @@ using ImageMagick;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
-    [RequireContext(ContextType.Guild)]
     public class ImageTemplates : ModuleBase<SocketCommandContext> {
 
         [Command("ttsays")]
@@ -36,7 +35,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 stream.Seek(0, SeekOrigin.Begin);
 
                 ulong reply = Context.Message.Channel.SendFileAsync(stream, "ttSays.png").Result.Id;
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+                if (!Context.IsPrivate) { UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply); }
             }
 
             return Task.CompletedTask;
@@ -69,7 +68,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 stream.Seek(0, SeekOrigin.Begin);
 
                 ulong reply = Context.Message.Channel.SendFileAsync(stream, "1024Says.png").Result.Id;
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+                if (!Context.IsPrivate) { UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply); }
             }
 
             return Task.CompletedTask;
@@ -100,7 +99,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 stream.Seek(0, SeekOrigin.Begin);
 
                 ulong reply = Context.Message.Channel.SendFileAsync(stream, "amandaSays.png").Result.Id;
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+                if (!Context.IsPrivate) { UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply); }
             }
 
             return Task.CompletedTask;

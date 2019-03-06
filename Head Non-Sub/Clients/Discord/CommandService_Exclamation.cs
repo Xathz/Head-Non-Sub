@@ -70,8 +70,7 @@ namespace HeadNonSub.Clients.Discord {
                     string command = message.Content.Substring(1, (message.Content.Contains(' ') ? message.Content.IndexOf(' ') - 1 : message.Content.Length - 1));
 
                     if (_ValidCommands.Contains(command)) {
-                        await channel.SendMessageAsync($"Please do not delete invoking commands. ```{message.CreatedAt.ToString(Constants.DateTimeFormat)} utc; {message.Author.ToString()}{Environment.NewLine}" +
-                            $"{message.Content}```");
+                        await channel.SendMessageAsync($"Please do not delete invoking commands. ```{message.CreatedAt.ToString(Constants.DateTimeFormat)} utc; {message.Author.ToString()}{Environment.NewLine}{message.Content}```");
                     }
                 }
             } catch { }

@@ -16,7 +16,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Oof {
         }
 
         [Command("floof")]
-        public Task YumAsync() {
+        public Task FloofAsync() {
             ulong reply = Context.Message.Channel.SendFileAsync(Path.Combine(Constants.ContentDirectory, "floof.gif")).Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
