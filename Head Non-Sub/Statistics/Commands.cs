@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using HeadNonSub.Extensions;
 using Newtonsoft.Json;
@@ -68,6 +69,11 @@ namespace HeadNonSub.Statistics {
 
             IsDirty = true;
         }
+
+        /// <summary>
+        /// Get the top words used in TTS messages.
+        /// </summary>
+        public List<KeyValuePair<string, ulong>> TTSTopWords(int count = 10, int minimumWordLength = 2) => _TTSWordCount.Where(x => x.Key.Length > minimumWordLength).OrderByDescending(x => x.Value).Take(count).ToList();
 
         #endregion
 

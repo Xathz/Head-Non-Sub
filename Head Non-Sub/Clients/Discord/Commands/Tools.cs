@@ -84,7 +84,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
                 IUserMessage message = ReplyAsync(embed: builder.Build()).Result;
 
-                Task.Delay(10000).Wait();
+                Task.Delay(8000).Wait();
 
                 builder.Title = $"{(!string.IsNullOrWhiteSpace(randomUser.Nickname) ? randomUser.Nickname : randomUser.Username)} ({randomUser.ToString()})";
                 builder.ThumbnailUrl = null;
@@ -96,7 +96,8 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     builder.AddField("Joined server", $"{randomUser.JoinedAt.Value.DateTime.ToShortDateString()} {randomUser.JoinedAt.Value.DateTime.ToShortTimeString()}", true);
                 }
 
-                builder.AddField("Congratulations", $"{randomUser.Mention}");
+                // Can't mention users in an embed, just prints the id
+                //builder.AddField("Congratulations", $"{randomUser.Mention}");
 
                 message.ModifyAsync(x => { x.Embed = builder.Build(); }).Wait();
 

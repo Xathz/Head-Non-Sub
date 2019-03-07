@@ -128,6 +128,40 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             return Task.CompletedTask;
         }
 
+        [Command("satasays")]
+        public Task SataSaysAsync([Remainder]string input) {
+
+            using (MemoryStream stream = new MemoryStream(100))
+            using (MagickImage image = new MagickImage(Cache.GetStream("satasays.png"))) {
+
+                string text = string.Join(Environment.NewLine, input.SplitIntoChunks(34));
+                int max = (text.Length <= 230 ? text.Length : 230);
+                text = text.Substring(0, max);
+
+                new Drawables()
+                  .FontPointSize(48)
+                  .Font(Path.Combine(Constants.FontsDirectory, "ConcertOne-Regular.ttf"))
+                  .FillColor(new MagickColor("#EFE1E1"))
+                  .TextAlignment(TextAlignment.Left)
+                  .TextAntialias(true)
+                  .TextEncoding(Encoding.UTF8)
+                  .Text(440, 62, text)
+                  .Draw(image);
+
+                image.Write(stream, MagickFormat.Png);
+
+                stream.Seek(0, SeekOrigin.Begin);
+
+                ulong reply = Context.Message.Channel.SendFileAsync(stream, "sataSays.png", text: $"● {RequestedBy}").Result.Id;
+                if (!Context.IsPrivate) {
+                    UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+                    StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
     }
 
 }
