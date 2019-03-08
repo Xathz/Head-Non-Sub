@@ -13,6 +13,16 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     [RequireContext(ContextType.Guild)]
     public class Spam : ModuleBase<SocketCommandContext> {
 
+        private string RequestedBy {
+            get {
+                if (Context.User is SocketGuildUser user) {
+                    return $"{(!string.IsNullOrWhiteSpace(user.Nickname) ? user.Nickname : user.Username)} `{user.ToString()}`";
+                } else {
+                    return $"{Context.User.Username} `{Context.User.ToString()}`";
+                }
+            }
+        }
+
         [Command("gimme")]
         [Cooldown(20)]
         public Task GimmeAsync() {
@@ -26,7 +36,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("rnk")]
         [Cooldown(3600, true)]
         public Task RnkAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("rnk.png"), "rnk.png").Result.Id;
+            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("rnk.png"), "rnk.png", text: $"● {RequestedBy}").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
@@ -36,7 +46,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("moneyshot")]
         [Cooldown(20)]
         public Task MoneyShotAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("moneyshot.png"), "moneyshot.png").Result.Id;
+            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("moneyshot.png"), "moneyshot.png", text: $"● {RequestedBy}").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
@@ -46,7 +56,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("yum")]
         [Cooldown(20)]
         public Task YumAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("yum.png"), "yum.png").Result.Id;
+            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("yum.png"), "yum.png", text: $"● {RequestedBy}").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
@@ -57,7 +67,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Alias("ripdeposit")]
         [Cooldown(20)]
         public Task FuckedUpAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("fucked_up.png"), "fucked_up.png").Result.Id;
+            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("fucked_up.png"), "fucked_up.png", text: $"● {RequestedBy}").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
@@ -67,7 +77,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("what")]
         [Cooldown(20)]
         public Task WhatAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("what.png"), "what.png").Result.Id;
+            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("what.png"), "what.png", text: $"● {RequestedBy}").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
@@ -77,7 +87,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("bigoof")]
         [Cooldown(20)]
         public Task BigOofAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("big_oof.gif"), "big_oof.gif").Result.Id;
+            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("big_oof.gif"), "big_oof.gif", text: $"● {RequestedBy}").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
@@ -87,7 +97,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("1024nude")]
         [Cooldown(20)]
         public Task TenTwentyFourNudeAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("1024_nude.png"), "1024_nude.png").Result.Id;
+            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("1024_nude.png"), "1024_nude.png", text: $"● {RequestedBy}").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
@@ -97,7 +107,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("star")]
         [Cooldown(20)]
         public Task StarAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("star.gif"), "star.gif").Result.Id;
+            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("star.gif"), "star.gif", text: $"● {RequestedBy}").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
@@ -107,7 +117,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("gongboy")]
         [Cooldown(20)]
         public Task GongBoyAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("gongboy.png"), "gongboy.png").Result.Id;
+            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("gongboy.png"), "gongboy.png", text: $"● {RequestedBy}").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
@@ -118,7 +128,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(20)]
         [SubscriberOnly]
         public Task TrueAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("true.png"), "true.png").Result.Id;
+            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("true.png"), "true.png", text: $"● {RequestedBy}").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
@@ -128,7 +138,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("potato")]
         [Cooldown(20)]
         public Task PotatoAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("potato.png"), "potato.png").Result.Id;
+            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("potato.png"), "potato.png", text: $"● {RequestedBy}").Result.Id;
 
             UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
             StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();

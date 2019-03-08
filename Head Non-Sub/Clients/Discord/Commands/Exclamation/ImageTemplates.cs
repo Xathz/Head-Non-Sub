@@ -162,6 +162,40 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             return Task.CompletedTask;
         }
 
+        [Command("jibersays")]
+        public Task JiberSaysAsync([Remainder]string input) {
+
+            using (MemoryStream stream = new MemoryStream(100))
+            using (MagickImage image = new MagickImage(Cache.GetStream("jibersays.png"))) {
+
+                string text = string.Join(Environment.NewLine, input.SplitIntoChunks(35));
+                int max = (text.Length <= 245 ? text.Length : 245);
+                text = text.Substring(0, max);
+
+                new Drawables()
+                  .FontPointSize(64)
+                  .Font(Path.Combine(Constants.FontsDirectory, "Courgette-Regular.ttf"))
+                  .FillColor(new MagickColor("#CFB491"))
+                  .TextAlignment(TextAlignment.Left)
+                  .TextAntialias(true)
+                  .TextEncoding(Encoding.UTF8)
+                  .Text(500, 290, text)
+                  .Draw(image);
+
+                image.Write(stream, MagickFormat.Png);
+
+                stream.Seek(0, SeekOrigin.Begin);
+
+                ulong reply = Context.Message.Channel.SendFileAsync(stream, "jiberSays.png", text: $"● {RequestedBy}").Result.Id;
+                if (!Context.IsPrivate) {
+                    UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+                    StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
     }
 
 }
