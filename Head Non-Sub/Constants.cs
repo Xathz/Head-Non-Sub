@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 
 namespace HeadNonSub {
@@ -109,7 +110,18 @@ namespace HeadNonSub {
         /// Statistics file location.
         /// </summary>
         public static string StatisticsFile => Path.Combine(WorkingDirectory, "Statistics.dat");
-     
+
+        /// <summary>
+        /// Common words
+        /// </summary>
+        public static List<string> CommonWords => new List<string>() { "a", "able", "about", "after", "all", "an", "and", "as", "ask", "at", "bad", "be", "big", "but",
+            "by", "call", "case", "come", "company", "day", "different", "do", "early", "eye", "fact", "feel", "few", "find", "first", "for", "from", "get",
+            "give", "go", "good", "government", "great", "group", "hand", "have", "he", "her", "high", "his", "i", "important", "in", "into", "it", "know", "large",
+            "last", "leave", "life", "like", "little", "long", "look", "make", "man", "my", "new", "next", "not", "number", "of", "old", "on", "one", "or", "other",
+            "over", "own", "part", "person", "place", "point", "problem", "public", "right", "same", "say", "see", "seem", "she", "small", "take", "tell", "that", "the",
+            "their", "there", "they", "thing", "think", "this", "time", "to", "try", "up", "use", "want", "was", "way", "week", "went", "will", "with", "work",
+            "world", "would", "year", "you", "young" };
+
     }
 
 }

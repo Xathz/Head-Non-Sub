@@ -73,7 +73,7 @@ namespace HeadNonSub.Statistics {
         /// <summary>
         /// Get the top words used in TTS messages.
         /// </summary>
-        public List<KeyValuePair<string, ulong>> TTSTopWords(int count = 10, int minimumWordLength = 2) => _TTSWordCount.Where(x => x.Key.Length > minimumWordLength).OrderByDescending(x => x.Value).Take(count).ToList();
+        public List<KeyValuePair<string, ulong>> TTSTopWords(int count = 10, int minimumWordLength = 2) => _TTSWordCount.Where(x => x.Key.Length > minimumWordLength & !Constants.CommonWords.Any(c => x.Key == c)).OrderByDescending(x => x.Value).Take(count).ToList();
 
         #endregion
 
