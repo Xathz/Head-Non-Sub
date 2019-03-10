@@ -67,6 +67,8 @@ namespace HeadNonSub {
                 memoryStream.Seek(0, SeekOrigin.Begin);
                 _Cache.Add(fileInfo.Name, memoryStream, ObjectCache.InfiniteAbsoluteExpiration);
             }
+
+            LoggingManager.Log.Info($"Loaded {_Cache.GetCount()} items into cache");
         }
 
     }

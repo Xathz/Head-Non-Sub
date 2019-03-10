@@ -49,6 +49,18 @@ namespace HeadNonSub.Statistics {
             }
         }
 
+        /// <summary>
+        /// Get the numbr of times !says*** command were executed.
+        /// </summary>
+        public List<KeyValuePair<string, ulong>> SaysCount(Dictionary<string, string> commandNames) {
+            return _ExecuteCount.Where(x => commandNames.Any(c => c.Key == x.Key)).Select(x => {
+                string name = commandNames.Where(c => c.Key == x.Key).Select(c => c.Value).FirstOrDefault();
+                ulong count = x.Value;
+
+                return new KeyValuePair<string, ulong>(name, count);
+            }).OrderByDescending(x => x.Value).ToList();
+        }
+
         #endregion
 
         #region TTS Word Count

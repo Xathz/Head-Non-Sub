@@ -168,7 +168,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             using (MemoryStream stream = new MemoryStream(100))
             using (MagickImage image = new MagickImage(Cache.GetStream("jibersays.png"))) {
 
-                string text = string.Join(Environment.NewLine, input.SplitIntoChunks(35));
+                string text = string.Join(Environment.NewLine, input.SplitIntoChunks(33));
                 int max = (text.Length <= 245 ? text.Length : 245);
                 text = text.Substring(0, max);
 

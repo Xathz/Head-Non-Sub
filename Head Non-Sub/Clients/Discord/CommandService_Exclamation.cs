@@ -31,6 +31,7 @@ namespace HeadNonSub.Clients.Discord {
 
         public async Task InitializeAsync() {
             await _Commands.AddModuleAsync<Commands.Exclamation.AudioSpam>(_Services);
+            await _Commands.AddModuleAsync<Commands.Exclamation.Clips>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Fake>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.ImageTemplates>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Poll>(_Services);

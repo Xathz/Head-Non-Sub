@@ -27,6 +27,11 @@ namespace HeadNonSub {
         public const string DoubleSpace = " \u200B ";
 
         /// <summary>
+        /// Zero width space.
+        /// </summary>
+        public const char ZeroWwidthSpace = '\u200B';
+
+        /// <summary>
         /// Date and time format used in messages.
         /// </summary>
         public const string DateTimeFormat = "MM/dd/yyyy hh:mm:ss.fff";
