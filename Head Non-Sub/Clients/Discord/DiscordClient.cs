@@ -91,10 +91,9 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
-        public static async Task TwitchChannelChange(string channelName, string imageUrl, string title, string description) {
+        public static async Task TwitchChannelChange(ulong channelId, string channelName, string imageUrl, string title, string description) {
             try {
-                // '#main (403341336129830918)' on 'Wubby's Fun House (328300333010911242)'
-                if (_DiscordClient.GetChannel(403341336129830918) is IMessageChannel channel) {
+                if (_DiscordClient.GetChannel(channelId) is IMessageChannel channel) {
 
                     EmbedBuilder builder = new EmbedBuilder() {
                         Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),

@@ -42,7 +42,9 @@ namespace HeadNonSub.Clients.Discord {
             await _Commands.AddModuleAsync<Commands.Exclamation.Stock>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Strawpoll>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.TTS>(_Services);
-            await _Commands.AddModuleAsync<Commands.Exclamation.Yam>(_Services);
+
+            // Guild specific: Cam’s Pocket (528475747334225925)
+            await _Commands.AddModuleAsync<Commands.Exclamation.GuildSpecific.CamsPocket> (_Services);
 
             _Commands.Commands.ToList().ForEach(x => {
                 _ValidCommands.Add(x.Name);

@@ -13,7 +13,8 @@ using Newtonsoft.Json;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
-    [BlacklistEnforced]
+    // Wubby's Fun House
+    [BlacklistEnforced, AllowedGuilds(328300333010911242)]
     [RequireContext(ContextType.Guild)]
     public class Stock : ModuleBase<SocketCommandContext> {
 
@@ -24,12 +25,12 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             bool fromCache = false;
             KeyValuePair<long, double> recent;
 
-            if (Cache.Get("stock") is KeyValuePair<long, double> validStock) {
+            if (Cache.Get("stock:paymoneywubby") is KeyValuePair<long, double> validStock) {
                 fromCache = true;
                 recent = validStock;
             } else {
                 recent = GetRecentStockValue();
-                Cache.Add("stock", recent);
+                Cache.Add("stock:paymoneywubby", recent);
             }
 
             EmbedBuilder builder = new EmbedBuilder() {

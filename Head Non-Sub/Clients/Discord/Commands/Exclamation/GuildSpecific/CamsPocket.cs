@@ -4,11 +4,12 @@ using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Statistics;
 
-namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
+namespace HeadNonSub.Clients.Discord.Commands.Exclamation.GuildSpecific {
 
+    // Cam's Pocket
     [BlacklistEnforced, AllowedGuilds(528475747334225925)]
     [RequireContext(ContextType.Guild)]
-    public class Yam : ModuleBase<SocketCommandContext> {
+    public class CamsPocket : ModuleBase<SocketCommandContext> {
 
         [Command("yamvspotato")]
         public Task YamVsPotatoAsync() {

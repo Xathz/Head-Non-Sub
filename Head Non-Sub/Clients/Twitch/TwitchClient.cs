@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using HeadNonSub.Exceptions;
 using HeadNonSub.Settings;
 using TwitchLib.Api;
 using TwitchLib.Api.Core;
@@ -25,8 +26,9 @@ namespace HeadNonSub.Clients.Twitch {
         private static LiveStreamMonitorService _StreamMonitor;
 
         private static Dictionary<string, string> _UserIds = new Dictionary<string, string>();
-        private static readonly Dictionary<string, string> _StreamNames = new Dictionary<string, string>() {
-            { "paymoneywubby", "PaymoneyWubby" }
+        private static readonly Dictionary<string, (string DisplayName, ulong Channel)> _StreamNames = new Dictionary<string, (string DisplayName, ulong Channel)>() {
+            { "paymoneywubby", ("PaymoneyWubby",  403341336129830918) },
+            { "clairebere", ("ClaireBere", 471045301407449090) }
         };
 
         public static void ConnectApi() {
@@ -92,29 +94,24 @@ namespace HeadNonSub.Clients.Twitch {
         /// <param name="name">Broadcaster's name</param>
         /// <param name="count">Clips to return. Maximum: 100</param>
         public static List<(DateTime createdAt, string title, int viewCount, string url)> GetClips(string name, int count = 100) {
-            try {
-                string userId = _UserIds.Where(x => x.Key == name.ToLower()).Select(x => x.Value).FirstOrDefault();
-                if (!string.IsNullOrEmpty(userId)) {
-                    List<(DateTime createdAt, string title, int viewCount, string url)> returnClips =
-                        new List<(DateTime createdAt, string title, int viewCount, string url)>();
+            string userId = _UserIds.Where(x => x.Key == name.ToLower()).Select(x => x.Value).FirstOrDefault();
+            if (!string.IsNullOrEmpty(userId)) {
+                List<(DateTime createdAt, string title, int viewCount, string url)> returnClips =
+                    new List<(DateTime createdAt, string title, int viewCount, string url)>();
 
 
-                    Clip[] clips = _TwitchApi.Helix.Clips.GetClipAsync(broadcasterId: userId, first: 100).Result.Clips;
-                    foreach (Clip clip in clips) {
-                        DateTime created = DateTime.Parse(clip.CreatedAt);
+                Clip[] clips = _TwitchApi.Helix.Clips.GetClipAsync(broadcasterId: userId, first: 100).Result.Clips;
+                foreach (Clip clip in clips) {
+                    DateTime created = DateTime.Parse(clip.CreatedAt);
 
-                        returnClips.Add((DateTime.Parse(clip.CreatedAt), clip.Title, clip.ViewCount, clip.Url));
-                    }
-
-                    LoggingManager.Log.Info($"Retrieved {returnClips.Count} for {name}");
-
-                    return returnClips;
-                } else {
-                    return null;
+                    returnClips.Add((DateTime.Parse(clip.CreatedAt), clip.Title, clip.ViewCount, clip.Url));
                 }
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-                return null;
+
+                LoggingManager.Log.Info($"Retrieved {returnClips.Count} for {name}");
+
+                return returnClips;
+            } else {
+                throw new UnsupportedTwitchChannelException($"{name} is not a supported Twitch channel at this time.");
             }
         }
 
@@ -132,12 +129,12 @@ namespace HeadNonSub.Clients.Twitch {
         }
 
         private static void OnStreamOnline(object sender, OnStreamOnlineArgs e) {
-            string channel = _StreamNames.Where(x => x.Key.ToLower() == e.Channel.ToLower()).FirstOrDefault().Value;
+            (string DisplayName, ulong Channel) = _StreamNames.Where(x => x.Key.ToLower() == e.Channel.ToLower()).FirstOrDefault().Value;
 
-            _ = Discord.DiscordClient.SetStatus($"Watching {channel}!", $"https://twitch.tv/{e.Channel}");
-            _ = Discord.DiscordClient.TwitchChannelChange(channel, e.Stream.ThumbnailUrl, $"{channel} is now live!", e.Stream.Title);
+            _ = Discord.DiscordClient.SetStatus($"Watching {DisplayName}!", $"https://twitch.tv/{e.Channel}");
+            _ = Discord.DiscordClient.TwitchChannelChange(Channel, DisplayName, e.Stream.ThumbnailUrl, $"{DisplayName} is now live!", e.Stream.Title);
 
-            LoggingManager.Log.Info($"{channel} just went live");
+            LoggingManager.Log.Info($"{DisplayName} just went live");
         }
 
         private static void OnStreamUpdate(object sender, OnStreamUpdateArgs e) {
@@ -145,12 +142,12 @@ namespace HeadNonSub.Clients.Twitch {
         }
 
         private static void OnStreamOffline(object sender, OnStreamOfflineArgs e) {
-            string channel = _StreamNames.Where(x => x.Key.ToLower() == e.Channel.ToLower()).FirstOrDefault().Value;
+            (string DisplayName, ulong Channel) = _StreamNames.Where(x => x.Key.ToLower() == e.Channel.ToLower()).FirstOrDefault().Value;
 
             _ = Discord.DiscordClient.SetStatus();
-            _ = Discord.DiscordClient.TwitchChannelChange(channel, null, $"{channel} is now offline", "Thanks for watching");
+            _ = Discord.DiscordClient.TwitchChannelChange(Channel, DisplayName, null, $"{DisplayName} is now offline", "Thanks for watching");
 
-            LoggingManager.Log.Info($"{channel} is now offline");
+            LoggingManager.Log.Info($"{DisplayName} is now offline");
         }
 
         private static void OnConnected(object sender, Client.Events.OnConnectedArgs e) {
