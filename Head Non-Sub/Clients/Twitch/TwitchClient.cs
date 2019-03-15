@@ -131,7 +131,10 @@ namespace HeadNonSub.Clients.Twitch {
         private static void OnStreamOnline(object sender, OnStreamOnlineArgs e) {
             (string DisplayName, ulong Channel) = _StreamNames.Where(x => x.Key.ToLower() == e.Channel.ToLower()).FirstOrDefault().Value;
 
-            _ = Discord.DiscordClient.SetStatus($"Watching {DisplayName}!", $"https://twitch.tv/{e.Channel}");
+            // Wubby only, hes special
+            if (e.Channel.ToLower() == "paymoneywubby") {
+                _ = Discord.DiscordClient.SetStatus($"Watching PaymoneyWubby!", $"https://twitch.tv/paymoneywubby");
+            }
             _ = Discord.DiscordClient.TwitchChannelChange(Channel, DisplayName, e.Stream.ThumbnailUrl, $"{DisplayName} is now live!", e.Stream.Title);
 
             LoggingManager.Log.Info($"{DisplayName} just went live");
