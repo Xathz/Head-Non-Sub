@@ -28,7 +28,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(300)]
         public Task Executie(SocketUser user = null, [Remainder]string reason = "") {
 
-            BetterReplyAsync($"{user.Mention} you have 10 seconds to say last words before you are executie'd.").Wait();
+            BetterReplyAsync($"{user.Mention} you have 10 seconds to say last words before you are executie'd.", parameters: $"{user.ToString()}, {reason}").Wait();
             Task.Delay(10000).Wait();
 
             ReplyAsync($"10 seconds over. Now executing {user.ToString()} for reason: `{reason}`...").Wait();

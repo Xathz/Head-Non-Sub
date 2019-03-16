@@ -20,7 +20,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             }
 
             if (SettingsManager.Configuration.DiscordBlacklist.Any(x => x.Key == Context.Guild.Id && x.Value.Contains(user.Id))) {
-                return BetterReplyAsync($"{BetterUserFormat(user)} is already blacklisted.");
+                return BetterReplyAsync($"{BetterUserFormat(user)} is already blacklisted.", parameters: user.ToString());
             } else {
                 if (SettingsManager.Configuration.DiscordBlacklist.ContainsKey(Context.Guild.Id)) {
                     SettingsManager.Configuration.DiscordBlacklist[Context.Guild.Id].Add(user.Id);
@@ -31,7 +31,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 SettingsManager.Save();
                 LoggingManager.Log.Info($"{user.ToString()} ({user.Id}) was added to the blacklist by {Context.User.ToString()} ({Context.User.Id})");
 
-                return BetterReplyAsync($"{BetterUserFormat(user)} was added to the blacklist.");
+                return BetterReplyAsync($"{BetterUserFormat(user)} was added to the blacklist.", parameters: user.ToString());
             }
         }
 
@@ -47,9 +47,9 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 SettingsManager.Save();
                 LoggingManager.Log.Info($"{user.ToString()} ({user.Id}) was removed from the blacklist by {Context.User.ToString()} ({Context.User.Id})");
 
-                return BetterReplyAsync($"{BetterUserFormat(user)} was removed from the blacklist.");
+                return BetterReplyAsync($"{BetterUserFormat(user)} was removed from the blacklist.", parameters: user.ToString());
             } else {
-                return BetterReplyAsync($"{BetterUserFormat(user)} is not on the blacklist.");
+                return BetterReplyAsync($"{BetterUserFormat(user)} is not on the blacklist.", parameters: user.ToString());
             }
         }
 

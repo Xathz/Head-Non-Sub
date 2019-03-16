@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
-using HeadNonSub.Statistics;
 using StrawPollNET.Models;
 using static StrawPollNET.API;
 
@@ -26,7 +25,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             if (newPoll == null || string.IsNullOrEmpty(newPoll.PollUrl)) {
                 return BetterReplyAsync("Failed to create the strawpoll. Example: `!strawpoll Poll Title | Option 1 | Option 2 | Option 3`");
             } else {
-               return BetterReplyAsync($"{Context.User.Mention} <{newPoll.PollUrl}>");
+               return BetterReplyAsync($"{Context.User.Mention} <{newPoll.PollUrl}>", parameters: input);
             }
         }
 
@@ -59,7 +58,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
                     builder.Description = resultBuilder.ToString().TrimEnd();
 
-                    return BetterReplyAsync(builder.Build());
+                    return BetterReplyAsync(builder.Build(), parameters: input);
 
                 } else {
                     return BetterReplyAsync($"Failed to retrieve the strawpoll.");

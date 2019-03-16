@@ -69,7 +69,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             Context.Message.DeleteAsync();
 
-            IUserMessage message = BetterReplyAsync(builder.Build()).Result;
+            IUserMessage message = BetterReplyAsync(builder.Build(), parameters: input).Result;
 
             // Might throw if the bot does not have access to the emote
             foreach (IEmote reaction in reactions) {

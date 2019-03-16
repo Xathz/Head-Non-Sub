@@ -20,7 +20,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             }
 
             if (SettingsManager.Configuration.DiscordWhitelist.Any(x => x.Key == Context.Guild.Id && x.Value.Contains(user.Id))) {
-                return BetterReplyAsync($"{BetterUserFormat(user)} is already whitelisted.");
+                return BetterReplyAsync($"{BetterUserFormat(user)} is already whitelisted.", parameters: user.ToString());
             } else {
                 if (SettingsManager.Configuration.DiscordWhitelist.ContainsKey(Context.Guild.Id)) {
                     SettingsManager.Configuration.DiscordWhitelist[Context.Guild.Id].Add(user.Id);
@@ -31,7 +31,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 SettingsManager.Save();
                 LoggingManager.Log.Info($"{user.ToString()} ({user.Id}) was added to the whitelist by {Context.User.ToString()} ({Context.User.Id})");
 
-                return BetterReplyAsync($"{BetterUserFormat(user)} was added to the whitelist.");
+                return BetterReplyAsync($"{BetterUserFormat(user)} was added to the whitelist.", parameters: user.ToString());
             }
         }
 
@@ -47,9 +47,9 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 SettingsManager.Save();
                 LoggingManager.Log.Info($"{user.ToString()} ({user.Id}) was removed from the whitelist by {Context.User.ToString()} ({Context.User.Id})");
 
-                return BetterReplyAsync($"{BetterUserFormat(user)} was removed from the whitelist.");
+                return BetterReplyAsync($"{BetterUserFormat(user)} was removed from the whitelist.", parameters: user.ToString());
             } else {
-                return BetterReplyAsync($"{BetterUserFormat(user)} is not on the whitelist.");
+                return BetterReplyAsync($"{BetterUserFormat(user)} is not on the whitelist.", parameters: user.ToString());
             }
         }
 

@@ -36,7 +36,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                return BetterSendFileAsync(stream, "ttSays.png", $"● {BetterUserFormat()}");
+                return BetterSendFileAsync(stream, "ttSays.png", $"● {BetterUserFormat()}", parameters: input);
             }
         }
 
@@ -65,7 +65,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                return BetterSendFileAsync(stream, "1024Says.png", $"● {BetterUserFormat()}");
+                return BetterSendFileAsync(stream, "1024Says.png", $"● {BetterUserFormat()}", parameters: input);
             }
         }
 
@@ -92,7 +92,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                return BetterSendFileAsync(stream, "amandaSays.png", $"● {BetterUserFormat()}");
+                return BetterSendFileAsync(stream, "amandaSays.png", $"● {BetterUserFormat()}", parameters: input);
             }
         }
 
@@ -119,7 +119,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                return BetterSendFileAsync(stream, "sataSays.png", $"● {BetterUserFormat()}");
+                return BetterSendFileAsync(stream, "sataSays.png", $"● {BetterUserFormat()}", parameters: input);
             }
         }
 
@@ -146,7 +146,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                return BetterSendFileAsync(stream, "jiberSays.png", $"● {BetterUserFormat()}");
+                return BetterSendFileAsync(stream, "jiberSays.png", $"● {BetterUserFormat()}", parameters: input);
             }
         }
 

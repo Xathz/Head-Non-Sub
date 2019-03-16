@@ -10,11 +10,15 @@ namespace HeadNonSub.Statistics {
         private static StatisticsContext _Statistics;
 
         public static void Load() {
-            LoggingManager.Log.Info("Loading and connecting to the database system");
+            if (_Statistics is null) {
+                LoggingManager.Log.Info("Connecting to the database");
 
-            _Statistics = new StatisticsContext();
+                _Statistics = new StatisticsContext();
 
-            LoggingManager.Log.Info("Connected");
+                LoggingManager.Log.Info("Connected");
+            } else {
+                LoggingManager.Log.Info("Loading is already complete");
+            }   
         }
 
         /// <summary>
@@ -37,7 +41,8 @@ namespace HeadNonSub.Statistics {
                 };
 
                 _Statistics.Commands.Add(item);
-                _Statistics.SaveChanges();
+
+                _Statistics.SaveChangesAsync();
 
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);

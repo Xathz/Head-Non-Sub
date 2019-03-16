@@ -25,20 +25,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             return BetterReplyAsync($"There are {count.ToString("N0")} truths here.");
         }
 
-        //[Command("toptts")]
-        //public Task TopTTS() {
-        //    List<KeyValuePair<string, ulong>> topWords = StatisticsManager.Statistics.Commands(Context.Guild.Id).TTSTopWords();
-
-        //    EmbedBuilder builder = new EmbedBuilder() {
-        //        Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
-        //        Title = $"Top words used in text to speech commands"
-        //    };
-
-        //    builder.AddField("Word . . . Times Used", $"```{string.Join(Environment.NewLine, topWords.Select(x => $"{x.Key.PadRight(18, '.')} {x.Value}"))}```");
-
-        //    return BetterReplyAsync(builder.Build());
-        //}
-
         [Command("sayscount")]
         public Task SaysCount() {
             List<KeyValuePair<string, long>> says = StatisticsManager.SaysCount(Context.Guild.Id, _CommandNames);
