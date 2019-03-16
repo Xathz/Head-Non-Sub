@@ -91,13 +91,13 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
-        public static async Task TwitchChannelChange(ulong channelId, string channelName, string imageUrl, string title, string description) {
+        public static async Task TwitchChannelChange(ulong discordChannel, string streamUrl, string displayName, string imageUrl, string title, string description) {
             try {
-                if (_DiscordClient.GetChannel(channelId) is IMessageChannel channel) {
+                if (_DiscordClient.GetChannel(discordChannel) is IMessageChannel channel) {
 
                     EmbedBuilder builder = new EmbedBuilder() {
                         Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
-                        Url = $"https://twitch.tv/{channelName}",
+                        Url = streamUrl,
                         Title = title,
                         Description = description
                     };
@@ -107,8 +107,8 @@ namespace HeadNonSub.Clients.Discord {
                     }
 
                     builder.Author = new EmbedAuthorBuilder {
-                        Name = channelName,
-                        Url = $"https://twitch.tv/{channelName}"
+                        Name = displayName,
+                        Url = streamUrl
                     };
 
                     await channel.SendMessageAsync(embed: builder.Build());

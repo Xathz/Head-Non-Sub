@@ -42,6 +42,11 @@ namespace HeadNonSub {
         public const string DateTimeFormatShort = "MM/dd/yyyy hh:mm tt";
 
         /// <summary>
+        /// PaymoneyWubby, now in constant form! 
+        /// </summary>
+        public const string PaymoneyWubby = "paymoneywubby";
+
+        /// <summary>
         /// The general color of the bot, used for Discord embeds.
         /// </summary>
         public static (int R, int G, int B) GeneralColor => (200, 40, 150);

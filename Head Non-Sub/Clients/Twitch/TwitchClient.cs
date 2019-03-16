@@ -25,12 +25,6 @@ namespace HeadNonSub.Clients.Twitch {
 
         private static LiveStreamMonitorService _StreamMonitor;
 
-        private static Dictionary<string, string> _UserIds = new Dictionary<string, string>();
-        private static readonly Dictionary<string, (string DisplayName, ulong Channel)> _StreamNames = new Dictionary<string, (string DisplayName, ulong Channel)>() {
-            { "paymoneywubby", ("PaymoneyWubby",  403341336129830918) },
-            { "clairebere", ("ClaireBere", 471045301407449090) }
-        };
-
         public static void ConnectApi() {
             try {
                 LoggingManager.Log.Info("Connecting");
@@ -42,18 +36,12 @@ namespace HeadNonSub.Clients.Twitch {
 
                 _TwitchApi = new TwitchAPI(settings: _ApiSettings);
 
-                _StreamMonitor = new LiveStreamMonitorService(_TwitchApi, 20);
-                _StreamMonitor.SetChannelsByName(_StreamNames.Keys.ToList());
-
-                _StreamMonitor.Start();
-
-                _StreamMonitor.OnStreamOnline += OnStreamOnline;
-                _StreamMonitor.OnStreamUpdate += OnStreamUpdate;
-                _StreamMonitor.OnStreamOffline += OnStreamOffline;
-
                 LoggingManager.Log.Info("Connected");
 
-                GetUserIdsFromNames();
+                // Get user id's for streams that do not have it set
+                GetUserIdsFromUsernames();
+
+                StartMonitor();
 
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
@@ -79,7 +67,7 @@ namespace HeadNonSub.Clients.Twitch {
                 _TwitchClient.OnReconnected += OnReconnected;
 
                 _TwitchClient.OnJoinedChannel += OnJoinedChannel;
-                _TwitchClient.OnMessageReceived += OnMessageReceived;
+                //_TwitchClient.OnMessageReceived += OnMessageReceived;
 
                 LoggingManager.Log.Info("Connected");
 
@@ -91,14 +79,14 @@ namespace HeadNonSub.Clients.Twitch {
         /// <summary>
         /// Get 100 most recent clips from the stream.
         /// </summary>
-        /// <param name="name">Broadcaster's name</param>
+        /// <param name="name">Broadcaster's username or display name</param>
         /// <param name="count">Clips to return. Maximum: 100</param>
         public static List<(DateTime createdAt, string title, int viewCount, string url)> GetClips(string name, int count = 100) {
-            string userId = _UserIds.Where(x => x.Key == name.ToLower()).Select(x => x.Value).FirstOrDefault();
+            string userId = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == name.ToLower()).Select(x => x.UserId).FirstOrDefault();
+
             if (!string.IsNullOrEmpty(userId)) {
                 List<(DateTime createdAt, string title, int viewCount, string url)> returnClips =
                     new List<(DateTime createdAt, string title, int viewCount, string url)>();
-
 
                 Clip[] clips = _TwitchApi.Helix.Clips.GetClipAsync(broadcasterId: userId, first: 100).Result.Clips;
                 foreach (Clip clip in clips) {
@@ -115,29 +103,49 @@ namespace HeadNonSub.Clients.Twitch {
             }
         }
 
-        private static void GetUserIdsFromNames() {
-            try {
-                User[] users = _TwitchApi.Helix.Users.GetUsersAsync(logins: _StreamNames.Select(x => x.Key).ToList()).Result.Users;
-                foreach (User user in users) {
-                    _UserIds.Add(user.Login.ToLower(), user.Id);
-                }
+        private static void GetUserIdsFromUsernames() {
+            List<string> emptyUserIds = SettingsManager.Configuration.TwitchStreams.Where(x => string.IsNullOrWhiteSpace(x.UserId)).Select(x => x.UsernameLowercase).ToList();
 
-                LoggingManager.Log.Info($"Retrieved {_UserIds.Count} user ids");
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
+            if (emptyUserIds.Count > 0) {
+                try {
+                    User[] users = _TwitchApi.Helix.Users.GetUsersAsync(logins: emptyUserIds).Result.Users;
+                    foreach (User user in users) {
+                        SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == user.Login.ToLower()).ToList().ForEach(x => x.UserId = user.Id);
+                    }
+
+                    SettingsManager.Save();
+
+                    LoggingManager.Log.Info($"Retrieved {users.Count()} new user ids");
+                } catch (Exception ex) {
+                    LoggingManager.Log.Error(ex);
+                }
             }
         }
 
+        private static void StartMonitor() {
+            _StreamMonitor = new LiveStreamMonitorService(_TwitchApi, 20);
+            _StreamMonitor.SetChannelsByName(SettingsManager.Configuration.TwitchStreams.Select(x => x.UsernameLowercase).ToList());
+
+            _StreamMonitor.Start();
+
+            _StreamMonitor.OnStreamOnline += OnStreamOnline;
+            _StreamMonitor.OnStreamUpdate += OnStreamUpdate;
+            _StreamMonitor.OnStreamOffline += OnStreamOffline;
+
+            LoggingManager.Log.Info($"Stream monitoring is running for: {string.Join(", ", SettingsManager.Configuration.TwitchStreams.Select(x => $"{x.DisplayName} ({x.UserId})").ToList())}");
+        }
+
         private static void OnStreamOnline(object sender, OnStreamOnlineArgs e) {
-            (string DisplayName, ulong Channel) = _StreamNames.Where(x => x.Key.ToLower() == e.Channel.ToLower()).FirstOrDefault().Value;
+            TwitchStream stream = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == e.Channel.ToLower()).FirstOrDefault();
 
             // Wubby only, hes special
-            if (e.Channel.ToLower() == "paymoneywubby") {
+            if (e.Channel.ToLower() == Constants.PaymoneyWubby) {
+                // Do not use 'stream.StreamUrl' here
                 _ = Discord.DiscordClient.SetStatus($"Watching PaymoneyWubby!", $"https://twitch.tv/paymoneywubby");
             }
-            _ = Discord.DiscordClient.TwitchChannelChange(Channel, DisplayName, e.Stream.ThumbnailUrl, $"{DisplayName} is now live!", e.Stream.Title);
+            _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, e.Stream.ThumbnailUrl, $"{stream.DisplayName} is now live!", e.Stream.Title);
 
-            LoggingManager.Log.Info($"{DisplayName} just went live");
+            LoggingManager.Log.Info($"{stream.DisplayName} just went live");
         }
 
         private static void OnStreamUpdate(object sender, OnStreamUpdateArgs e) {
@@ -145,12 +153,15 @@ namespace HeadNonSub.Clients.Twitch {
         }
 
         private static void OnStreamOffline(object sender, OnStreamOfflineArgs e) {
-            (string DisplayName, ulong Channel) = _StreamNames.Where(x => x.Key.ToLower() == e.Channel.ToLower()).FirstOrDefault().Value;
+            TwitchStream stream = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == e.Channel.ToLower()).FirstOrDefault();
 
-            _ = Discord.DiscordClient.SetStatus();
-            _ = Discord.DiscordClient.TwitchChannelChange(Channel, DisplayName, null, $"{DisplayName} is now offline", "Thanks for watching");
+            // Wubby only, hes special
+            if (e.Channel.ToLower() == Constants.PaymoneyWubby) {
+                _ = Discord.DiscordClient.SetStatus();
+            }
+            _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, null, $"{stream.DisplayName} is now offline", "Thanks for watching");
 
-            LoggingManager.Log.Info($"{DisplayName} is now offline");
+            LoggingManager.Log.Info($"{stream.DisplayName} is now offline");
         }
 
         private static void OnConnected(object sender, Client.Events.OnConnectedArgs e) {

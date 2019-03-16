@@ -7,7 +7,9 @@
     <StartupObject>HeadNonSub.Program</StartupObject>
     <Authors>Xathz</Authors>
     <Description>Non-subs are the worst, they come in here and act like they own the place. At least I am the head of them all.</Description>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
