@@ -5,7 +5,6 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
-using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -80,7 +79,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 }
             }
 
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
+            TrackStatistics();
             return Task.CompletedTask;
         }
 
@@ -100,7 +99,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 }
             }
 
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
+            TrackStatistics();
             return Task.CompletedTask;
         }
 

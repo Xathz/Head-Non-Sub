@@ -72,8 +72,6 @@ namespace HeadNonSub.Clients.Discord {
         public static async Task StopAsync() => await _DiscordClient.StopAsync();
 
         public static void FailFast() {
-            StatisticsManager.Save();
-
             _ = _DiscordClient.LogoutAsync();
             Environment.Exit(13);
         }

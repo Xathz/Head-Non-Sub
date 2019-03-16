@@ -7,7 +7,6 @@ using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Clients.Discord.Services;
 using HeadNonSub.Extensions;
-using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands {
 
@@ -119,7 +118,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 UndoTracker.Untrack(message.Value);
             }
 
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
+            TrackStatistics();
             return Task.CompletedTask;
         }
 

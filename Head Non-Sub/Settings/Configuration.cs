@@ -30,6 +30,26 @@ namespace HeadNonSub.Settings {
         public string TwitchToken { get; set; } = string.Empty;
 
         /// <summary>
+        /// MariaDB host.
+        /// </summary>
+        public string MariaDBHost { get; set; } = string.Empty;
+
+        /// <summary>
+        /// MariaDB database.
+        /// </summary>
+        public string MariaDBDatabase { get; set; } = string.Empty;
+
+        /// <summary>
+        /// MariaDB username.
+        /// </summary>
+        public string MariaDBUsername { get; set; } = string.Empty;
+
+        /// <summary>
+        /// MariaDB password.
+        /// </summary>
+        public string MariaDBPassword { get; set; } = string.Empty;
+
+        /// <summary>
         /// List of Twitch streams to monitor and report online/offline status.
         /// </summary>
         public List<TwitchStream> TwitchStreams { get; set; } = new List<TwitchStream>();

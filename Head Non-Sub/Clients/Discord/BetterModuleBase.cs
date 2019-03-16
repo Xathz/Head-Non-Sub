@@ -34,13 +34,15 @@ namespace HeadNonSub.Clients.Discord {
         /// Sends a message to the source channel.
         /// </summary>
         /// <param name="message">Contents of the message.</param>
-        /// <param name="caller">Name of who called this method.</param>
-        public async Task<IUserMessage> BetterReplyAsync(string message, [CallerMemberName]string caller = "") {
+        /// <param name="parameters">Additional parameters passed to the command.</param>
+        /// <param name="command">Name of who called this method.</param>
+        public async Task<IUserMessage> BetterReplyAsync(string message, string parameters = "", [CallerMemberName]string command = "") {
             IUserMessage sentMessage = await Context.Channel.SendMessageAsync(message, false, null, null);
 
             if (!Context.IsPrivate) {
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, sentMessage.Id);
-                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed(caller);
+                StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
+                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters);
             }
 
             return sentMessage;
@@ -50,13 +52,15 @@ namespace HeadNonSub.Clients.Discord {
         /// Sends a message to the source channel.
         /// </summary>
         /// <param name="embed">An embed to be displayed.</param>
-        /// <param name="caller">Name of who called this method.</param>
-        public async Task<IUserMessage> BetterReplyAsync(Embed embed, [CallerMemberName]string caller = "") {
+        /// <param name="parameters">Additional parameters passed to the command.</param>
+        /// <param name="command">Name of who called this method.</param>
+        public async Task<IUserMessage> BetterReplyAsync(Embed embed, string parameters = "", [CallerMemberName]string command = "") {
             IUserMessage sentMessage = await Context.Channel.SendMessageAsync(null, false, embed, null);
 
             if (!Context.IsPrivate) {
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, sentMessage.Id);
-                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed(caller);
+                StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
+                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters);
             }
 
             return sentMessage;
@@ -68,13 +72,15 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="stream">The System.IO.Stream of the file to be sent.</param>
         /// <param name="fileName">The name of the attachment.</param>
         /// <param name="message">The message to be sent.</param>
-        /// <param name="caller">Name of who called this method.</param>
-        public async Task<IUserMessage> BetterSendFileAsync(Stream stream, string fileName, string message, [CallerMemberName]string caller = "") {
+        /// <param name="parameters">Additional parameters passed to the command.</param>
+        /// <param name="command">Name of who called this method.</param>
+        public async Task<IUserMessage> BetterSendFileAsync(Stream stream, string fileName, string message, string parameters = "", [CallerMemberName]string command = "") {
             IUserMessage sentMessage = await Context.Message.Channel.SendFileAsync(stream, fileName, message);
 
             if (!Context.IsPrivate) {
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, sentMessage.Id);
-                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed(caller);
+                StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
+                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters);
             }
 
             return sentMessage;
@@ -85,16 +91,38 @@ namespace HeadNonSub.Clients.Discord {
         /// </summary>
         /// <param name="filePath">The file path of the file.</param>
         /// <param name="message">The message to be sent.</param>
-        /// <param name="caller">Name of who called this method.</param>
-        public async Task<IUserMessage> BetterSendFileAsync(string filePath, string message, [CallerMemberName]string caller = "") {
+        /// <param name="parameters">Additional parameters passed to the command.</param>
+        /// <param name="command">Name of who called this method.</param>
+        public async Task<IUserMessage> BetterSendFileAsync(string filePath, string message, string parameters = "", [CallerMemberName]string command = "") {
             IUserMessage sentMessage = await Context.Message.Channel.SendFileAsync(filePath, message);
 
             if (!Context.IsPrivate) {
                 UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, sentMessage.Id);
-                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed(caller);
+                StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
+                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters);
             }
 
             return sentMessage;
+        }
+
+        /// <summary>
+        /// Force track an event manually.
+        /// </summary>
+        /// <param name="parameters">Additional parameters passed to the command.</param>
+        /// <param name="command">Name of who called this method.</param>
+        public void TrackStatistics(string parameters = "", [CallerMemberName]string command = "") {
+            if (!Context.IsPrivate) {
+                StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
+                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters);
+            }
+        }
+
+        private string DisplayName() {
+            if (Context.User is SocketGuildUser contextUser) {
+                return (!string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Nickname : "");
+            } else {
+                return string.Empty;
+            }
         }
 
     }

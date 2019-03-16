@@ -34,6 +34,7 @@ namespace HeadNonSub {
 
             LoggingManager.Initialize();
             SettingsManager.Load();
+
             StatisticsManager.Load();
 
             Cache.LoadContent();
@@ -58,8 +59,6 @@ namespace HeadNonSub {
             string input = await Task.Run(() => Console.ReadLine());
             if (input == "exit") {
                 LoggingManager.Log.Info("Exiting...");
-
-                StatisticsManager.Save();
 
                 await DiscordClient.StopAsync();
                 await Task.Delay(3000);

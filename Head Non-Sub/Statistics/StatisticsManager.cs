@@ -1,108 +1,63 @@
 ﻿using System;
-using System.IO;
-using System.Timers;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using System.Collections.Generic;
+using System.Linq;
+using HeadNonSub.Statistics.Tables;
 
 namespace HeadNonSub.Statistics {
 
     public static class StatisticsManager {
 
-        /// <summary>
-        /// Statistics.
-        /// </summary>
-        public static Statistics Statistics = new Statistics();
+        private static StatisticsContext _Statistics;
 
-        private static Timer _SaveTimer = new Timer(300000); // 5min
-        private static void SaveTimerElapsed(object sender, ElapsedEventArgs e) => Save();
-
-        /// <summary>
-        /// Load statistics from the disk at <see cref="Constants.StatisticsFile" />.
-        /// </summary>
         public static void Load() {
-            if (!File.Exists(Constants.StatisticsFile)) {
-                LoggingManager.Log.Warn($"Statistics file was not found at '{Constants.StatisticsFile}', creating default one.");
-                SaveDefault();
-            }
+            LoggingManager.Log.Info("Loading and connecting to the database system");
 
-            try {
-                LoadJSON(Constants.StatisticsFile);
+            _Statistics = new StatisticsContext();
 
-                // Start save timer
-                _SaveTimer.Elapsed += SaveTimerElapsed;
-                _SaveTimer.Start();
-
-                LoggingManager.Log.Info("Statistics loaded.");
-                return;
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-            }
-
-            LoggingManager.Log.Fatal($"Can not load statistics file '{Constants.StatisticsFile}', please check it or delete it so a new one can be created.");
-            LoggingManager.Flush();
-            Environment.Exit(2);
+            LoggingManager.Log.Info("Connected");
         }
 
-        private static void LoadJSON(string statisticsFile) {
-            using (StreamReader jsonFile = File.OpenText(statisticsFile)) {
-                JsonSerializer jsonSerializer = new JsonSerializer {
-                    DateTimeZoneHandling = DateTimeZoneHandling.Local
+        /// <summary>
+        /// Insert a command that was ran into the database.
+        /// </summary>
+        public static void InsertCommand(DateTime dateTime, ulong serverId, ulong channelId, ulong userId, string username, string userDisplay, ulong messageId, string message, string command, string parameters) {
+            try {
+
+                Command item = new Command {
+                    DateTime = dateTime,
+                    ServerId = serverId,
+                    ChannelId = channelId,
+                    UserId = userId,
+                    Username = username,
+                    UserDisplay = userDisplay,
+                    MessageId = messageId,
+                    Message = message,
+                    CommandName = command,
+                    Parameters = parameters
                 };
 
-                Statistics = jsonSerializer.Deserialize(jsonFile, typeof(Statistics)) as Statistics;
+                _Statistics.Commands.Add(item);
+                _Statistics.SaveChanges();
 
-                if (Statistics == null) { throw new ArgumentNullException("The stats was null after deserialization."); }
-            }
-        }
-
-        /// <summary>
-        /// Save statistics to the disk at <see cref="Constants.StatisticsFile" />.
-        /// </summary>
-        public static void Save(bool dirtyCheck = true) {
-            if (dirtyCheck) {
-                if (!Statistics.IsDirty) { return; }
-            }
-
-            string tempFile = $"{Constants.StatisticsFile}.temp";
-
-            try {
-                using (StreamWriter streamWriter = new StreamWriter(tempFile))
-                using (JsonWriter jsonWriter = new JsonTextWriter(streamWriter)) {
-                    DefaultContractResolver contractResolver = new DefaultContractResolver {
-                        NamingStrategy = new CamelCaseNamingStrategy()
-                    };
-
-                    JsonSerializer jsonSerializer = new JsonSerializer() {
-                        ContractResolver = contractResolver,
-                        DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-                        NullValueHandling = NullValueHandling.Include,
-                        Formatting = Formatting.Indented
-                    };
-
-                    jsonSerializer.Serialize(jsonWriter, Statistics, typeof(Statistics));
-                }
-
-                if (File.Exists(Constants.StatisticsFile)) {
-                    File.Copy(Constants.StatisticsFile, Path.ChangeExtension(tempFile, "previous"), true);
-                }
-                File.Copy(tempFile, Constants.StatisticsFile, true);
-                File.Delete(tempFile);
-
-                LoggingManager.Log.Info("Statistics saved.");
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
-
-            Statistics.MarkClean();
         }
 
         /// <summary>
-        /// Force default statistics and save to the disk at <see cref="Constants.StatisticsFile" />.
+        /// Get the number of times the true command was executed.
         /// </summary>
-        public static void SaveDefault() {
-            Statistics = new Statistics();
-            Save(false);
-        }
+        public static long TrueCount(ulong serverId) => _Statistics.Commands.Where(x => x.ServerId == serverId & x.CommandName == "ThatsTrue").LongCount();
+
+        /// <summary>
+        /// Get the number of times each says command was executed order by count.
+        /// </summary>
+        public static List<KeyValuePair<string, long>> SaysCount(ulong serverId, Dictionary<string, string> commandNames) =>
+            _Statistics.Commands.Where(x => x.ServerId == serverId & commandNames.Any(c => c.Key == x.CommandName))
+                .GroupBy(x => x.CommandName).Select(group => new {
+                    CommandName = group.Key,
+                    Count = group.LongCount()
+                }).OrderByDescending(x => x.Count).ToDictionary(x => x.CommandName, x => x.Count).ToList();
 
     }
 

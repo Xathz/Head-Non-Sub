@@ -46,7 +46,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 string clip = Path.Combine(Constants.AudioDirectory, "ffs.mp3");
                 await Audio.PlayFileAsync(audioClient, clip);
 
-                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
+                TrackStatistics();
             }
         }
 
@@ -61,7 +61,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 string clip = Path.Combine(Constants.AudioDirectory, "goodjob.mp3");
                 await Audio.PlayFileAsync(audioClient, clip);
 
-                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
+                TrackStatistics();
             }
         }
 
@@ -76,7 +76,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 string clip = Path.Combine(Constants.AudioDirectory, "handwarmer.mp3");
                 await Audio.PlayFileAsync(audioClient, clip);
 
-                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
+                TrackStatistics();
             }
         }
 
@@ -91,7 +91,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 string clip = Path.Combine(Constants.AudioDirectory, "lifeguard.mp3");
                 await Audio.PlayFileAsync(audioClient, clip);
 
-                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
+                TrackStatistics();
             }
         }
 
@@ -106,7 +106,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 string clip = Path.Combine(Constants.AudioDirectory, "producer.mp3");
                 await Audio.PlayFileAsync(audioClient, clip);
 
-                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
+                TrackStatistics();
             }
         }
 
@@ -121,7 +121,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 string clip = Path.Combine(Constants.AudioDirectory, "staypositive.mp3");
                 await Audio.PlayFileAsync(audioClient, clip);
 
-                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
+                TrackStatistics();
             }
         }
 
