@@ -16,7 +16,6 @@ namespace HeadNonSub.Clients.Discord {
 
         private static IServiceProvider _Services;
         private static IServiceProvider _Services_Exclamation;
-        private static IServiceProvider _Services_Oof;
 
         public static async Task ConnectAsync() {
             _DiscordConfig = new DiscordSocketConfig {
@@ -43,14 +42,6 @@ namespace HeadNonSub.Clients.Discord {
                 .AddSingleton<CommandService_Exclamation>()
                 .BuildServiceProvider();
 
-            _Services_Oof = new ServiceCollection().AddSingleton(_DiscordClient)
-                .AddSingleton(new CommandService(new CommandServiceConfig() {
-                    DefaultRunMode = RunMode.Async,
-                    LogLevel = LogSeverity.Info
-                }))
-                .AddSingleton<CommandService_Oof>()
-                .BuildServiceProvider();
-
             _DiscordClient.Log += Log;
             _DiscordClient.Connected += Connected;
             _DiscordClient.GuildAvailable += GuildAvailable;
@@ -59,11 +50,9 @@ namespace HeadNonSub.Clients.Discord {
 
             _Services.GetRequiredService<CommandService>().Log += Log;
             _Services_Exclamation.GetRequiredService<CommandService>().Log += Log;
-            _Services_Oof.GetRequiredService<CommandService>().Log += Log;
 
             await _Services.GetRequiredService<CommandService_Mention>().InitializeAsync();
             await _Services_Exclamation.GetRequiredService<CommandService_Exclamation>().InitializeAsync();
-            await _Services_Oof.GetRequiredService<CommandService_Oof>().InitializeAsync();
 
             await _DiscordClient.LoginAsync(TokenType.Bot, SettingsManager.Configuration.DiscordToken);
             await _DiscordClient.StartAsync();
