@@ -140,10 +140,11 @@ namespace HeadNonSub.Clients.Twitch {
 
             // Wubby only, hes special
             if (e.Channel.ToLower() == Constants.PaymoneyWubby) {
-                // Do not use 'stream.StreamUrl' here
                 _ = Discord.DiscordClient.SetStatus($"Watching PaymoneyWubby!", $"https://twitch.tv/paymoneywubby");
+                _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, e.Stream.ThumbnailUrl, $"@everyone {stream.DisplayName} is now live!", e.Stream.Title);
+            } else {
+                _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, e.Stream.ThumbnailUrl, $"{stream.DisplayName} is now live!", e.Stream.Title);
             }
-            _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, e.Stream.ThumbnailUrl, $"{stream.DisplayName} is now live!", e.Stream.Title);
 
             LoggingManager.Log.Info($"{stream.DisplayName} just went live");
         }

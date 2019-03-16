@@ -4,34 +4,31 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
-using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
     [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
-    public class Fake : ModuleBase<SocketCommandContext> {
+    public class Fake : BetterModuleBase {
 
         [Command("dating")]
         [Alias("speeddating", "datenight")]
-        public Task DatingAsync() {
-            IUserMessage message = ReplyAsync($"Haha {Context.User.Username}, you are alone.").Result;
+        public Task Dating() {
+            IUserMessage message = BetterReplyAsync($"Haha {Context.User.Username}, you are alone.").Result;
             IEmote emote = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 461043064979456012);
 
             if (emote is IEmote) {
                 message.AddReactionAsync(emote);
             }
 
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, message.Id);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 
         [Command("executie")]
         [Cooldown(300)]
-        public Task ExecutieAsync(SocketUser user = null, [Remainder]string reason = "") {
+        public Task Executie(SocketUser user = null, [Remainder]string reason = "") {
 
-            ReplyAsync($"{user.Mention} you have 10 seconds to say last words before you are executie'd.").Wait();
+            BetterReplyAsync($"{user.Mention} you have 10 seconds to say last words before you are executie'd.").Wait();
             Task.Delay(10000).Wait();
 
             ReplyAsync($"10 seconds over. Now executing {user.ToString()} for reason: `{reason}`...").Wait();
@@ -48,7 +45,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             message.AddReactionAsync(new Emoji("🍆"));
 
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 

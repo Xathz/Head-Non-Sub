@@ -14,35 +14,28 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
     [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
-    public class Strawpoll : ModuleBase<SocketCommandContext> {
+    public class Strawpoll : BetterModuleBase {
 
         [Command("strawpoll")]
-        public Task StrawpollAsync([Remainder]string input) {
+        public Task StrawpollCreate([Remainder]string input) {
             string[] messages = input.Split('|');
 
             CreatedPoll newPoll = null;
-            ulong? reply = null;
-
             newPoll = Create.CreatePoll(messages[0], messages.Skip(1).ToList(), false, StrawPollNET.Enums.DupCheck.Normal, false);
 
             if (newPoll == null || string.IsNullOrEmpty(newPoll.PollUrl)) {
-                reply = ReplyAsync("Failed to create the strawpoll. Example: `!strawpoll Poll Title | Option 1 | Option 2 | Option 3`").Result.Id;
+                return BetterReplyAsync("Failed to create the strawpoll. Example: `!strawpoll Poll Title | Option 1 | Option 2 | Option 3`");
             } else {
-                reply = ReplyAsync($"{Context.User.Mention} <{newPoll.PollUrl}>").Result.Id;
+               return BetterReplyAsync($"{Context.User.Mention} <{newPoll.PollUrl}>");
             }
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply.Value);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
         }
 
         [Command("strawpollresults")]
         [Alias("strawpollr")]
-        public Task StrawpollResultsAsync([Remainder]string input) {
+        public Task StrawpollResults([Remainder]string input) {
             Context.Message.DeleteAsync();
 
             FetchedPoll fetchedPoll = null;
-            ulong? reply = null;
 
             try {
                 string pollId = new Uri(input).Segments[1];
@@ -66,18 +59,14 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
                     builder.Description = resultBuilder.ToString().TrimEnd();
 
-                    reply = ReplyAsync(embed: builder.Build()).Result.Id;
+                    return BetterReplyAsync(builder.Build());
 
                 } else {
-                    reply = ReplyAsync($"Failed to retrieve the strawpoll.").Result.Id;
+                    return BetterReplyAsync($"Failed to retrieve the strawpoll.");
                 }
             } catch {
-                reply = ReplyAsync($"Failed to retrieve the strawpoll.").Result.Id;
+                return BetterReplyAsync($"Failed to retrieve the strawpoll.");
             }
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply.Value);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
         }
 
     }

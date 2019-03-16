@@ -3,17 +3,16 @@ using System.Threading.Tasks;
 using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Extensions;
-using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands {
 
     [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
-    public class FakeChat : ModuleBase<SocketCommandContext> {
+    public class FakeChat : BetterModuleBase {
 
         [Command("you suck")]
         [Alias("i hate you", "fuck you", "fuck off", "die")]
-        public Task YouSuckAsync() {
+        public Task YouSuck() {
 
             List<string> responses = new List<string> {
                 "i am poor :cry:",
@@ -31,16 +30,12 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 "I'm subbed on youtube tho"
             };
 
-            ulong reply = ReplyAsync(responses.PickRandom()).Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
+            return BetterReplyAsync(responses.PickRandom());
         }
 
         [Command("you are great")]
         [Alias("i love you", "how are you", "nice to see you", "i like you")]
-        public Task YouAreGreatAsync() {
+        public Task YouAreGreat() {
 
             List<string> responses = new List<string> {
                 "awww",
@@ -53,18 +48,13 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 "people are much nicer here than the ninja discord",
                 "do you think wubby could still love me as a non-sub?"
             };
-            
-            ulong reply = ReplyAsync(responses.PickRandom()).Result.Id;
 
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
+            return BetterReplyAsync(responses.PickRandom());
         }
 
         [Command("good bot")]
-        // Xathz
-        [AllowedUsers(227088829079617536)]
-        public Task GoodBotAsync() {
+        [AllowedUsers(227088829079617536)] // Xathz
+        public Task GoodBot() {
 
             List<string> responses = new List<string> {
                 "Damn right.",
@@ -73,11 +63,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 "Yea everyone else sucks."
             };
 
-            ulong reply = ReplyAsync(responses.PickRandom()).Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
+            return BetterReplyAsync(responses.PickRandom());
         }
 
     }

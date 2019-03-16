@@ -3,10 +3,8 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Discord.Commands;
-using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Extensions;
-using HeadNonSub.Statistics;
 using ImageMagick;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation.GuildSpecific {
@@ -14,20 +12,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation.GuildSpecific {
     // Claire's Trash Pandas
     [BlacklistEnforced, AllowedGuilds(471045301407449088)]
     [RequireContext(ContextType.Guild)]
-    public class ClairesTrashPandas : ModuleBase<SocketCommandContext> {
-
-        private string RequestedBy {
-            get {
-                if (Context.User is SocketGuildUser user) {
-                    return $"{(!string.IsNullOrWhiteSpace(user.Nickname) ? user.Nickname : user.Username)} `{user.ToString()}`";
-                } else {
-                    return $"{Context.User.Username} `{Context.User.ToString()}`";
-                }
-            }
-        }
+    public class ClairesTrashPandas : BetterModuleBase {
 
         [Command("sbsays")]
-        public Task StrongBadSaysAsync([Remainder]string input) {
+        public Task StrongBadSays([Remainder]string input) {
 
             using (MemoryStream stream = new MemoryStream(100))
             using (MagickImage image = new MagickImage(Cache.GetStream("strongbadsays.png")))
@@ -49,17 +37,11 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation.GuildSpecific {
                   .Draw(image);
 
                 image.Write(stream, MagickFormat.Png);
-
                 stream.Seek(0, SeekOrigin.Begin);
 
-                ulong reply = Context.Message.Channel.SendFileAsync(stream, "strongbadSays.png", text: $"● {RequestedBy}").Result.Id;
-                if (!Context.IsPrivate) {
-                    UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-                    StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-                }
+                return BetterSendFileAsync(stream, "strongbadSays.png", $"● {BetterUserFormat()}");
             }
 
-            return Task.CompletedTask;
         }
 
     }

@@ -11,144 +11,63 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
     [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
-    public class Spam : ModuleBase<SocketCommandContext> {
-
-        private string RequestedBy {
-            get {
-                if (Context.User is SocketGuildUser user) {
-                    return $"{(!string.IsNullOrWhiteSpace(user.Nickname) ? user.Nickname : user.Username)} `{user.ToString()}`";
-                } else {
-                    return $"{Context.User.Username} `{Context.User.ToString()}`";
-                }
-            }
-        }
+    public class Spam : BetterModuleBase {
 
         [Command("gimme")]
         [Cooldown(20)]
-        public Task GimmeAsync() {
-            ulong reply = ReplyAsync("<:wubbydrugs:361993520040640516>").Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
-        }
+        public Task Gimme() => BetterReplyAsync("<:wubbydrugs:361993520040640516>");
 
         [Command("rnk")]
         [Cooldown(3600, true)]
-        public Task RnkAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("rnk.png"), "rnk.png", text: $"● {RequestedBy}").Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
-        }
+        public Task Rnk() => BetterSendFileAsync(Cache.GetStream("rnk.png"), "rnk.png", $"● {BetterUserFormat()}");
 
         [Command("moneyshot")]
         [Cooldown(20)]
-        public Task MoneyShotAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("moneyshot.png"), "moneyshot.png", text: $"● {RequestedBy}").Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
-        }
+        public Task MoneyShot() => BetterSendFileAsync(Cache.GetStream("moneyshot.png"), "moneyshot.png", $"● {BetterUserFormat()}");
 
         [Command("yum")]
         [Cooldown(20)]
-        public Task YumAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("yum.png"), "yum.png", text: $"● {RequestedBy}").Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
-        }
+        public Task Yum() => BetterSendFileAsync(Cache.GetStream("yum.png"), "yum.png", $"● {BetterUserFormat()}");
 
         [Command("fuckedup")]
         [Alias("ripdeposit")]
         [Cooldown(20)]
-        public Task FuckedUpAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("fucked_up.png"), "fucked_up.png", text: $"● {RequestedBy}").Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
-        }
+        public Task FuckedUp() => BetterSendFileAsync(Cache.GetStream("fucked_up.png"), "fucked_up.png", $"● {BetterUserFormat()}");
 
         [Command("what")]
         [Cooldown(20)]
-        public Task WhatAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("what.png"), "what.png", text: $"● {RequestedBy}").Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
-        }
+        public Task What() => BetterSendFileAsync(Cache.GetStream("what.png"), "what.png", $"● {BetterUserFormat()}");
 
         [Command("bigoof")]
         [Cooldown(20)]
-        public Task BigOofAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("big_oof.gif"), "big_oof.gif", text: $"● {RequestedBy}").Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
-        }
+        public Task BigOof() => BetterSendFileAsync(Cache.GetStream("big_oof.gif"), "big_oof.gif", $"● {BetterUserFormat()}");
 
         [Command("1024nude")]
         [Cooldown(20)]
-        public Task TenTwentyFourNudeAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("1024_nude.png"), "1024_nude.png", text: $"● {RequestedBy}").Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
-        }
+        public Task TenTwentyFourNude() => BetterSendFileAsync(Cache.GetStream("1024_nude.png"), "1024_nude.png", $"● {BetterUserFormat()}");
 
         [Command("star")]
         [Cooldown(20)]
-        public Task StarAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("star.gif"), "star.gif", text: $"● {RequestedBy}").Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
-        }
+        public Task Star() => BetterSendFileAsync(Cache.GetStream("star.gif"), "star.gif", $"● {BetterUserFormat()}");
 
         [Command("gongboy")]
         [Cooldown(20)]
-        public Task GongBoyAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("gongboy.png"), "gongboy.png", text: $"● {RequestedBy}").Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
-        }
+        public Task GongBoy() => BetterSendFileAsync(Cache.GetStream("gongboy.png"), "gongboy.png", $"● {BetterUserFormat()}");
 
         [Command("true")]
+        [Alias("thatstrue")]
         [Cooldown(20)]
         [SubscriberOnly]
-        public Task TrueAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("true.png"), "true.png", text: $"● {RequestedBy}").Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
-        }
+        public Task ThatsTrue() => BetterSendFileAsync(Cache.GetStream("true.png"), "true.png", $"● {BetterUserFormat()}");
 
         [Command("potato")]
         [Cooldown(20)]
-        public Task PotatoAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Cache.GetStream("potato.png"), "potato.png", text: $"● {RequestedBy}").Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
-        }
+        public Task Potato() => BetterSendFileAsync(Cache.GetStream("potato.png"), "potato.png", $"● {BetterUserFormat()}");
 
         [Command("youareallretarded")]
         [Cooldown(120)]
         [AllowedGuilds(328300333010911242)]
-        public Task AllRetardedAsync() {
+        public Task AllRetarded() {
             if (Context.Channel is SocketTextChannel channel) {
                 IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(Context.Message, Direction.Before, 10).Flatten().OrderByDescending(x => x.CreatedAt);
                 IEmote emote = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 329534564160765954);
@@ -168,7 +87,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("allthis")]
         [Cooldown(120)]
         [AllowedGuilds(328300333010911242)]
-        public Task AllThisAsync() {
+        public Task AllThis() {
             if (Context.Channel is SocketTextChannel channel) {
                 IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(Context.Message, Direction.Before, 10).Flatten().OrderByDescending(x => x.CreatedAt);
                 IEmote emote = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 451081265467359253);
@@ -187,19 +106,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("night")]
         [Cooldown(20)]
-        public Task NightAsync() {
-            ulong reply = ReplyAsync(@".　　　　　　　　　　 ✦ 　　　　   　 　　　˚　　　　　　　　　　　　　　*　　　　　　   　　　　　　　　　　　　　　　.　　　　　　　　　　　　　　. 　　 　　　　　　　 ✦ 　　　　　　　　　　 　 ‍ ‍ ‍ ‍ 　　　　 　　　　　　　　　　　　,　　   　
+        public Task Night() => BetterReplyAsync(@".　　　　　　　　　　 ✦ 　　　　   　 　　　˚　　　　　　　　　　　　　　*　　　　　　   　　　　　　　　　　　　　　　.　　　　　　　　　　　　　　. 　　 　　　　　　　 ✦ 　　　　　　　　　　 　 ‍ ‍ ‍ ‍ 　　　　 　　　　　　　　　　　　,　　   　
 
 .　　　　　　　　　　　　　.　　　ﾟ　  　　　.　　　　　　　　　　　　　.
 
 　　　　　　,　　　　　　　.　　　　　　    　　　　 　　　　　　　　　　　　　　　　　　 ☀️ 　　　　　　　　　　　　　　　　　　    　      　　　　　        　　　　　　　　　　　　　. 　　　　　　　　　　.　　　　　　　　　　　　　. 　　　　　　　　　　　　　　　　       　   　　　　 　　　　　　　　　　　　　　　　       　   　　　　　　　　　　　　　　　　       　    ✦ 　   　　　,　　　　　　　　　　　    🚀 　　　　 　　,　　　 ‍ ‍ ‍ ‍ 　 　　　　　　　　　　　　.　　　　　 　　 　　　.　　　　　　　　　　　　　 　           　　　　　　　　　　　　　　　　　　　˚　　　 　   　　　　,　　　　　　　　　　　       　    　　　　　　　　　　　　　　　　.　　　  　　    　　　　　 　　　　　.　　　　　　　　　　　　　.　　　　　　　　　　　　　　　* 　　   　　　　　 ✦ 　　　　　　　         　        　　　　 　　 　　　　　　　 　　　　　.　　　　　　　　　　　　　　　　　　.　　　　　    　　. 　 　　　　　.　　　　 🌑 　　　　　   　　　　　.　　　　　　　　　　　.　　　　　　　　　　   　
 
-　˚　　　　　　　　　　　　　　　　　　　　　ﾟ　　　　　.　　　　　　　　　　　　　　　. 　　 　 🌎 ‍ ‍ ‍ ‍ ‍ ‍ ‍ ‍ ‍ ‍ ,　 　　　　　　　　　　　　　　* .　　　　　 　　　　　　　　　　　　　　.　　　　　　　　　　 ✦ 　　　　   　 　　　˚　　　　　　　　　　　　　　*　　　　　　 ").Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
-        }
+　˚　　　　　　　　　　　　　　　　　　　　　ﾟ　　　　　.　　　　　　　　　　　　　　　. 　　 　 🌎 ‍ ‍ ‍ ‍ ‍ ‍ ‍ ‍ ‍ ‍ ,　 　　　　　　　　　　　　　　* .　　　　　 　　　　　　　　　　　　　　.　　　　　　　　　　 ✦ 　　　　   　 　　　˚　　　　　　　　　　　　　　*　　　　　　 ");
 
     }
 

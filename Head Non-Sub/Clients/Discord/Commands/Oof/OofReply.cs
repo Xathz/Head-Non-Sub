@@ -1,32 +1,18 @@
-﻿using System.IO;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
-using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Oof {
 
     [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
-    public class OofReply : ModuleBase<SocketCommandContext> {
+    public class OofReply : BetterModuleBase {
 
         [Command("oof")]
-        public Task OofAsync() {
-            ulong reply = ReplyAsync("oof").Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
-        }
+        public Task OofOof() => BetterReplyAsync("oof");
 
         [Command("floof")]
-        public Task FloofAsync() {
-            ulong reply = Context.Message.Channel.SendFileAsync(Path.Combine(Constants.ContentDirectory, "floof.gif")).Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
-        }
+        public Task OofFloof() => BetterSendFileAsync(Cache.GetStream("floof.gif"), "floof.gif", $"● {BetterUserFormat()}");
 
     }
 

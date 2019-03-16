@@ -3,7 +3,6 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Discord.Commands;
-using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Extensions;
 using HeadNonSub.Statistics;
@@ -12,20 +11,10 @@ using ImageMagick;
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
     [BlacklistEnforced]
-    public class ImageTemplates : ModuleBase<SocketCommandContext> {
-
-        private string RequestedBy {
-            get {
-                if (Context.User is SocketGuildUser user) {
-                    return $"{(!string.IsNullOrWhiteSpace(user.Nickname) ? user.Nickname : user.Username)} `{user.ToString()}`";
-                } else {
-                    return $"{Context.User.Username} `{Context.User.ToString()}`";
-                }
-            }
-        }
+    public class ImageTemplates : BetterModuleBase {
 
         [Command("ttsays")]
-        public Task TTSaysAsync([Remainder]string input) {
+        public Task TTSays([Remainder]string input) {
 
             using (MemoryStream stream = new MemoryStream(100))
             using (MagickImage image = new MagickImage(Cache.GetStream("ttsays.png"))) {
@@ -45,21 +34,14 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                   .Draw(image);
 
                 image.Write(stream, MagickFormat.Png);
-
                 stream.Seek(0, SeekOrigin.Begin);
 
-                ulong reply = Context.Message.Channel.SendFileAsync(stream, "ttSays.png", text: $"● {RequestedBy}").Result.Id;
-                if (!Context.IsPrivate) {
-                    UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-                    StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-                }
+                return BetterSendFileAsync(stream, "ttSays.png", $"● {BetterUserFormat()}");
             }
-
-            return Task.CompletedTask;
         }
 
         [Command("1024says")]
-        public Task TenTwentyFourSaysAsync([Remainder]string input) {
+        public Task TenTwentyFourSays([Remainder]string input) {
 
             using (MemoryStream stream = new MemoryStream(100))
             using (MagickImage image = new MagickImage(Cache.GetStream("1024says.png"))) {
@@ -81,21 +63,14 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                   .Draw(image);
 
                 image.Write(stream, MagickFormat.Png);
-
                 stream.Seek(0, SeekOrigin.Begin);
 
-                ulong reply = Context.Message.Channel.SendFileAsync(stream, "1024Says.png", text: $"● {RequestedBy}").Result.Id;
-                if (!Context.IsPrivate) {
-                    UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-                    StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-                }
+                return BetterSendFileAsync(stream, "1024Says.png", $"● {BetterUserFormat()}");
             }
-
-            return Task.CompletedTask;
         }
 
         [Command("amandasays")]
-        public Task AmandaSaysAsync([Remainder]string input) {
+        public Task AmandaSays([Remainder]string input) {
 
             using (MemoryStream stream = new MemoryStream(100))
             using (MagickImage image = new MagickImage(Cache.GetStream("amandasays.png"))) {
@@ -115,21 +90,14 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                   .Draw(image);
 
                 image.Write(stream, MagickFormat.Png);
-
                 stream.Seek(0, SeekOrigin.Begin);
 
-                ulong reply = Context.Message.Channel.SendFileAsync(stream, "amandaSays.png", text: $"● {RequestedBy}").Result.Id;
-                if (!Context.IsPrivate) {
-                    UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-                    StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-                }
+                return BetterSendFileAsync(stream, "amandaSays.png", $"● {BetterUserFormat()}");
             }
-
-            return Task.CompletedTask;
         }
 
         [Command("satasays")]
-        public Task SataSaysAsync([Remainder]string input) {
+        public Task SataSays([Remainder]string input) {
 
             using (MemoryStream stream = new MemoryStream(100))
             using (MagickImage image = new MagickImage(Cache.GetStream("satasays.png"))) {
@@ -149,21 +117,14 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                   .Draw(image);
 
                 image.Write(stream, MagickFormat.Png);
-
                 stream.Seek(0, SeekOrigin.Begin);
 
-                ulong reply = Context.Message.Channel.SendFileAsync(stream, "sataSays.png", text: $"● {RequestedBy}").Result.Id;
-                if (!Context.IsPrivate) {
-                    UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-                    StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-                }
+                return BetterSendFileAsync(stream, "sataSays.png", $"● {BetterUserFormat()}");
             }
-
-            return Task.CompletedTask;
         }
 
         [Command("jibersays")]
-        public Task JiberSaysAsync([Remainder]string input) {
+        public Task JiberSays([Remainder]string input) {
 
             using (MemoryStream stream = new MemoryStream(100))
             using (MagickImage image = new MagickImage(Cache.GetStream("jibersays.png"))) {
@@ -183,17 +144,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                   .Draw(image);
 
                 image.Write(stream, MagickFormat.Png);
-
                 stream.Seek(0, SeekOrigin.Begin);
 
-                ulong reply = Context.Message.Channel.SendFileAsync(stream, "jiberSays.png", text: $"● {RequestedBy}").Result.Id;
-                if (!Context.IsPrivate) {
-                    UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-                    StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-                }
+                return BetterSendFileAsync(stream, "jiberSays.png", $"● {BetterUserFormat()}");
             }
-
-            return Task.CompletedTask;
         }
 
     }

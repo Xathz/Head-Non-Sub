@@ -13,11 +13,11 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     // Wubby's Fun House: 'actual-fucking-spam'; Cam’s Pocket: 'shitposting-cause-xathz'; Claire's Trash Pandas: 'spamalot'
     [BlacklistEnforced, AllowedChannels(537727672747294738, 546863784157904896, 553314066731499541)]
     [RequireContext(ContextType.Guild)]
-    public class Rave : ModuleBase<SocketCommandContext> {
+    public class Raves : BetterModuleBase {
 
         [Command("rave")]
         [Cooldown(1800)]
-        public Task RaveAsync([Remainder]string input) {
+        public Task Rave([Remainder]string input) {
             string[] messages = input.Split(' ');
 
             RaveTracker.Track(Context.Guild.Id, Context.Channel.Id);
@@ -35,7 +35,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("ravve")]
         [Cooldown(1800)]
-        public Task RavveAsync([Remainder] int length = 30) {
+        public Task Ravve([Remainder] int length = 30) {
             RaveTracker.Track(Context.Guild.Id, Context.Channel.Id);
             Random random = new Random();
 
@@ -55,22 +55,18 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("ravestop")]
         [Alias("stoprave", "stopraves")]
         [OwnerAdminWhitelist]
-        public Task RaveStopAsync() {
+        public Task RaveStop() {
             RaveTracker.Stop(Context.Guild.Id, Context.Channel.Id);
 
-            ulong reply = ReplyAsync("Stopping all raves in this channel... you party pooper.").Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
+            return BetterReplyAsync("Stopping all raves in this channel... you party pooper.");
         }
 
         [Command("raveundo")]
         [Alias("undorave", "undoraves")]
         [OwnerAdminWhitelist]
-        public Task RaveUndoAsync(int messageCount = 300) {
+        public Task RaveUndo(int messageCount = 300) {
             if (messageCount == 0 || messageCount > 500) {
-                return ReplyAsync("Must be between 1 and 500.");
+                return BetterReplyAsync("Must be between 1 and 500.");
             }
 
             Context.Message.DeleteAsync();
@@ -82,7 +78,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 ThumbnailUrl = "https://cdn.discordapp.com/emojis/425366701794656276.gif"
             };
 
-            IUserMessage noticeMessage = ReplyAsync(embed: builder.Build()).Result;
+            IUserMessage noticeMessage = BetterReplyAsync(embed: builder.Build()).Result;
 
             if (Context.Channel is SocketTextChannel channel) {
                 IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(500).Flatten();
@@ -95,8 +91,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
 
             noticeMessage.DeleteAsync();
-
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 

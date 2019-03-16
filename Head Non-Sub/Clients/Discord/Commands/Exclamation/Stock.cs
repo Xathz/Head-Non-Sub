@@ -8,7 +8,6 @@ using Discord;
 using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Entities.TwitchStocks;
-using HeadNonSub.Statistics;
 using Newtonsoft.Json;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
@@ -16,12 +15,12 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     // Wubby's Fun House
     [BlacklistEnforced, AllowedGuilds(328300333010911242)]
     [RequireContext(ContextType.Guild)]
-    public class Stock : ModuleBase<SocketCommandContext> {
+    public class Stock : BetterModuleBase {
 
         private readonly DateTime _Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         [Command("stock")]
-        public Task StockAsync() {
+        public Task PaymoneyWubbyStock() {
             bool fromCache = false;
             KeyValuePair<long, double> recent;
 
@@ -46,11 +45,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 Text = $"As of {FromUnixTime(recent.Key).ToString().ToLower()} utc{(fromCache ? "; from cache" : "")}"
             };
 
-            ulong reply = ReplyAsync(embed: builder.Build()).Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
+            return BetterReplyAsync(builder.Build());
         }
 
         private KeyValuePair<long, double> GetRecentStockValue() {

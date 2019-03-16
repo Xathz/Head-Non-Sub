@@ -7,16 +7,15 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
-using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
     [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
-    public class Poll : ModuleBase<SocketCommandContext> {
+    public class Poll : BetterModuleBase {
 
         [Command("trashpoll")]
-        public Task TrashPollAsync([Remainder]string input) {
+        public Task TrashPoll([Remainder]string input) {
             IGuildUser user = Context.User as IGuildUser;
 
             StringBuilder content = new StringBuilder();
@@ -70,7 +69,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             Context.Message.DeleteAsync();
 
-            IUserMessage message = ReplyAsync(embed: builder.Build()).Result;
+            IUserMessage message = BetterReplyAsync(builder.Build()).Result;
 
             // Might throw if the bot does not have access to the emote
             foreach (IEmote reaction in reactions) {
@@ -79,8 +78,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 } catch { }
             }
 
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, message.Id);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             return Task.CompletedTask;
         }
 

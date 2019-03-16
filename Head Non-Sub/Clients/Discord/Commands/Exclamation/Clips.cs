@@ -5,19 +5,16 @@ using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Exceptions;
 using HeadNonSub.Extensions;
-using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
     [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
-    public class Clips : ModuleBase<SocketCommandContext> {
+    public class Clips : BetterModuleBase {
 
         [Command("randomclip")]
-        public Task RandomClipAsync([Remainder]string channel = "") {
+        public Task RandomClip([Remainder]string channel = "") {
             string twitchChannel = channel.ToLower();
-            string replyMessage;
-            ulong reply;
 
             // TODO Come up with a better way to do this
             if (string.IsNullOrEmpty(twitchChannel)) {
@@ -41,21 +38,15 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 (DateTime createdAt, string title, int viewCount, string url) = clips.PickRandom();
 
                 if (!string.IsNullOrEmpty(url)) {
-                    replyMessage = clips.PickRandom().url;
+                    return BetterReplyAsync(clips.PickRandom().url);
                 } else {
-                    replyMessage = "Failed to pick a random clip.";
+                    return BetterReplyAsync("Failed to pick a random clip.");
                 }
             } catch (UnsupportedTwitchChannelException ex) {
-                replyMessage = ex.Message;
+                return BetterReplyAsync(ex.Message);
             } catch {
-                replyMessage = "Failed to pick a random clip.";
+               return BetterReplyAsync("Failed to pick a random clip.");
             }
-
-            reply = ReplyAsync(replyMessage).Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
         }
 
     }

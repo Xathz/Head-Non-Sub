@@ -4,7 +4,6 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Discord.Commands;
-using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Entities.Streamlabs;
 using HeadNonSub.Extensions;
@@ -15,42 +14,32 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
     [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
-    public class TTS : ModuleBase<SocketCommandContext> {
-
-        private string RequestedBy {
-            get {
-                if (Context.User is SocketGuildUser user) {
-                    return $"{(!string.IsNullOrWhiteSpace(user.Nickname) ? user.Nickname : user.Username)} `{user.ToString()}`";
-                } else {
-                    return $"{Context.User.Username} `{Context.User.ToString()}`";
-                }
-            }
-        }
+    public class TTS : BetterModuleBase {
 
         [Command("tts")]
         [Cooldown(60)]
-        public Task JoannaAsync([Remainder]string input) {
+        public Task Joanna([Remainder]string input) {
             GenerateAndSend(input, "Joanna");
             return Task.CompletedTask;
         }
 
         [Command("tts2")]
         [Cooldown(60)]
-        public Task JustinAsync([Remainder]string input) {
+        public Task Justin([Remainder]string input) {
             GenerateAndSend(input, "Justin");
             return Task.CompletedTask;
         }
 
         [Command("tts3")]
         [Cooldown(60)]
-        public Task BrianAsync([Remainder]string input) {
+        public Task Brian([Remainder]string input) {
             GenerateAndSend(input, "Brian");
             return Task.CompletedTask;
         }
 
         [Command("tts4")]
         [Cooldown(60)]
-        public Task MizukiAsync([Remainder]string input) {
+        public Task Mizuki([Remainder]string input) {
             GenerateAndSend(input, "Mizuki");
             return Task.CompletedTask;
         }
@@ -59,14 +48,12 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             string clean = text.RemoveNewLines();
 
             if (string.IsNullOrWhiteSpace(clean)) {
-                ulong reply = ReplyAsync("You need to enter text... for _text_ to speech to work you idiot.").Result.Id;
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+                _ = BetterReplyAsync("You need to enter text... for _text_ to speech to work you idiot.");
                 return;
             }
 
             if (clean.Length > 550) {
-                ulong reply = ReplyAsync("The text must be 550 or less characters including spaces.").Result.Id;
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+                _ = BetterReplyAsync("The text must be 550 or less characters including spaces.");
                 return;
             }
 
@@ -77,13 +64,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             Stream oggFile = Generate(clean, voice);
 
             if (oggFile is Stream) {
-                ulong reply = Context.Message.Channel.SendFileAsync(oggFile, $"{filename}.ogg", text: $"● {RequestedBy}{Environment.NewLine}```{clean}```").Result.Id;
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
+                _ = BetterSendFileAsync(oggFile, $"{filename}.ogg", $"● {BetterUserFormat()}{Environment.NewLine}```{clean}```", $"tts{voice}").Result.Id;
                 StatisticsManager.Statistics.Commands(Context.Guild.Id).TTSMessage(clean);
             } else {
-                ulong reply = ReplyAsync("Failed to generate the text to speech.").Result.Id;
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
+                _ = BetterReplyAsync("Failed to generate the text to speech.");
             }
         }
 

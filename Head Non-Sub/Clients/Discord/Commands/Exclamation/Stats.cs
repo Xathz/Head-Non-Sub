@@ -11,27 +11,22 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
     [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
-    public class Stats : ModuleBase<SocketCommandContext> {
+    public class Stats : BetterModuleBase {
 
         private readonly Dictionary<string, string> _CommandNames = new Dictionary<string, string>() {
-            { "TTSaysAsync", "tt2468 Says" }, { "TenTwentyFourSaysAsync", "1024x768 Says" },
-            { "AmandaSaysAsync", "Amanda Says" }, { "SataSaysAsync", "Satazero Says" },
-            { "JiberSaysAsync", "jiberjiber Says" }
+            { "TTSays", "tt2468 Says" }, { "TenTwentyFourSays", "1024x768 Says" }, { "AmandaSays", "Amanda Says" },
+            { "SataSays", "Satazero Says" }, { "JiberSays", "jiberjiber Says" }
         };
 
         [Command("truecount")]
-        public Task TrueCountAsync() {
-            ulong count = StatisticsManager.Statistics.Commands(Context.Guild.Id).TimesExecuted("TrueAsync");
+        public Task TrueCount() {
+            ulong count = StatisticsManager.Statistics.Commands(Context.Guild.Id).TimesExecuted("ThatsTrue");
 
-            ulong reply = ReplyAsync($"There are {count.ToString("N0")} truths here.").Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
+            return BetterReplyAsync($"There are {count.ToString("N0")} truths here.");
         }
 
         [Command("toptts")]
-        public Task TopTTSAsync() {
+        public Task TopTTS() {
             List<KeyValuePair<string, ulong>> topWords = StatisticsManager.Statistics.Commands(Context.Guild.Id).TTSTopWords();
 
             EmbedBuilder builder = new EmbedBuilder() {
@@ -41,15 +36,11 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             builder.AddField("Word . . . Times Used", $"```{string.Join(Environment.NewLine, topWords.Select(x => $"{x.Key.PadRight(18, '.')} {x.Value}"))}```");
 
-            ulong reply = ReplyAsync(embed: builder.Build()).Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
+            return BetterReplyAsync(builder.Build());
         }
 
         [Command("sayscount")]
-        public Task SaysCountAsync() {
+        public Task SaysCount() {
             List<KeyValuePair<string, ulong>> says = StatisticsManager.Statistics.Commands(Context.Guild.Id).SaysCount(_CommandNames);
 
             EmbedBuilder builder = new EmbedBuilder() {
@@ -59,13 +50,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             builder.AddField("Command . . . Times Used", $"```{string.Join(Environment.NewLine, says.Select(x => $"{x.Key.PadRight(20, '.')} {x.Value}"))}```");
 
-            ulong reply = ReplyAsync(embed: builder.Build()).Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
+            return BetterReplyAsync(builder.Build());
         }
-
 
     }
 

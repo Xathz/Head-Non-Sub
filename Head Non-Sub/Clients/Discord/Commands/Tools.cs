@@ -13,34 +13,28 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
     [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
-    public class Tools : ModuleBase<SocketCommandContext> {
+    public class Tools : BetterModuleBase {
 
         [Command("ping")]
-        public Task PingAsync() {
+        public Task Ping() {
             DateTime now = DateTime.Now.ToUniversalTime();
 
-            ulong reply = ReplyAsync($"{now.Subtract(Context.Message.CreatedAt.DateTime).TotalMilliseconds.ToString("N0")}ms" +
-                $"```Ping: {Context.Message.CreatedAt.DateTime.ToString(Constants.DateTimeFormat)}{Environment.NewLine}Pong: {now.ToString(Constants.DateTimeFormat)}```").Result.Id;
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
+            return BetterReplyAsync($"{now.Subtract(Context.Message.CreatedAt.DateTime).TotalMilliseconds.ToString("N0")}ms" +
+                $"```Ping: {Context.Message.CreatedAt.DateTime.ToString(Constants.DateTimeFormat)}{Environment.NewLine}Pong: {now.ToString(Constants.DateTimeFormat)}```");
         }
 
         [Command("failfast")]
         [OwnerAdminXathz]
-        public Task FailFastAsync() {
+        public Task FailFast() {
             LoggingManager.Log.Fatal($"Forcibly disconnected from Discord. Server: {Context.Guild.Name} ({Context.Guild.Id}); Channel: {Context.Channel.Name} ({Context.Channel.Id}); User: {Context.User.Username} ({Context.User.Id})");
-            ReplyAsync("Forcibly disconnecting from Discord, please tell <@!227088829079617536> as soon as possible. Good bye.").Wait();
-
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
+            BetterReplyAsync("Forcibly disconnecting from Discord, please tell <@!227088829079617536> as soon as possible. Good bye.").Wait();
 
             DiscordClient.FailFast();
             return Task.CompletedTask;
         }
 
         [Command("random")]
-        public Task RandomAsync([Remainder]string type = "") {
+        public Task Random([Remainder]string type = "") {
             SocketGuildUser randomUser = null;
 
             if (type == "sub") {
@@ -65,7 +59,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 randomUser = Context.Guild.Users.Where(x => x.Id == 177657233025400832).FirstOrDefault();
 
             } else {
-                return ReplyAsync("**Valid roles are:** sub *(includes twitch and patreon roles)*, nonsub, tier3, admin, mod, tree, 5'8\"");
+                return BetterReplyAsync("**Valid roles are:** sub *(includes twitch and patreon roles)*, nonsub, tier3, admin, mod, tree, 5'8\"");
             }
 
             // If it is a valid user
@@ -82,7 +76,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     Text = $"Random user requested by {(!string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Nickname : contextUser.Username)}"
                 };
 
-                IUserMessage message = ReplyAsync(embed: builder.Build()).Result;
+                IUserMessage message = BetterReplyAsync(embed: builder.Build()).Result;
 
                 Task.Delay(8000).Wait();
 
@@ -101,17 +95,15 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
                 message.ModifyAsync(x => { x.Embed = builder.Build(); }).Wait();
 
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, message.Id);
-                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
             } else {
-                ReplyAsync("Failed to select a random user.");
+                _ = BetterReplyAsync("Failed to select a random user.");
             }
 
             return Task.CompletedTask;
         }
 
         [Command("undo")]
-        public Task UndoAsync() {
+        public Task Undo() {
             ulong? reply = UndoTracker.MostRecentReply(Context.Guild.Id, Context.Channel.Id, Context.User.Id);
             ulong? message = UndoTracker.MostRecentMessage(Context.Guild.Id, Context.Channel.Id, Context.User.Id);
 
@@ -133,23 +125,18 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("servermap")]
         [OwnerAdminXathz]
-        public Task ServerMapAsync() {
-            ulong reply;
-
+        public Task ServerMap() {
             try {
                 ServerMap map = new ServerMap(Context);
                 string jsonFile = map.Generate();
 
-                Context.User.SendFileAsync(jsonFile, $"{Context.Guild.Name} (`{Context.Guild.Id}`): Server Map");
-                reply = ReplyAsync($"{Context.User.Mention} the server map was sent to you privately. The message may be blocked if you reject direct messages.").Result.Id;
+                BetterSendFileAsync(jsonFile, $"{Context.Guild.Name} (`{Context.Guild.Id}`): Server Map").Wait();
+
+                return BetterReplyAsync($"{Context.User.Mention} the server map was sent to you privately. The message may be blocked if you reject direct messages.");
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
-                reply = ReplyAsync(ex.Message).Result.Id;
+                return BetterReplyAsync("Failed to generate the server map.");
             }
-
-            UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-            StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
-            return Task.CompletedTask;
         }
 
     }

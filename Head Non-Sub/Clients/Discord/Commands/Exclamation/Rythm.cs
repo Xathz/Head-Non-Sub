@@ -13,10 +13,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
     [BlacklistEnforced, AllowedGuilds(328300333010911242)]
     [RequireContext(ContextType.Guild)]
-    public class Rythm : ModuleBase<SocketCommandContext> {
+    public class Rythm : BetterModuleBase {
 
         [Command("randomsong")]
-        public Task RandomSongAsync() {
+        public Task RandomSong() {
             IMessage randomMessage = null;
 
             // 'bot-commands'
@@ -43,7 +43,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     Name = $"Random Song from {randomMessage.Author.Username}"
                 };
 
-                IUserMessage reply = ReplyAsync(embed: builder.Build()).Result;
+                IUserMessage reply = BetterReplyAsync(embed: builder.Build()).Result;
 
                 try {
                     IEmote upvotepost = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 529559392157171731);
@@ -53,14 +53,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     reply.AddReactionAsync(downvotepost).Wait();
                 } catch { }
 
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply.Id);
-                StatisticsManager.Statistics.Commands(Context.Guild.Id).Executed();
                 return Task.CompletedTask;
             } else {
-                ulong reply = ReplyAsync("Failed to pick a random song :(").Result.Id;
-
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, reply);
-                return Task.CompletedTask;
+                return BetterReplyAsync("Failed to pick a random song.");
             }
 
         }

@@ -12,7 +12,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
     [BlacklistEnforced, OwnerAdminWhitelist]
     [RequireContext(ContextType.Guild)]
-    public class AudioSpam : ModuleBase<SocketCommandContext> {
+    public class AudioSpam : BetterModuleBase {
 
         private SocketVoiceChannel ValidateChannel(SocketVoiceChannel channel) {
             channel = channel ?? (Context.User as SocketGuildUser)?.VoiceChannel;
@@ -37,7 +37,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("ffs")]
         [Cooldown(120)]
-        public async Task FFSAsync(SocketVoiceChannel channel = null) {
+        public async Task FFS(SocketVoiceChannel channel = null) {
             _ = Context.Message.DeleteAsync();
 
             if (ValidateChannel(channel) is SocketVoiceChannel validatedChannel) {
@@ -52,7 +52,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("goodjob")]
         [Cooldown(120)]
-        public async Task GoodJobAsync(SocketVoiceChannel channel = null) {
+        public async Task GoodJob(SocketVoiceChannel channel = null) {
             _ = Context.Message.DeleteAsync();
 
             if (ValidateChannel(channel) is SocketVoiceChannel validatedChannel) {
@@ -67,7 +67,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("handwarmer")]
         [Cooldown(120)]
-        public async Task HandWarmerAsync(SocketVoiceChannel channel = null) {
+        public async Task HandWarmer(SocketVoiceChannel channel = null) {
             _ = Context.Message.DeleteAsync();
 
             if (ValidateChannel(channel) is SocketVoiceChannel validatedChannel) {
@@ -82,7 +82,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("lifeguard")]
         [Cooldown(120)]
-        public async Task LifeguardAsync(SocketVoiceChannel channel = null) {
+        public async Task Lifeguard(SocketVoiceChannel channel = null) {
             _ = Context.Message.DeleteAsync();
 
             if (ValidateChannel(channel) is SocketVoiceChannel validatedChannel) {
@@ -97,7 +97,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("producer")]
         [Cooldown(120)]
-        public async Task ProducerAsync(SocketVoiceChannel channel = null) {
+        public async Task Producer(SocketVoiceChannel channel = null) {
             _ = Context.Message.DeleteAsync();
 
             if (ValidateChannel(channel) is SocketVoiceChannel validatedChannel) {
@@ -112,7 +112,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("staypositive")]
         [Cooldown(120)]
-        public async Task StayPositiveAsync(SocketVoiceChannel channel = null) {
+        public async Task StayPositive(SocketVoiceChannel channel = null) {
             _ = Context.Message.DeleteAsync();
 
             if (ValidateChannel(channel) is SocketVoiceChannel validatedChannel) {
