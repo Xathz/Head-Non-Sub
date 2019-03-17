@@ -11,8 +11,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     [RequireContext(ContextType.Guild)]
     public class Fake : BetterModuleBase {
 
-        [Command("dating")]
-        [Alias("speeddating", "datenight")]
+        [Command("dating"), Alias("speeddating", "datenight")]
         public Task Dating() {
             IUserMessage message = BetterReplyAsync($"Haha {Context.User.Username}, you are alone.").Result;
             IEmote emote = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 461043064979456012);
@@ -26,6 +25,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("executie")]
         [Cooldown(300)]
+        [SubscriberOnly]
         public Task Executie(SocketUser user = null, [Remainder]string reason = "") {
 
             BetterReplyAsync($"{user.Mention} you have 10 seconds to say last words before you are executie'd.", parameters: $"{user.ToString()}, {reason}").Wait();

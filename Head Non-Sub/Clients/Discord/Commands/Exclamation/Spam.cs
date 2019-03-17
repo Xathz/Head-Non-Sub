@@ -28,8 +28,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(20)]
         public Task Yum() => BetterSendFileAsync(Cache.GetStream("yum.png"), "yum.png", $"● {BetterUserFormat()}");
 
-        [Command("fuckedup")]
-        [Alias("ripdeposit")]
+        [Command("fuckedup"), Alias("ripdeposit")]
         [Cooldown(20)]
         public Task FuckedUp() => BetterSendFileAsync(Cache.GetStream("fucked_up.png"), "fucked_up.png", $"● {BetterUserFormat()}");
 
@@ -53,8 +52,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(20)]
         public Task GongBoy() => BetterSendFileAsync(Cache.GetStream("gongboy.png"), "gongboy.png", $"● {BetterUserFormat()}");
 
-        [Command("true")]
-        [Alias("thatstrue")]
+        [Command("true"), Alias("thatstrue")]
         [Cooldown(20)]
         [SubscriberOnly]
         public Task ThatsTrue() => BetterSendFileAsync(Cache.GetStream("true.png"), "true.png", $"● {BetterUserFormat()}");
@@ -62,6 +60,11 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("potato")]
         [Cooldown(20)]
         public Task Potato() => BetterSendFileAsync(Cache.GetStream("potato.png"), "potato.png", $"● {BetterUserFormat()}");
+
+        [Command("nonsub")]
+        [Cooldown(20)]
+        [SubscriberOnly]
+        public Task NonSub() => BetterSendFileAsync(Cache.GetStream("nonsub.png"), "nonsub.png", $"● {BetterUserFormat()}");
 
         [Command("youareallretarded")]
         [Cooldown(120)]

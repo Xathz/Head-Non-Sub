@@ -9,13 +9,14 @@ using HeadNonSub.Clients.Discord.Attributes;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
-    // Wubby's Fun House: 'actual-fucking-spam'; Cam’s Pocket: 'shitposting-cause-xathz'; Claire's Trash Pandas: 'spamalot'
-    [BlacklistEnforced, AllowedChannels(537727672747294738, 546863784157904896, 553314066731499541)]
+    // Wubby's Fun House: 'actual-fucking-spam'
+    [BlacklistEnforced, AllowedChannels(537727672747294738)]
     [RequireContext(ContextType.Guild)]
     public class Raves : BetterModuleBase {
 
         [Command("rave")]
         [Cooldown(1800)]
+        [SubscriberOnly]
         public Task Rave([Remainder]string input) {
             string[] messages = input.Split(' ');
 
@@ -34,6 +35,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("ravve")]
         [Cooldown(1800)]
+        [SubscriberOnly]
         public Task Ravve([Remainder] int length = 30) {
             RaveTracker.Track(Context.Guild.Id, Context.Channel.Id);
             Random random = new Random();
@@ -51,8 +53,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             return Task.CompletedTask;
         }
 
-        [Command("ravestop")]
-        [Alias("stoprave", "stopraves")]
+        [Command("ravestop"), Alias("stoprave", "stopraves")]
         [OwnerAdminWhitelist]
         public Task RaveStop() {
             RaveTracker.Stop(Context.Guild.Id, Context.Channel.Id);
@@ -60,8 +61,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             return BetterReplyAsync("Stopping all raves in this channel... you party pooper.");
         }
 
-        [Command("raveundo")]
-        [Alias("undorave", "undoraves")]
+        [Command("raveundo"), Alias("undorave", "undoraves")]
         [OwnerAdminWhitelist]
         public Task RaveUndo(int messageCount = 300) {
             if (messageCount == 0 || messageCount > 500) {

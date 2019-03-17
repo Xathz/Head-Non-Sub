@@ -29,8 +29,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
         }
 
-        [Command("strawpollresults")]
-        [Alias("strawpollr")]
+        [Command("strawpollresults"), Alias("strawpollr")]
         public Task StrawpollResults([Remainder]string input) {
             Context.Message.DeleteAsync();
 
