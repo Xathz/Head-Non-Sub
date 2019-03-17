@@ -49,7 +49,7 @@ namespace HeadNonSub {
         }
 
         /// <summary>
-        /// Load all the items in the <see cref="Constants.ContentDirectory"/> into the cache.
+        /// Load all the items in the <see cref="Constants.ContentDirectory"/> and <see cref="Constants.TemplatesDirectory"/> into the cache.
         /// </summary>
         public static void LoadContent() {
             List<string> files = new List<string>();

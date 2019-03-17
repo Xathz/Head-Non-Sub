@@ -63,7 +63,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             Stream oggFile = Generate(clean, voice);
 
             if (oggFile is Stream) {
-                _ = BetterSendFileAsync(oggFile, $"{filename}.ogg", $"● {BetterUserFormat()}{Environment.NewLine}```{clean}```", $"tts{voice}").Result.Id;
+                BetterSendFileAsync(oggFile, $"{filename}.ogg", $"● {BetterUserFormat()}{Environment.NewLine}```{clean}```", $"tts{voice}").Wait();
             } else {
                 _ = BetterReplyAsync("Failed to generate the text to speech.");
             }

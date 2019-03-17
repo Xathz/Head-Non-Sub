@@ -17,7 +17,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation.GuildSpecific {
         [Command("sbsays")]
         public Task StrongBadSays([Remainder]string input) {
 
-            using (MemoryStream stream = new MemoryStream(100))
+            using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("strongbadsays.png")))
             using (MagickImage overlay = new MagickImage(Cache.GetStream("strongbadsays_overlay.png"))) {
 
@@ -39,9 +39,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation.GuildSpecific {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                return BetterSendFileAsync(stream, "strongbadSays.png", $"● {BetterUserFormat()}");
+                BetterSendFileAsync(stream, "strongbadSays.png", $"● {BetterUserFormat()}").Wait();
             }
 
+            return Task.CompletedTask;
         }
 
     }

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Extensions;
-using HeadNonSub.Statistics;
 using ImageMagick;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
@@ -16,7 +15,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("ttsays")]
         public Task TTSays([Remainder]string input) {
 
-            using (MemoryStream stream = new MemoryStream(100))
+            using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("ttsays.png"))) {
 
                 string text = string.Join(Environment.NewLine, input.SplitIntoChunks(26));
@@ -36,14 +35,16 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                return BetterSendFileAsync(stream, "ttSays.png", $"● {BetterUserFormat()}", parameters: input);
+                BetterSendFileAsync(stream, "ttSays.png", $"● {BetterUserFormat()}", parameters: input).Wait();
             }
+
+            return Task.CompletedTask;
         }
 
         [Command("1024says")]
         public Task TenTwentyFourSays([Remainder]string input) {
 
-            using (MemoryStream stream = new MemoryStream(100))
+            using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("1024says.png"))) {
 
                 string text = string.Join(Environment.NewLine, input.SplitIntoChunks(25));
@@ -65,14 +66,16 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                return BetterSendFileAsync(stream, "1024Says.png", $"● {BetterUserFormat()}", parameters: input);
+                BetterSendFileAsync(stream, "1024Says.png", $"● {BetterUserFormat()}", parameters: input).Wait();
             }
+
+            return Task.CompletedTask;
         }
 
         [Command("amandasays")]
         public Task AmandaSays([Remainder]string input) {
 
-            using (MemoryStream stream = new MemoryStream(100))
+            using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("amandasays.png"))) {
 
                 string text = string.Join(Environment.NewLine, input.SplitIntoChunks(30));
@@ -92,14 +95,16 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                return BetterSendFileAsync(stream, "amandaSays.png", $"● {BetterUserFormat()}", parameters: input);
+                BetterSendFileAsync(stream, "amandaSays.png", $"● {BetterUserFormat()}", parameters: input).Wait();
             }
+
+            return Task.CompletedTask;
         }
 
         [Command("satasays")]
         public Task SataSays([Remainder]string input) {
 
-            using (MemoryStream stream = new MemoryStream(100))
+            using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("satasays.png"))) {
 
                 string text = string.Join(Environment.NewLine, input.SplitIntoChunks(34));
@@ -119,14 +124,16 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                return BetterSendFileAsync(stream, "sataSays.png", $"● {BetterUserFormat()}", parameters: input);
+                BetterSendFileAsync(stream, "sataSays.png", $"● {BetterUserFormat()}", parameters: input).Wait();
             }
+
+            return Task.CompletedTask;
         }
 
         [Command("jibersays")]
         public Task JiberSays([Remainder]string input) {
 
-            using (MemoryStream stream = new MemoryStream(100))
+            using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("jibersays.png"))) {
 
                 string text = string.Join(Environment.NewLine, input.SplitIntoChunks(33));
@@ -146,8 +153,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                return BetterSendFileAsync(stream, "jiberSays.png", $"● {BetterUserFormat()}", parameters: input);
+                BetterSendFileAsync(stream, "jiberSays.png", $"● {BetterUserFormat()}", parameters: input).Wait();
             }
+
+            return Task.CompletedTask;
         }
 
     }
