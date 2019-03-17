@@ -15,6 +15,7 @@ namespace HeadNonSub {
         static void Main(string[] args) => new Program().StartAsync().GetAwaiter().GetResult();
 
         public Program() {
+            CreatePIDFile();
             Console.Title = Constants.ApplicationName;
 
             ConsoleColor originalColor = Console.ForegroundColor;
@@ -88,6 +89,14 @@ namespace HeadNonSub {
             }
 
             goto WaitForInput;
+        }
+
+        private void CreatePIDFile() {
+            try {
+                File.WriteAllText(Constants.ProcessIdFile, Constants.ProcessId.ToString());
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+            }
         }
 
     }

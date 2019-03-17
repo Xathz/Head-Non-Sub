@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
@@ -50,6 +51,11 @@ namespace HeadNonSub {
         /// The general color of the bot, used for Discord embeds.
         /// </summary>
         public static (int R, int G, int B) GeneralColor => (200, 40, 150);
+
+        /// <summary>
+        /// Current process id.
+        /// </summary>
+        public static int ProcessId => Process.GetCurrentProcess().Id;
 
         /// <summary>
         /// Application version.
@@ -117,9 +123,9 @@ namespace HeadNonSub {
         public static string SettingsFile => Path.Combine(WorkingDirectory, $"{ExecutableName}.settings");
 
         /// <summary>
-        /// Statistics file location.
+        /// Process id file location.
         /// </summary>
-        public static string StatisticsFile => Path.Combine(WorkingDirectory, "Statistics.dat");
+        public static string ProcessIdFile => Path.Combine(WorkingDirectory, $"{ExecutableName}.pid");
 
         /// <summary>
         /// Common words

@@ -9,7 +9,15 @@ namespace HeadNonSub.Statistics {
 
         public DbSet<Command> Commands { get; set; }
 
-        public StatisticsContext() => Database.EnsureCreated();
+        public StatisticsContext() {
+            try {
+                LoggingManager.Log.Info("Connecting to database");
+
+                Database.EnsureCreated();
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+            }
+        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             try {

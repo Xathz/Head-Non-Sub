@@ -11,8 +11,6 @@ namespace HeadNonSub.Statistics {
 
         public static void Load() {
             if (_Statistics is null) {
-                LoggingManager.Log.Info("Connecting to the database");
-
                 _Statistics = new StatisticsContext();
 
                 LoggingManager.Log.Info("Connected");
