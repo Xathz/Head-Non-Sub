@@ -18,32 +18,32 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("tts")]
         [Cooldown(60)]
         public Task Joanna([Remainder]string input) {
-            GenerateAndSend(input, "Joanna");
+            GenerateAndSend(input, "tts", "Joanna");
             return Task.CompletedTask;
         }
 
         [Command("tts2")]
         [Cooldown(60)]
         public Task Justin([Remainder]string input) {
-            GenerateAndSend(input, "Justin");
+            GenerateAndSend(input, "tts2", "Justin");
             return Task.CompletedTask;
         }
 
         [Command("tts3")]
         [Cooldown(60)]
         public Task Brian([Remainder]string input) {
-            GenerateAndSend(input, "Brian");
+            GenerateAndSend(input, "tts3", "Brian");
             return Task.CompletedTask;
         }
 
         [Command("tts4")]
         [Cooldown(60)]
         public Task Mizuki([Remainder]string input) {
-            GenerateAndSend(input, "Mizuki");
+            GenerateAndSend(input, "tts4", "Mizuki");
             return Task.CompletedTask;
         }
 
-        private void GenerateAndSend(string text, string voice) {
+        private void GenerateAndSend(string text, string command, string voice) {
             string clean = text.RemoveNewLines();
 
             if (string.IsNullOrWhiteSpace(clean)) {
@@ -63,7 +63,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             Stream oggFile = Generate(clean, voice);
 
             if (oggFile is Stream) {
-                BetterSendFileAsync(oggFile, $"{filename}.ogg", $"● {BetterUserFormat()}{Environment.NewLine}```{clean}```", $"tts{voice}").Wait();
+                BetterSendFileAsync(oggFile, $"{filename}.ogg", $"● {BetterUserFormat()}{Environment.NewLine}```{clean}```", clean, $"{command}_{voice}").Wait();
             } else {
                 _ = BetterReplyAsync("Failed to generate the text to speech.");
             }

@@ -58,7 +58,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 randomUser = Context.Guild.Users.Where(x => x.Id == 177657233025400832).FirstOrDefault();
 
             } else {
-                return BetterReplyAsync("**Valid roles are:** sub *(includes twitch and patreon roles)*, nonsub, tier3, admin, mod, tree, 5'8\"");
+                return BetterReplyAsync("**Valid roles are:** sub *(includes twitch and patreon roles)*, nonsub, tier3, admin, mod, tree, 5'8\"", parameters: type);
             }
 
             // If it is a valid user
@@ -75,7 +75,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     Text = $"Random user requested by {(!string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Nickname : contextUser.Username)}"
                 };
 
-                IUserMessage message = BetterReplyAsync(embed: builder.Build()).Result;
+                IUserMessage message = BetterReplyAsync(embed: builder.Build(), parameters: type).Result;
 
                 Task.Delay(8000).Wait();
 

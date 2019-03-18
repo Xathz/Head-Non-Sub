@@ -29,7 +29,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 Task.Delay(1250).Wait();
             }
 
-            TrackStatistics();
+            TrackStatistics(parameters: input);
             return Task.CompletedTask;
         }
 
@@ -49,7 +49,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 Task.Delay(1250).Wait();
             }
 
-            TrackStatistics();
+            TrackStatistics(parameters: length.ToString());
             return Task.CompletedTask;
         }
 
