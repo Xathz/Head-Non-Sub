@@ -78,7 +78,7 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
-        public static async Task TwitchChannelChange(ulong discordChannel, string streamUrl, string displayName, string imageUrl, string title, string description) {
+        public static async Task TwitchChannelChange(ulong discordChannel, string streamUrl, string displayName, string imageUrl, string title, string description, bool everyone = false) {
             try {
                 if (_DiscordClient.GetChannel(discordChannel) is IMessageChannel channel) {
 
@@ -98,7 +98,7 @@ namespace HeadNonSub.Clients.Discord {
                         Url = streamUrl
                     };
 
-                    await channel.SendMessageAsync(embed: builder.Build());
+                    await channel.SendMessageAsync(text: (everyone ? $"@everyone" : null), embed: builder.Build());
                 }
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
