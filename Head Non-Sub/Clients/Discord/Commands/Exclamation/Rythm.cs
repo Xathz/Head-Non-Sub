@@ -7,7 +7,6 @@ using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Extensions;
-using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
