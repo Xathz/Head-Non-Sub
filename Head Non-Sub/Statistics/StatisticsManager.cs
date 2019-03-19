@@ -15,14 +15,15 @@ namespace HeadNonSub.Statistics {
 
                 LoggingManager.Log.Info("Connected");
             } else {
-                LoggingManager.Log.Info("Loading is already complete");
-            }   
+                LoggingManager.Log.Info("Loading has already completed");
+            }
         }
 
         /// <summary>
         /// Insert a command that was ran into the database.
         /// </summary>
-        public static void InsertCommand(DateTime dateTime, ulong serverId, ulong channelId, ulong userId, string username, string userDisplay, ulong messageId, string message, string command, string parameters, ulong replyMessageId) {
+        public static void InsertCommand(DateTime dateTime, ulong serverId, ulong channelId, ulong userId, string username, string userDisplay,
+                                            ulong messageId,string message, string command, string parameters, ulong? replyMessageId) {
             try {
 
                 Command item = new Command {
@@ -62,6 +63,13 @@ namespace HeadNonSub.Statistics {
                     CommandName = group.Key,
                     Count = group.LongCount()
                 }).OrderByDescending(x => x.Count).ToDictionary(x => x.CommandName, x => x.Count).ToList();
+
+        /// <summary>
+        /// Get the most recent message id and reply message id per-user in a channel.
+        /// </summary>
+        public static List<ulong> UndoMessages(ulong channelId, ulong userId, int count) =>
+            _Statistics.Commands.Where(x => x.ChannelId == channelId & x.UserId == userId).OrderByDescending(x => x.DateTime)
+            .Take(count).Select(x => new[] { x.MessageId, x.ReplyMessageId ?? null }).SelectMany(x => x).OfType<ulong>().ToList();
 
     }
 

@@ -113,7 +113,7 @@ namespace HeadNonSub.Clients.Discord {
         public void TrackStatistics(ulong? replyMessageId = null, string parameters = "", [CallerMemberName]string command = "") {
             if (!Context.IsPrivate) {
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
-                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters, replyMessageId.Value);
+                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters, replyMessageId);
             }
         }
 

@@ -65,7 +65,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [OwnerAdminWhitelist]
         public Task RaveUndo(int messageCount = 300) {
             if (messageCount == 0 || messageCount > 500) {
-                return BetterReplyAsync("Must be between 1 and 500.");
+                return BetterReplyAsync("Must be between 1 and 500.", messageCount.ToString());
             }
 
             Context.Message.DeleteAsync();
@@ -77,19 +77,24 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 ThumbnailUrl = "https://cdn.discordapp.com/emojis/425366701794656276.gif"
             };
 
-            IUserMessage noticeMessage = BetterReplyAsync(embed: builder.Build()).Result;
+            IUserMessage noticeMessage = BetterReplyAsync(builder.Build(), messageCount.ToString()).Result;
 
-            if (Context.Channel is SocketTextChannel channel) {
-                IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(500).Flatten();
+            try {
+                if (Context.Channel is SocketTextChannel channel) {
+                    IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(500).Flatten();
 
-                IAsyncEnumerable<IMessage> toDelete = messages.Where(x => (x.Author.Id == Context.Guild.CurrentUser.Id) &
-                (x.Content.StartsWith(":crab:")) || (x.Content.StartsWith(".") & x.Content.Contains(":crab:")))
-                .OrderByDescending(x => x.CreatedAt).Take(messageCount);
+                    IAsyncEnumerable<IMessage> toDelete = messages.Where(x => (x.Author.Id == Context.Guild.CurrentUser.Id) &
+                    (x.Content.StartsWith(":crab:")) || (x.Content.StartsWith(".") & x.Content.Contains(":crab:")))
+                    .OrderByDescending(x => x.CreatedAt).Take(messageCount);
 
-                channel.DeleteMessagesAsync(toDelete.ToEnumerable()).Wait();
+                    channel.DeleteMessagesAsync(toDelete.ToEnumerable()).Wait();
+                }
+            } catch {
+                return BetterReplyAsync("Failed to delete messages.");
+            } finally {
+                noticeMessage.DeleteAsync();
             }
 
-            noticeMessage.DeleteAsync();
             return Task.CompletedTask;
         }
 

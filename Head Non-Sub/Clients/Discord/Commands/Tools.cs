@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -7,6 +8,7 @@ using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Clients.Discord.Services;
 using HeadNonSub.Extensions;
+using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands {
 
@@ -100,23 +102,56 @@ namespace HeadNonSub.Clients.Discord.Commands {
         }
 
         [Command("undo")]
-        public Task Undo() {
-            ulong? reply = UndoTracker.MostRecentReply(Context.Guild.Id, Context.Channel.Id, Context.User.Id);
-            ulong? message = UndoTracker.MostRecentMessage(Context.Guild.Id, Context.Channel.Id, Context.User.Id);
+        public Task Undo([Remainder]int count = 1) {
+            List<ulong> toDelete = new List<ulong> { Context.Message.Id };
 
-            Context.Message.DeleteAsync().Wait();
+            if (Context.Channel is SocketTextChannel channel) {
+                foreach (ulong? message in StatisticsManager.UndoMessages(Context.Channel.Id, Context.User.Id, count)) {
+                    if (message.HasValue) {
+                        toDelete.Add(message.Value);
+                    }
+                }
 
-            if (reply.HasValue) {
-                Context.Channel.DeleteMessageAsync(reply.Value);
-                UndoTracker.Untrack(reply.Value);
+                channel.DeleteMessagesAsync(toDelete).Wait();
             }
 
-            if (message.HasValue) {
-                Context.Channel.DeleteMessageAsync(message.Value);
-                UndoTracker.Untrack(message.Value);
+            TrackStatistics(parameters: count.ToString());
+            return Task.CompletedTask;
+        }
+
+        [Command("undobot")]
+        [OwnerAdminWhitelist]
+        public Task UndoBot(int messageCount = 100) {
+            if (messageCount == 0 || messageCount > 500) {
+                return BetterReplyAsync("Must be between 1 and 500.", messageCount.ToString());
             }
 
-            TrackStatistics();
+            Context.Message.DeleteAsync();
+
+            EmbedBuilder builder = new EmbedBuilder() {
+                Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
+                Title = $"Undoing {Context.Client.CurrentUser.Username} messages...",
+                Description = $"Deleting up to {messageCount} bot messages",
+                ThumbnailUrl = "https://cdn.discordapp.com/emojis/425366701794656276.gif"
+            };
+
+            IUserMessage noticeMessage = BetterReplyAsync(builder.Build(), messageCount.ToString()).Result;
+
+            try {
+                if (Context.Channel is SocketTextChannel channel) {
+                    IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(500).Flatten();
+                    IAsyncEnumerable<IMessage> toDelete = messages.Where(x => (x.Author.Id == Context.Client.CurrentUser.Id)).OrderByDescending(x => x.CreatedAt).Take(messageCount);
+
+                    channel.DeleteMessagesAsync(toDelete.ToEnumerable()).Wait();
+                }
+
+                noticeMessage.DeleteAsync();
+            } catch {
+                return BetterReplyAsync("Failed to delete messages.");
+            } finally {
+                noticeMessage.DeleteAsync();
+            }
+
             return Task.CompletedTask;
         }
 
