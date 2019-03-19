@@ -13,45 +13,49 @@ namespace HeadNonSub.Clients.Discord {
         private static DiscordSocketConfig _DiscordConfig;
         private static DiscordSocketClient _DiscordClient;
 
-        private static IServiceProvider _Services_Mention;
-        private static IServiceProvider _Services_Exclamation;
+        private static CommandServiceConfig _ServiceConfig = new CommandServiceConfig() {
+            DefaultRunMode = RunMode.Async, LogLevel = LogSeverity.Verbose
+        };
+
+        private static IServiceProvider _MentionProvider;
+        private static CommandService _MentionService = new CommandService(_ServiceConfig);
+
+        private static IServiceProvider _ExclamationProvider;
+        private static CommandService _ExclamationService = new CommandService(_ServiceConfig);
 
         public static async Task ConnectAsync() {
             _DiscordConfig = new DiscordSocketConfig {
                 DefaultRetryMode = RetryMode.RetryRatelimit,
                 MessageCacheSize = 1000,
+                AlwaysDownloadUsers = true,
                 LogLevel = LogSeverity.Info
             };
 
             _DiscordClient = new DiscordSocketClient(_DiscordConfig);
 
-            _Services_Mention = new ServiceCollection().AddSingleton(_DiscordClient)
-                .AddSingleton(new CommandService(new CommandServiceConfig() {
-                    DefaultRunMode = RunMode.Async,
-                    LogLevel = LogSeverity.Info
-                }))
-                .AddSingleton<CommandService_Mention>()
+            _MentionProvider = new ServiceCollection().AddSingleton(_DiscordClient)
+                .AddSingleton(_MentionService)
+                .AddSingleton<MentionCommands>()
                 .BuildServiceProvider();
 
-            _Services_Exclamation = new ServiceCollection().AddSingleton(_DiscordClient)
-                .AddSingleton(new CommandService(new CommandServiceConfig() {
-                    DefaultRunMode = RunMode.Async,
-                    LogLevel = LogSeverity.Info
-                }))
-                .AddSingleton<CommandService_Exclamation>()
+            _ExclamationProvider = new ServiceCollection().AddSingleton(_DiscordClient)
+                .AddSingleton(_ExclamationService)
+                .AddSingleton<ExclamationCommands>()
                 .BuildServiceProvider();
 
             _DiscordClient.Log += Log;
             _DiscordClient.Connected += Connected;
             _DiscordClient.GuildAvailable += GuildAvailable;
             _DiscordClient.GuildMembersDownloaded += GuildMembersDownloaded;
-            _DiscordClient.MessageReceived += MessageReceived;
 
-            _Services_Mention.GetRequiredService<CommandService>().Log += Log;
-            _Services_Exclamation.GetRequiredService<CommandService>().Log += Log;
+            // Not used currently
+            //_DiscordClient.MessageReceived += MessageReceived;
 
-            await _Services_Mention.GetRequiredService<CommandService_Mention>().InitializeAsync();
-            await _Services_Exclamation.GetRequiredService<CommandService_Exclamation>().InitializeAsync();
+            _MentionProvider.GetRequiredService<CommandService>().Log += Log;
+            _ExclamationProvider.GetRequiredService<CommandService>().Log += Log;
+
+            await _MentionProvider.GetRequiredService<MentionCommands>().InitializeAsync();
+            await _ExclamationProvider.GetRequiredService<ExclamationCommands>().InitializeAsync();
 
             await _DiscordClient.LoginAsync(TokenType.Bot, SettingsManager.Configuration.DiscordToken);
             await _DiscordClient.StartAsync();
@@ -112,34 +116,34 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
-        private static Task Log(LogMessage logMessage) {
-            switch (logMessage.Severity) {
+        private static Task Log(LogMessage message) {
+            switch (message.Severity) {
                 case LogSeverity.Debug:
-                    LoggingManager.Log.Debug(logMessage.Message);
+                    LoggingManager.Log.Debug(message.Message);
                     return Task.CompletedTask;
 
                 case LogSeverity.Verbose:
-                    LoggingManager.Log.Trace(logMessage.Message);
+                    LoggingManager.Log.Trace(message.Message);
                     return Task.CompletedTask;
 
                 case LogSeverity.Info:
-                    LoggingManager.Log.Info(logMessage.Message);
+                    LoggingManager.Log.Info(message.Message);
                     return Task.CompletedTask;
 
                 case LogSeverity.Warning:
-                    LoggingManager.Log.Warn(logMessage.Message);
+                    LoggingManager.Log.Warn(message.Message);
                     return Task.CompletedTask;
 
                 case LogSeverity.Error:
-                    LoggingManager.Log.Error(logMessage.Exception, logMessage.Message);
+                    LoggingManager.Log.Error(message.Exception, message.Message);
                     return Task.CompletedTask;
 
                 case LogSeverity.Critical:
-                    LoggingManager.Log.Fatal(logMessage.Exception, logMessage.Message);
+                    LoggingManager.Log.Fatal(message.Exception, message.Message);
                     return Task.CompletedTask;
 
                 default:
-                    LoggingManager.Log.Info($"UnknownSeverity: {logMessage.Message}");
+                    LoggingManager.Log.Info($"UnknownSeverity: {message.Message}");
                     return Task.CompletedTask;
             }
         }
@@ -157,14 +161,9 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
-        private static async Task GuildAvailable(SocketGuild guild) {
+        private static Task GuildAvailable(SocketGuild guild) {
             LoggingManager.Log.Info($"Guild {guild.Name} ({guild.Id}) has become available");
-
-            try {
-                await guild.DownloadUsersAsync();
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-            }
+            return Task.CompletedTask;
         }
 
         private static Task GuildMembersDownloaded(SocketGuild guild) {

@@ -7,19 +7,19 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HeadNonSub.Clients.Discord {
 
-    public class CommandService_Mention {
+    public class MentionCommands {
 
         private readonly CommandService _Commands;
         private readonly DiscordSocketClient _DiscordClient;
         private readonly IServiceProvider _Services;
 
-        public CommandService_Mention(IServiceProvider services) {
+        public MentionCommands(IServiceProvider services) {
             _Commands = services.GetRequiredService<CommandService>();
             _DiscordClient = services.GetRequiredService<DiscordSocketClient>();
             _Services = services;
 
-            _Commands.CommandExecuted += ExecutedAsync;
-            _DiscordClient.MessageReceived += MessageReceivedAsync;
+            _Commands.CommandExecuted += Executed;
+            _DiscordClient.MessageReceived += MessageReceived;
         }
 
         public async Task InitializeAsync() {
@@ -30,7 +30,7 @@ namespace HeadNonSub.Clients.Discord {
             await _Commands.AddModuleAsync<Commands.Whitelist>(_Services);
         }
 
-        private async Task MessageReceivedAsync(SocketMessage socketMessage) {
+        private async Task MessageReceived(SocketMessage socketMessage) {
             if (!(socketMessage is SocketUserMessage message)) { return; }
             if (message.Source != MessageSource.User) { return; }
 
@@ -42,15 +42,11 @@ namespace HeadNonSub.Clients.Discord {
             await _Commands.ExecuteAsync(context, argPos, _Services);
         }
 
-        private async Task ExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result) {
+        private async Task Executed(Optional<CommandInfo> command, ICommandContext context, IResult result) {
             if (!command.IsSpecified) { return; }
 
-            string logLine = $"{context.Guild.Name}; {context.Channel.Name}; {context.User.ToString()}; {context.Message.Content}; {result.ToString()}";
-
-            if (result.IsSuccess) {
-                LoggingManager.Log.Info(logLine);
-            } else {
-                LoggingManager.Log.Warn(logLine);
+            if (!result.IsSuccess) {
+                LoggingManager.Log.Warn(result.ErrorReason);
 
                 switch (result.Error) {
                     case CommandError.UnmetPrecondition:
