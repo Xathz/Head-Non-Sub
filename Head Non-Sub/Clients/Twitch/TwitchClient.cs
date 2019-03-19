@@ -135,29 +135,29 @@ namespace HeadNonSub.Clients.Twitch {
             LoggingManager.Log.Info($"Stream monitoring is running for: {string.Join(", ", SettingsManager.Configuration.TwitchStreams.Select(x => $"{x.DisplayName} ({x.UserId})").ToList())}");
         }
 
-        private static void OnStreamOnline(object sender, OnStreamOnlineArgs e) {
-            TwitchStream stream = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == e.Channel.ToLower()).FirstOrDefault();
+        private static void OnStreamOnline(object sender, OnStreamOnlineArgs streamOnline) {
+            TwitchStream stream = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == streamOnline.Channel.ToLower()).FirstOrDefault();
 
             // Wubby only, hes special
-            if (e.Channel.ToLower() == Constants.PaymoneyWubby) {
+            if (streamOnline.Channel.ToLower() == Constants.PaymoneyWubby) {
                 _ = Discord.DiscordClient.SetStatus($"Watching PaymoneyWubby!", $"https://twitch.tv/paymoneywubby");
-                _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, e.Stream.ThumbnailUrl, $"{stream.DisplayName} is now live!", e.Stream.Title, true);
+                _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, streamOnline.Stream.ThumbnailUrl, $"{stream.DisplayName} is now live!", streamOnline.Stream.Title, true);
             } else {
-                _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, e.Stream.ThumbnailUrl, $"{stream.DisplayName} is now live!", e.Stream.Title);
+                _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, streamOnline.Stream.ThumbnailUrl, $"{stream.DisplayName} is now live!", streamOnline.Stream.Title);
             }
 
             LoggingManager.Log.Info($"{stream.DisplayName} just went live");
         }
 
-        private static void OnStreamUpdate(object sender, OnStreamUpdateArgs e) {
+        private static void OnStreamUpdate(object sender, OnStreamUpdateArgs streamUpdate) {
 
         }
 
-        private static void OnStreamOffline(object sender, OnStreamOfflineArgs e) {
-            TwitchStream stream = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == e.Channel.ToLower()).FirstOrDefault();
+        private static void OnStreamOffline(object sender, OnStreamOfflineArgs streamOffline) {
+            TwitchStream stream = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == streamOffline.Channel.ToLower()).FirstOrDefault();
 
             // Wubby only, hes special
-            if (e.Channel.ToLower() == Constants.PaymoneyWubby) {
+            if (streamOffline.Channel.ToLower() == Constants.PaymoneyWubby) {
                 _ = Discord.DiscordClient.SetStatus();
             }
             _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, null, $"{stream.DisplayName} is now offline", "Thanks for watching");
@@ -165,25 +165,13 @@ namespace HeadNonSub.Clients.Twitch {
             LoggingManager.Log.Info($"{stream.DisplayName} is now offline");
         }
 
-        private static void OnConnected(object sender, Client.Events.OnConnectedArgs e) {
-            LoggingManager.Log.Info("Connected to Twitch");
-        }
+        private static void OnConnected(object sender, Client.Events.OnConnectedArgs connected) => LoggingManager.Log.Info("Connected to Twitch");
 
-        private static void OnDisconnected(object sender, OnDisconnectedEventArgs e) {
-            LoggingManager.Log.Info("Disconnected from Twitch");
-        }
+        private static void OnDisconnected(object sender, OnDisconnectedEventArgs disconnected) => LoggingManager.Log.Info("Disconnected from Twitch");
 
-        private static void OnReconnected(object sender, OnReconnectedEventArgs e) {
-            LoggingManager.Log.Info("Reconnected to Twitch");
-        }
+        private static void OnReconnected(object sender, OnReconnectedEventArgs reconnected) => LoggingManager.Log.Info("Reconnected to Twitch");
 
-        private static void OnJoinedChannel(object sender, Client.Events.OnJoinedChannelArgs e) {
-            LoggingManager.Log.Info($"Joined Twitch channel: {e.Channel}");
-        }
-
-        private static void OnMessageReceived(object sender, Client.Events.OnMessageReceivedArgs e) {
-
-        }
+        private static void OnJoinedChannel(object sender, Client.Events.OnJoinedChannelArgs joined) => LoggingManager.Log.Info($"Joined Twitch channel: {joined.Channel}");
 
     }
 

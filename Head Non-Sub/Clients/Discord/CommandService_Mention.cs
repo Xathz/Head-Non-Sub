@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using HeadNonSub.Settings;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HeadNonSub.Clients.Discord {
@@ -31,8 +30,8 @@ namespace HeadNonSub.Clients.Discord {
             await _Commands.AddModuleAsync<Commands.Whitelist>(_Services);
         }
 
-        private async Task MessageReceivedAsync(SocketMessage rawMessage) {
-            if (!(rawMessage is SocketUserMessage message)) { return; }
+        private async Task MessageReceivedAsync(SocketMessage socketMessage) {
+            if (!(socketMessage is SocketUserMessage message)) { return; }
             if (message.Source != MessageSource.User) { return; }
 
             int argPos = 0;
@@ -44,12 +43,9 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private async Task ExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result) {
-            if (!command.IsSpecified) {
-                //await context.Channel.SendMessageAsync($"Invalid command. `@{_DiscordClient.CurrentUser.Username} help` for information and commands.");
-                return;
-            }
+            if (!command.IsSpecified) { return; }
 
-            string logLine = $"{context.User.Username} ({context.User.Id}); Message: {context.Message.Content}; Command: {command.Value.Name}; Result: {result.ToString()}";
+            string logLine = $"{context.Guild.Name}; {context.Channel.Name}; {context.User.ToString()}; {context.Message.Content}; {result.ToString()}";
 
             if (result.IsSuccess) {
                 LoggingManager.Log.Info(logLine);
@@ -62,7 +58,6 @@ namespace HeadNonSub.Clients.Discord {
                         break;
 
                     default:
-                        //await context.Channel.SendMessageAsync(result.ErrorReason);
                         break;
                 }
             }

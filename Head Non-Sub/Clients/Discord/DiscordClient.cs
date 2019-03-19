@@ -4,7 +4,6 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Settings;
-using HeadNonSub.Statistics;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HeadNonSub.Clients.Discord {
@@ -14,7 +13,7 @@ namespace HeadNonSub.Clients.Discord {
         private static DiscordSocketConfig _DiscordConfig;
         private static DiscordSocketClient _DiscordClient;
 
-        private static IServiceProvider _Services;
+        private static IServiceProvider _Services_Mention;
         private static IServiceProvider _Services_Exclamation;
 
         public static async Task ConnectAsync() {
@@ -26,7 +25,7 @@ namespace HeadNonSub.Clients.Discord {
 
             _DiscordClient = new DiscordSocketClient(_DiscordConfig);
 
-            _Services = new ServiceCollection().AddSingleton(_DiscordClient)
+            _Services_Mention = new ServiceCollection().AddSingleton(_DiscordClient)
                 .AddSingleton(new CommandService(new CommandServiceConfig() {
                     DefaultRunMode = RunMode.Async,
                     LogLevel = LogSeverity.Info
@@ -48,10 +47,10 @@ namespace HeadNonSub.Clients.Discord {
             _DiscordClient.GuildMembersDownloaded += GuildMembersDownloaded;
             _DiscordClient.MessageReceived += MessageReceived;
 
-            _Services.GetRequiredService<CommandService>().Log += Log;
+            _Services_Mention.GetRequiredService<CommandService>().Log += Log;
             _Services_Exclamation.GetRequiredService<CommandService>().Log += Log;
 
-            await _Services.GetRequiredService<CommandService_Mention>().InitializeAsync();
+            await _Services_Mention.GetRequiredService<CommandService_Mention>().InitializeAsync();
             await _Services_Exclamation.GetRequiredService<CommandService_Exclamation>().InitializeAsync();
 
             await _DiscordClient.LoginAsync(TokenType.Bot, SettingsManager.Configuration.DiscordToken);
@@ -113,34 +112,34 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
-        private static Task Log(LogMessage e) {
-            switch (e.Severity) {
+        private static Task Log(LogMessage logMessage) {
+            switch (logMessage.Severity) {
                 case LogSeverity.Debug:
-                    LoggingManager.Log.Debug(e.Message);
+                    LoggingManager.Log.Debug(logMessage.Message);
                     return Task.CompletedTask;
 
                 case LogSeverity.Verbose:
-                    LoggingManager.Log.Trace(e.Message);
+                    LoggingManager.Log.Trace(logMessage.Message);
                     return Task.CompletedTask;
 
                 case LogSeverity.Info:
-                    LoggingManager.Log.Info(e.Message);
+                    LoggingManager.Log.Info(logMessage.Message);
                     return Task.CompletedTask;
 
                 case LogSeverity.Warning:
-                    LoggingManager.Log.Warn(e.Message);
+                    LoggingManager.Log.Warn(logMessage.Message);
                     return Task.CompletedTask;
 
                 case LogSeverity.Error:
-                    LoggingManager.Log.Error(e.Exception, e.Message);
+                    LoggingManager.Log.Error(logMessage.Exception, logMessage.Message);
                     return Task.CompletedTask;
 
                 case LogSeverity.Critical:
-                    LoggingManager.Log.Fatal(e.Exception, e.Message);
+                    LoggingManager.Log.Fatal(logMessage.Exception, logMessage.Message);
                     return Task.CompletedTask;
 
                 default:
-                    LoggingManager.Log.Info($"UnknownSeverity: {e.Message}");
+                    LoggingManager.Log.Info($"UnknownSeverity: {logMessage.Message}");
                     return Task.CompletedTask;
             }
         }
@@ -158,25 +157,25 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
-        private static async Task GuildAvailable(SocketGuild arg) {
-            LoggingManager.Log.Info($"Guild {arg.Name} ({arg.Id}) has become available");
+        private static async Task GuildAvailable(SocketGuild guild) {
+            LoggingManager.Log.Info($"Guild {guild.Name} ({guild.Id}) has become available");
 
             try {
-                _ = arg.DownloadUsersAsync();
+                await guild.DownloadUsersAsync();
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
         }
 
-        private static async Task GuildMembersDownloaded(SocketGuild arg) {
-            LoggingManager.Log.Info($"Full memberlist was downloaded for {arg.Name} ({arg.Id})");
-
+        private static Task GuildMembersDownloaded(SocketGuild guild) {
+            LoggingManager.Log.Info($"Full memberlist was downloaded for {guild.Name} ({guild.Id})");
+            return Task.CompletedTask;
         }
 
-        private static async Task MessageReceived(SocketMessage e) {
-            if (!(e is SocketUserMessage message)) { return; }
-            if (!(e.Channel is IPrivateChannel channel)) { return; }
-            if (e.Source != MessageSource.User) { return; }
+        private static async Task MessageReceived(SocketMessage socketMessage) {
+            if (!(socketMessage is SocketUserMessage message)) { return; }
+            if (!(socketMessage.Channel is IPrivateChannel channel)) { return; }
+            if (socketMessage.Source != MessageSource.User) { return; }
 
             // Accepting commands to HeadNonSub.Clients.Discord.Commands.Exclamation.ImageTemplates
             //await message.Channel.SendMessageAsync($"No commands are available via direct message. Please @ the bot (`@{_DiscordClient.CurrentUser.Username}`) on the server.");

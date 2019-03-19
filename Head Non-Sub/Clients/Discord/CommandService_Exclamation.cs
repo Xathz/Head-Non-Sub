@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using HeadNonSub.Settings;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HeadNonSub.Clients.Discord {
@@ -15,7 +12,6 @@ namespace HeadNonSub.Clients.Discord {
         private readonly CommandService _Commands;
         private readonly DiscordSocketClient _DiscordClient;
         private readonly IServiceProvider _Services;
-        private readonly HashSet<string> _ValidCommands = new HashSet<string>();
 
         public CommandService_Exclamation(IServiceProvider services) {
             _Commands = services.GetRequiredService<CommandService>();
@@ -24,9 +20,6 @@ namespace HeadNonSub.Clients.Discord {
 
             _Commands.CommandExecuted += ExecutedAsync;
             _DiscordClient.MessageReceived += MessageReceivedAsync;
-
-            // TODO Does not show who deleted the message, if the bot deletes a message it yells at the bot.
-            //_DiscordClient.MessageDeleted += MessageDeletedAsync;
         }
 
         public async Task InitializeAsync() {
@@ -48,45 +41,24 @@ namespace HeadNonSub.Clients.Discord {
 
             // Guild specific: Claire's Trash Pandas (471045301407449088)
             await _Commands.AddModuleAsync<Commands.Exclamation.GuildSpecific.ClairesTrashPandas>(_Services);
-
-            _Commands.Commands.ToList().ForEach(x => {
-                _ValidCommands.Add(x.Name);
-                x.Aliases.ToList().ForEach(a => _ValidCommands.Add(a));
-            });
         }
 
-        private async Task MessageReceivedAsync(SocketMessage rawMessage) {
-            if (!(rawMessage is SocketUserMessage message)) { return; }
-            if (message.Source != MessageSource.User) { return; }
+        private async Task MessageReceivedAsync(SocketMessage socketMessage) {
+            if (!(socketMessage is SocketUserMessage userMessage)) { return; }
+            if (userMessage.Source != MessageSource.User) { return; }
 
             int argPos = 0;
-            if (!message.HasStringPrefix("!", ref argPos)) { return; }
+            if (!userMessage.HasStringPrefix("!", ref argPos)) { return; }
 
-            SocketCommandContext context = new SocketCommandContext(_DiscordClient, message);
+            SocketCommandContext context = new SocketCommandContext(_DiscordClient, userMessage);
 
             await _Commands.ExecuteAsync(context, argPos, _Services);
-        }
-
-        private async Task MessageDeletedAsync(Cacheable<IMessage, ulong> cache, ISocketMessageChannel channel) {
-            if (!(cache.Value is SocketUserMessage message)) { return; }
-            if (message.Source != MessageSource.User) { return; }
-
-            try {
-                int argPos = 0;
-                if (message.HasStringPrefix("!", ref argPos)) {
-                    string command = message.Content.Substring(1, (message.Content.Contains(' ') ? message.Content.IndexOf(' ') - 1 : message.Content.Length - 1));
-
-                    if (_ValidCommands.Contains(command)) {
-                        await channel.SendMessageAsync($"Please do not delete invoking commands. ```{message.CreatedAt.ToString(Constants.DateTimeFormat)} utc; {message.Author.ToString()}{Environment.NewLine}{message.Content}```");
-                    }
-                }
-            } catch { }
         }
 
         private async Task ExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result) {
             if (!command.IsSpecified) { return; }
 
-            string logLine = $"{context.User.Username} ({context.User.Id}); Message: {context.Message.Content}; Command: {command.Value.Name}; Result: {result.ToString()}";
+            string logLine = $"{context.Guild.Name}; {context.Channel.Name}; {context.User.ToString()}; {context.Message.Content}; {result.ToString()}";
 
             if (result.IsSuccess) {
                 LoggingManager.Log.Info(logLine);
@@ -99,7 +71,6 @@ namespace HeadNonSub.Clients.Discord {
                         break;
 
                     default:
-                        //await context.Channel.SendMessageAsync(result.ErrorReason);
                         break;
                 }
             }
