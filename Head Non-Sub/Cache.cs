@@ -10,24 +10,30 @@ namespace HeadNonSub {
         private static MemoryCache _Cache = MemoryCache.Default;
 
         /// <summary>
-        /// Adds a cache entry into the cache using the specified key and a value. If item already exists it will be returned.
-        /// </summary>
-        /// <param name="key">A unique identifier for the cache entry to add.</param>
-        /// <param name="item">The data for the cache entry.</param>
-        public static object AddOrGetExisting(string key, object item, int expirationMin = 5) => _Cache.AddOrGetExisting(key, item, DateTimeOffset.Now.AddMinutes(expirationMin));
-
-        /// <summary>
         /// Add an entry to the cache.
         /// </summary>
         /// <param name="key">A unique identifier for the cache entry to add.</param>
         /// <param name="item">The data for the cache entry.</param>
-        public static void Add(string key, object item, int expirationMin = 5) => _Cache.Add(key, item, DateTimeOffset.Now.AddMinutes(expirationMin));
+        public static void Add(string key, object item, int expirationMin = 5) {
+            LoggingManager.Log.Info($"Added '{key}' to the cache and will expire in {expirationMin} minute(s)");
+            _Cache.Add(key, item, DateTimeOffset.Now.AddMinutes(expirationMin));
+        }
 
         /// <summary>
         /// Get a entry from the cache.
         /// </summary>
         /// <param name="key">A unique identifier for the cache entry to get.</param>
-        public static object Get(string key) => _Cache.Get(key);
+        public static object Get(string key) {
+            object entry = _Cache.Get(key);
+
+            if (entry is null) {
+                LoggingManager.Log.Info($"Attempted to retrieved '{key}' from cache but is null");
+            } else {
+                LoggingManager.Log.Info($"Retrieved '{key}' from cache");
+            }
+
+            return entry;
+        }
 
         /// <summary>
         /// Get a entry from the cache as a <see cref="MemoryStream"/>.

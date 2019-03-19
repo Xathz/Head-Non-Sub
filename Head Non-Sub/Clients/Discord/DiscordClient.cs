@@ -119,11 +119,11 @@ namespace HeadNonSub.Clients.Discord {
         private static Task Log(LogMessage message) {
             switch (message.Severity) {
                 case LogSeverity.Debug:
-                    LoggingManager.Log.Debug(message.Message);
+                    LoggingManager.Log.Info(message.Message);
                     return Task.CompletedTask;
 
                 case LogSeverity.Verbose:
-                    LoggingManager.Log.Trace(message.Message);
+                    LoggingManager.Log.Info(message.Message);
                     return Task.CompletedTask;
 
                 case LogSeverity.Info:
@@ -135,11 +135,11 @@ namespace HeadNonSub.Clients.Discord {
                     return Task.CompletedTask;
 
                 case LogSeverity.Error:
-                    LoggingManager.Log.Error(message.Exception, message.Message);
+                    LoggingManager.Log.Error(message.Message);
                     return Task.CompletedTask;
 
                 case LogSeverity.Critical:
-                    LoggingManager.Log.Fatal(message.Exception, message.Message);
+                    LoggingManager.Log.Fatal(message.Message);
                     return Task.CompletedTask;
 
                 default:
