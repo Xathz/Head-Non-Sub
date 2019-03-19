@@ -38,6 +38,9 @@ namespace HeadNonSub.Statistics.Tables {
         [Column("parameters")]
         public string Parameters { get; set; }
 
+        [Column("reply_message_id")]
+        public ulong? ReplyMessageId { get; set; }
+
     }
 
 }

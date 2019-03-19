@@ -22,7 +22,7 @@ namespace HeadNonSub.Statistics {
         /// <summary>
         /// Insert a command that was ran into the database.
         /// </summary>
-        public static void InsertCommand(DateTime dateTime, ulong serverId, ulong channelId, ulong userId, string username, string userDisplay, ulong messageId, string message, string command, string parameters) {
+        public static void InsertCommand(DateTime dateTime, ulong serverId, ulong channelId, ulong userId, string username, string userDisplay, ulong messageId, string message, string command, string parameters, ulong replyMessageId) {
             try {
 
                 Command item = new Command {
@@ -35,7 +35,8 @@ namespace HeadNonSub.Statistics {
                     MessageId = messageId,
                     Message = message,
                     CommandName = command,
-                    Parameters = parameters
+                    Parameters = parameters,
+                    ReplyMessageId = replyMessageId
                 };
 
                 _Statistics.Commands.Add(item);

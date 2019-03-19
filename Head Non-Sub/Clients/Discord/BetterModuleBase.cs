@@ -43,9 +43,8 @@ namespace HeadNonSub.Clients.Discord {
             IUserMessage sentMessage = await Context.Channel.SendMessageAsync(message, false, null, null);
 
             if (!Context.IsPrivate) {
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, sentMessage.Id);
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
-                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters);
+                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters, sentMessage.Id);
             }
 
             return sentMessage;
@@ -61,9 +60,8 @@ namespace HeadNonSub.Clients.Discord {
             IUserMessage sentMessage = await Context.Channel.SendMessageAsync(null, false, embed, null);
 
             if (!Context.IsPrivate) {
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, sentMessage.Id);
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
-                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters);
+                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters, sentMessage.Id);
             }
 
             return sentMessage;
@@ -81,9 +79,8 @@ namespace HeadNonSub.Clients.Discord {
             IUserMessage sentMessage = await Context.Message.Channel.SendFileAsync(stream, fileName, message);
 
             if (!Context.IsPrivate) {
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, sentMessage.Id);
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
-                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters);
+                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters, sentMessage.Id);
             }
 
             return sentMessage;
@@ -100,9 +97,8 @@ namespace HeadNonSub.Clients.Discord {
             IUserMessage sentMessage = await Context.Message.Channel.SendFileAsync(filePath, message);
 
             if (!Context.IsPrivate) {
-                UndoTracker.Track(Context.Guild.Id, Context.Channel.Id, Context.User.Id, Context.Message.Id, sentMessage.Id);
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
-                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters);
+                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters, sentMessage.Id);
             }
 
             return sentMessage;
@@ -111,12 +107,13 @@ namespace HeadNonSub.Clients.Discord {
         /// <summary>
         /// Force track an event manually.
         /// </summary>
+        /// <param name="replyMessageId">Reply message id.</param>
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
-        public void TrackStatistics(string parameters = "", [CallerMemberName]string command = "") {
+        public void TrackStatistics(ulong? replyMessageId = null, string parameters = "", [CallerMemberName]string command = "") {
             if (!Context.IsPrivate) {
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
-                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters);
+                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters, replyMessageId.Value);
             }
         }
 
