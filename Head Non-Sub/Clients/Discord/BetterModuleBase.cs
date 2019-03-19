@@ -16,18 +16,21 @@ namespace HeadNonSub.Clients.Discord {
         /// Formats a user's display name and username.
         /// </summary>
         /// <param name="user">Optional user, if <see langword="null" /> use <see cref="CommandContext.User"/>.</param>
-        public string BetterUserFormat(SocketUser user = null) {
+        public string BetterUserFormat(SocketUser user = null, bool useGrave = true) {
+            string formatChar = "`";
+            if (!useGrave) { formatChar = ""; }
+
             if (user is null) {
                 if (Context.User is SocketGuildUser contextUser) {
-                    return $"{(!string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Nickname : contextUser.Username)} `{contextUser.ToString()}`";
+                    return $"{(!string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Nickname : contextUser.Username)} {formatChar}{contextUser.ToString()}{formatChar}";
                 }
             }
 
             if (user is SocketGuildUser guildUser) {
-                return $"{(!string.IsNullOrWhiteSpace(guildUser.Nickname) ? guildUser.Nickname : guildUser.Username)} `{guildUser.ToString()}`";
+                return $"{(!string.IsNullOrWhiteSpace(guildUser.Nickname) ? guildUser.Nickname : guildUser.Username)} {formatChar}{guildUser.ToString()}{formatChar}";
             }
 
-            return $"{Context.User.Username} `{Context.User.ToString()}`";
+            return $"{Context.User.Username} {formatChar}{Context.User.ToString()}{formatChar}";
         }
 
         /// <summary>

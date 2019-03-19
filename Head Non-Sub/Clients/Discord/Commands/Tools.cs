@@ -49,7 +49,8 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 randomUser = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 372244721625464845)).PickRandom();
 
             } else if (type == "mod") {
-                randomUser = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 336022934621519874)).PickRandom();
+                randomUser = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == 336022934621519874 | r.Id == 497550793923362827 | r.Id == 468960777978642443 | r.Id == 542135412106330122)
+                                        & !x.Roles.Any(r => r.Id == 372244721625464845 | r.Id == 465872398772862976)).PickRandom();
 
             } else if (type == "tree") {
                 randomUser = Context.Guild.Users.Where(x => x.Id == 339786294895050753).FirstOrDefault();
@@ -72,14 +73,14 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 };
 
                 builder.Footer = new EmbedFooterBuilder() {
-                    Text = $"Random user requested by {(!string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Nickname : contextUser.Username)}"
+                    Text = $"Random user requested by {BetterUserFormat(useGrave: false)}"
                 };
 
                 IUserMessage message = BetterReplyAsync(embed: builder.Build(), parameters: type).Result;
 
                 Task.Delay(8000).Wait();
 
-                builder.Title = $"{(!string.IsNullOrWhiteSpace(randomUser.Nickname) ? randomUser.Nickname : randomUser.Username)} ({randomUser.ToString()})";
+                builder.Title = BetterUserFormat(randomUser);
                 builder.ThumbnailUrl = null;
                 builder.Fields.Clear();
 
@@ -88,9 +89,6 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 if (randomUser.JoinedAt.HasValue) {
                     builder.AddField("Joined server", $"{randomUser.JoinedAt.Value.DateTime.ToShortDateString()} {randomUser.JoinedAt.Value.DateTime.ToShortTimeString()}", true);
                 }
-
-                // Can't mention users in an embed, just prints the id
-                //builder.AddField("Congratulations", $"{randomUser.Mention}");
 
                 message.ModifyAsync(x => { x.Embed = builder.Build(); }).Wait();
 
