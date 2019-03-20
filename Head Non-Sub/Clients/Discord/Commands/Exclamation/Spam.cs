@@ -66,6 +66,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [SubscriberOnly]
         public Task NonSub() => BetterSendFileAsync(Cache.GetStream("nonsub.png"), "nonsub.png", $"● {BetterUserFormat()}");
 
+        [Command("lucky")]
+        [Cooldown(20)]
+        public Task Lucky() => BetterSendFileAsync(Cache.GetStream("lucky.png"), "lucky.png", $"● {BetterUserFormat()}");
+
         [Command("youareallretarded")]
         [Cooldown(120)]
         [AllowedGuilds(328300333010911242)]

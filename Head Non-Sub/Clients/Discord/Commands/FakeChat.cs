@@ -27,7 +27,8 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 "but its F E E D I N G T I M E",
                 "Nani the FUCK?",
                 "ok?",
-                "I'm subbed on youtube tho"
+                "I'm subbed on youtube tho",
+                "HEY WHY THE FUCK WAS I HACKED AND WHY THE FUCK DID SOMEONE BUY 50 BUCKS WORTH OF SUBS TO WUBBY"
             };
 
             return BetterReplyAsync(responses.PickRandom());
