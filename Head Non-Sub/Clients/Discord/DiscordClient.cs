@@ -93,7 +93,7 @@ namespace HeadNonSub.Clients.Discord {
                     };
 
                     if (imageUrl is string) {
-                        builder.ImageUrl = imageUrl.Replace("{width}", "1920").Replace("{height}", "1080");
+                        builder.ImageUrl = $"{imageUrl.Replace("{width}", "1920").Replace("{height}", "1080")}?_={DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()}";
                     }
 
                     builder.Author = new EmbedAuthorBuilder {

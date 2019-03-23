@@ -47,7 +47,8 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 "Thats really nice but please give me a sub",
                 "d'awww",
                 "people are much nicer here than the ninja discord",
-                "do you think wubby could still love me as a non-sub?"
+                "do you think wubby could still love me as a non-sub?",
+                "they'll find my midget porn collection before they find weeb shit on my pc"
             };
 
             return BetterReplyAsync(responses.PickRandom());
