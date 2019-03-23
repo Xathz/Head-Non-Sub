@@ -162,7 +162,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 ServerMap map = new ServerMap(Context);
                 string jsonFile = map.Generate();
 
-                BetterSendFileAsync(jsonFile, $"{Context.Guild.Name} (`{Context.Guild.Id}`): Server Map").Wait();
+                Context.User.SendFileAsync(jsonFile, $"{Context.Guild.Name} (`{Context.Guild.Id}`): Server Map").Wait();
 
                 return BetterReplyAsync($"{Context.User.Mention} the server map was sent to you privately. The message may be blocked if you reject direct messages.");
             } catch (Exception ex) {
