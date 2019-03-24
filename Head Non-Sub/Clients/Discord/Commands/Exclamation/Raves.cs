@@ -74,7 +74,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                 Title = "Undoing raves...",
                 Description = $"Deleting up to {messageCount} rave messages",
-                ThumbnailUrl = "https://cdn.discordapp.com/emojis/425366701794656276.gif"
+                ThumbnailUrl = "https://cdn.discordapp.com/attachments/338137121166721026/559460210155192330/Loading.gif"
             };
 
             IUserMessage noticeMessage = BetterReplyAsync(builder.Build(), messageCount.ToString()).Result;

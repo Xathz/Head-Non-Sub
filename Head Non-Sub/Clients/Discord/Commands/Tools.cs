@@ -71,7 +71,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 EmbedBuilder builder = new EmbedBuilder() {
                     Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                     Title = $"Picking a random {type}...",
-                    ThumbnailUrl = "https://cdn.discordapp.com/emojis/425366701794656276.gif"
+                    ThumbnailUrl = "https://cdn.discordapp.com/attachments/338137121166721026/559460210155192330/Loading.gif"
                 };
 
                 builder.Footer = new EmbedFooterBuilder() {
@@ -132,7 +132,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                 Title = $"Undoing {Context.Client.CurrentUser.Username} messages...",
                 Description = $"Deleting up to {messageCount} bot messages",
-                ThumbnailUrl = "https://cdn.discordapp.com/emojis/425366701794656276.gif"
+                ThumbnailUrl = "https://cdn.discordapp.com/attachments/338137121166721026/559460210155192330/Loading.gif"
             };
 
             IUserMessage noticeMessage = BetterReplyAsync(builder.Build(), messageCount.ToString()).Result;
