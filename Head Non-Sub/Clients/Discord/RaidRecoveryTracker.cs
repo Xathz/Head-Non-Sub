@@ -11,24 +11,45 @@ namespace HeadNonSub.Clients.Discord {
         /// Track a new event.
         /// </summary>
         /// <param name="channel">Channel id.</param>
-        public static void Track(ulong channel) {
-            _ActiveChannels.Add(channel, new Event());
+        /// <param name="startedBy">Username of who started the event.</param>
+        public static bool Track(ulong channel, string startedBy) {
+            if (!_ActiveChannels.ContainsKey(channel)) {
+                _ActiveChannels.Add(channel, new Event(startedBy));
+                return true;
+            } else {
+                return false;
+            }
         }
 
         /// <summary>
         /// Check if an event exists.
         /// </summary>
         /// <param name="channel">Channel id.</param>
-        public static bool Exists(ulong channel) {
-            return _ActiveChannels.ContainsKey(channel);
-        }
+        public static bool Exists(ulong channel) => _ActiveChannels.ContainsKey(channel);
 
         /// <summary>
         /// Untrack a event.
         /// </summary>
         /// <param name="channel">Channel id.</param>
-        public static void Untrack(ulong channel) {
-            _ActiveChannels.Remove(channel);
+        public static bool Untrack(ulong channel) {
+            if (_ActiveChannels.ContainsKey(channel)) {
+                _ActiveChannels.Remove(channel);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Get who started an event.
+        /// </summary>
+        /// <param name="channel">Channel id.</param>
+        public static string StartedBy(ulong channel) {
+            if (_ActiveChannels.ContainsKey(channel)) {
+                return _ActiveChannels[channel].StartedBy;
+            } else {
+                return string.Empty;
+            }
         }
 
         /// <summary>
@@ -99,6 +120,9 @@ namespace HeadNonSub.Clients.Discord {
 
         private class Event {
 
+            public Event(string startedBy) => StartedBy = startedBy;
+
+            public string StartedBy { get; private set; }
             public string BanToken { get; private set; } = Guid.NewGuid().ToString("N").Substring(0, 12);
             public bool ValidBanToken { get; set; } = false;
             public HashSet<ulong> UsersToBan { get; set; } = new HashSet<ulong>();

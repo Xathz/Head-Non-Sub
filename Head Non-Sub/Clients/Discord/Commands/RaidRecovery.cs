@@ -23,7 +23,9 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("enable")]
         public Task Enable() {
-            RaidRecoveryTracker.Track(Context.Channel.Id);
+            if (!RaidRecoveryTracker.Track(Context.Channel.Id, Context.User.ToString())) {
+                return BetterReplyAsync($"Raid recovery mode is already enabled by {RaidRecoveryTracker.StartedBy(Context.Channel.Id)}.");
+            }
 
             if (Context.Channel is SocketTextChannel channel) {
                 channel.ModifyAsync(x => { x.SlowModeInterval = 120; });
@@ -48,6 +50,10 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("disable")]
         public Task Disable() {
+            if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
+                return BetterReplyAsync($"This channel is not in raid recovery mode. Use `@{Context.Guild.CurrentUser.Username} rr enable` to use commands.");
+            }
+
             RaidRecoveryTracker.Untrack(Context.Channel.Id);
 
             if (Context.Channel is SocketTextChannel channel) {
@@ -66,12 +72,12 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("list")]
         public Task List(int minutes = 5) {
-            if (minutes == 0 || minutes > 20160) {
-                return BetterReplyAsync("Must be between 1 and 20160 (2 weeks). Rarely should this be greater than 10 unless a raid went unnoticed for longer.", minutes.ToString());
-            }
-
             if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
                 return BetterReplyAsync($"This channel is not in raid recovery mode. Use `@{Context.Guild.CurrentUser.Username} rr enable` to use commands.");
+            }
+
+            if (minutes == 0 || minutes > 20160) {
+                return BetterReplyAsync("Must be between 1 and 20160 (2 weeks). Rarely should this be greater than 10 unless a raid went unnoticed for longer.", minutes.ToString());
             }
 
             IUserMessage message = BetterReplyAsync(embed: LoadingEmbed("Generating list"), parameters: minutes.ToString()).Result;
@@ -113,12 +119,12 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("clean")]
         public Task Clean(int minutes = 5) {
-            if (minutes == 0 || minutes > 20160) {
-                return BetterReplyAsync("Must be between 1 and 20160 (2 weeks). Rarely should this be greater than 10 unless a raid went unnoticed for longer.", minutes.ToString());
-            }
-
             if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
                 return BetterReplyAsync($"This channel is not in raid recovery mode. Use `@{Context.Guild.CurrentUser.Username} rr enable` to use commands.");
+            }
+
+            if (minutes == 0 || minutes > 20160) {
+                return BetterReplyAsync("Must be between 1 and 20160 (2 weeks). Rarely should this be greater than 10 unless a raid went unnoticed for longer.", minutes.ToString());
             }
 
             IUserMessage message = BetterReplyAsync(embed: LoadingEmbed("Deleting messages", "Staff and important bots messages will be preserved."), parameters: minutes.ToString()).Result;
@@ -147,12 +153,12 @@ namespace HeadNonSub.Clients.Discord.Commands {
         [Command("ban")]
         [RequireBotPermission(GuildPermission.BanMembers, ErrorMessage = "I do not have the `Ban Members` permission.")]
         public Task Ban(int minutes = 5, [Remainder]string banToken = "") {
-            if (minutes == 0 || minutes > 20160) {
-                return BetterReplyAsync("Must be between 1 and 20160 (2 weeks). Rarely should this be greater than 10 unless a raid went unnoticed for longer.", minutes.ToString());
-            }
-
             if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
                 return BetterReplyAsync($"This channel is not in raid recovery mode. Use `@{Context.Guild.CurrentUser.Username} rr enable` to use commands.");
+            }
+
+            if (minutes == 0 || minutes > 20160) {
+                return BetterReplyAsync("Must be between 1 and 20160 (2 weeks). Rarely should this be greater than 10 unless a raid went unnoticed for longer.", minutes.ToString());
             }
 
             if (!string.IsNullOrWhiteSpace(banToken)) {
@@ -207,9 +213,9 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
                 message.ModifyAsync(x => { x.Embed = null; x.Content = builder.ToString(); });
 
-                BetterReplyAsync($"Ban confirmation. Token: `{RaidRecoveryTracker.BanToken(Context.Channel.Id)}`{Environment.NewLine}{Environment.NewLine}" +
+                BetterReplyAsync($"Ban confirmation. Selected time frame: {minutes.Minutes().Humanize(3)}; Token: `{RaidRecoveryTracker.BanToken(Context.Channel.Id)}`{Environment.NewLine}{Environment.NewLine}" +
                     $"Type `@{Context.Guild.CurrentUser.Username} rr skip @User` to remove them from the ban list.{Environment.NewLine}" +
-                    $"Type `@{Context.Guild.CurrentUser.Username} rr ban {RaidRecoveryTracker.BanToken(Context.Channel.Id)}` to ban the users above.").Wait();
+                    $"Type `@{Context.Guild.CurrentUser.Username} rr ban {minutes} {RaidRecoveryTracker.BanToken(Context.Channel.Id)}` to ban the users above.").Wait();
             } else {
                 message.ModifyAsync(x => { x.Embed = null; x.Content = $"There are no flagged users to ban within the past {minutes.Minutes().Humanize(3)}."; });
             }
