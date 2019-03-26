@@ -54,6 +54,7 @@ namespace HeadNonSub.Clients.Discord {
             public ulong Server { get; protected set; }
             public ulong Channel { get; protected set; }
             public bool Active { get; set; }
+
         }
 
     }

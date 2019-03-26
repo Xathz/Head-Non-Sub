@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
@@ -16,7 +17,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         [Command("add")]
         public Task WhitelistAdd(SocketUser user = null) {
             if (user == null) {
-                return BetterReplyAsync($"You must mention a user to add them to the whitelist.");
+                return BetterReplyAsync("You must mention a user to add them to the whitelist.");
             }
 
             if (SettingsManager.Configuration.DiscordWhitelist.Any(x => x.Key == Context.Guild.Id && x.Value.Contains(user.Id))) {
@@ -38,7 +39,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         [Command("remove")]
         public Task WhitelistRemove(SocketUser user = null) {
             if (user == null) {
-                return BetterReplyAsync($"You must mention a user to remove them from the whitelist.");
+                return BetterReplyAsync("You must mention a user to remove them from the whitelist.");
             }
 
             if (SettingsManager.Configuration.DiscordWhitelist.Any(x => x.Key == Context.Guild.Id && x.Value.Contains(user.Id))) {
@@ -50,6 +51,19 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 return BetterReplyAsync($"{BetterUserFormat(user)} was removed from the whitelist.", parameters: user.ToString());
             } else {
                 return BetterReplyAsync($"{BetterUserFormat(user)} is not on the whitelist.", parameters: user.ToString());
+            }
+        }
+
+        [Command("list")]
+        public Task WhitelistList() {
+            IEnumerable<ulong> userIds = SettingsManager.Configuration.DiscordWhitelist.Where(x => x.Key == Context.Guild.Id).SelectMany(x => x.Value);
+
+            if (userIds.Count() > 0) {
+                IEnumerable<SocketGuildUser> users = Context.Guild.Users.Where(x => userIds.Contains(x.Id));
+
+                return BetterReplyAsync($"Whitelisted users{Environment.NewLine}```{string.Join(Environment.NewLine, users.Select(x => $"{x.ToString()} ({x.Id}) {x.Roles.OrderByDescending(r => r.Position).FirstOrDefault().Name}"))}```");
+            } else {
+                return BetterReplyAsync("There are no whitelisted users.");
             }
         }
 

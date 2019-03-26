@@ -103,14 +103,12 @@ namespace HeadNonSub.Clients.Discord.Commands {
         }
 
         [Command("undo")]
-        public Task Undo([Remainder]int count = 1) {
+        public Task Undo(int count = 1) {
             List<ulong> toDelete = new List<ulong> { Context.Message.Id };
 
             if (Context.Channel is SocketTextChannel channel) {
-                foreach (ulong? message in StatisticsManager.UndoMessages(Context.Channel.Id, Context.User.Id, count)) {
-                    if (message.HasValue) {
-                        toDelete.Add(message.Value);
-                    }
+                foreach (ulong messageId in StatisticsManager.UndoMessages(Context.Channel.Id, Context.User.Id, count)) {
+                    toDelete.Add(messageId);
                 }
 
                 channel.DeleteMessagesAsync(toDelete).Wait();

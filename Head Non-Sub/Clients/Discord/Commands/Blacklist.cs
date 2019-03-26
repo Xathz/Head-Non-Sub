@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
@@ -16,7 +17,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         [Command("add")]
         public Task BlacklistAdd(SocketUser user = null) {
             if (user == null) {
-                return BetterReplyAsync($"You must mention a user to add them to the blacklist.");
+                return BetterReplyAsync("You must mention a user to add them to the blacklist.");
             }
 
             if (SettingsManager.Configuration.DiscordBlacklist.Any(x => x.Key == Context.Guild.Id && x.Value.Contains(user.Id))) {
@@ -38,7 +39,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         [Command("remove")]
         public Task BlacklistRemove(SocketUser user = null) {
             if (user == null) {
-                return BetterReplyAsync($"You must mention a user to remove them from the blacklist.");
+                return BetterReplyAsync("You must mention a user to remove them from the blacklist.");
             }
 
             if (SettingsManager.Configuration.DiscordBlacklist.Any(x => x.Key == Context.Guild.Id && x.Value.Contains(user.Id))) {
@@ -50,6 +51,19 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 return BetterReplyAsync($"{BetterUserFormat(user)} was removed from the blacklist.", parameters: user.ToString());
             } else {
                 return BetterReplyAsync($"{BetterUserFormat(user)} is not on the blacklist.", parameters: user.ToString());
+            }
+        }
+
+        [Command("list")]
+        public Task BlacklistList() {
+            IEnumerable<ulong> userIds = SettingsManager.Configuration.DiscordWhitelist.Where(x => x.Key == Context.Guild.Id).SelectMany(x => x.Value);
+
+            if (userIds.Count() > 0) {
+                IEnumerable<SocketGuildUser> users = Context.Guild.Users.Where(x => userIds.Contains(x.Id));
+
+                return BetterReplyAsync($"Blacklisted users{Environment.NewLine}```{string.Join(Environment.NewLine, users.Select(x => $"{x.ToString()} ({x.Id}) {x.Roles.OrderByDescending(r => r.Position).FirstOrDefault().Name}"))}```");
+            } else {
+                return BetterReplyAsync("There are no blacklisted users.");
             }
         }
 

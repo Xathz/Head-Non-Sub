@@ -27,6 +27,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(300)]
         [SubscriberOnly]
         public Task Executie(SocketUser user = null, [Remainder]string reason = "") {
+            if (user == null) {
+                return BetterReplyAsync("You must mention a user to executie them.");
+            }
 
             BetterReplyAsync($"{user.Mention} you have 10 seconds to say last words before you are executie'd.", parameters: $"{user.ToString()}, {reason}").Wait();
             Task.Delay(10000).Wait();
