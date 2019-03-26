@@ -67,6 +67,10 @@ namespace HeadNonSub.Clients.Discord {
                         await context.Channel.SendMessageAsync(result.ErrorReason);
                         break;
 
+                    case CommandError.ParseFailed:
+                        await context.Channel.SendMessageAsync(result.ErrorReason);
+                        break;
+
                     default:
                         break;
                 }

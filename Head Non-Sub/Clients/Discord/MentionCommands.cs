@@ -26,6 +26,7 @@ namespace HeadNonSub.Clients.Discord {
             await _Commands.AddModuleAsync<Commands.Blacklist>(_Services);
             await _Commands.AddModuleAsync<Commands.FakeChat>(_Services);
             await _Commands.AddModuleAsync<Commands.Help>(_Services);
+            await _Commands.AddModuleAsync<Commands.RaidRecovery>(_Services);
             await _Commands.AddModuleAsync<Commands.Tools>(_Services);
             await _Commands.AddModuleAsync<Commands.Whitelist>(_Services);
         }
@@ -50,6 +51,10 @@ namespace HeadNonSub.Clients.Discord {
 
                 switch (result.Error) {
                     case CommandError.UnmetPrecondition:
+                        await context.Channel.SendMessageAsync(result.ErrorReason);
+                        break;
+
+                    case CommandError.ParseFailed:
                         await context.Channel.SendMessageAsync(result.ErrorReason);
                         break;
 

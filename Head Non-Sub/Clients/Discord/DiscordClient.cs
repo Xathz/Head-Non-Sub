@@ -26,7 +26,7 @@ namespace HeadNonSub.Clients.Discord {
         public static async Task ConnectAsync() {
             _DiscordConfig = new DiscordSocketConfig {
                 DefaultRetryMode = RetryMode.RetryRatelimit,
-                MessageCacheSize = 1000,
+                MessageCacheSize = 2500,
                 AlwaysDownloadUsers = true,
                 LogLevel = LogSeverity.Info
             };

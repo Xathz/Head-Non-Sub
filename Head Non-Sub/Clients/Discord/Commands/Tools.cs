@@ -24,15 +24,16 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 $"```Ping: {Context.Message.CreatedAt.DateTime.ToString(Constants.DateTimeFormat)}{Environment.NewLine}Pong: {now.ToString(Constants.DateTimeFormat)}```");
         }
 
-        [Command("failfast")]
-        [OwnerAdminXathz]
-        public Task FailFast() {
-            LoggingManager.Log.Fatal($"Forcibly disconnected from Discord. Server: {Context.Guild.Name} ({Context.Guild.Id}); Channel: {Context.Channel.Name} ({Context.Channel.Id}); User: {Context.User.Username} ({Context.User.Id})");
-            BetterReplyAsync("Forcibly disconnecting from Discord, please tell <@!227088829079617536> as soon as possible. Good bye.").Wait();
+        // TODO This no longer works due to the watchdog script. Need to find a new way.
+        //[Command("failfast")]
+        //[OwnerAdminXathz]
+        //public Task FailFast() {
+        //    LoggingManager.Log.Fatal($"Forcibly disconnected from Discord. Server: {Context.Guild.Name} ({Context.Guild.Id}); Channel: {Context.Channel.Name} ({Context.Channel.Id}); User: {Context.User.Username} ({Context.User.Id})");
+        //    BetterReplyAsync("Forcibly disconnecting from Discord, please tell <@!227088829079617536> as soon as possible. Good bye.").Wait();
 
-            DiscordClient.FailFast();
-            return Task.CompletedTask;
-        }
+        //    DiscordClient.FailFast();
+        //    return Task.CompletedTask;
+        //}
 
         [Command("random")]
         public Task Random([Remainder]string type = "") {
@@ -71,7 +72,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 EmbedBuilder builder = new EmbedBuilder() {
                     Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                     Title = $"Picking a random {type}...",
-                    ThumbnailUrl = "https://cdn.discordapp.com/attachments/338137121166721026/559460210155192330/Loading.gif"
+                    ThumbnailUrl = Constants.LoadingGifUrl
                 };
 
                 builder.Footer = new EmbedFooterBuilder() {
@@ -132,7 +133,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                 Title = $"Undoing {Context.Client.CurrentUser.Username} messages...",
                 Description = $"Deleting up to {messageCount} bot messages",
-                ThumbnailUrl = "https://cdn.discordapp.com/attachments/338137121166721026/559460210155192330/Loading.gif"
+                ThumbnailUrl = Constants.LoadingGifUrl
             };
 
             IUserMessage noticeMessage = BetterReplyAsync(builder.Build(), messageCount.ToString()).Result;
@@ -140,9 +141,9 @@ namespace HeadNonSub.Clients.Discord.Commands {
             try {
                 if (Context.Channel is SocketTextChannel channel) {
                     IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(500).Flatten();
-                    IAsyncEnumerable<IMessage> toDelete = messages.Where(x => (x.Author.Id == Context.Client.CurrentUser.Id)).OrderByDescending(x => x.CreatedAt).Take(messageCount);
+                    IEnumerable<IMessage> toDelete = messages.Where(x => (x.Author.Id == Context.Client.CurrentUser.Id)).OrderByDescending(x => x.CreatedAt).Take(messageCount).ToEnumerable();
 
-                    channel.DeleteMessagesAsync(toDelete.ToEnumerable()).Wait();
+                    channel.DeleteMessagesAsync(toDelete).Wait();
                 }
 
                 noticeMessage.DeleteAsync();

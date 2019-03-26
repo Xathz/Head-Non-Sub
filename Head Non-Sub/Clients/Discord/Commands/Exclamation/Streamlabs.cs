@@ -47,11 +47,11 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             builder.AddField("Regular Streams", $"Minimum amount to be shown on stream: **{(minAmountToShareAttempt ? minAmountToShare.ToString("C", CultureInfo.CurrentCulture) : streamlabsTip.Settings.Media.MinAmountToShare)}**{Environment.NewLine}" +
                     $"Price per second: **{(pricePerSecondeAttempt ? pricePerSecond.ToString("C", CultureInfo.CurrentCulture) : streamlabsTip.Settings.Media.PricePerSecond)}**{Environment.NewLine}" +
-                    $"Maximum duration: **{TimeSpan.FromSeconds(maxDuration).Humanize()}**");
+                    $"Maximum duration: **{TimeSpan.FromSeconds(maxDuration).Humanize(3)}**");
 
             builder.AddField("Media Share Streams", $"Minimum amount to be shown on stream: **{(mediaShareMinAmountToShareAttempt ? mediaShareMinAmountToShare.ToString("C", CultureInfo.CurrentCulture) : streamlabsTip.Settings.Media.AdvancedSettings.MinAmountToShare)}**{Environment.NewLine}" +
                     $"Price per second: **{(mediaSharePricePerSecondAttempt ? mediaSharePricePerSecond.ToString("C", CultureInfo.CurrentCulture) : streamlabsTip.Settings.Media.AdvancedSettings.PricePerSecond)}**{Environment.NewLine}" +
-                    $"Maximum duration: **{TimeSpan.FromSeconds(mediaShareMaxDuration).Humanize()}**");
+                    $"Maximum duration: **{TimeSpan.FromSeconds(mediaShareMaxDuration).Humanize(3)}**");
 
             builder.AddField("Special Amounts", string.Join(Environment.NewLine, new string[] { $"These amounts will trigger different alerts on stream.",
                         "420 Blazeit: **$4.20**",

@@ -13,6 +13,21 @@ namespace HeadNonSub.Clients.Discord {
         public BetterModuleBase() { }
 
         /// <summary>
+        /// Format a log string containing this context  info.
+        /// </summary>
+        public string BetterLogFormat() {
+            if (Context.IsPrivate) {
+                return $"{Context.User.ToString()}/{Context.User.Id} in DM/{Context.Channel.Name} ({Context.Channel.Id})";
+            } else {
+                if (Context.User is SocketGuildUser guildUser) {
+                    return $"{(!string.IsNullOrWhiteSpace(guildUser.Nickname) ? guildUser.Nickname : guildUser.Username)} ({guildUser.ToString()}/{guildUser.Id}) in {Context.Guild.Name}/{Context.Channel.Name} ({Context.Guild.Id}/{Context.Channel.Id})";
+                } else {
+                    return $"{Context.User.ToString()}/{Context.User.Id} in {Context.Guild.Name}/{Context.Channel.Name} ({Context.Guild.Id}/{Context.Channel.Id})";
+                }
+            }
+        }
+
+        /// <summary>
         /// Formats a user's display name and username.
         /// </summary>
         /// <param name="user">Optional user, if <see langword="null" /> use <see cref="CommandContext.User"/>.</param>

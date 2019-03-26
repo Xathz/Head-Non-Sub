@@ -74,7 +74,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                 Title = "Undoing raves...",
                 Description = $"Deleting up to {messageCount} rave messages",
-                ThumbnailUrl = "https://cdn.discordapp.com/attachments/338137121166721026/559460210155192330/Loading.gif"
+                ThumbnailUrl = Constants.LoadingGifUrl
             };
 
             IUserMessage noticeMessage = BetterReplyAsync(builder.Build(), messageCount.ToString()).Result;
@@ -83,11 +83,11 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 if (Context.Channel is SocketTextChannel channel) {
                     IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(500).Flatten();
 
-                    IAsyncEnumerable<IMessage> toDelete = messages.Where(x => (x.Author.Id == Context.Guild.CurrentUser.Id) &
+                    IEnumerable<IMessage> toDelete = messages.Where(x => (x.Author.Id == Context.Guild.CurrentUser.Id) &
                     (x.Content.StartsWith(":crab:")) || (x.Content.StartsWith(".") & x.Content.Contains(":crab:")))
-                    .OrderByDescending(x => x.CreatedAt).Take(messageCount);
+                    .OrderByDescending(x => x.CreatedAt).Take(messageCount).ToEnumerable();
 
-                    channel.DeleteMessagesAsync(toDelete.ToEnumerable()).Wait();
+                    channel.DeleteMessagesAsync(toDelete).Wait();
                 }
             } catch {
                 return BetterReplyAsync("Failed to delete messages.");

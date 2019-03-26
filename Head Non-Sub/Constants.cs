@@ -48,6 +48,11 @@ namespace HeadNonSub {
         public const string PaymoneyWubby = "paymoneywubby";
 
         /// <summary>
+        /// Loading gif url.
+        /// </summary>
+        public const string LoadingGifUrl = "https://cdn.discordapp.com/attachments/559869208976949278/559869759257051136/Loading.gif";
+
+        /// <summary>
         /// The general color of the bot, used for Discord embeds.
         /// </summary>
         public static (int R, int G, int B) GeneralColor => (200, 40, 150);
@@ -61,12 +66,12 @@ namespace HeadNonSub {
         /// Application version.
         /// </summary>
         public static string ApplicationVersion => typeof(Program).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
-        
+
         /// <summary>
         /// The application location including filename.
         /// </summary>
         public static string ApplicationLocation => typeof(Program).GetTypeInfo().Assembly.Location;
-        
+
         /// <summary>
         /// The directory the application is in.
         /// </summary>
