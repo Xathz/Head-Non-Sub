@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Discord;
@@ -11,6 +12,19 @@ namespace HeadNonSub.Clients.Discord {
     public abstract class BetterModuleBase : ModuleBase<SocketCommandContext> {
 
         public BetterModuleBase() { }
+
+        /// <summary>
+        /// Get a socket user from a user id.
+        /// </summary>
+        /// <param name="userId">User id to convert to a socket user.</param>
+        public SocketUser UserFromUserId(ulong userId) {
+            try {
+                return Context.Client.GetUser(userId);
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return null;
+            }
+        }
 
         /// <summary>
         /// Format a log string containing this context  info.
@@ -73,6 +87,24 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="command">Name of who called this method.</param>
         public async Task<IUserMessage> BetterReplyAsync(Embed embed, string parameters = "", [CallerMemberName]string command = "") {
             IUserMessage sentMessage = await Context.Channel.SendMessageAsync(null, false, embed, null);
+
+            if (!Context.IsPrivate) {
+                StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
+                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters, sentMessage.Id);
+            }
+
+            return sentMessage;
+        }
+
+        /// <summary>
+        /// Sends a message to the source channel.
+        /// </summary>
+        /// <param name="message">Contents of the message.</param>
+        /// <param name="embed">An embed to be displayed.</param>
+        /// <param name="parameters">Additional parameters passed to the command.</param>
+        /// <param name="command">Name of who called this method.</param>
+        public async Task<IUserMessage> BetterReplyAsync(string message, Embed embed, string parameters = "", [CallerMemberName]string command = "") {
+            IUserMessage sentMessage = await Context.Channel.SendMessageAsync(message, false, embed, null);
 
             if (!Context.IsPrivate) {
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,

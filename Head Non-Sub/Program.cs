@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using HeadNonSub.Clients.Discord;
 using HeadNonSub.Clients.Twitch;
+using HeadNonSub.Database;
 using HeadNonSub.Settings;
 using HeadNonSub.Statistics;
 
@@ -36,6 +37,7 @@ namespace HeadNonSub {
             LoggingManager.Initialize();
             SettingsManager.Load();
 
+            DatabaseManager.Load();
             StatisticsManager.Load();
 
             Cache.LoadContent();

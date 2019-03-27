@@ -36,6 +36,7 @@ namespace HeadNonSub.Clients.Discord {
             await _Commands.AddModuleAsync<Commands.Exclamation.Strawpoll>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Streamlabs>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.TTS>(_Services);
+            await _Commands.AddModuleAsync<Commands.Exclamation.UserNotes>(_Services);
 
             // Guild specific: Cam’s Pocket (528475747334225925)
             await _Commands.AddModuleAsync<Commands.Exclamation.GuildSpecific.CamsPocket> (_Services);
@@ -64,6 +65,10 @@ namespace HeadNonSub.Clients.Discord {
 
                 switch (result.Error) {
                     case CommandError.UnmetPrecondition:
+                        await context.Channel.SendMessageAsync(result.ErrorReason);
+                        break;
+
+                    case CommandError.ObjectNotFound:
                         await context.Channel.SendMessageAsync(result.ErrorReason);
                         break;
 
