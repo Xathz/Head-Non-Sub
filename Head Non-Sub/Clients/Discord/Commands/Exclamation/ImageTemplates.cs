@@ -10,6 +10,8 @@ using ImageMagick;
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
     [BlacklistEnforced]
+    [SubscriberOnly]
+    [RequireContext(ContextType.Guild)]
     public class ImageTemplates : BetterModuleBase {
 
         [Command("ttsays")]
@@ -184,7 +186,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                BetterSendFileAsync(stream, "strongbadSays.png", $"● {BetterUserFormat()}").Wait();
+                BetterSendFileAsync(stream, "strongbadSays.png", $"● {BetterUserFormat()}", parameters: input).Wait();
             }
 
             return Task.CompletedTask;
