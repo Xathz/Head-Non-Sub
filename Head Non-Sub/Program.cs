@@ -16,6 +16,14 @@ namespace HeadNonSub {
         static void Main(string[] args) => new Program().StartAsync().GetAwaiter().GetResult();
 
         public Program() {
+            try {
+                if (File.Exists(Constants.FailFastFile)) {
+                    File.Delete(Constants.FailFastFile);
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+            }
+
             CreatePIDFile();
             Console.Title = Constants.ApplicationName;
 

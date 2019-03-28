@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -64,6 +65,15 @@ namespace HeadNonSub.Clients.Discord {
         public static async Task StopAsync() => await _DiscordClient.StopAsync();
 
         public static void FailFast() {
+            try {
+                File.WriteAllText(Constants.FailFastFile, "This file was generated becuase the fail fast command was executed." +
+                     " The watchdog scropt (Watchdog.ps1) will not start/restart the bot if this file is here." +
+                     " This file will be deleted when the bot is started.");
+
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+            }
+
             _ = _DiscordClient.LogoutAsync();
             Environment.Exit(13);
         }

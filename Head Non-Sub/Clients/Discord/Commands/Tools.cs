@@ -24,16 +24,15 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 $"```Ping: {Context.Message.CreatedAt.DateTime.ToString(Constants.DateTimeFormat)}{Environment.NewLine}Pong: {now.ToString(Constants.DateTimeFormat)}```");
         }
 
-        // TODO This no longer works due to the watchdog script. Need to find a new way.
-        //[Command("failfast")]
-        //[OwnerAdminXathz]
-        //public Task FailFast() {
-        //    LoggingManager.Log.Fatal($"Forcibly disconnected from Discord. Server: {Context.Guild.Name} ({Context.Guild.Id}); Channel: {Context.Channel.Name} ({Context.Channel.Id}); User: {Context.User.Username} ({Context.User.Id})");
-        //    BetterReplyAsync("Forcibly disconnecting from Discord, please tell <@!227088829079617536> as soon as possible. Good bye.").Wait();
+      [Command("failfast")]
+      [OwnerAdminXathz]
+        public Task FailFast() {
+            LoggingManager.Log.Fatal($"Forcibly disconnected from Discord. Server: {Context.Guild.Name} ({Context.Guild.Id}); Channel: {Context.Channel.Name} ({Context.Channel.Id}); User: {Context.User.Username} ({Context.User.Id})");
+            BetterReplyAsync("Forcibly disconnecting from Discord, please tell <@!227088829079617536> as soon as possible. Good bye.").Wait();
 
-        //    DiscordClient.FailFast();
-        //    return Task.CompletedTask;
-        //}
+            DiscordClient.FailFast();
+            return Task.CompletedTask;
+        }
 
         [Command("random")]
         public Task Random([Remainder]string type = "") {
@@ -125,8 +124,6 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 return BetterReplyAsync("Must be between 1 and 500.", messageCount.ToString());
             }
 
-            Context.Message.DeleteAsync();
-
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                 Title = $"Undoing {Context.Client.CurrentUser.Username} messages...",
@@ -137,9 +134,12 @@ namespace HeadNonSub.Clients.Discord.Commands {
             IUserMessage noticeMessage = BetterReplyAsync(builder.Build(), messageCount.ToString()).Result;
 
             try {
+                List<ulong> toDelete = new List<ulong> { Context.Message.Id };
+
                 if (Context.Channel is SocketTextChannel channel) {
                     IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(500).Flatten();
-                    IEnumerable<IMessage> toDelete = messages.Where(x => (x.Author.Id == Context.Client.CurrentUser.Id)).OrderByDescending(x => x.CreatedAt).Take(messageCount).ToEnumerable();
+                    IEnumerable<ulong> foundToDelete = messages.Where(x => (x.Author.Id == Context.Client.CurrentUser.Id)).OrderByDescending(x => x.CreatedAt).Take(messageCount).Select(x => x.Id).ToEnumerable();
+                    toDelete.AddRange(foundToDelete);
 
                     channel.DeleteMessagesAsync(toDelete).Wait();
                 }
