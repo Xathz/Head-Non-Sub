@@ -10,7 +10,7 @@ using HeadNonSub.Settings;
 namespace HeadNonSub.Clients.Discord.Commands {
 
     [Group("whitelist")]
-    [OwnerAdminXathz]
+    [StaffOnly]
     [RequireContext(ContextType.Guild)]
     public class Whitelist : BetterModuleBase {
 

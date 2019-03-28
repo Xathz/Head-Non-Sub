@@ -10,7 +10,7 @@ using HeadNonSub.Settings;
 namespace HeadNonSub.Clients.Discord.Commands {
 
     [Group("blacklist")]
-    [OwnerAdminXathz]
+    [DiscordStaffOnly]
     [RequireContext(ContextType.Guild)]
     public class Blacklist : BetterModuleBase {
 

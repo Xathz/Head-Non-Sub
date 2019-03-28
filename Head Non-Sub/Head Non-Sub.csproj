@@ -26,6 +26,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Unused\**" />
+    <EmbeddedResource Remove="Unused\**" />
+    <None Remove="Unused\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.0.1" />
     <PackageReference Include="Humanizer.Core" Version="2.6.2" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.11.0" />

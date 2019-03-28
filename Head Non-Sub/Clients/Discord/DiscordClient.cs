@@ -14,15 +14,15 @@ namespace HeadNonSub.Clients.Discord {
         private static DiscordSocketConfig _DiscordConfig;
         private static DiscordSocketClient _DiscordClient;
 
-        private static CommandServiceConfig _ServiceConfig = new CommandServiceConfig() {
+        private static readonly CommandServiceConfig _ServiceConfig = new CommandServiceConfig() {
             DefaultRunMode = RunMode.Async, LogLevel = LogSeverity.Verbose
         };
 
         private static IServiceProvider _MentionProvider;
-        private static CommandService _MentionService = new CommandService(_ServiceConfig);
+        private static readonly CommandService _MentionService = new CommandService(_ServiceConfig);
 
         private static IServiceProvider _ExclamationProvider;
-        private static CommandService _ExclamationService = new CommandService(_ServiceConfig);
+        private static readonly CommandService _ExclamationService = new CommandService(_ServiceConfig);
 
         public static async Task ConnectAsync() {
             _DiscordConfig = new DiscordSocketConfig {
@@ -46,11 +46,12 @@ namespace HeadNonSub.Clients.Discord {
 
             _DiscordClient.Log += Log;
             _DiscordClient.Connected += Connected;
+
+            _DiscordClient.JoinedGuild += JoinedGuild;
             _DiscordClient.GuildAvailable += GuildAvailable;
             _DiscordClient.GuildMembersDownloaded += GuildMembersDownloaded;
 
-            // Not used currently
-            //_DiscordClient.MessageReceived += MessageReceived;
+            _DiscordClient.MessageReceived += MessageReceived;
 
             _MentionProvider.GetRequiredService<CommandService>().Log += Log;
             _ExclamationProvider.GetRequiredService<CommandService>().Log += Log;
@@ -171,6 +172,17 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
+        private static Task JoinedGuild(SocketGuild guild) {
+            LoggingManager.Log.Warn($"Joined guild {guild.Name} ({guild.Id}).");
+
+            // Leave if an invalid guild
+            if (guild.Id != Constants.XathzDiscordGuild || guild.Id != Constants.WubbyDiscordGuild) {
+                guild.LeaveAsync(new RequestOptions { AuditLogReason = $"This bot is private. This guild needs to be whitelisted. Contact: {Constants.Creator}" });
+            }
+
+            return Task.CompletedTask;
+        }
+
         private static Task GuildAvailable(SocketGuild guild) {
             LoggingManager.Log.Info($"Guild {guild.Name} ({guild.Id}) has become available");
             return Task.CompletedTask;
@@ -186,8 +198,7 @@ namespace HeadNonSub.Clients.Discord {
             if (!(socketMessage.Channel is IPrivateChannel channel)) { return; }
             if (socketMessage.Source != MessageSource.User) { return; }
 
-            // Accepting commands to HeadNonSub.Clients.Discord.Commands.Exclamation.ImageTemplates
-            //await message.Channel.SendMessageAsync($"No commands are available via direct message. Please @ the bot (`@{_DiscordClient.CurrentUser.Username}`) on the server.");
+            await message.Channel.SendMessageAsync($"No commands are available via direct message. Please @ the bot (`@{_DiscordClient.CurrentUser.Username}`) on the server.");
         }
 
     }

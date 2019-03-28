@@ -18,7 +18,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
             if (_AllowedGuilds.Contains(context.Guild.Id)) {
                 return Task.FromResult(PreconditionResult.FromSuccess());
             } else {
-                return Task.FromResult(PreconditionResult.FromError("Not a valid guild (server) for this command."));
+                return Task.FromResult(PreconditionResult.FromError("Invalid guild (server) for this command."));
             }
         }
 

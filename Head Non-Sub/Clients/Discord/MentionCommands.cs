@@ -28,7 +28,6 @@ namespace HeadNonSub.Clients.Discord {
             await _Commands.AddModuleAsync<Commands.Help>(_Services);
             await _Commands.AddModuleAsync<Commands.RaidRecovery>(_Services);
             await _Commands.AddModuleAsync<Commands.Tools>(_Services);
-            await _Commands.AddModuleAsync<Commands.Whitelist>(_Services);
         }
 
         private async Task MessageReceived(SocketMessage socketMessage) {

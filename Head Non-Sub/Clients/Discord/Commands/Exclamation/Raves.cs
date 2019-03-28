@@ -9,8 +9,7 @@ using HeadNonSub.Clients.Discord.Attributes;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
-    // Wubby's Fun House: 'actual-fucking-spam'
-    [BlacklistEnforced, AllowedChannels(537727672747294738)]
+    [BlacklistEnforced, AllowedChannels(WubbysFunHouse.ActualFuckingSpamChannelId)]
     [RequireContext(ContextType.Guild)]
     public class Raves : BetterModuleBase {
 
@@ -54,7 +53,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("ravestop"), Alias("stoprave", "stopraves")]
-        [OwnerAdminWhitelist]
+        [DiscordStaffOnly]
         public Task RaveStop() {
             RaveTracker.Stop(Context.Guild.Id, Context.Channel.Id);
 
@@ -62,7 +61,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("raveundo"), Alias("undorave", "undoraves")]
-        [OwnerAdminWhitelist]
+        [DiscordStaffOnly]
         public Task RaveUndo(int messageCount = 300) {
             if (messageCount == 0 || messageCount > 500) {
                 return BetterReplyAsync("Must be between 1 and 500.", messageCount.ToString());

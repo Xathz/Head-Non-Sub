@@ -18,10 +18,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
                 }
             }
 
-            return Task.FromResult(PreconditionResult.FromSuccess());
-
-            // Disabled becuase come commands do not require a guild.
-            //return Task.FromResult(PreconditionResult.FromError($"{context.User.Mention} you must be in a guild to run this command."));
+            return Task.FromResult(PreconditionResult.FromError($"{context.User.Mention} you must be in a guild to run this command."));
         }
 
     }

@@ -76,7 +76,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("youareallretarded")]
         [Cooldown(120)]
-        [AllowedGuilds(328300333010911242)]
         public Task AllRetarded() {
             if (Context.Channel is SocketTextChannel channel) {
                 IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(Context.Message, Direction.Before, 10).Flatten().OrderByDescending(x => x.CreatedAt);
@@ -96,7 +95,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("allthis")]
         [Cooldown(120)]
-        [AllowedGuilds(328300333010911242)]
         public Task AllThis() {
             if (Context.Channel is SocketTextChannel channel) {
                 IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(Context.Message, Direction.Before, 10).Flatten().OrderByDescending(x => x.CreatedAt);

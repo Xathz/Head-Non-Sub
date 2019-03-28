@@ -10,7 +10,7 @@ using HeadNonSub.Entities.Database.UserNote;
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
     [BlacklistEnforced]
-    [OwnerAdminWhitelist]
+    [DiscordStaffOnly]
     [RequireContext(ContextType.Guild)]
     public class UserNotes : BetterModuleBase {
 

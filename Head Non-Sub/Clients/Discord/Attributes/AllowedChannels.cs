@@ -18,7 +18,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
             if (_AllowedChannels.Contains(context.Channel.Id)) {
                 return Task.FromResult(PreconditionResult.FromSuccess());
             } else {
-                return Task.FromResult(PreconditionResult.FromError("Not a valid channel for this command."));
+                return Task.FromResult(PreconditionResult.FromError("Invalid channel for this command."));
             }
         }
 

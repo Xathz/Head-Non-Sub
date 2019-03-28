@@ -25,7 +25,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         }
 
       [Command("failfast")]
-      [OwnerAdminXathz]
+      [DiscordStaffOnly]
         public Task FailFast() {
             LoggingManager.Log.Fatal($"Forcibly disconnected from Discord. Server: {Context.Guild.Name} ({Context.Guild.Id}); Channel: {Context.Channel.Name} ({Context.Channel.Id}); User: {Context.User.Username} ({Context.User.Id})");
             BetterReplyAsync("Forcibly disconnecting from Discord, please tell <@!227088829079617536> as soon as possible. Good bye.").Wait();
@@ -118,7 +118,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         }
 
         [Command("undobot")]
-        [OwnerAdminWhitelist]
+        [DiscordStaffOnly]
         public Task UndoBot(int messageCount = 100) {
             if (messageCount == 0 || messageCount > 500) {
                 return BetterReplyAsync("Must be between 1 and 500.", messageCount.ToString());
@@ -155,7 +155,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         }
 
         [Command("servermap")]
-        [OwnerAdminXathz]
+        [DiscordStaffOnly]
         public Task ServerMap() {
             try {
                 ServerMap map = new ServerMap(Context);

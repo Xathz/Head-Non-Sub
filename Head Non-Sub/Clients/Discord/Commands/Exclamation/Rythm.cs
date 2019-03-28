@@ -10,7 +10,7 @@ using HeadNonSub.Extensions;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
-    [BlacklistEnforced, AllowedGuilds(328300333010911242)]
+    [BlacklistEnforced]
     [RequireContext(ContextType.Guild)]
     public class Rythm : BetterModuleBase {
 

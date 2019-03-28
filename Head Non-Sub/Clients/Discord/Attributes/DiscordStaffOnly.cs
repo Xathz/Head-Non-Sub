@@ -7,11 +7,16 @@ using Discord.WebSocket;
 
 namespace HeadNonSub.Clients.Discord.Attributes {
 
-    public class OwnerAdminXathz : PreconditionAttribute {
+    public class DiscordStaffOnly : PreconditionAttribute {
 
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services) {
             if (context.User is SocketGuildUser user) {
                 IApplication application = context.Client.GetApplicationInfoAsync().Result;
+
+                // Xathz
+                if (user.Id == Constants.XathzUserId) {
+                    return Task.FromResult(PreconditionResult.FromSuccess());
+                }
 
                 // Bot owner
                 if (user.Id == application.Owner.Id) {
@@ -23,12 +28,22 @@ namespace HeadNonSub.Clients.Discord.Attributes {
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
 
-                // Xathz
-                if (user.Id == 227088829079617536) {
+                // Admins
+                if (user.Roles.Any(x => x.Id == WubbysFunHouse.AdminsRoleId)) {
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
-                
-                return Task.FromResult(PreconditionResult.FromError($"{user.Mention} you are not allowed to run this command."));
+
+                // Mods
+                if (user.Roles.Any(x => x.Id == WubbysFunHouse.ModsRoleId)) {
+                    return Task.FromResult(PreconditionResult.FromSuccess());
+                }
+
+                // Mod-lites
+                if (user.Roles.Any(x => x.Id == WubbysFunHouse.ModLiteRoleId)) {
+                    return Task.FromResult(PreconditionResult.FromSuccess());
+                }
+
+                return Task.FromResult(PreconditionResult.FromError($"{user.Mention} this is a Discord staff only command."));
             }
 
             return Task.FromResult(PreconditionResult.FromError($"{context.User.Mention} you must be in a guild to run this command."));

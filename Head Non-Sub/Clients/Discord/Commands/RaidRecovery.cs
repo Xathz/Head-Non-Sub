@@ -12,14 +12,13 @@ using Humanizer;
 namespace HeadNonSub.Clients.Discord.Commands {
 
     [Group("rr")]
-    [OwnerAdminWhitelist]
+    [DiscordStaffOnly]
     [RequireContext(ContextType.Guild)]
-    [AllowedGuilds(328300333010911242)] // Wubby's Fun House
     [RequireBotPermission(GuildPermission.ManageMessages, ErrorMessage = "I do not have the `Manage Messages` permission, raid recovery can not be used.")]
     [RequireBotPermission(GuildPermission.ManageChannels, ErrorMessage = "I do not have the `Manage Channels` permission, raid recovery can not be used.")]
     public class RaidRecovery : BetterModuleBase {
 
-        private int _MessageThreshold = 5;
+        private readonly int _MessageThreshold = 5;
 
         [Command("enable")]
         public Task Enable() {
@@ -86,10 +85,17 @@ namespace HeadNonSub.Clients.Discord.Commands {
             IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(1200).Flatten();
             List<IAsyncGrouping<IUser, IMessage>> messagesPerUser = messages.OrderByDescending(x => x.CreatedAt)
                 .Where(x => x.CreatedAt > DateTime.UtcNow.AddMinutes(-minutes))
-                .Where(x => !People.Staff.ContainsKey(x.Author.Id)) // Exclude staff
                 .Where(x => {
                     if (x.Author is SocketGuildUser guildUser) {
-                        return guildUser.Roles.Any(r => r.Id == 508752510216044547); // Non-sub
+                        if (guildUser.Roles.Any(r => WubbysFunHouse.DiscordStaffRoles.Contains(r.Id))) {
+                            return false;
+                        } else if (guildUser.Roles.Any(r => r.Id == WubbysFunHouse.NonSubRoleId)) {
+                            return true;
+                        } else if (guildUser.Roles.Count == 0) {
+                            return true;
+                        } else {
+                            return false;
+                        }
                     } else {
                         return false;
                     }
@@ -133,10 +139,17 @@ namespace HeadNonSub.Clients.Discord.Commands {
             IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(1200).Flatten();
             IEnumerable<IMessage> messagesToDelete = messages.OrderByDescending(x => x.CreatedAt)
                 .Where(x => x.CreatedAt > DateTime.UtcNow.AddMinutes(-minutes))
-                .Where(x => !People.Staff.ContainsKey(x.Author.Id)) // Exclude staff
                 .Where(x => {
                     if (x.Author is SocketGuildUser guildUser) {
-                        return guildUser.Roles.Any(r => r.Id == 508752510216044547); // Non-sub
+                        if (guildUser.Roles.Any(r => WubbysFunHouse.DiscordStaffRoles.Contains(r.Id))) {
+                            return false;
+                        } else if (guildUser.Roles.Any(r => r.Id == WubbysFunHouse.NonSubRoleId)) {
+                            return true;
+                        } else if (guildUser.Roles.Count == 0) {
+                            return true;
+                        } else {
+                            return false;
+                        }
                     } else {
                         return false;
                     }
@@ -185,10 +198,17 @@ namespace HeadNonSub.Clients.Discord.Commands {
             IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(1200).Flatten();
             IEnumerable<SocketGuildUser> usersToBan = messages.OrderByDescending(x => x.CreatedAt)
                 .Where(x => x.CreatedAt > DateTime.UtcNow.AddMinutes(-minutes))
-                .Where(x => !People.Staff.ContainsKey(x.Author.Id)) // Exclude staff
                 .Where(x => {
                     if (x.Author is SocketGuildUser guildUser) {
-                        return guildUser.Roles.Any(r => r.Id == 508752510216044547); // Non-sub
+                        if (guildUser.Roles.Any(r => WubbysFunHouse.DiscordStaffRoles.Contains(r.Id))) {
+                            return false;
+                        } else if (guildUser.Roles.Any(r => r.Id == WubbysFunHouse.NonSubRoleId)) {
+                            return true;
+                        } else if (guildUser.Roles.Count == 0) {
+                            return true;
+                        } else {
+                            return false;
+                        }
                     } else {
                         return false;
                     }

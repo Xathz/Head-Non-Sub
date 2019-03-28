@@ -55,7 +55,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         }
 
         [Command("good bot")]
-        [AllowedUsers(227088829079617536)] // Xathz
+        [XathzOnly]
         public Task GoodBot() {
 
             List<string> responses = new List<string> {

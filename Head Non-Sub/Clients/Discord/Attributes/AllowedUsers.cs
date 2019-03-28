@@ -18,7 +18,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
             if (_AllowedUsers.Contains(context.User.Id)) {
                 return Task.FromResult(PreconditionResult.FromSuccess());
             } else {
-                return Task.FromResult(PreconditionResult.FromError($"{context.User.Mention} you can not use that command."));
+                return Task.FromResult(PreconditionResult.FromError($"{context.User.Mention} you are not allowed to run this command."));
             }
         }
 

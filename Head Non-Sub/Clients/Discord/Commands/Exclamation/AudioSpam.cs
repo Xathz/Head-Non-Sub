@@ -9,7 +9,7 @@ using HeadNonSub.Clients.Discord.Services;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
-    [BlacklistEnforced, OwnerAdminWhitelist]
+    [BlacklistEnforced, XathzOnly]
     [RequireContext(ContextType.Guild)]
     public class AudioSpam : BetterModuleBase {
 

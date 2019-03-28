@@ -139,7 +139,7 @@ namespace HeadNonSub.Clients.Twitch {
             TwitchStream stream = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == streamOnline.Channel.ToLower()).FirstOrDefault();
 
             // Wubby only, hes special
-            if (streamOnline.Channel.ToLower() == Constants.PaymoneyWubby) {
+            if (streamOnline.Channel.ToLower() == "paymoneywubby") {
                 _ = Discord.DiscordClient.SetStatus($"Watching PaymoneyWubby!", $"https://twitch.tv/paymoneywubby");
                 _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, streamOnline.Stream.ThumbnailUrl, $"{stream.DisplayName} is now live!", streamOnline.Stream.Title, true);
             } else {
@@ -157,7 +157,7 @@ namespace HeadNonSub.Clients.Twitch {
             TwitchStream stream = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == streamOffline.Channel.ToLower()).FirstOrDefault();
 
             // Wubby only, hes special
-            if (streamOffline.Channel.ToLower() == Constants.PaymoneyWubby) {
+            if (streamOffline.Channel.ToLower() == "paymoneywubby") {
                 _ = Discord.DiscordClient.SetStatus();
             }
             _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, null, $"{stream.DisplayName} is now offline", "Thanks for watching");

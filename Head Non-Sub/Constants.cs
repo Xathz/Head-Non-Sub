@@ -43,9 +43,19 @@ namespace HeadNonSub {
         public const string DateTimeFormatShort = "MM/dd/yyyy hh:mm tt";
 
         /// <summary>
-        /// PaymoneyWubby, now in constant form! 
+        /// Wubby's Fun House.
         /// </summary>
-        public const string PaymoneyWubby = "paymoneywubby";
+        public const ulong WubbyDiscordGuild = 328300333010911242;
+
+        /// <summary>
+        /// Xathz's Dev Emporium.
+        /// </summary>
+        public const ulong XathzDiscordGuild = 337715715668705291;
+
+        /// <summary>
+        /// Xathz's user id.
+        /// </summary>
+        public const ulong XathzUserId = 227088829079617536;
 
         /// <summary>
         /// Loading gif url.

@@ -5,15 +5,12 @@ using System.Net;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using HeadNonSub.Clients.Discord.Attributes;
 using Humanizer;
 using Newtonsoft.Json;
 using StreamlabsEntities = HeadNonSub.Entities.Streamlabs.v6.Tip;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
-    // Wubby's Fun House
-    [BlacklistEnforced, AllowedGuilds(328300333010911242)]
     [RequireContext(ContextType.Guild)]
     public class Streamlabs : BetterModuleBase {
 

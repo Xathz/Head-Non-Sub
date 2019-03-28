@@ -37,12 +37,6 @@ namespace HeadNonSub.Clients.Discord {
             await _Commands.AddModuleAsync<Commands.Exclamation.Streamlabs>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.TTS>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.UserNotes>(_Services);
-
-            // Guild specific: Cam’s Pocket (528475747334225925)
-            await _Commands.AddModuleAsync<Commands.Exclamation.GuildSpecific.CamsPocket> (_Services);
-
-            // Guild specific: Claire's Trash Pandas (471045301407449088)
-            await _Commands.AddModuleAsync<Commands.Exclamation.GuildSpecific.ClairesTrashPandas>(_Services);
         }
 
         private async Task MessageReceived(SocketMessage socketMessage) {
