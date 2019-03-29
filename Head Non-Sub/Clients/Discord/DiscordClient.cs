@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using Discord;
@@ -57,11 +58,18 @@ namespace HeadNonSub.Clients.Discord {
             _ExclamationProvider.GetRequiredService<CommandService>().Log += Log;
 
             await _MentionProvider.GetRequiredService<MentionCommands>().InitializeAsync();
+            MentionCommandList = _MentionProvider.GetRequiredService<MentionCommands>().CommandList;
+
             await _ExclamationProvider.GetRequiredService<ExclamationCommands>().InitializeAsync();
+            ExclamationCommandList = _ExclamationProvider.GetRequiredService<ExclamationCommands>().CommandList;
 
             await _DiscordClient.LoginAsync(TokenType.Bot, SettingsManager.Configuration.DiscordToken);
             await _DiscordClient.StartAsync();
         }
+
+        public static ReadOnlyCollection<CommandInfo> MentionCommandList { get; private set; }
+
+        public static ReadOnlyCollection<CommandInfo> ExclamationCommandList { get; private set; }
 
         public static async Task StopAsync() => await _DiscordClient.StopAsync();
 

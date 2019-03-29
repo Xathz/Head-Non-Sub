@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -28,7 +30,11 @@ namespace HeadNonSub.Clients.Discord {
             await _Commands.AddModuleAsync<Commands.Help>(_Services);
             await _Commands.AddModuleAsync<Commands.RaidRecovery>(_Services);
             await _Commands.AddModuleAsync<Commands.Tools>(_Services);
+
+            CommandList = _Commands.Commands.ToList().AsReadOnly();
         }
+
+        public ReadOnlyCollection<CommandInfo> CommandList { get; private set; }
 
         private async Task MessageReceived(SocketMessage socketMessage) {
             if (!(socketMessage is SocketUserMessage message)) { return; }
