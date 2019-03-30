@@ -11,9 +11,9 @@
 ### Users
 
 `<user>` parameter is **one** of
-- `<user mention>` Exmaple: `@User`
-- `<username#delimiter>` Exmaple: `User#1234`
-- `<userid>` Exmaple: `112233445566778899`
+- `<user mention>` Example: `@User`
+- `<username#delimiter>` Example: `User#1234`
+- `<userid>` Example: `112233445566778899`
 
 If using `<username#delimiter>` and the username contains a space, it must be encased in double quotes
 - `"<username#delimiter>"`
@@ -47,14 +47,14 @@ Command | Parameters | Description | Access
 `tts4` | `<text>` | Text to speech voice. **Voice:** Mizuki | All
 `prices` | | The donation prices for media share and special events on [PaymoneyWubby](https://wub.by/ttv)'s stream. **Aliases:** `mediashare` | All
 `stock` | | Get the [TwitchStocks](https://twitchstocks.com/stock/pymny) value of [PaymoneyWubby](https://wub.by/ttv)'s stock | All
-`strawpoll` | `<title>` \| `<option 1>` \| `<option 2>` etc.. | Make a [Straw Poll](https://www.strawpoll.me). Title and options are seperated by a pipe `|` | All
+`strawpoll` | `<title>` \| `<option 1>` \| `<option 2>` etc.. | Make a [Straw Poll](https://www.strawpoll.me). Title and options are seperated by a pipe `\|` | All
 `strawpollresults` | `<url>` | Get the results of a [Straw Poll](https://www.strawpoll.me). **Alias:** `strawpollr` | All
 `randomsong` | | Random song that Rythm Bot or Rythm Bot 2 has played | All
 `rave` | `<text>` | Crab rave your words | Sub
 `ravve` | | Dancing crabs... poorly | Sub
 `ravestop` | | Stop all raves. **Aliases:** `stoprave`, `stopraves` | Staff
 `raveundo` | `<count>` | Delete `x` most recent rave messages. **Aliases:** `undorave`, `undoraves` | Staff
-`executie` | `<user>` `<reason>` | A parody of the `!execute` command in WubbyBot | All
+`executie` | `<user>` `<reason>` | A parody of the `!execute` command in [WubbyBot](https://github.com/tt2468/WubbyBot) | All
 `dating` | | Haha. **Aliases:** `speeddating`, `datenight` | All
 `randomclip` | | Get a random [PaymoneyWubby](https://wub.by/ttv) Twitch clip | All
 `addnote` | `<user>` `<note>` | Add a note to a user | Staff
