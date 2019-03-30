@@ -56,7 +56,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("list")]
         public Task BlacklistList() {
-            IEnumerable<ulong> userIds = SettingsManager.Configuration.DiscordWhitelist.Where(x => x.Key == Context.Guild.Id).SelectMany(x => x.Value);
+            IEnumerable<ulong> userIds = SettingsManager.Configuration.DiscordBlacklist.Where(x => x.Key == Context.Guild.Id).SelectMany(x => x.Value);
 
             if (userIds.Count() > 0) {
                 IEnumerable<SocketGuildUser> users = Context.Guild.Users.Where(x => userIds.Contains(x.Id));
