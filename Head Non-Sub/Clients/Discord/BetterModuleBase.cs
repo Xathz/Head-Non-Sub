@@ -19,7 +19,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="userId">User id to convert to a socket user.</param>
         public SocketUser UserFromUserId(ulong userId) {
             try {
-                return Context.Client.GetUser(userId);
+                return Context.Guild.GetUser(userId);
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
                 return null;
