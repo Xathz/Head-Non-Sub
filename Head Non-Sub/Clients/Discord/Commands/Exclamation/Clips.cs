@@ -13,17 +13,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     public class Clips : BetterModuleBase {
 
         [Command("randomclip")]
-        public Task RandomClip([Remainder]string channel = "") {
+        public Task RandomClip([Remainder]string channel = "paymoneywubby") {
             string twitchChannel = channel.ToLower();
-
-            // TODO Come up with a better way to do this
-            if (string.IsNullOrEmpty(twitchChannel)) {
-                if (Context.Guild.Id == 328300333010911242) { // Wubby's Fun House
-                    twitchChannel = "paymoneywubby";
-                } else if (Context.Guild.Id == 471045301407449088) { // Claire's Trash Pandas
-                    twitchChannel = "clairebere";
-                }
-            }
 
             try {
                 List<(DateTime createdAt, string title, int viewCount, string url)> clips;

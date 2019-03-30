@@ -16,9 +16,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 Title = $"{Context.Client.CurrentUser.Username} Information and Commands"
             };
 
-            builder.AddField("Information", "Some commands are hidden :eyes:");
-
-            builder.AddField("Commands", "There are too many at this point to keep updating the help command... good luck.");
+            builder.AddField("Commands", $"There are too many to list here, [click here for the list]({Constants.CommandsHelpUrl}).");
 
             builder.Footer = new EmbedFooterBuilder() {
                 Text = $"{Constants.ApplicationName} by {Constants.Creator}"
