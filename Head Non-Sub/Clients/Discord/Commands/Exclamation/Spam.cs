@@ -74,6 +74,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(20)]
         public Task DickdownDennis() => BetterSendFileAsync(Cache.GetStream("dickdowndennis.png"), "dickdowndennis.png", $"● {BetterUserFormat()}");
 
+        [Command("dab")]
+        [Cooldown(20)]
+        public Task Dab() => BetterSendFileAsync(Cache.GetStream("dab.gif"), "dab.gif", $"● {BetterUserFormat()}");
+
         [Command("youareallretarded")]
         [Cooldown(120)]
         public Task AllRetarded() {
