@@ -86,11 +86,11 @@ namespace HeadNonSub.Clients.Discord {
                         break;
 
                     case CommandError.BadArgCount:
-                        await context.Channel.SendMessageAsync($"{context.User.Mention} Invalid... whatever you tried to do. Type `-claim <command> <whatever>` to claim one. Be careful because you can only claim **one**.");
+                        await context.Channel.SendMessageAsync($"{context.User.Mention} Invalid... whatever you tried to do. Type `-claim <command> <whatever>` to claim one. Choose wisely because you can only claim **one**.");
                         break;
 
                     case CommandError.UnknownCommand:
-                        await context.Channel.SendMessageAsync($"{context.User.Mention} `{command.Value}` is not claimed. Type `-claim <command> <whatever>` to claim one. Be careful because you can only claim **one**.");
+                        await context.Channel.SendMessageAsync($"{context.User.Mention} `{command.Value}` is not claimed. Type `-claim <command> <whatever>` to claim one. Choose wisely because you can only claim **one**.");
                         break;
 
                     default:
