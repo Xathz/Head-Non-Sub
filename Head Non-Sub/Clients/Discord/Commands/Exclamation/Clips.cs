@@ -14,6 +14,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("randomclip")]
         public Task RandomClip([Remainder]string channel = "paymoneywubby") {
+            Context.Channel.TriggerTypingAsync();
+
             string twitchChannel = channel.ToLower();
 
             try {

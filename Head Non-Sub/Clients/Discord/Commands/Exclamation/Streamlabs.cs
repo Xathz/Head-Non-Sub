@@ -16,6 +16,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("prices"), Alias("mediashare")]
         public Task Prices([Remainder]string input = "") {
+            Context.Channel.TriggerTypingAsync();
+
             bool fromCache = false;
             StreamlabsEntities.Tip streamlabsTip;
 

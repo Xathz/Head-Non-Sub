@@ -16,6 +16,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("ttsays")]
         public Task TTSays([Remainder]string input) {
+            Context.Channel.TriggerTypingAsync();
 
             using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("ttsays.png"))) {
@@ -45,6 +46,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("1024says")]
         public Task TenTwentyFourSays([Remainder]string input) {
+            Context.Channel.TriggerTypingAsync();
 
             using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("1024says.png"))) {
@@ -76,6 +78,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("amandasays")]
         public Task AmandaSays([Remainder]string input) {
+            Context.Channel.TriggerTypingAsync();
 
             using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("amandasays.png"))) {
@@ -105,6 +108,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("satasays")]
         public Task SataSays([Remainder]string input) {
+            Context.Channel.TriggerTypingAsync();
 
             using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("satasays.png"))) {
@@ -134,6 +138,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("jibersays")]
         public Task JiberSays([Remainder]string input) {
+            Context.Channel.TriggerTypingAsync();
 
             using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("jibersays.png"))) {
@@ -163,6 +168,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("sbsays")]
         public Task StrongBadSays([Remainder]string input) {
+            Context.Channel.TriggerTypingAsync();
 
             using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("strongbadsays.png")))

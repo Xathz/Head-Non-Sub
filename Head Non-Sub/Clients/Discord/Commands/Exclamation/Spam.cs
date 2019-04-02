@@ -46,7 +46,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("star")]
         [Cooldown(20)]
-        public Task Star() => BetterSendFileAsync(Cache.GetStream("star.gif"), "star.gif", $"● {BetterUserFormat()}");
+        public Task Star() {
+            Context.Channel.TriggerTypingAsync();
+            return BetterSendFileAsync(Cache.GetStream("star.gif"), "star.gif", $"● {BetterUserFormat()}");
+        }
 
         [Command("gongboy")]
         [Cooldown(20)]
@@ -76,7 +79,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("dab")]
         [Cooldown(20)]
-        public Task Dab() => BetterSendFileAsync(Cache.GetStream("dab.gif"), "dab.gif", $"● {BetterUserFormat()}");
+        public Task Dab() {
+            Context.Channel.TriggerTypingAsync();
+            return BetterSendFileAsync(Cache.GetStream("dab.gif"), "dab.gif", $"● {BetterUserFormat()}");
+        }
 
         [Command("youareallretarded")]
         [Cooldown(120)]

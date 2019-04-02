@@ -18,6 +18,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("stock")]
         public Task PaymoneyWubbyStock() {
+            Context.Channel.TriggerTypingAsync();
+
             bool fromCache = false;
             KeyValuePair<long, double> recent;
 

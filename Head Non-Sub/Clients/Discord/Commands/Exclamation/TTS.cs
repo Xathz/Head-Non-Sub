@@ -44,6 +44,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         private void GenerateAndSend(string text, string command, string voice) {
+            Context.Channel.TriggerTypingAsync();
+
             string clean = text.RemoveNewLines();
 
             if (string.IsNullOrWhiteSpace(clean)) {
