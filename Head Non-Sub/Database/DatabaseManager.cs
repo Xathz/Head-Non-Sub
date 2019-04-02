@@ -96,6 +96,15 @@ namespace HeadNonSub.Database {
             }
         }
 
+        public static Dictionary<string, string> GetDynamicCommands() {
+            try {
+                return _Database.DynamicCommands.Select(x => new { x.Command, x.Text }).ToDictionary(x => x.Command, x => x.Text);
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return new Dictionary<string, string>();
+            }
+        }
+
     }
 
 }

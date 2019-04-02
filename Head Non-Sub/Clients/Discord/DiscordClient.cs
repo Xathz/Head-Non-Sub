@@ -25,6 +25,9 @@ namespace HeadNonSub.Clients.Discord {
         private static IServiceProvider _ExclamationProvider;
         private static readonly CommandService _ExclamationService = new CommandService(_ServiceConfig);
 
+        private static IServiceProvider _DynamicProvider;
+        private static readonly CommandService _DynamicService = new CommandService(_ServiceConfig);
+
         public static async Task ConnectAsync() {
             _DiscordConfig = new DiscordSocketConfig {
                 DefaultRetryMode = RetryMode.RetryRatelimit,
@@ -45,6 +48,11 @@ namespace HeadNonSub.Clients.Discord {
                 .AddSingleton<ExclamationCommands>()
                 .BuildServiceProvider();
 
+            _DynamicProvider = new ServiceCollection().AddSingleton(_DiscordClient)
+                .AddSingleton(_DynamicService)
+                .AddSingleton<DynamicCommands>()
+                .BuildServiceProvider();
+
             _DiscordClient.Log += Log;
             _DiscordClient.Connected += Connected;
 
@@ -56,6 +64,7 @@ namespace HeadNonSub.Clients.Discord {
 
             _MentionProvider.GetRequiredService<CommandService>().Log += Log;
             _ExclamationProvider.GetRequiredService<CommandService>().Log += Log;
+            _DynamicProvider.GetRequiredService<CommandService>().Log += Log;
 
             await _MentionProvider.GetRequiredService<MentionCommands>().InitializeAsync();
             MentionCommandList = _MentionProvider.GetRequiredService<MentionCommands>().CommandList;

@@ -8,6 +8,7 @@ namespace HeadNonSub.Database {
     public class DatabaseContext : DbContext {
 
         public DbSet<UserNote> UserNotes { get; set; }
+        public DbSet<DynamicCommand> DynamicCommands { get; set; }
 
         public DatabaseContext() {
             try {
@@ -41,6 +42,9 @@ namespace HeadNonSub.Database {
                 modelBuilder.Entity<UserNote>().HasKey(x => new { x.ServerId, x.UserId });
 
                 modelBuilder.ApplyConfiguration(new UserNoteConfiguration());
+
+                modelBuilder.Entity<DynamicCommand>().ToTable("dynamic_commands");
+                modelBuilder.Entity<DynamicCommand>().HasKey(x => x.OwnerId);
 
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
