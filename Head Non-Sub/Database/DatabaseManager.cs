@@ -110,7 +110,7 @@ namespace HeadNonSub.Database {
                 if (_Database.DynamicCommands.AsNoTracking().Any(x => x.OwnerId == ownerId)) {
                     return (false, "You have already claimed a command!");
                 } else if (_Database.DynamicCommands.AsNoTracking().Any(x => x.Command == command)) {
-                    return (false, $"`-{command}` already exists.");
+                    return (false, $"`-{command}` was already claimed.");
                 } else {
                     _Database.DynamicCommands.Add(new DynamicCommand { OwnerId = ownerId, DateTime = DateTime.UtcNow, Command = command, Text = text });
 
@@ -120,7 +120,7 @@ namespace HeadNonSub.Database {
                 }
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
-                return (false, $"There was an error claiming the command `-{command}`.");
+                return (false, $"There was an error claiming `-{command}`.");
             }
         }
 

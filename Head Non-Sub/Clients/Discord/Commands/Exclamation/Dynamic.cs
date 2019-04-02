@@ -12,7 +12,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         private readonly DynamicCommands _DynamicCommands;
 
-        private readonly List<string> _ProtectedCommands = new List<string>() { "claim", "abandon", "reclaim", "who", "command", "cmd", "delete" };
+        private readonly List<string> _ProtectedCommands = new List<string>() { "claim", "abandon", "reclaim", "who", "command", "cmd", "delete", "list" };
 
         public Dynamic(DynamicCommands service) => _DynamicCommands = service;
 
@@ -26,7 +26,17 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 return BetterReplyAsync($"{Context.User.Mention} `-{cleanCommand}` is a protected command you can not claim.");
             }
 
-            (bool successful, string reason) = _DynamicCommands.AddCommand(Context.User.Id, cleanCommand, text).Result;
+            string cleanText = text.Trim();
+
+            if (cleanCommand.Length > 50) {
+                return BetterReplyAsync($"{Context.User.Mention} The `-<command>` must be 50 characters or shorter.");
+            }
+
+            if (cleanText.Length > 1800) {
+                return BetterReplyAsync($"{Context.User.Mention} The `<whatever>` must be 1,800 characters or shorter.");
+            }
+
+            (bool successful, string reason) = _DynamicCommands.AddCommand(Context.User.Id, cleanCommand, cleanText).Result;
 
             return BetterReplyAsync($"{Context.User.Mention} {reason}");
         }
