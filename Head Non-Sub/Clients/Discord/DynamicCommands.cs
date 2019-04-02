@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Database;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -28,23 +29,36 @@ namespace HeadNonSub.Clients.Discord {
             _DiscordClient.MessageReceived += MessageReceived;
         }
 
+        public async Task InitializeAsync() => await _Commands.AddModuleAsync<Commands.Exclamation.Dynamic>(_Services);
+
+        public async Task<(bool successful, string reason)> AddCommand(ulong ownerId, string command, string text) {
+            (bool successful, string reason) = DatabaseManager.InsertDynamicCommand(ownerId, command, text);
+
+            if (successful) {
+                await BuildCommands();
+            }
+
+            return (successful, reason);
+        }
+
         public async Task BuildCommands() {
             if (_DynamicModule != null) {
                 await _Commands.RemoveModuleAsync(_DynamicModule);
             }
 
             _DynamicModule = await _Commands.CreateModuleAsync("", module => {
-                module.Name = "Dynamic";
+                module.Name = "DynamicCommands";
 
                 foreach (KeyValuePair<string, string> command in DatabaseManager.GetDynamicCommands()) {
-
                     module.AddCommand(command.Key, async (context, args, info, task) => {
                         await context.Channel.SendMessageAsync(command.Value);
                     }, builder => {
-                        //builder.AddAliases(tag.Aliases.ToArray());
+                        builder.WithPriority(1);
+                        builder.AddPrecondition(new BlacklistEnforced());
+                        builder.AddPrecondition(new SubscriberOnly());
+                        builder.AddPrecondition(new AllowedChannels(WubbysFunHouse.ActualFuckingSpamChannelId));
                     });
                 }
-
             });
         }
 
@@ -71,12 +85,12 @@ namespace HeadNonSub.Clients.Discord {
                         await context.Channel.SendMessageAsync(result.ErrorReason);
                         break;
 
-                    case CommandError.ObjectNotFound:
-                        await context.Channel.SendMessageAsync(result.ErrorReason);
+                    case CommandError.BadArgCount:
+                        await context.Channel.SendMessageAsync($"{context.User.Mention} Invalid... whatever you tried to do. Type `-claim <command> <whatever>` to claim one. Be careful because you can only claim **one**.");
                         break;
 
-                    case CommandError.ParseFailed:
-                        await context.Channel.SendMessageAsync(result.ErrorReason);
+                    case CommandError.UnknownCommand:
+                        await context.Channel.SendMessageAsync($"{context.User.Mention} `{command.Value}` is not claimed. Type `-claim <command> <whatever>` to claim one. Be careful because you can only claim **one**.");
                         break;
 
                     default:

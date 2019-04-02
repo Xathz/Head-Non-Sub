@@ -105,6 +105,38 @@ namespace HeadNonSub.Database {
             }
         }
 
+        public static (bool successful, string reason) InsertDynamicCommand(ulong ownerId, string command, string text) {
+            try {
+                if (_Database.DynamicCommands.AsNoTracking().Any(x => x.OwnerId == ownerId)) {
+                    return (false, "You have already claimed a command!");
+                } else if (_Database.DynamicCommands.AsNoTracking().Any(x => x.Command == command)) {
+                    return (false, $"`-{command}` already exists.");
+                } else {
+                    _Database.DynamicCommands.Add(new DynamicCommand { OwnerId = ownerId, DateTime = DateTime.UtcNow, Command = command, Text = text });
+
+                    _Database.SaveChanges();
+
+                    return (true, $"`-{command}` claimed successfully!");
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return (false, $"There was an error claiming the command `-{command}`.");
+            }
+        }
+
+        public static ulong? WhoDynamicCommand(string command) {
+            try {
+                if (_Database.DynamicCommands.AsNoTracking().Any(x => x.Command == command)) {
+                    return _Database.DynamicCommands.Where(x => x.Command == command).Select(x => x.OwnerId).FirstOrDefault();
+                } else {
+                    return null;
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return null;
+            }
+        }
+
     }
 
 }

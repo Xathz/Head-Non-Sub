@@ -72,6 +72,8 @@ namespace HeadNonSub.Clients.Discord {
             await _ExclamationProvider.GetRequiredService<ExclamationCommands>().InitializeAsync();
             ExclamationCommandList = _ExclamationProvider.GetRequiredService<ExclamationCommands>().CommandList;
 
+            await _DynamicProvider.GetRequiredService<DynamicCommands>().InitializeAsync();
+
             await _DiscordClient.LoginAsync(TokenType.Bot, SettingsManager.Configuration.DiscordToken);
             await _DiscordClient.StartAsync();
         }
