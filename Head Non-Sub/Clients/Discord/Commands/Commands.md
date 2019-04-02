@@ -41,11 +41,11 @@ Command | Parameters | Description | Access
 `satasays` | `<text>` | Now with icecream | All
 `jibersays` | `<text>` | Wet and waiting to reflect | All
 `sbsays` | `<text>` | Strong Bad and his computer | All
-`tts` | `<text>` | Text to speech voice used on [PaymoneyWubby](https://wub.by/ttv)'s stream. **Voice:** Joanna | All
-`tts2` | `<text>` | Text to speech voice. **Voice:** Justin | All
-`tts3` | `<text>` | Text to speech voice. **Voice:** Brian | All
-`tts4` | `<text>` | Text to speech voice. **Voice:** Mizuki | All
-`prices` | | The donation prices for media share and special events on [PaymoneyWubby](https://wub.by/ttv)'s stream. **Aliases:** `mediashare` | All
+`tts` | `<text>` | Text to speech voice used on [PaymoneyWubby](https://wub.by/ttv)'s stream. **Voice:** Joanna | Sub
+`tts2` | `<text>` | Text to speech voice. **Voice:** Justin | Sub
+`tts3` | `<text>` | Text to speech voice. **Voice:** Brian | Sub
+`tts4` | `<text>` | Text to speech voice. **Voice:** Mizuki | Sub
+`prices` | | The donation prices for media share and special events on [PaymoneyWubby](https://wub.by/ttv)'s stream. **Alias:** `mediashare` | All
 `stock` | | Get the [TwitchStocks](https://twitchstocks.com/stock/pymny) value of [PaymoneyWubby](https://wub.by/ttv)'s stock | All
 `strawpoll` | `<title>` \| `<option 1>` \| `<option 2>` etc.. | Make a [Straw Poll](https://www.strawpoll.me). Title and options are seperated by a pipe `\|` | All
 `strawpollresults` | `<url>` | Get the results of a [Straw Poll](https://www.strawpoll.me). **Alias:** `strawpollr` | All

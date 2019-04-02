@@ -11,33 +11,33 @@ using Newtonsoft.Json;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
-    [BlacklistEnforced]
+    [BlacklistEnforced, SubscriberOnly]
     [RequireContext(ContextType.Guild)]
     public class TTS : BetterModuleBase {
 
         [Command("tts")]
-        [Cooldown(60)]
+        [Cooldown(30, true)]
         public Task Joanna([Remainder]string input) {
             GenerateAndSend(input, "tts", "Joanna");
             return Task.CompletedTask;
         }
 
         [Command("tts2")]
-        [Cooldown(60)]
+        [Cooldown(30, true)]
         public Task Justin([Remainder]string input) {
             GenerateAndSend(input, "tts2", "Justin");
             return Task.CompletedTask;
         }
 
         [Command("tts3")]
-        [Cooldown(60)]
+        [Cooldown(30, true)]
         public Task Brian([Remainder]string input) {
             GenerateAndSend(input, "tts3", "Brian");
             return Task.CompletedTask;
         }
 
         [Command("tts4")]
-        [Cooldown(60)]
+        [Cooldown(30, true)]
         public Task Mizuki([Remainder]string input) {
             GenerateAndSend(input, "tts4", "Mizuki");
             return Task.CompletedTask;
