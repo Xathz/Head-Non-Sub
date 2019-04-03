@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -27,6 +29,8 @@ namespace HeadNonSub.Clients.Discord {
 
         private static IServiceProvider _DynamicProvider;
         private static readonly CommandService _DynamicService = new CommandService(_ServiceConfig);
+
+        private static readonly List<string> _ValidPolls = new List<string>() { "poll:", "!strawpoll", "!strawpollresults", "!strawpollr", "!trashpoll" };
 
         public static async Task ConnectAsync() {
             _DiscordConfig = new DiscordSocketConfig {
@@ -213,10 +217,33 @@ namespace HeadNonSub.Clients.Discord {
 
         private static async Task MessageReceived(SocketMessage socketMessage) {
             if (!(socketMessage is SocketUserMessage message)) { return; }
-            if (!(socketMessage.Channel is IPrivateChannel channel)) { return; }
             if (socketMessage.Source != MessageSource.User) { return; }
 
-            await message.Channel.SendMessageAsync($"No commands are available via direct message. Please @ the bot (`@{_DiscordClient.CurrentUser.Username}`) on the server.");
+            if (socketMessage.Channel is IPrivateChannel channel) {
+                await message.Channel.SendMessageAsync($"No commands are available via direct message. Please @ the bot (`@{_DiscordClient.CurrentUser.Username}`) on the server.");
+                return;
+            }
+
+            // If message author is a staff member skip the rest of statement
+            if (message.Author is SocketGuildUser user) {
+                if (user.Roles.Any(x => WubbysFunHouse.DiscordStaffRoles.Contains(x.Id))) {
+                    return;
+                }
+            }
+
+            // =====================================================
+
+            try {
+                if (message.Channel.Id == WubbysFunHouse.MarketResearchChannelId) {
+                    if (!_ValidPolls.Any(x => message.Content.Contains(x, StringComparison.OrdinalIgnoreCase))) {
+                        LoggingManager.Log.Info($"Invalid poll in #{_DiscordClient.GetGuild(WubbysFunHouse.ServerId).GetChannel(WubbysFunHouse.MarketResearchChannelId).Name} by {message.Author.ToString()} ({message.Author.Id})");
+                        await message.DeleteAsync();
+                        await message.Author.SendMessageAsync($"You can only post polls in #{_DiscordClient.GetGuild(WubbysFunHouse.ServerId).GetChannel(WubbysFunHouse.MarketResearchChannelId).Name} on {_DiscordClient.GetGuild(WubbysFunHouse.ServerId).Name}.");
+                    }
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+            }
         }
 
     }

@@ -8,6 +8,8 @@ namespace HeadNonSub.Clients.Discord {
     /// </summary>
     public static class WubbysFunHouse {
 
+        public const ulong ServerId = 328300333010911242;
+
         public const ulong AdminsRoleId = 372244721625464845;
 
         public const ulong ModsRoleId = 336022934621519874;
@@ -37,6 +39,8 @@ namespace HeadNonSub.Clients.Discord {
         public static readonly ReadOnlyCollection<ulong> AllStaffRoles = new ReadOnlyCollection<ulong>(new List<ulong> { AdminsRoleId, ModsRoleId, ModLiteRoleId, TwitchModRoleId, SubredditModRoleId });
 
         public const ulong ActualFuckingSpamChannelId = 537727672747294738;
+
+        public const ulong MarketResearchChannelId = 526223101101604873;
 
     }
 
