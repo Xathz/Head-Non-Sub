@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
     [RequireBotPermission(GuildPermission.ManageChannels, ErrorMessage = "I do not have the `Manage Channels` permission, raid recovery can not be used.")]
     public class RaidRecovery : BetterModuleBase {
 
-        private readonly int _MessageThreshold = 5;
+        private readonly int _MessageThreshold = 3;
 
         [Command("enable")]
         public Task Enable() {
@@ -39,9 +40,9 @@ namespace HeadNonSub.Clients.Discord.Commands {
             builder.AddField("Commands", string.Join(Environment.NewLine, new string[] {
                 $"Commands are used `@{Context.Guild.CurrentUser.Username} rr <command>`",
                 "`disable` Disable raid recovery mode",
-                "`list <minutes>` List all users involved in the past # minutes",
-                "`clean <minutes>` Remove all messages from involved users from the past # minutes",
-                "`ban <minutes>` Ban all users involved in the past # minutes, will prompt for confirmation" }));
+                "`list <minutes>` List suspected users from the past # minutes",
+                "`clean <minutes>` Remove messages from suspected users from the past # minutes",
+                "`ban <minutes>` Ban suspected users in the past # minutes, will prompt for confirmation" }));
 
             LoggingManager.Log.Warn($"Raid recovery mode enabled. {BetterLogFormat()}");
             return BetterReplyAsync(builder.Build());
@@ -81,33 +82,17 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
             IUserMessage message = BetterReplyAsync(embed: LoadingEmbed("Generating list"), parameters: minutes.ToString()).Result;
 
-            SocketTextChannel channel = Context.Channel as SocketTextChannel;
-            IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(1200).Flatten();
-            List<IAsyncGrouping<IUser, IMessage>> messagesPerUser = messages.OrderByDescending(x => x.CreatedAt)
+            List<IGrouping<IUser, IMessage>> messagesPerUser = GetMessages().OrderByDescending(x => x.CreatedAt)
                 .Where(x => x.CreatedAt > DateTime.UtcNow.AddMinutes(-minutes))
-                .Where(x => {
-                    if (x.Author is SocketGuildUser guildUser) {
-                        if (guildUser.Roles.Any(r => WubbysFunHouse.DiscordStaffRoles.Contains(r.Id))) {
-                            return false;
-                        } else if (guildUser.Roles.Any(r => r.Id == WubbysFunHouse.NonSubRoleId)) {
-                            return true;
-                        } else if (guildUser.Roles.Count == 0) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    } else {
-                        return false;
-                    }
-                })
+                .Where(x => IsSuspected(x.Author))
                 .GroupBy(x => x.Author)
-                .Where(x => x.Count().Result > _MessageThreshold)
-                .OrderByDescending(x => x.Count().Result)
-                .ToList().Result;
+                .Where(x => x.Count() > _MessageThreshold)
+                .OrderByDescending(x => x.Count())
+                .ToList();
 
             if (messagesPerUser.Count > 0) {
                 StringBuilder builder = new StringBuilder();
-                builder.AppendLine($"{messagesPerUser.Count} unique users sent at least {_MessageThreshold} messages within the last {minutes.Minutes().Humanize(3)}. Staff are excluded from this list.");
+                builder.AppendLine($"{messagesPerUser.Count} different users sent at least {_MessageThreshold} messages within the last {minutes.Minutes().Humanize(3)}.");
 
                 builder.AppendLine("```");
                 foreach (IAsyncGrouping<IUser, IMessage> user in messagesPerUser) {
@@ -117,7 +102,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
                 message.ModifyAsync(x => { x.Embed = null; x.Content = builder.ToString(); });
             } else {
-                message.ModifyAsync(x => { x.Embed = null; x.Content = $"There are no flagged users or messages in the past {minutes.Minutes().Humanize(3)}."; });
+                message.ModifyAsync(x => { x.Embed = null; x.Content = $"There are no suspected users from the past {minutes.Minutes().Humanize(3)}."; });
             }
 
             return Task.CompletedTask;
@@ -133,28 +118,12 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 return BetterReplyAsync("Must be between 1 and 20160 (2 weeks). Rarely should this be greater than 10 unless a raid went unnoticed for longer.", minutes.ToString());
             }
 
-            IUserMessage message = BetterReplyAsync(embed: LoadingEmbed("Deleting messages", "Staff and important bots messages will be preserved."), parameters: minutes.ToString()).Result;
+            IUserMessage message = BetterReplyAsync(embed: LoadingEmbed("Deleting messages", "Staff messages will be preserved."), parameters: minutes.ToString()).Result;
 
             SocketTextChannel channel = Context.Channel as SocketTextChannel;
-            IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(1200).Flatten();
-            IEnumerable<IMessage> messagesToDelete = messages.OrderByDescending(x => x.CreatedAt)
+            IEnumerable<IMessage> messagesToDelete = GetMessages().OrderByDescending(x => x.CreatedAt)
                 .Where(x => x.CreatedAt > DateTime.UtcNow.AddMinutes(-minutes))
-                .Where(x => {
-                    if (x.Author is SocketGuildUser guildUser) {
-                        if (guildUser.Roles.Any(r => WubbysFunHouse.DiscordStaffRoles.Contains(r.Id))) {
-                            return false;
-                        } else if (guildUser.Roles.Any(r => r.Id == WubbysFunHouse.NonSubRoleId)) {
-                            return true;
-                        } else if (guildUser.Roles.Count == 0) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    } else {
-                        return false;
-                    }
-                })
-                .ToEnumerable();
+                .Where(x => IsSuspected(x.Author));
 
             channel.DeleteMessagesAsync(messagesToDelete).Wait();
 
@@ -192,32 +161,15 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 }
             }
 
-            IUserMessage message = BetterReplyAsync(embed: LoadingEmbed("Generating list of users to ban", "All staff and important bots are safe."), parameters: minutes.ToString()).Result;
+            IUserMessage message = BetterReplyAsync(embed: LoadingEmbed("Generating list of users to ban"), parameters: minutes.ToString()).Result;
 
-            SocketTextChannel channel = Context.Channel as SocketTextChannel;
-            IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(1200).Flatten();
-            IEnumerable<SocketGuildUser> usersToBan = messages.OrderByDescending(x => x.CreatedAt)
+            IEnumerable<IUser> usersToBan = GetMessages().OrderByDescending(x => x.CreatedAt)
                 .Where(x => x.CreatedAt > DateTime.UtcNow.AddMinutes(-minutes))
-                .Where(x => {
-                    if (x.Author is SocketGuildUser guildUser) {
-                        if (guildUser.Roles.Any(r => WubbysFunHouse.DiscordStaffRoles.Contains(r.Id))) {
-                            return false;
-                        } else if (guildUser.Roles.Any(r => r.Id == WubbysFunHouse.NonSubRoleId)) {
-                            return true;
-                        } else if (guildUser.Roles.Count == 0) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    } else {
-                        return false;
-                    }
-                })
+                .Where(x => IsSuspected(x.Author))
                 .GroupBy(x => x.Author)
-                .Where(x => (x as IAsyncGrouping<IUser, IMessage>).Count().Result > _MessageThreshold)
-                .Select(x => (x as IAsyncGrouping<IUser, IMessage>).Key as SocketGuildUser)
-                .Distinct()
-                .ToEnumerable();
+                .Where(x => x.Count() > _MessageThreshold)
+                .Select(x => x.Key)
+                .Distinct();
 
             if (usersToBan.Count() > 0) {
                 RaidRecoveryTracker.AddUsersToBan(Context.Channel.Id, usersToBan.Select(x => x.Id).ToHashSet());
@@ -226,7 +178,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 builder.AppendLine($"The following {usersToBan.Count()} users will be banned.");
 
                 builder.AppendLine("```");
-                foreach (SocketGuildUser banUser in usersToBan) {
+                foreach (IUser banUser in usersToBan) {
                     builder.Append($"{banUser.ToString()}; ");
                 }
                 builder.AppendLine("```");
@@ -237,7 +189,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     $"Type `@{Context.Guild.CurrentUser.Username} rr skip @User` to remove them from the ban list.{Environment.NewLine}" +
                     $"Type `@{Context.Guild.CurrentUser.Username} rr ban {minutes} {RaidRecoveryTracker.BanToken(Context.Channel.Id)}` to ban the users above.").Wait();
             } else {
-                message.ModifyAsync(x => { x.Embed = null; x.Content = $"There are no flagged users to ban within the past {minutes.Minutes().Humanize(3)}."; });
+                message.ModifyAsync(x => { x.Embed = null; x.Content = $"There are no suspected users to ban from the past {minutes.Minutes().Humanize(3)}."; });
             }
 
             return Task.CompletedTask;
@@ -254,6 +206,57 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 return BetterReplyAsync($"{BetterUserFormat(user)} will be skipped and **not** banned.");
             } else {
                 return BetterReplyAsync($"{BetterUserFormat(user)} was not found on the 'to ban list'.");
+            }
+        }
+
+        private ReadOnlyCollection<IMessage> GetMessages() {
+            if (Context.Channel is SocketTextChannel channel) {
+                List<IMessage> channelMessages = new List<IMessage>();
+                channel.CachedMessages.ToList().ForEach(x => {
+                    if (!channelMessages.Any(m => m.Id == x.Id)) {
+                        channelMessages.Add(x);
+                    }
+                });
+
+                if (channelMessages.Count > 0) {
+                    channel.GetMessagesAsync(channelMessages.OrderBy(x => x.CreatedAt).FirstOrDefault(), Direction.Before, 1000).Flatten().ToList().Result.ForEach(x => {
+                        if (!channelMessages.Any(m => m.Id == x.Id)) {
+                            channelMessages.Add(x);
+                        }
+                    });
+                } else {
+                    channel.GetMessagesAsync(1000).Flatten().ToList().Result.ForEach(x => {
+                        if (!channelMessages.Any(m => m.Id == x.Id)) {
+                            channelMessages.Add(x);
+                        }
+                    });
+                }
+
+                return channelMessages.ToList().AsReadOnly();
+            } else {
+                return new List<IMessage>().AsReadOnly();
+            }
+        }
+
+        private bool IsSuspected(IUser user) {
+            if (user is SocketGuildUser guildUser) {
+                if (guildUser.Roles.Count == 0) {
+                    return true;
+                } else if (guildUser.IsBot) {
+                    return false;
+                } else if (guildUser.Roles.Any(r => r.Permissions.Administrator)) {
+                    return false;
+                } else if (guildUser.Roles.Any(r => WubbysFunHouse.DiscordStaffRoles.Contains(r.Id))) {
+                    return false;
+                } else if (guildUser.Roles.Any(r => r.Id == WubbysFunHouse.NonSubRoleId)) {
+                    return true;
+                } else if (guildUser.Roles.Any(r => r.Id == WubbysFunHouse.MutedRoleId)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return true;
             }
         }
 

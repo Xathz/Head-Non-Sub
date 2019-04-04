@@ -28,6 +28,8 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong NonSubRoleId = 508752510216044547;
 
+        public const ulong MutedRoleId = 445807715655221259;
+
         /// <summary>
         /// Admins, mods, and mod-lites.
         /// </summary>
