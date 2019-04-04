@@ -62,11 +62,12 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 return BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
             }
 
-            RaidRecoveryTracker.Untrack(Context.Channel.Id);
-
+            int previousSlowModeInterval = RaidRecoveryTracker.PreviousSlowModeInterval(Context.Channel.Id);
             if (Context.Channel is SocketTextChannel channel) {
-                channel.ModifyAsync(x => { x.SlowModeInterval = 0; });
+                channel.ModifyAsync(x => { x.SlowModeInterval = previousSlowModeInterval; });
             }
+
+            RaidRecoveryTracker.Untrack(Context.Channel.Id);
 
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),

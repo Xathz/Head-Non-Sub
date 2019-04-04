@@ -119,6 +119,18 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
+        /// <summary>
+        /// Get the channel's previous slow mode interval.
+        /// </summary>
+        /// <param name="channel">Channel id.</param>
+        public static int PreviousSlowModeInterval(ulong channel) {
+            if (_ActiveChannels.ContainsKey(channel)) {
+                return _ActiveChannels[channel].PreviousSlowModeInterval;
+            } else {
+                return 0;
+            }
+        }
+
         private class Event {
 
             public Event(ulong startedBy, int previousSlowModeInterval) {
