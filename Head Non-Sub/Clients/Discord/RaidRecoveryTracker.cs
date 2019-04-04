@@ -11,10 +11,11 @@ namespace HeadNonSub.Clients.Discord {
         /// Track a new event.
         /// </summary>
         /// <param name="channel">Channel id.</param>
-        /// <param name="startedBy">Username of who started the event.</param>
-        public static bool Track(ulong channel, string startedBy) {
+        /// <param name="startedBy">User id of who started the event.</param>
+        /// <param name="slowModeInterval">Slow mode interval of the channel.</param>
+        public static bool Track(ulong channel, ulong startedBy, int slowModeInterval) {
             if (!_ActiveChannels.ContainsKey(channel)) {
-                _ActiveChannels.Add(channel, new Event(startedBy));
+                _ActiveChannels.Add(channel, new Event(startedBy, slowModeInterval));
                 return true;
             } else {
                 return false;
@@ -44,11 +45,11 @@ namespace HeadNonSub.Clients.Discord {
         /// Get who started an event.
         /// </summary>
         /// <param name="channel">Channel id.</param>
-        public static string StartedBy(ulong channel) {
+        public static ulong? StartedBy(ulong channel) {
             if (_ActiveChannels.ContainsKey(channel)) {
                 return _ActiveChannels[channel].StartedBy;
             } else {
-                return string.Empty;
+                return null;
             }
         }
 
@@ -120,9 +121,13 @@ namespace HeadNonSub.Clients.Discord {
 
         private class Event {
 
-            public Event(string startedBy) => StartedBy = startedBy;
+            public Event(ulong startedBy, int previousSlowModeInterval) {
+                StartedBy = startedBy;
+                PreviousSlowModeInterval = previousSlowModeInterval;
+            }
 
-            public string StartedBy { get; private set; }
+            public ulong StartedBy { get; private set; }
+            public int PreviousSlowModeInterval { get; private set; }
             public string BanToken { get; private set; } = Guid.NewGuid().ToString("N").Substring(0, 12);
             public bool ValidBanToken { get; set; } = false;
             public HashSet<ulong> UsersToBan { get; set; } = new HashSet<ulong>();

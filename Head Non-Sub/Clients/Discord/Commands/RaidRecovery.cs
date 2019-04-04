@@ -23,35 +23,43 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("enable")]
         public Task Enable() {
-            if (!RaidRecoveryTracker.Track(Context.Channel.Id, Context.User.ToString())) {
-                return BetterReplyAsync($"Raid recovery mode is already enabled by {RaidRecoveryTracker.StartedBy(Context.Channel.Id)}.");
-            }
-
             if (Context.Channel is SocketTextChannel channel) {
+                if (!RaidRecoveryTracker.Track(Context.Channel.Id, Context.User.Id, channel.SlowModeInterval)) {
+                    ulong? startedBy = RaidRecoveryTracker.StartedBy(Context.Channel.Id);
+
+                    if (startedBy.HasValue) {
+                        return BetterReplyAsync($"Raid recovery system is already enabled. Enabled by {BetterUserFormat(UserFromUserId(startedBy.Value))}.");
+                    } else {
+                        return BetterReplyAsync($"Raid recovery system is already enabled.");
+                    }
+                }
+
                 channel.ModifyAsync(x => { x.SlowModeInterval = 120; });
+            } else {
+                return BetterReplyAsync("Invalid channel, not a text only channel.");
             }
 
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
-                Title = "Raid recovery mode enabled",
+                Title = "Raid recovery system enabled",
                 Description = "This channel is now in slow mode, normal uses can only send one message every two minutes."
             };
 
             builder.AddField("Commands", string.Join(Environment.NewLine, new string[] {
                 $"Commands are used `@{Context.Guild.CurrentUser.Username} rr <command>`",
-                "`disable` Disable raid recovery mode",
+                "`disable` Disable raid recovery system",
                 "`list <minutes>` List suspected users from the past # minutes",
                 "`clean <minutes>` Remove messages from suspected users from the past # minutes",
                 "`ban <minutes>` Ban suspected users in the past # minutes, will prompt for confirmation" }));
 
-            LoggingManager.Log.Warn($"Raid recovery mode enabled. {BetterLogFormat()}");
+            LoggingManager.Log.Warn($"Raid recovery system enabled. {BetterLogFormat()}");
             return BetterReplyAsync(builder.Build());
         }
 
         [Command("disable")]
         public Task Disable() {
             if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
-                return BetterReplyAsync($"This channel is not in raid recovery mode. Use `@{Context.Guild.CurrentUser.Username} rr enable` to use commands.");
+                return BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
             }
 
             RaidRecoveryTracker.Untrack(Context.Channel.Id);
@@ -62,18 +70,18 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
-                Title = "Raid recovery mode disabled",
+                Title = "Raid recovery system disabled",
                 Description = "This channel has returned to normal."
             };
 
-            LoggingManager.Log.Warn($"Raid recovery mode disabled. {BetterLogFormat()}");
+            LoggingManager.Log.Warn($"Raid recovery system disabled. {BetterLogFormat()}");
             return BetterReplyAsync(builder.Build());
         }
 
         [Command("list")]
-        public Task List(int minutes = 5) {
+        public Task List(int minutes = 10) {
             if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
-                return BetterReplyAsync($"This channel is not in raid recovery mode. Use `@{Context.Guild.CurrentUser.Username} rr enable` to use commands.");
+                return BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
             }
 
             if (minutes == 0 || minutes > 20160) {
@@ -109,9 +117,9 @@ namespace HeadNonSub.Clients.Discord.Commands {
         }
 
         [Command("clean")]
-        public Task Clean(int minutes = 5) {
+        public Task Clean(int minutes = 10) {
             if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
-                return BetterReplyAsync($"This channel is not in raid recovery mode. Use `@{Context.Guild.CurrentUser.Username} rr enable` to use commands.");
+                return BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
             }
 
             if (minutes == 0 || minutes > 20160) {
@@ -134,9 +142,9 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("ban")]
         [RequireBotPermission(GuildPermission.BanMembers, ErrorMessage = "I do not have the `Ban Members` permission.")]
-        public Task Ban(int minutes = 5, [Remainder]string banToken = "") {
+        public Task Ban(int minutes = 10, [Remainder]string banToken = "") {
             if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
-                return BetterReplyAsync($"This channel is not in raid recovery mode. Use `@{Context.Guild.CurrentUser.Username} rr enable` to use commands.");
+                return BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
             }
 
             if (minutes == 0 || minutes > 20160) {
@@ -198,14 +206,18 @@ namespace HeadNonSub.Clients.Discord.Commands {
         [Command("skip")]
         [RequireBotPermission(GuildPermission.BanMembers, ErrorMessage = "I do not have the `Ban Members` permission.")]
         public Task Skip(SocketUser user = null) {
+            if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
+                return BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
+            }
+
             if (user == null) {
-                return BetterReplyAsync("You must mention a user to skip them from being banned.");
+                return BetterReplyAsync("You must provide a user to skip them from being banned.");
             }
 
             if (RaidRecoveryTracker.SkipUserToBan(Context.Channel.Id, user.Id)) {
                 return BetterReplyAsync($"{BetterUserFormat(user)} will be skipped and **not** banned.");
             } else {
-                return BetterReplyAsync($"{BetterUserFormat(user)} was not found on the 'to ban list'.");
+                return BetterReplyAsync($"{BetterUserFormat(user)} was not suspected and will **not** be banned.");
             }
         }
 
