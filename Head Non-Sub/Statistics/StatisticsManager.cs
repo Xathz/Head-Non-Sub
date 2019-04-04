@@ -7,15 +7,17 @@ namespace HeadNonSub.Statistics {
 
     public static class StatisticsManager {
 
-        private static StatisticsContext _Statistics;
-
         public static void Load() {
-            if (_Statistics is null) {
-                _Statistics = new StatisticsContext();
-
-                LoggingManager.Log.Info("Connected");
-            } else {
-                LoggingManager.Log.Info("Loading has already completed");
+            using (StatisticsContext statistics = new StatisticsContext()) {
+                if (statistics.Database.CanConnect()) {
+                    if (statistics.Database.EnsureCreated()) {
+                        LoggingManager.Log.Info("Database created");
+                    } else {
+                        LoggingManager.Log.Info("Database already exists, connected");
+                    }
+                } else {
+                    LoggingManager.Log.Error("Can connect check failed");
+                }
             }
         }
 
@@ -23,27 +25,26 @@ namespace HeadNonSub.Statistics {
         /// Insert a command that was ran into the database.
         /// </summary>
         public static void InsertCommand(DateTime dateTime, ulong serverId, ulong channelId, ulong userId, string username, string userDisplay,
-                                            ulong messageId,string message, string command, string parameters, ulong? replyMessageId) {
+                                            ulong messageId, string message, string command, string parameters, ulong? replyMessageId) {
             try {
+                using (StatisticsContext statistics = new StatisticsContext()) {
+                    Command item = new Command {
+                        DateTime = dateTime,
+                        ServerId = serverId,
+                        ChannelId = channelId,
+                        UserId = userId,
+                        Username = username,
+                        UserDisplay = userDisplay,
+                        MessageId = messageId,
+                        Message = message,
+                        CommandName = command,
+                        Parameters = parameters,
+                        ReplyMessageId = replyMessageId
+                    };
 
-                Command item = new Command {
-                    DateTime = dateTime,
-                    ServerId = serverId,
-                    ChannelId = channelId,
-                    UserId = userId,
-                    Username = username,
-                    UserDisplay = userDisplay,
-                    MessageId = messageId,
-                    Message = message,
-                    CommandName = command,
-                    Parameters = parameters,
-                    ReplyMessageId = replyMessageId
-                };
-
-                _Statistics.Commands.Add(item);
-
-                _Statistics.SaveChangesAsync();
-
+                    statistics.Commands.Add(item);
+                    statistics.SaveChanges();
+                }
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
@@ -52,24 +53,49 @@ namespace HeadNonSub.Statistics {
         /// <summary>
         /// Get the number of times the true command was executed.
         /// </summary>
-        public static long TrueCount(ulong serverId) => _Statistics.Commands.Where(x => x.ServerId == serverId & x.CommandName == "ThatsTrue").LongCount();
+        public static long TrueCount(ulong serverId) {
+            try {
+                using (StatisticsContext statistics = new StatisticsContext()) {
+                    return statistics.Commands.Where(x => x.ServerId == serverId & x.CommandName == "ThatsTrue").LongCount();
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return 0;
+            }
+        }
 
         /// <summary>
         /// Get the number of times each says command was executed order by count.
         /// </summary>
-        public static List<KeyValuePair<string, long>> SaysCount(ulong serverId, Dictionary<string, string> commandNames) =>
-            _Statistics.Commands.Where(x => x.ServerId == serverId & commandNames.Any(c => c.Key == x.CommandName))
-                .GroupBy(x => x.CommandName).Select(group => new {
-                    CommandName = group.Key,
-                    Count = group.LongCount()
-                }).OrderByDescending(x => x.Count).ToDictionary(x => x.CommandName, x => x.Count).ToList();
+        public static List<KeyValuePair<string, long>> SaysCount(ulong serverId, Dictionary<string, string> commandNames) {
+            try {
+                using (StatisticsContext statistics = new StatisticsContext()) {
+                    return statistics.Commands.Where(x => x.ServerId == serverId & commandNames.Any(c => c.Key == x.CommandName))
+                            .GroupBy(x => x.CommandName).Select(group => new {
+                                CommandName = group.Key,
+                                Count = group.LongCount()
+                            }).OrderByDescending(x => x.Count).ToDictionary(x => x.CommandName, x => x.Count).ToList();
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return new List<KeyValuePair<string, long>>();
+            }
+        }
 
         /// <summary>
         /// Get the most recent message id and reply message id per-user in a channel.
         /// </summary>
-        public static List<ulong> UndoMessages(ulong channelId, ulong userId, int count) =>
-            _Statistics.Commands.Where(x => x.ChannelId == channelId & x.UserId == userId).OrderByDescending(x => x.DateTime)
-            .Take(count).Select(x => new[] { x.MessageId, x.ReplyMessageId ?? null }).SelectMany(x => x).OfType<ulong>().ToList();
+        public static List<ulong> UndoMessages(ulong channelId, ulong userId, int count) {
+            try {
+                using (StatisticsContext statistics = new StatisticsContext()) {
+                    return statistics.Commands.Where(x => x.ChannelId == channelId & x.UserId == userId).OrderByDescending(x => x.DateTime)
+                            .Take(count).Select(x => new[] { x.MessageId, x.ReplyMessageId ?? null }).SelectMany(x => x).OfType<ulong>().ToList();
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return new List<ulong>();
+            }
+        }
 
     }
 

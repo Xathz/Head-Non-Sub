@@ -2,8 +2,10 @@
 using NLog;
 using NLog.Conditions;
 using NLog.Config;
+using NLog.Extensions.Logging;
 using NLog.Targets;
 using NLog.Targets.Wrappers;
+using MSLogging = Microsoft.Extensions.Logging;
 
 namespace HeadNonSub {
 
@@ -16,6 +18,11 @@ namespace HeadNonSub {
         /// Write a log.
         /// </summary>
         public static Logger Log = LogManager.GetLogger(Constants.ApplicationNameFormatted);
+
+        /// <summary>
+        /// Log factory.
+        /// </summary>
+        public static MSLogging.LoggerFactory DatabaseFactory;
 
         /// <summary>
         /// Setup all the logging targets and rules. Call only once, usually at the start of the program.
@@ -120,13 +127,67 @@ namespace HeadNonSub {
             // Apply all the custom configurations to the LogManager
             LogManager.Configuration = loggingConfiguration;
 
+            // Setup logger factory
+            InitializeDatabaseFactory();
+
             Log.Info("Logging initialization finished.");
+        }
+
+        private static LogFactory _DatabaseFactoryNLog;
+
+        private static void InitializeDatabaseFactory() {
+            LoggingConfiguration factoryConfiguration = new LoggingConfiguration();
+
+            // All messages from Trace to Warn levels write to the general file
+            FileTarget fileTarget_DatabaseGeneral = new FileTarget() {
+                Name = $"{Constants.ApplicationNameFormatted}Database",
+                FileName = Path.Combine(Constants.LogDirectory, "Database.General.log"),
+                Layout = "${longdate} [${pad:padCharacter= :padding=5:fixedLength=true:alignmentOnTruncation=Right:${uppercase:${level}}}] [${callsite:includeNamespace=false:cleanNamesOfAnonymousDelegates=true:cleanNamesOfAsyncContinuations=true}] ${message}",
+                ArchiveFileName = Path.Combine(Constants.LogDirectory, "Database.General{#}.Archive.log"),
+                ArchiveEvery = FileArchivePeriod.Day,
+                ArchiveNumbering = ArchiveNumberingMode.Rolling,
+                MaxArchiveFiles = 7,
+                ConcurrentWrites = false
+            };
+            // Limit how often the file will get written to disk.
+            // Default: BufferSize = 50 (log events), FlushTimeout = 5000 (milliseconds)
+            BufferingTargetWrapper fileAsyncTargetWrapper_DatabaseGeneral = new BufferingTargetWrapper {
+                Name = $"{Constants.ApplicationNameFormatted}Database",
+                WrappedTarget = fileTarget_DatabaseGeneral,
+                BufferSize = 75,
+                FlushTimeout = 5000,
+                SlidingTimeout = false
+            };
+            factoryConfiguration.AddTarget(fileAsyncTargetWrapper_DatabaseGeneral);
+            factoryConfiguration.AddRule(LogLevel.Info, LogLevel.Warn, $"{Constants.ApplicationNameFormatted}Database");
+
+            // All messages from Warn to Fatal levels write to the error file with advanced trace information
+            FileTarget fileTarget_DatabaseError = new FileTarget() {
+                Name = $"{Constants.ApplicationNameFormatted}Database",
+                FileName = Path.Combine(Constants.LogDirectory, "Database.Error.log"),
+                Layout = "${longdate} [${pad:padCharacter= :padding=5:fixedLength=true:alignmentOnTruncation=Right:${uppercase:${level}}}] [${callsite:includeSourcePath=true:cleanNamesOfAnonymousDelegates=true:cleanNamesOfAsyncContinuations=true}:${callsite-linenumber}; ${stacktrace}] ${message}${exception:format=ToString,StackTrace}",
+                ArchiveFileName = Path.Combine(Constants.LogDirectory, "Database.Error{#}.Archive.log"),
+                ArchiveEvery = FileArchivePeriod.Day,
+                ArchiveNumbering = ArchiveNumberingMode.Rolling,
+                MaxArchiveFiles = 7,
+                ConcurrentWrites = false
+            };
+            factoryConfiguration.AddTarget(fileTarget_DatabaseError);
+            factoryConfiguration.AddRule(LogLevel.Error, LogLevel.Fatal, $"{Constants.ApplicationNameFormatted}Database");
+
+            _DatabaseFactoryNLog = new LogFactory(factoryConfiguration);
+            NLogLoggerProvider loggerProvider = new NLogLoggerProvider(new NLogProviderOptions(), _DatabaseFactoryNLog);
+
+            DatabaseFactory = new MSLogging.LoggerFactory(new[] { loggerProvider });
         }
 
         /// <summary>
         /// Flush any pending log messages.
         /// </summary>
-        public static void Flush() => LogManager.Flush();
+        public static void Flush() {
+            LogManager.Flush();
+            _DatabaseFactoryNLog.Flush();
+        }
 
     }
 

@@ -235,12 +235,18 @@ namespace HeadNonSub.Clients.Discord {
 
             try {
                 if (message.Channel.Id == WubbysFunHouse.MarketResearchChannelId) {
+                    string channelName = _DiscordClient.GetGuild(WubbysFunHouse.ServerId).GetChannel(WubbysFunHouse.MarketResearchChannelId).Name;
+
                     if (!_ValidPolls.Any(x => message.Content.Contains(x, StringComparison.OrdinalIgnoreCase))) {
-                        LoggingManager.Log.Info($"Invalid poll in #{_DiscordClient.GetGuild(WubbysFunHouse.ServerId).GetChannel(WubbysFunHouse.MarketResearchChannelId).Name} by {message.Author.ToString()} ({message.Author.Id})");
+
+                        LoggingManager.Log.Info($"Invalid poll in #{channelName} by {message.Author.ToString()} ({message.Author.Id})");
                         await message.DeleteAsync();
-                        await message.Author.SendMessageAsync($"You can only post polls in #{_DiscordClient.GetGuild(WubbysFunHouse.ServerId).GetChannel(WubbysFunHouse.MarketResearchChannelId).Name} on {_DiscordClient.GetGuild(WubbysFunHouse.ServerId).Name}.");
+                        await message.Author.SendMessageAsync($"You can only post polls in #{channelName} on {_DiscordClient.GetGuild(WubbysFunHouse.ServerId).Name}.");
                     }
                 }
+
+
+
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }

@@ -1,6 +1,6 @@
 ﻿using System;
-using HeadNonSub.Settings;
 using HeadNonSub.Database.Tables;
+using HeadNonSub.Settings;
 using Microsoft.EntityFrameworkCore;
 
 namespace HeadNonSub.Database {
@@ -10,25 +10,14 @@ namespace HeadNonSub.Database {
         public DbSet<UserNote> UserNotes { get; set; }
         public DbSet<DynamicCommand> DynamicCommands { get; set; }
 
-        public DatabaseContext() {
-            try {
-                LoggingManager.Log.Info("Connecting to database");
-
-                Database.EnsureCreated();
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-            }
-        }
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             try {
-                LoggingManager.Log.Info("Configuring database");
-
                 optionsBuilder.UseMySql($"Server={SettingsManager.Configuration.MariaDBHost};" +
                     $"Database={SettingsManager.Configuration.MariaDBDatabase};" +
                     $"Uid={SettingsManager.Configuration.MariaDBUsername};" +
                     $"Pwd={SettingsManager.Configuration.MariaDBPassword};");
 
+                optionsBuilder.UseLoggerFactory(LoggingManager.DatabaseFactory);
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
@@ -36,8 +25,6 @@ namespace HeadNonSub.Database {
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             try {
-                LoggingManager.Log.Info("Creating database model");
-
                 modelBuilder.Entity<UserNote>().ToTable("user_notes");
                 modelBuilder.Entity<UserNote>().HasKey(x => new { x.ServerId, x.UserId });
 
@@ -45,7 +32,6 @@ namespace HeadNonSub.Database {
 
                 modelBuilder.Entity<DynamicCommand>().ToTable("dynamic_commands");
                 modelBuilder.Entity<DynamicCommand>().HasKey(x => x.OwnerId);
-
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
