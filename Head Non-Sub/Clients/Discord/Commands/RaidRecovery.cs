@@ -103,8 +103,8 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 builder.AppendLine($"{messagesPerUser.Count} different users sent at least {_MessageThreshold} messages within the last {minutes.Minutes().Humanize(3)}.");
 
                 builder.AppendLine("```");
-                foreach (IAsyncGrouping<IUser, IMessage> user in messagesPerUser) {
-                    builder.Append($"{user.Key.ToString()}: {user.Count().Result}; ");
+                foreach (IGrouping<IUser, IMessage> user in messagesPerUser) {
+                    builder.Append($"{user.Key.ToString()}: {user.Count()}; ");
                 }
                 builder.AppendLine("```");
 
