@@ -11,6 +11,12 @@ namespace HeadNonSub.Database {
 
         public static class UserNotes {
 
+            /// <summary>
+            /// Insert a user note.
+            /// </summary>
+            /// <param name="serverId">Server (guild) id.</param>
+            /// <param name="userId">User id of who this note is for.</param>
+            /// <param name="note">Note text.</param>
             public static void Insert(ulong serverId, ulong userId, Note note) {
                 try {
                     using (DatabaseContext database = new DatabaseContext()) {
@@ -37,6 +43,12 @@ namespace HeadNonSub.Database {
                 }
             }
 
+            /// <summary>
+            /// Get a users notes.
+            /// </summary>
+            /// <param name="serverId">Server (guild) id.</param>
+            /// <param name="userId">User id of who to get notes about.</param>
+            /// <returns>List of notes.</returns>
             public static List<Note> GetUser(ulong serverId, ulong userId) {
                 try {
                     using (DatabaseContext database = new DatabaseContext()) {
@@ -52,6 +64,13 @@ namespace HeadNonSub.Database {
                 }
             }
 
+            /// <summary>
+            /// Delete a user note.
+            /// </summary>
+            /// <param name="serverId">Server (guild) id.</param>
+            /// <param name="userId">User id of who this note id is for.</param>
+            /// <param name="noteId">Note id to delete.</param>
+            /// <returns>True if deleted; false if id does not exist.</returns>
             public static bool Delete(ulong serverId, ulong userId, string noteId) {
                 try {
                     using (DatabaseContext database = new DatabaseContext()) {
@@ -73,6 +92,12 @@ namespace HeadNonSub.Database {
                 }
             }
 
+            /// <summary>
+            /// Delete all notes about a user.
+            /// </summary>
+            /// <param name="serverId">Server (guild) id.</param>
+            /// <param name="userId">User id of who to delete all notes about.</param>
+            /// <returns>True if all were deleted; false if no notes.</returns>
             public static bool DeleteAll(ulong serverId, ulong userId) {
                 try {
                     using (DatabaseContext database = new DatabaseContext()) {

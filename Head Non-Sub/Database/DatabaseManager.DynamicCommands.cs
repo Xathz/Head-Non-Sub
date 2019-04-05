@@ -10,6 +10,13 @@ namespace HeadNonSub.Database {
 
         public static class DynamicCommands {
 
+            /// <summary>
+            /// Insert a dynamic command.
+            /// </summary>
+            /// <param name="ownerId">Command owner user id.</param>
+            /// <param name="command">Command name.</param>
+            /// <param name="text">Command value: text, link, whatever.</param>
+            /// <returns>Tuple (true if inserted; false if other, reason).</returns>
             public static (bool successful, string reason) Insert(ulong ownerId, string command, string text) {
                 try {
                     using (DatabaseContext database = new DatabaseContext()) {
@@ -30,6 +37,10 @@ namespace HeadNonSub.Database {
                 }
             }
 
+            /// <summary>
+            /// Get all dynamic commands.
+            /// </summary>
+            /// <returns>Dictionary (command, text).</returns>
             public static Dictionary<string, string> GetAll() {
                 try {
                     using (DatabaseContext database = new DatabaseContext()) {
@@ -41,6 +52,11 @@ namespace HeadNonSub.Database {
                 }
             }
 
+            /// <summary>
+            /// Who owns a command.
+            /// </summary>
+            /// <param name="command">Command name.</param>
+            /// <returns>User id; null if not owned.</returns>
             public static ulong? Who(string command) {
                 try {
                     using (DatabaseContext database = new DatabaseContext()) {

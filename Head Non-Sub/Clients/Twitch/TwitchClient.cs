@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using HeadNonSub.Database;
 using HeadNonSub.Exceptions;
 using HeadNonSub.Settings;
 using TwitchLib.Api;
@@ -123,13 +124,12 @@ namespace HeadNonSub.Clients.Twitch {
         }
 
         private static void StartMonitor() {
-            _StreamMonitor = new LiveStreamMonitorService(_TwitchApi, 20);
+            _StreamMonitor = new LiveStreamMonitorService(_TwitchApi, 30);
             _StreamMonitor.SetChannelsByName(SettingsManager.Configuration.TwitchStreams.Select(x => x.UsernameLowercase).ToList());
 
             _StreamMonitor.Start();
 
             _StreamMonitor.OnStreamOnline += OnStreamOnline;
-            _StreamMonitor.OnStreamUpdate += OnStreamUpdate;
             _StreamMonitor.OnStreamOffline += OnStreamOffline;
 
             LoggingManager.Log.Info($"Stream monitoring is running for: {string.Join(", ", SettingsManager.Configuration.TwitchStreams.Select(x => $"{x.DisplayName} ({x.UserId})").ToList())}");
@@ -138,8 +138,11 @@ namespace HeadNonSub.Clients.Twitch {
         private static void OnStreamOnline(object sender, OnStreamOnlineArgs streamOnline) {
             TwitchStream stream = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == streamOnline.Channel.ToLower()).FirstOrDefault();
 
-            // Wubby only, hes special
-            if (streamOnline.Channel.ToLower() == "paymoneywubby") {
+            if (!DatabaseManager.ActiveStreams.Insert(stream.UsernameLowercase)) {
+                return;
+            }
+
+            if (stream.UsernameLowercase == "paymoneywubby") { // PaymoneyWubby only
                 _ = Discord.DiscordClient.SetStatus($"Watching PaymoneyWubby!", $"https://twitch.tv/paymoneywubby");
                 _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, streamOnline.Stream.ThumbnailUrl, $"{stream.DisplayName} is now live!", streamOnline.Stream.Title, true);
             } else {
@@ -149,15 +152,12 @@ namespace HeadNonSub.Clients.Twitch {
             LoggingManager.Log.Info($"{stream.DisplayName} just went live");
         }
 
-        private static void OnStreamUpdate(object sender, OnStreamUpdateArgs streamUpdate) {
-
-        }
-
         private static void OnStreamOffline(object sender, OnStreamOfflineArgs streamOffline) {
             TwitchStream stream = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == streamOffline.Channel.ToLower()).FirstOrDefault();
 
-            // Wubby only, hes special
-            if (streamOffline.Channel.ToLower() == "paymoneywubby") {
+            DatabaseManager.ActiveStreams.Delete(stream.UsernameLowercase);
+
+            if (stream.UsernameLowercase == "paymoneywubby") { // PaymoneyWubby only
                 _ = Discord.DiscordClient.SetStatus();
             }
             _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, null, $"{stream.DisplayName} is now offline", "Thanks for watching");

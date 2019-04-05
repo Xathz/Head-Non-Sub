@@ -7,8 +7,11 @@ namespace HeadNonSub.Database {
 
     public class DatabaseContext : DbContext {
 
-        public DbSet<UserNote> UserNotes { get; set; }
+        public DbSet<ActiveStream> ActiveStreams { get; set; }
+
         public DbSet<DynamicCommand> DynamicCommands { get; set; }
+
+        public DbSet<UserNote> UserNotes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             try {
@@ -25,13 +28,20 @@ namespace HeadNonSub.Database {
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             try {
+                // Active streams
+                modelBuilder.Entity<ActiveStream>().ToTable("active_streams");
+                modelBuilder.Entity<ActiveStream>().HasKey(x => x.Username);
+
+                // Dynamic commands
+                modelBuilder.Entity<DynamicCommand>().ToTable("dynamic_commands");
+                modelBuilder.Entity<DynamicCommand>().HasKey(x => x.OwnerId);
+
+                // User notes
                 modelBuilder.Entity<UserNote>().ToTable("user_notes");
                 modelBuilder.Entity<UserNote>().HasKey(x => new { x.ServerId, x.UserId });
 
                 modelBuilder.ApplyConfiguration(new UserNoteConfiguration());
 
-                modelBuilder.Entity<DynamicCommand>().ToTable("dynamic_commands");
-                modelBuilder.Entity<DynamicCommand>().HasKey(x => x.OwnerId);
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }

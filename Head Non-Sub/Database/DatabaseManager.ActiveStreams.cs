@@ -1,0 +1,65 @@
+﻿using System;
+using System.Linq;
+using HeadNonSub.Database.Tables;
+using Microsoft.EntityFrameworkCore;
+
+namespace HeadNonSub.Database {
+
+    public static partial class DatabaseManager {
+
+        public static class ActiveStreams {
+
+            /// <summary>
+            /// Insert a live Twitch stream.
+            /// </summary>
+            /// <param name="username">Username of the stream.</param>
+            /// <returns>True if inserted; false if exists.</returns>
+            public static bool Insert(string username) {
+                try {
+                    using (DatabaseContext database = new DatabaseContext()) {
+                        if (database.ActiveStreams.AsNoTracking().Any(x => x.Username == username)) {
+                            return false;
+                        } else {
+                            database.ActiveStreams.Add(new ActiveStream() { Username = username, StartedAt = DateTime.UtcNow });
+
+                            database.SaveChanges();
+
+                            return true;
+                        }
+                    }
+                } catch (Exception ex) {
+                    LoggingManager.Log.Error(ex);
+                    return false;
+                }
+            }
+
+            /// <summary>
+            /// Delete a live Twitch stream.
+            /// </summary>
+            /// <param name="username">Username of the stream.</param>
+            /// <returns>True if deleted; false if does not exist.</returns>
+            public static bool Delete(string username) {
+                try {
+                    using (DatabaseContext database = new DatabaseContext()) {
+                        if (database.ActiveStreams.AsNoTracking().Any(x => x.Username == username)) {
+                            ActiveStream stream = database.ActiveStreams.Where(x => x.Username == username).FirstOrDefault();
+                            database.ActiveStreams.Remove(stream);
+
+                            database.SaveChanges();
+
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
+                } catch (Exception ex) {
+                    LoggingManager.Log.Error(ex);
+                    return false;
+                }
+            }
+
+        }
+
+    }
+
+}
