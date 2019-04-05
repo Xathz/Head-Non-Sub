@@ -32,7 +32,7 @@ namespace HeadNonSub.Clients.Discord {
         public async Task InitializeAsync() => await _Commands.AddModuleAsync<Commands.Exclamation.Dynamic>(_Services);
 
         public async Task<(bool successful, string reason)> AddCommand(ulong ownerId, string command, string text) {
-            (bool successful, string reason) = DatabaseManager.InsertDynamicCommand(ownerId, command, text);
+            (bool successful, string reason) = DatabaseManager.DynamicCommands.Insert(ownerId, command, text);
 
             if (successful) {
                 await BuildCommands();
@@ -49,7 +49,7 @@ namespace HeadNonSub.Clients.Discord {
             _DynamicModule = await _Commands.CreateModuleAsync("", module => {
                 module.Name = "DynamicCommands";
 
-                foreach (KeyValuePair<string, string> command in DatabaseManager.GetDynamicCommands()) {
+                foreach (KeyValuePair<string, string> command in DatabaseManager.DynamicCommands.GetAll()) {
                     module.AddCommand(command.Key, async (context, args, info, task) => {
                         await context.Channel.SendMessageAsync(command.Value);
                     }, builder => {

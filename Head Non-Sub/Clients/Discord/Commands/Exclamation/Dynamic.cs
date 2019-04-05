@@ -49,7 +49,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             string cleanCommand = command.ToLower();
             if (cleanCommand.StartsWith("-")) { cleanCommand = cleanCommand.Remove(0, 1); }
 
-            ulong? user = DatabaseManager.WhoDynamicCommand(cleanCommand);
+            ulong? user = DatabaseManager.DynamicCommands.Who(cleanCommand);
 
             if (user.HasValue) {
                 return BetterReplyAsync($"`-{command}` was claimed by {BetterUserFormat(UserFromUserId(user.Value))}.");

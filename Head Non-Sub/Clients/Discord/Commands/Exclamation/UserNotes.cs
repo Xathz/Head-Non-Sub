@@ -20,7 +20,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 return BetterReplyAsync("You must mention a user to get their notes.");
             }
 
-            List<Note> notes = Database.DatabaseManager.GetNotes(Context.Guild.Id, user.Id);
+            List<Note> notes = Database.DatabaseManager.UserNotes.GetUser(Context.Guild.Id, user.Id);
 
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
@@ -54,7 +54,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 Text = note
             };
 
-            Database.DatabaseManager.InsertNote(Context.Guild.Id, user.Id, item);
+            Database.DatabaseManager.UserNotes.Insert(Context.Guild.Id, user.Id, item);
 
             return BetterReplyAsync($"Note added about {BetterUserFormat(user)}.", $"{user.ToString()} ({user.Id}); {note}");
         }
@@ -68,7 +68,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             if (string.IsNullOrWhiteSpace(noteId)) {
                 return BetterReplyAsync($"You did not enter a note id to delete.", $"{user.ToString()} ({user.Id}); {noteId}");
             } else {
-                if (Database.DatabaseManager.DeleteNote(Context.Guild.Id, user.Id, noteId)) {
+                if (Database.DatabaseManager.UserNotes.Delete(Context.Guild.Id, user.Id, noteId)) {
                     return BetterReplyAsync($"Note about {BetterUserFormat(user)} was deleted.", $"{user.ToString()} ({user.Id}); {noteId}");
                 } else {
                     return BetterReplyAsync($"Invalid note id.", $"{user.ToString()} ({user.Id}); {noteId}");
@@ -82,7 +82,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 return BetterReplyAsync("You must mention a user to delete all notes about them.");
             }
 
-            if (Database.DatabaseManager.DeleteAllNotes(Context.Guild.Id, user.Id)) {
+            if (Database.DatabaseManager.UserNotes.DeleteAll(Context.Guild.Id, user.Id)) {
                 return BetterReplyAsync($"All notes about {BetterUserFormat(user)} were deleted.", $"{user.ToString()} ({user.Id})");
             } else {
                 return BetterReplyAsync($"There are no notes about {BetterUserFormat(user)}.", $"{user.ToString()} ({user.Id})");
