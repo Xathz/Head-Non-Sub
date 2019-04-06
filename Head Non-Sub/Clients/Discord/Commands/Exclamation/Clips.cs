@@ -13,8 +13,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     public class Clips : BetterModuleBase {
 
         [Command("randomclip")]
-        public Task RandomClip([Remainder]string channel = "paymoneywubby") {
-            Context.Channel.TriggerTypingAsync();
+        public async Task RandomClip([Remainder]string channel = "paymoneywubby") {
+            await Context.Channel.TriggerTypingAsync();
 
             string twitchChannel = channel.ToLower();
 
@@ -24,21 +24,21 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 if (Cache.Get($"clips:{twitchChannel}") is List<(DateTime createdAt, string title, int viewCount, string url)> validClips) {
                     clips = validClips;
                 } else {
-                    clips = Twitch.TwitchClient.GetClips(twitchChannel);
+                    clips = await Twitch.TwitchClient.GetClipsAsync(twitchChannel);
                     Cache.Add($"clips:{twitchChannel}", clips, 30);
                 }
 
                 (DateTime createdAt, string title, int viewCount, string url) = clips.PickRandom();
 
                 if (!string.IsNullOrEmpty(url)) {
-                    return BetterReplyAsync(clips.PickRandom().url);
+                    await BetterReplyAsync(clips.PickRandom().url);
                 } else {
-                    return BetterReplyAsync("Failed to pick a random clip.");
+                    await BetterReplyAsync("Failed to pick a random clip.");
                 }
             } catch (UnsupportedTwitchChannelException ex) {
-                return BetterReplyAsync(ex.Message);
+                await BetterReplyAsync(ex.Message);
             } catch {
-               return BetterReplyAsync("Failed to pick a random clip.");
+                await BetterReplyAsync("Failed to pick a random clip.");
             }
         }
 

@@ -15,8 +15,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     public class ImageTemplates : BetterModuleBase {
 
         [Command("ttsays")]
-        public Task TTSays([Remainder]string input) {
-            Context.Channel.TriggerTypingAsync();
+        public async Task TTSays([Remainder]string input) {
+            await Context.Channel.TriggerTypingAsync();
 
             using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("ttsays.png"))) {
@@ -38,15 +38,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                BetterSendFileAsync(stream, "ttSays.png", $"● {BetterUserFormat()}", parameters: input).Wait();
+                await BetterSendFileAsync(stream, "ttSays.png", $"● {BetterUserFormat()}", parameters: input);
             }
-
-            return Task.CompletedTask;
         }
 
         [Command("1024says")]
-        public Task TenTwentyFourSays([Remainder]string input) {
-            Context.Channel.TriggerTypingAsync();
+        public async Task TenTwentyFourSays([Remainder]string input) {
+            await Context.Channel.TriggerTypingAsync();
 
             using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("1024says.png"))) {
@@ -70,15 +68,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                BetterSendFileAsync(stream, "1024Says.png", $"● {BetterUserFormat()}", parameters: input).Wait();
+                await BetterSendFileAsync(stream, "1024Says.png", $"● {BetterUserFormat()}", parameters: input);
             }
-
-            return Task.CompletedTask;
         }
 
         [Command("amandasays")]
-        public Task AmandaSays([Remainder]string input) {
-            Context.Channel.TriggerTypingAsync();
+        public async Task AmandaSays([Remainder]string input) {
+            await Context.Channel.TriggerTypingAsync();
 
             using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("amandasays.png"))) {
@@ -100,15 +96,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                BetterSendFileAsync(stream, "amandaSays.png", $"● {BetterUserFormat()}", parameters: input).Wait();
+                await BetterSendFileAsync(stream, "amandaSays.png", $"● {BetterUserFormat()}", parameters: input);
             }
-
-            return Task.CompletedTask;
         }
 
         [Command("satasays")]
-        public Task SataSays([Remainder]string input) {
-            Context.Channel.TriggerTypingAsync();
+        public async Task SataSays([Remainder]string input) {
+            await Context.Channel.TriggerTypingAsync();
 
             using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("satasays.png"))) {
@@ -130,15 +124,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                BetterSendFileAsync(stream, "sataSays.png", $"● {BetterUserFormat()}", parameters: input).Wait();
+                await BetterSendFileAsync(stream, "sataSays.png", $"● {BetterUserFormat()}", parameters: input);
             }
-
-            return Task.CompletedTask;
         }
 
         [Command("jibersays")]
-        public Task JiberSays([Remainder]string input) {
-            Context.Channel.TriggerTypingAsync();
+        public async Task JiberSays([Remainder]string input) {
+            await Context.Channel.TriggerTypingAsync();
 
             using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("jibersays.png"))) {
@@ -160,15 +152,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                BetterSendFileAsync(stream, "jiberSays.png", $"● {BetterUserFormat()}", parameters: input).Wait();
+                await BetterSendFileAsync(stream, "jiberSays.png", $"● {BetterUserFormat()}", parameters: input);
             }
-
-            return Task.CompletedTask;
         }
 
         [Command("sbsays")]
-        public Task StrongBadSays([Remainder]string input) {
-            Context.Channel.TriggerTypingAsync();
+        public async Task StrongBadSays([Remainder]string input) {
+            await Context.Channel.TriggerTypingAsync();
 
             using (MemoryStream stream = new MemoryStream(256))
             using (MagickImage image = new MagickImage(Cache.GetStream("strongbadsays.png")))
@@ -192,10 +182,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                BetterSendFileAsync(stream, "strongbadSays.png", $"● {BetterUserFormat()}", parameters: input).Wait();
+                await BetterSendFileAsync(stream, "strongbadSays.png", $"● {BetterUserFormat()}", parameters: input);
             }
-
-            return Task.CompletedTask;
         }
 
     }

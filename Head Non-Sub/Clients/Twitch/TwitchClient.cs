@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using HeadNonSub.Database;
 using HeadNonSub.Exceptions;
 using HeadNonSub.Settings;
@@ -26,7 +27,7 @@ namespace HeadNonSub.Clients.Twitch {
 
         private static LiveStreamMonitorService _StreamMonitor;
 
-        public static void ConnectApi() {
+        public static async Task ConnectApiAsync() {
             try {
                 LoggingManager.Log.Info("Connecting");
 
@@ -40,7 +41,7 @@ namespace HeadNonSub.Clients.Twitch {
                 LoggingManager.Log.Info("Connected");
 
                 // Get user id's for streams that do not have it set
-                GetUserIdsFromUsernames();
+                await GetUserIdsFromUsernamesAsync();
 
                 StartMonitor();
 
@@ -68,7 +69,6 @@ namespace HeadNonSub.Clients.Twitch {
                 _TwitchClient.OnReconnected += OnReconnected;
 
                 _TwitchClient.OnJoinedChannel += OnJoinedChannel;
-                //_TwitchClient.OnMessageReceived += OnMessageReceived;
 
                 LoggingManager.Log.Info("Connected");
 
@@ -82,15 +82,15 @@ namespace HeadNonSub.Clients.Twitch {
         /// </summary>
         /// <param name="name">Broadcaster's username or display name</param>
         /// <param name="count">Clips to return. Maximum: 100</param>
-        public static List<(DateTime createdAt, string title, int viewCount, string url)> GetClips(string name, int count = 100) {
+        public static async Task<List<(DateTime createdAt, string title, int viewCount, string url)>> GetClipsAsync(string name, int count = 100) {
             string userId = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == name.ToLower()).Select(x => x.UserId).FirstOrDefault();
 
             if (!string.IsNullOrEmpty(userId)) {
                 List<(DateTime createdAt, string title, int viewCount, string url)> returnClips =
                     new List<(DateTime createdAt, string title, int viewCount, string url)>();
 
-                Clip[] clips = _TwitchApi.Helix.Clips.GetClipAsync(broadcasterId: userId, first: 100).Result.Clips;
-                foreach (Clip clip in clips) {
+                GetClipResponse result = await _TwitchApi.Helix.Clips.GetClipAsync(broadcasterId: userId, first: 100);
+                foreach (Clip clip in result.Clips) {
                     DateTime created = DateTime.Parse(clip.CreatedAt);
 
                     returnClips.Add((DateTime.Parse(clip.CreatedAt), clip.Title, clip.ViewCount, clip.Url));
@@ -104,19 +104,19 @@ namespace HeadNonSub.Clients.Twitch {
             }
         }
 
-        private static void GetUserIdsFromUsernames() {
+        private static async Task GetUserIdsFromUsernamesAsync() {
             List<string> emptyUserIds = SettingsManager.Configuration.TwitchStreams.Where(x => string.IsNullOrWhiteSpace(x.UserId)).Select(x => x.UsernameLowercase).ToList();
 
             if (emptyUserIds.Count > 0) {
                 try {
-                    User[] users = _TwitchApi.Helix.Users.GetUsersAsync(logins: emptyUserIds).Result.Users;
-                    foreach (User user in users) {
+                    GetUsersResponse result = await _TwitchApi.Helix.Users.GetUsersAsync(logins: emptyUserIds);
+                    foreach (User user in result.Users) {
                         SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == user.Login.ToLower()).ToList().ForEach(x => x.UserId = user.Id);
                     }
 
                     SettingsManager.Save();
 
-                    LoggingManager.Log.Info($"Retrieved {users.Count()} new user ids");
+                    LoggingManager.Log.Info($"Retrieved {result.Users.Count()} new user ids");
                 } catch (Exception ex) {
                     LoggingManager.Log.Error(ex);
                 }

@@ -17,57 +17,45 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("tts")]
         [Cooldown(30, true)]
-        public Task Joanna([Remainder]string input) {
-            GenerateAndSend(input, "tts", "Joanna");
-            return Task.CompletedTask;
-        }
+        public async Task Joanna([Remainder]string input) => await GenerateAndSend(input, "tts", "Joanna");
 
         [Command("tts2")]
         [Cooldown(30, true)]
-        public Task Justin([Remainder]string input) {
-            GenerateAndSend(input, "tts2", "Justin");
-            return Task.CompletedTask;
-        }
+        public async Task Justin([Remainder]string input) => await GenerateAndSend(input, "tts2", "Justin");
 
         [Command("tts3")]
         [Cooldown(30, true)]
-        public Task Brian([Remainder]string input) {
-            GenerateAndSend(input, "tts3", "Brian");
-            return Task.CompletedTask;
-        }
+        public async Task Brian([Remainder]string input) => await GenerateAndSend(input, "tts3", "Brian");
 
         [Command("tts4")]
         [Cooldown(30, true)]
-        public Task Mizuki([Remainder]string input) {
-            GenerateAndSend(input, "tts4", "Mizuki");
-            return Task.CompletedTask;
-        }
+        public async Task Mizuki([Remainder]string input) => await GenerateAndSend(input, "tts4", "Mizuki");
 
-        private void GenerateAndSend(string text, string command, string voice) {
-            Context.Channel.TriggerTypingAsync();
+        private async Task GenerateAndSend(string text, string command, string voice) {
+            await Context.Channel.TriggerTypingAsync();
 
             string clean = text.RemoveNewLines();
 
             if (string.IsNullOrWhiteSpace(clean)) {
-                _ = BetterReplyAsync("You need to enter text... for _text_ to speech to work you idiot.");
+                await BetterReplyAsync("You need to enter text... for _text_ to speech to work you idiot.");
                 return;
             }
 
             if (clean.Length > 550) {
-                _ = BetterReplyAsync("The text must be 550 or less characters including spaces.");
+                await BetterReplyAsync("The text must be 550 or less characters including spaces.");
                 return;
             }
 
-            Context.Message.DeleteAsync();
+            await Context.Message.DeleteAsync();
 
             string filename = clean.Truncate(40).ToLower();
             if (filename.EndsWith("_")) { filename = filename.Remove(filename.Length - 1, 1); }
             Stream oggFile = Generate(clean, voice);
 
             if (oggFile is Stream) {
-                BetterSendFileAsync(oggFile, $"{filename}.ogg", $"● {BetterUserFormat()}{Environment.NewLine}```{clean}```", clean, $"{command}_{voice}").Wait();
+                await BetterSendFileAsync(oggFile, $"{filename}.ogg", $"● {BetterUserFormat()}{Environment.NewLine}```{clean}```", clean, $"{command}_{voice}");
             } else {
-                _ = BetterReplyAsync("Failed to generate the text to speech.");
+                await BetterReplyAsync("Failed to generate the text to speech.");
             }
         }
 

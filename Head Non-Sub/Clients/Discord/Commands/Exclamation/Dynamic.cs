@@ -20,27 +20,30 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("claim")]
         [Priority(99)]
-        public Task Claim(string command, [Remainder]string text) {
+        public async Task Claim(string command, [Remainder]string text) {
             string cleanCommand = command.ToLower();
             if (cleanCommand.StartsWith("-")) { cleanCommand = cleanCommand.Remove(0, 1); }
 
             if (_ProtectedCommands.Contains(cleanCommand)) {
-                return BetterReplyAsync($"{Context.User.Mention} `-{cleanCommand}` is a protected command you can not claim.");
+                await BetterReplyAsync($"{Context.User.Mention} `-{cleanCommand}` is a protected command you can not claim.");
+                return;
             }
 
             string cleanText = text.Trim();
 
             if (cleanCommand.Length > 50) {
-                return BetterReplyAsync($"{Context.User.Mention} The `-<command>` must be 50 characters or shorter.");
+                await BetterReplyAsync($"{Context.User.Mention} The `-<command>` must be 50 characters or shorter.");
+                return;
             }
 
             if (cleanText.Length > 1800) {
-                return BetterReplyAsync($"{Context.User.Mention} The `<whatever>` must be 1,800 characters or shorter.");
+                await BetterReplyAsync($"{Context.User.Mention} The `<whatever>` must be 1,800 characters or shorter.");
+                return;
             }
 
-            (bool successful, string reason) = _DynamicCommands.AddCommand(Context.User.Id, cleanCommand, cleanText).Result;
+            (bool successful, string reason) = await _DynamicCommands.AddCommand(Context.User.Id, cleanCommand, cleanText);
 
-            return BetterReplyAsync($"{Context.User.Mention} {reason}");
+            await BetterReplyAsync($"{Context.User.Mention} {reason}");
         }
 
         [Command("who")]

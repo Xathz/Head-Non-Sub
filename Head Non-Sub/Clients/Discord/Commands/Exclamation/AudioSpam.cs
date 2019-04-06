@@ -17,17 +17,17 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             channel = channel ?? (Context.User as SocketGuildUser)?.VoiceChannel;
 
             if (channel == null) {
-                ReplyAsync("You must be in a voice channel, or a voice channel id must be passed as an argument.");
+                _ = BetterReplyAsync("You must be in a voice channel, or a voice channel id must be passed as an argument.");
                 return null;
             }
 
             try {
                 if (!Context.Guild.Channels.Any(x => x.Id == channel.Id)) {
-                    ReplyAsync("Invalid voice channel id.");
+                    _ = BetterReplyAsync("Invalid voice channel id.");
                     return null;
                 }
             } catch {
-                ReplyAsync("Invalid voice channel id.");
+                _ = BetterReplyAsync("Invalid voice channel id.");
                 return null;
             }
 
@@ -37,7 +37,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("ffs")]
         [Cooldown(120)]
         public async Task FFS(SocketVoiceChannel channel = null) {
-            _ = Context.Message.DeleteAsync();
+            await Context.Message.DeleteAsync();
 
             if (ValidateChannel(channel) is SocketVoiceChannel validatedChannel) {
                 IAudioClient audioClient = await validatedChannel.ConnectAsync();
@@ -52,7 +52,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("goodjob")]
         [Cooldown(120)]
         public async Task GoodJob(SocketVoiceChannel channel = null) {
-            _ = Context.Message.DeleteAsync();
+            await Context.Message.DeleteAsync();
 
             if (ValidateChannel(channel) is SocketVoiceChannel validatedChannel) {
                 IAudioClient audioClient = await validatedChannel.ConnectAsync();
@@ -67,7 +67,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("handwarmer")]
         [Cooldown(120)]
         public async Task HandWarmer(SocketVoiceChannel channel = null) {
-            _ = Context.Message.DeleteAsync();
+            await Context.Message.DeleteAsync();
 
             if (ValidateChannel(channel) is SocketVoiceChannel validatedChannel) {
                 IAudioClient audioClient = await validatedChannel.ConnectAsync();
@@ -82,7 +82,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("lifeguard")]
         [Cooldown(120)]
         public async Task Lifeguard(SocketVoiceChannel channel = null) {
-            _ = Context.Message.DeleteAsync();
+            await Context.Message.DeleteAsync();
 
             if (ValidateChannel(channel) is SocketVoiceChannel validatedChannel) {
                 IAudioClient audioClient = await validatedChannel.ConnectAsync();
@@ -97,7 +97,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("producer")]
         [Cooldown(120)]
         public async Task Producer(SocketVoiceChannel channel = null) {
-            _ = Context.Message.DeleteAsync();
+            await Context.Message.DeleteAsync();
 
             if (ValidateChannel(channel) is SocketVoiceChannel validatedChannel) {
                 IAudioClient audioClient = await validatedChannel.ConnectAsync();
@@ -112,7 +112,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("staypositive")]
         [Cooldown(120)]
         public async Task StayPositive(SocketVoiceChannel channel = null) {
-            _ = Context.Message.DeleteAsync();
+            await Context.Message.DeleteAsync();
 
             if (ValidateChannel(channel) is SocketVoiceChannel validatedChannel) {
                 IAudioClient audioClient = await validatedChannel.ConnectAsync();

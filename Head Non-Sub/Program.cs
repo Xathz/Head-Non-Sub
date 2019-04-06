@@ -58,7 +58,7 @@ namespace HeadNonSub {
             await DiscordClient.ConnectAsync();
 
             // Connect to twitch
-            TwitchClient.ConnectApi();
+            await TwitchClient.ConnectApiAsync();
 
             // Block and wait
             await UserInputAsync();
@@ -84,7 +84,8 @@ namespace HeadNonSub {
                     string message = input.Replace(args[0], "").Replace(args[1], "").Trim();
 
                     if (args.Length >= 2) {
-                        ulong? reply = DiscordClient.SendMessageToChannelAsync(ulong.Parse(args[1]), message).Result;
+                        ulong? reply = await DiscordClient.SendMessageToChannelAsync(ulong.Parse(args[1]), message);
+
                         if (reply.HasValue) {
                             Console.WriteLine($"Message was sent: {reply.Value}");
                         } else {

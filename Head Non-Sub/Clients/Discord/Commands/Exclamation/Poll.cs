@@ -15,7 +15,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     public class Poll : BetterModuleBase {
 
         [Command("trashpoll")]
-        public Task TrashPoll([Remainder]string input) {
+        public async Task TrashPoll([Remainder]string input) {
             IGuildUser user = Context.User as IGuildUser;
 
             StringBuilder content = new StringBuilder();
@@ -67,18 +67,16 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 Text = "Answer using the reactions below"
             };
 
-            Context.Message.DeleteAsync();
+            await Context.Message.DeleteAsync();
 
-            IUserMessage message = BetterReplyAsync(builder.Build(), parameters: input).Result;
+            IUserMessage message = await BetterReplyAsync(builder.Build(), parameters: input);
 
             // Might throw if the bot does not have access to the emote
             foreach (IEmote reaction in reactions) {
                 try {
-                    message.AddReactionAsync(reaction);
+                    await message.AddReactionAsync(reaction);
                 } catch { }
             }
-
-            return Task.CompletedTask;
         }
 
     }

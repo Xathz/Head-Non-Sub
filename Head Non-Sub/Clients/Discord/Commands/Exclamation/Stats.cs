@@ -20,14 +20,14 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("truecount")]
         public Task TrueCount() {
-            long count = StatisticsManager.TrueCount(Context.Guild.Id);
+            long count = StatisticsManager.GetTrueCount(Context.Guild.Id);
 
             return BetterReplyAsync($"There are {count.ToString("N0")} truths here.");
         }
 
         [Command("sayscount")]
         public Task SaysCount() {
-            List<KeyValuePair<string, long>> says = StatisticsManager.SaysCount(Context.Guild.Id, _CommandNames);
+            List<KeyValuePair<string, long>> says = StatisticsManager.GetSaysCount(Context.Guild.Id, _CommandNames);
 
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),

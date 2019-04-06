@@ -12,43 +12,40 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     public class Fake : BetterModuleBase {
 
         [Command("dating"), Alias("speeddating", "datenight")]
-        public Task Dating() {
-            IUserMessage message = BetterReplyAsync($"Haha {Context.User.Username}, you are alone.").Result;
+        public async Task Dating() {
+            IUserMessage message = await BetterReplyAsync($"Haha {Context.User.Username}, you are alone.");
             IEmote emote = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 461043064979456012);
 
             if (emote is IEmote) {
-                message.AddReactionAsync(emote);
+                await message.AddReactionAsync(emote);
             }
-
-            return Task.CompletedTask;
         }
 
         [Command("executie")]
         [Cooldown(300)]
         [SubscriberOnly]
-        public Task Executie(SocketUser user = null, [Remainder]string reason = "") {
+        public async Task Executie(SocketUser user = null, [Remainder]string reason = "") {
             if (user == null) {
-                return BetterReplyAsync("You must mention a user to executie them.");
+                await BetterReplyAsync("You must mention a user to executie them.");
+                return;
             }
 
-            BetterReplyAsync($"{user.Mention} you have 10 seconds to say last words before you are executie'd.", parameters: $"{user.ToString()}, {reason}").Wait();
-            Task.Delay(10000).Wait();
+            await BetterReplyAsync($"{user.Mention} you have 10 seconds to say last words before you are executie'd.", parameters: $"{user.ToString()}, {reason}");
+            await Task.Delay(10000);
 
-            ReplyAsync($"10 seconds over. Now executing {user.ToString()} for reason: `{reason}`...").Wait();
+            await ReplyAsync($"10 seconds over. Now executing {user.ToString()} for reason: `{reason}`...");
 
-            Task.Delay(1000).Wait();
-            ReplyAsync("3");
-            Task.Delay(1000).Wait();
-            ReplyAsync("2");
-            Task.Delay(1000).Wait();
-            ReplyAsync("1").Wait();
+            await Task.Delay(1000);
+            await ReplyAsync("3");
+            await Task.Delay(1000);
+            await ReplyAsync("2");
+            await Task.Delay(1000);
+            await ReplyAsync("1");
 
-            Task.Delay(200).Wait();
-            IUserMessage message = ReplyAsync($"The target, `{user.ToString()}` has been hugged and their messages from the past 69 days have also been hugged. :heart:").Result;
+            await Task.Delay(200);
+            IUserMessage message = await ReplyAsync($"The target, `{user.ToString()}` has been hugged and their messages from the past 69 days have also been hugged. :heart:");
 
-            message.AddReactionAsync(new Emoji("🍆"));
-
-            return Task.CompletedTask;
+            await message.AddReactionAsync(new Emoji("🍆"));
         }
 
     }

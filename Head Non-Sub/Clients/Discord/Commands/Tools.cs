@@ -24,18 +24,17 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 $"```Ping: {Context.Message.CreatedAt.DateTime.ToString(Constants.DateTimeFormat)}{Environment.NewLine}Pong: {now.ToString(Constants.DateTimeFormat)}```");
         }
 
-      [Command("failfast")]
-      [DiscordStaffOnly]
-        public Task FailFast() {
+        [Command("failfast")]
+        [DiscordStaffOnly]
+        public async Task FailFast() {
             LoggingManager.Log.Fatal($"Forcibly disconnected from Discord. Server: {Context.Guild.Name} ({Context.Guild.Id}); Channel: {Context.Channel.Name} ({Context.Channel.Id}); User: {Context.User.Username} ({Context.User.Id})");
-            BetterReplyAsync("Forcibly disconnecting from Discord, please tell <@!227088829079617536> as soon as possible. Good bye.").Wait();
+            await BetterReplyAsync("Forcibly disconnecting from Discord, please tell <@!227088829079617536> as soon as possible. Good bye.");
 
             DiscordClient.FailFast();
-            return Task.CompletedTask;
         }
 
         [Command("random")]
-        public Task Random([Remainder]string type = "") {
+        public async Task Random([Remainder]string type = "") {
             SocketGuildUser randomUser = null;
 
             if (type == "sub") {
@@ -61,7 +60,8 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 randomUser = Context.Guild.Users.Where(x => x.Id == 177657233025400832).FirstOrDefault();
 
             } else {
-                return BetterReplyAsync("**Valid roles are:** sub *(includes twitch and patreon roles)*, nonsub, tier3, admin, mod, tree, 5'8\"", parameters: type);
+                await BetterReplyAsync("**Valid roles are:** sub *(includes twitch and patreon roles)*, nonsub, tier3, admin, mod, tree, 5'8\"", parameters: type);
+                return;
             }
 
             // If it is a valid user
@@ -78,9 +78,9 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     Text = $"Random user requested by {BetterUserFormat(useGrave: false)}"
                 };
 
-                IUserMessage message = BetterReplyAsync(embed: builder.Build(), parameters: type).Result;
+                IUserMessage message = await BetterReplyAsync(embed: builder.Build(), parameters: type);
 
-                Task.Delay(8000).Wait();
+                await Task.Delay(8000);
 
                 builder.Title = BetterUserFormat(randomUser);
                 builder.ThumbnailUrl = null;
@@ -92,17 +92,15 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     builder.AddField("Joined server", $"{randomUser.JoinedAt.Value.DateTime.ToShortDateString()} {randomUser.JoinedAt.Value.DateTime.ToShortTimeString()}", true);
                 }
 
-                message.ModifyAsync(x => { x.Embed = builder.Build(); }).Wait();
+                await message.ModifyAsync(x => { x.Embed = builder.Build(); });
 
             } else {
-                _ = BetterReplyAsync("Failed to select a random user.");
+                await BetterReplyAsync("Failed to select a random user.");
             }
-
-            return Task.CompletedTask;
         }
 
         [Command("undo")]
-        public Task Undo(int count = 1) {
+        public async Task Undo(int count = 1) {
             List<ulong> toDelete = new List<ulong> { Context.Message.Id };
 
             if (Context.Channel is SocketTextChannel channel) {
@@ -110,18 +108,17 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     toDelete.Add(messageId);
                 }
 
-                channel.DeleteMessagesAsync(toDelete).Wait();
+                await channel.DeleteMessagesAsync(toDelete);
             }
 
             TrackStatistics(parameters: count.ToString());
-            return Task.CompletedTask;
         }
 
         [Command("undobot")]
         [DiscordStaffOnly]
-        public Task UndoBot(int messageCount = 100) {
+        public async Task UndoBot(int messageCount = 100) {
             if (messageCount == 0 || messageCount > 500) {
-                return BetterReplyAsync("Must be between 1 and 500.", messageCount.ToString());
+                await BetterReplyAsync("Must be between 1 and 500.", messageCount.ToString());
             }
 
             EmbedBuilder builder = new EmbedBuilder() {
@@ -131,42 +128,36 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 ThumbnailUrl = Constants.LoadingGifUrl
             };
 
-            IUserMessage noticeMessage = BetterReplyAsync(builder.Build(), messageCount.ToString()).Result;
+            IUserMessage noticeMessage = await BetterReplyAsync(builder.Build(), messageCount.ToString());
 
             try {
-                List<ulong> toDelete = new List<ulong> { Context.Message.Id };
+                List<IMessage> toDelete = new List<IMessage> { Context.Message };
 
                 if (Context.Channel is SocketTextChannel channel) {
                     IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(500).Flatten();
-                    IEnumerable<ulong> foundToDelete = messages.Where(x => (x.Author.Id == Context.Client.CurrentUser.Id)).OrderByDescending(x => x.CreatedAt).Take(messageCount).Select(x => x.Id).ToEnumerable();
+                    IEnumerable<IMessage> foundToDelete = messages.Where(x => (x.Author.Id == Context.Client.CurrentUser.Id)).OrderByDescending(x => x.CreatedAt).Take(messageCount).ToEnumerable();
                     toDelete.AddRange(foundToDelete);
 
-                    channel.DeleteMessagesAsync(toDelete).Wait();
+                    await channel.DeleteMessagesAsync(toDelete);
                 }
+            } catch { }
 
-                noticeMessage.DeleteAsync();
-            } catch {
-                return BetterReplyAsync("Failed to delete messages.");
-            } finally {
-                noticeMessage.DeleteAsync();
-            }
-
-            return Task.CompletedTask;
+            await noticeMessage.DeleteAsync();
         }
 
         [Command("servermap")]
         [DiscordStaffOnly]
-        public Task ServerMap() {
+        public async Task ServerMap() {
             try {
                 ServerMap map = new ServerMap(Context);
                 string jsonFile = map.Generate();
 
-                Context.User.SendFileAsync(jsonFile, $"{Context.Guild.Name} (`{Context.Guild.Id}`): Server Map").Wait();
+                await Context.User.SendFileAsync(jsonFile, $"{Context.Guild.Name} (`{Context.Guild.Id}`): Server Map");
 
-                return BetterReplyAsync($"{Context.User.Mention} the server map was sent to you privately. The message may be blocked if you reject direct messages.");
+                await BetterReplyAsync($"{Context.User.Mention} the server map was sent to you privately. The message may be blocked if you reject direct messages.");
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
-                return BetterReplyAsync("Failed to generate the server map.");
+                await BetterReplyAsync("Failed to generate the server map.");
             }
         }
 

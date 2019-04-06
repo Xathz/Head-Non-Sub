@@ -16,40 +16,38 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("rave")]
         [Cooldown(1800)]
         [SubscriberOnly]
-        public Task Rave([Remainder]string input) {
+        public async Task Rave([Remainder]string input) {
             string[] messages = input.Split(' ');
 
             RaveTracker.Track(Context.Guild.Id, Context.Channel.Id);
 
             foreach (string message in messages) {
-                if (RaveTracker.IsStopped(Context.Guild.Id, Context.Channel.Id)) { return Task.CompletedTask; }
+                if (RaveTracker.IsStopped(Context.Guild.Id, Context.Channel.Id)) { return; }
 
-                ReplyAsync($":crab: {message} :crab:").Wait();
-                Task.Delay(1250).Wait();
+                await ReplyAsync($":crab: {message} :crab:");
+                await Task.Delay(1250);
             }
 
             TrackStatistics(parameters: input);
-            return Task.CompletedTask;
         }
 
         [Command("ravve")]
         [Cooldown(1800)]
         [SubscriberOnly]
-        public Task Ravve([Remainder] int length = 30) {
+        public async Task Ravve([Remainder] int length = 30) {
             RaveTracker.Track(Context.Guild.Id, Context.Channel.Id);
             Random random = new Random();
 
             for (int i = 0; i < length; i++) {
-                if (RaveTracker.IsStopped(Context.Guild.Id, Context.Channel.Id)) { return Task.CompletedTask; }
+                if (RaveTracker.IsStopped(Context.Guild.Id, Context.Channel.Id)) { return; }
 
                 string message = ":crab:".PadLeft(random.Next(0, 35), '.');
 
-                ReplyAsync(message).Wait();
-                Task.Delay(1250).Wait();
+                await ReplyAsync(message);
+                await Task.Delay(1250);
             }
 
             TrackStatistics(parameters: length.ToString());
-            return Task.CompletedTask;
         }
 
         [Command("ravestop"), Alias("stoprave", "stopraves")]
@@ -62,12 +60,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("raveundo"), Alias("undorave", "undoraves")]
         [DiscordStaffOnly]
-        public Task RaveUndo(int messageCount = 300) {
+        public async Task RaveUndo(int messageCount = 300) {
             if (messageCount == 0 || messageCount > 500) {
-                return BetterReplyAsync("Must be between 1 and 500.", messageCount.ToString());
+                await BetterReplyAsync("Must be between 1 and 500.", messageCount.ToString());
+                return;
             }
 
-            Context.Message.DeleteAsync();
+            await Context.Message.DeleteAsync();
 
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
@@ -76,7 +75,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 ThumbnailUrl = Constants.LoadingGifUrl
             };
 
-            IUserMessage noticeMessage = BetterReplyAsync(builder.Build(), messageCount.ToString()).Result;
+            IUserMessage noticeMessage = await BetterReplyAsync(builder.Build(), messageCount.ToString());
 
             try {
                 if (Context.Channel is SocketTextChannel channel) {
@@ -86,15 +85,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     (x.Content.StartsWith(":crab:")) || (x.Content.StartsWith(".") & x.Content.Contains(":crab:")))
                     .OrderByDescending(x => x.CreatedAt).Take(messageCount).ToEnumerable();
 
-                    channel.DeleteMessagesAsync(toDelete).Wait();
+                    await channel.DeleteMessagesAsync(toDelete);
                 }
             } catch {
-                return BetterReplyAsync("Failed to delete messages.");
+                await BetterReplyAsync("Failed to delete messages.");
             } finally {
-                noticeMessage.DeleteAsync();
+                await noticeMessage.DeleteAsync();
             }
-
-            return Task.CompletedTask;
         }
 
     }

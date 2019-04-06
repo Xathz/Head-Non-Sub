@@ -15,7 +15,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     public class Rythm : BetterModuleBase {
 
         [Command("randomsong")]
-        public Task RandomSong() {
+        public async Task RandomSong() {
             IMessage randomMessage = null;
 
             // 'bot-commands'
@@ -27,7 +27,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     .Where(x => x.Author.IsBot & (x.Author.Id == 235088799074484224 || x.Author.Id == 252128902418268161))
                     .Where(x => x.Embeds.Any(e => e.Author.HasValue ? e.Author.Value.Name.Contains("Added to queue") : false));
 
-                randomMessage = validMessages.ToList().Result.PickRandom();
+                randomMessage = (await validMessages.ToList()).PickRandom();
             }
 
             if (randomMessage is IMessage) {
@@ -42,19 +42,17 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     Name = $"Random Song from {randomMessage.Author.Username}"
                 };
 
-                IUserMessage reply = BetterReplyAsync(embed: builder.Build()).Result;
+                IUserMessage reply = await BetterReplyAsync(embed: builder.Build());
 
                 try {
                     IEmote upvotepost = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 529559392157171731);
                     IEmote downvotepost = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 529560241751457803);
 
-                    reply.AddReactionAsync(upvotepost).Wait();
-                    reply.AddReactionAsync(downvotepost).Wait();
+                    await reply.AddReactionAsync(upvotepost);
+                    await reply.AddReactionAsync(downvotepost);
                 } catch { }
-
-                return Task.CompletedTask;
             } else {
-                return BetterReplyAsync("Failed to pick a random song.");
+                await BetterReplyAsync("Failed to pick a random song.");
             }
 
         }

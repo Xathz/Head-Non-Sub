@@ -54,6 +54,13 @@ namespace HeadNonSub.Clients.Discord {
 
             SocketCommandContext context = new SocketCommandContext(_DiscordClient, userMessage);
 
+#if DEBUG
+            if (context.User.Id != Constants.XathzUserId) {
+                await context.Channel.SendMessageAsync($"{context.User.Mention} I am currently being worked on, please try that again later.");
+                return;
+            }
+#endif
+
             await _Commands.ExecuteAsync(context, argPos, _Services);
         }
 

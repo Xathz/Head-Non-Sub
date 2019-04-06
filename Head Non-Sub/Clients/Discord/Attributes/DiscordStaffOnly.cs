@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 
@@ -11,15 +10,9 @@ namespace HeadNonSub.Clients.Discord.Attributes {
 
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services) {
             if (context.User is SocketGuildUser user) {
-                IApplication application = context.Client.GetApplicationInfoAsync().Result;
 
                 // Xathz
                 if (user.Id == Constants.XathzUserId) {
-                    return Task.FromResult(PreconditionResult.FromSuccess());
-                }
-
-                // Bot owner
-                if (user.Id == application.Owner.Id) {
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
 

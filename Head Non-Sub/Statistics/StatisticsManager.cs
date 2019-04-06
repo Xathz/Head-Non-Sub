@@ -53,7 +53,7 @@ namespace HeadNonSub.Statistics {
         /// <summary>
         /// Get the number of times the true command was executed.
         /// </summary>
-        public static long TrueCount(ulong serverId) {
+        public static long GetTrueCount(ulong serverId) {
             try {
                 using (StatisticsContext statistics = new StatisticsContext()) {
                     return statistics.Commands.Where(x => x.ServerId == serverId & x.CommandName == "ThatsTrue").LongCount();
@@ -67,7 +67,7 @@ namespace HeadNonSub.Statistics {
         /// <summary>
         /// Get the number of times each says command was executed order by count.
         /// </summary>
-        public static List<KeyValuePair<string, long>> SaysCount(ulong serverId, Dictionary<string, string> commandNames) {
+        public static List<KeyValuePair<string, long>> GetSaysCount(ulong serverId, Dictionary<string, string> commandNames) {
             try {
                 using (StatisticsContext statistics = new StatisticsContext()) {
                     return statistics.Commands.Where(x => x.ServerId == serverId & commandNames.Any(c => c.Key == x.CommandName))

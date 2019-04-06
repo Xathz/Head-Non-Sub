@@ -5,6 +5,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
+using HeadNonSub.Database;
 using HeadNonSub.Entities.Database.UserNote;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
@@ -15,12 +16,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     public class UserNotes : BetterModuleBase {
 
         [Command("notes")]
-        public Task Notes(SocketUser user = null) {
+        public async Task Notes(SocketUser user = null) {
             if (user == null) {
-                return BetterReplyAsync("You must mention a user to get their notes.");
+                await BetterReplyAsync("You must mention a user to get their notes.");
+                return;
             }
 
-            List<Note> notes = Database.DatabaseManager.UserNotes.GetUser(Context.Guild.Id, user.Id);
+            List<Note> notes = DatabaseManager.UserNotes.GetUser(Context.Guild.Id, user.Id);
 
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
@@ -35,17 +37,19 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 builder.Title = $"There are no notes about {BetterUserFormat(user)}";
             }
 
-            return BetterReplyAsync(builder.Build(), $"{user.ToString()} ({user.Id})");
+            await BetterReplyAsync(builder.Build(), $"{user.ToString()} ({user.Id})");
         }
 
         [Command("addnote")]
-        public Task AddNote(SocketUser user = null, [Remainder]string note = "") {
+        public async Task AddNote(SocketUser user = null, [Remainder]string note = "") {
             if (user == null) {
-                return BetterReplyAsync("You must mention a user to add a note.");
+                await BetterReplyAsync("You must mention a user to add a note.");
+                return;
             }
 
             if (string.IsNullOrWhiteSpace(note)) {
-                return BetterReplyAsync($"You did not enter a note to add to {user.ToString()}");
+                await BetterReplyAsync($"You did not enter a note to add to {user.ToString()}");
+                return;
             }
 
             Note item = new Note {
@@ -54,38 +58,40 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 Text = note
             };
 
-            Database.DatabaseManager.UserNotes.Insert(Context.Guild.Id, user.Id, item);
+            DatabaseManager.UserNotes.Insert(Context.Guild.Id, user.Id, item);
 
-            return BetterReplyAsync($"Note added about {BetterUserFormat(user)}.", $"{user.ToString()} ({user.Id}); {note}");
+            await BetterReplyAsync($"Note added about {BetterUserFormat(user)}.", $"{user.ToString()} ({user.Id}); {note}");
         }
 
         [Command("deletenote")]
-        public Task DeleteNote(SocketUser user = null, [Remainder]string noteId = "") {
+        public async Task DeleteNote(SocketUser user = null, [Remainder]string noteId = "") {
             if (user == null) {
-                return BetterReplyAsync("You must mention a user to delete a note about them.");
+                await BetterReplyAsync("You must mention a user to delete a note about them.");
+                return;
             }
 
             if (string.IsNullOrWhiteSpace(noteId)) {
-                return BetterReplyAsync($"You did not enter a note id to delete.", $"{user.ToString()} ({user.Id}); {noteId}");
+                await BetterReplyAsync($"You did not enter a note id to delete.", $"{user.ToString()} ({user.Id}); {noteId}");
             } else {
-                if (Database.DatabaseManager.UserNotes.Delete(Context.Guild.Id, user.Id, noteId)) {
-                    return BetterReplyAsync($"Note about {BetterUserFormat(user)} was deleted.", $"{user.ToString()} ({user.Id}); {noteId}");
+                if (DatabaseManager.UserNotes.Delete(Context.Guild.Id, user.Id, noteId)) {
+                    await BetterReplyAsync($"Note about {BetterUserFormat(user)} was deleted.", $"{user.ToString()} ({user.Id}); {noteId}");
                 } else {
-                    return BetterReplyAsync($"Invalid note id.", $"{user.ToString()} ({user.Id}); {noteId}");
+                    await BetterReplyAsync($"Invalid note id.", $"{user.ToString()} ({user.Id}); {noteId}");
                 }
             }
         }
 
         [Command("deleteallnotes")]
-        public Task DeleteAllNotes(SocketUser user = null) {
+        public async Task DeleteAllNotes(SocketUser user = null) {
             if (user == null) {
-                return BetterReplyAsync("You must mention a user to delete all notes about them.");
+                await BetterReplyAsync("You must mention a user to delete all notes about them.");
+                return;
             }
 
-            if (Database.DatabaseManager.UserNotes.DeleteAll(Context.Guild.Id, user.Id)) {
-                return BetterReplyAsync($"All notes about {BetterUserFormat(user)} were deleted.", $"{user.ToString()} ({user.Id})");
+            if (DatabaseManager.UserNotes.DeleteAll(Context.Guild.Id, user.Id)) {
+                await BetterReplyAsync($"All notes about {BetterUserFormat(user)} were deleted.", $"{user.ToString()} ({user.Id})");
             } else {
-                return BetterReplyAsync($"There are no notes about {BetterUserFormat(user)}.", $"{user.ToString()} ({user.Id})");
+                await BetterReplyAsync($"There are no notes about {BetterUserFormat(user)}.", $"{user.ToString()} ({user.Id})");
             }
         }
 

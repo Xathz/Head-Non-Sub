@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -80,18 +80,21 @@ namespace HeadNonSub.Clients.Discord.Commands {
         }
 
         [Command("list")]
-        public Task List(int minutes = 10) {
+        public async Task List(int minutes = 10) {
             if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
-                return BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
+                await BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
+                return;
             }
 
             if (minutes == 0 || minutes > 20160) {
-                return BetterReplyAsync("Must be between 1 and 20160 (2 weeks). Rarely should this be greater than 10 unless a raid went unnoticed for longer.", minutes.ToString());
+                await BetterReplyAsync("Must be between 1 and 20160 (2 weeks). Rarely should this be greater than 10 unless a raid went unnoticed for longer.", minutes.ToString());
+                return;
             }
 
-            IUserMessage message = BetterReplyAsync(embed: LoadingEmbed("Generating list"), parameters: minutes.ToString()).Result;
+            IUserMessage message = await BetterReplyAsync(embed: LoadingEmbed("Generating list"), parameters: minutes.ToString());
 
-            List<IGrouping<IUser, IMessage>> messagesPerUser = GetMessages().OrderByDescending(x => x.CreatedAt)
+            ConcurrentBag<IMessage> messages = await GetMessagesAsync();
+            List<IGrouping<IUser, IMessage>> messagesPerUser = messages.OrderByDescending(x => x.CreatedAt)
                 .Where(x => x.CreatedAt > DateTime.UtcNow.AddMinutes(-minutes))
                 .Where(x => IsSuspected(x.Author))
                 .GroupBy(x => x.Author)
@@ -109,70 +112,74 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 }
                 builder.AppendLine("```");
 
-                message.ModifyAsync(x => { x.Embed = null; x.Content = builder.ToString(); });
+                await message.ModifyAsync(x => { x.Embed = null; x.Content = builder.ToString(); });
             } else {
-                message.ModifyAsync(x => { x.Embed = null; x.Content = $"There are no suspected users from the past {minutes.Minutes().Humanize(3)}."; });
+                await message.ModifyAsync(x => { x.Embed = null; x.Content = $"There are no suspected users from the past {minutes.Minutes().Humanize(3)}."; });
             }
-
-            return Task.CompletedTask;
         }
 
         [Command("clean")]
-        public Task Clean(int minutes = 10) {
+        public async Task Clean(int minutes = 10) {
             if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
-                return BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
+                await BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
+                return;
             }
 
             if (minutes == 0 || minutes > 20160) {
-                return BetterReplyAsync("Must be between 1 and 20160 (2 weeks). Rarely should this be greater than 10 unless a raid went unnoticed for longer.", minutes.ToString());
+                await BetterReplyAsync("Must be between 1 and 20160 (2 weeks). Rarely should this be greater than 10 unless a raid went unnoticed for longer.", minutes.ToString());
+                return;
             }
 
-            IUserMessage message = BetterReplyAsync(embed: LoadingEmbed("Deleting messages", "Staff messages will be preserved."), parameters: minutes.ToString()).Result;
+            IUserMessage message = await BetterReplyAsync(embed: LoadingEmbed("Deleting messages", "Staff messages will be preserved."), parameters: minutes.ToString());
 
             SocketTextChannel channel = Context.Channel as SocketTextChannel;
-            IEnumerable<IMessage> messagesToDelete = GetMessages().OrderByDescending(x => x.CreatedAt)
+
+            ConcurrentBag<IMessage> messages = await GetMessagesAsync();
+            IEnumerable<IMessage> messagesToDelete = messages.OrderByDescending(x => x.CreatedAt)
                 .Where(x => x.CreatedAt > DateTime.UtcNow.AddMinutes(-minutes))
                 .Where(x => IsSuspected(x.Author));
 
-            channel.DeleteMessagesAsync(messagesToDelete).Wait();
+            await channel.DeleteMessagesAsync(messagesToDelete);
 
-            message.ModifyAsync(x => { x.Embed = null; x.Content = $"Deleted {messagesToDelete.Count()} messages from the past {minutes.Minutes().Humanize(3)}."; });
-
-            return Task.CompletedTask;
+            await message.ModifyAsync(x => { x.Embed = null; x.Content = $"Deleted {messagesToDelete.Count()} messages from the past {minutes.Minutes().Humanize(3)}."; });
         }
 
         [Command("ban")]
         [RequireBotPermission(GuildPermission.BanMembers, ErrorMessage = "I do not have the `Ban Members` permission.")]
-        public Task Ban(int minutes = 10, [Remainder]string banToken = "") {
+        public async Task Ban(int minutes = 10, [Remainder]string banToken = "") {
             if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
-                return BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
+                await BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
+                return;
             }
 
             if (minutes == 0 || minutes > 20160) {
-                return BetterReplyAsync("Must be between 1 and 20160 (2 weeks). Rarely should this be greater than 10 unless a raid went unnoticed for longer.", minutes.ToString());
+                await BetterReplyAsync("Must be between 1 and 20160 (2 weeks). Rarely should this be greater than 10 unless a raid went unnoticed for longer.", minutes.ToString());
+                return;
             }
 
             if (!string.IsNullOrWhiteSpace(banToken)) {
                 if (RaidRecoveryTracker.ValidateBanToken(Context.Channel.Id, banToken)) {
-                    IUserMessage banningMessage = BetterReplyAsync(embed: LoadingEmbed("Banning users"), parameters: minutes.ToString()).Result;
+                    IUserMessage banningMessage = await BetterReplyAsync(embed: LoadingEmbed("Banning users"), parameters: minutes.ToString());
                     HashSet<ulong> usersIdsToBan = RaidRecoveryTracker.UsersToBan(Context.Channel.Id);
 
                     try {
                         foreach (ulong user in usersIdsToBan) {
-                            Context.Guild.AddBanAsync(user, 1, $"Banned by '{Context.User.ToString()}' using the bot '{Context.Guild.CurrentUser.Username}' raid recovery system on {DateTime.UtcNow.ToString("o")}");
+                            await Context.Guild.AddBanAsync(user, 1, $"Banned by '{Context.User.ToString()}' using the bot '{Context.Guild.CurrentUser.Username}' raid recovery system on {DateTime.UtcNow.ToString("o")}");
                         }
                     } catch { }
 
-                    banningMessage.ModifyAsync(x => { x.Embed = null; x.Content = $"Banned {usersIdsToBan.Count} users."; });
-                    return Task.CompletedTask;
+                    await banningMessage.ModifyAsync(x => { x.Embed = null; x.Content = $"Banned {usersIdsToBan.Count} users."; });
+                    return;
                 } else {
-                    return BetterReplyAsync("Invalid ban token.");
+                    await BetterReplyAsync("Invalid ban token.");
+                    return;
                 }
             }
 
-            IUserMessage message = BetterReplyAsync(embed: LoadingEmbed("Generating list of users to ban"), parameters: minutes.ToString()).Result;
+            IUserMessage message = await BetterReplyAsync(embed: LoadingEmbed("Generating list of users to ban"), parameters: minutes.ToString());
 
-            IEnumerable<IUser> usersToBan = GetMessages().OrderByDescending(x => x.CreatedAt)
+            ConcurrentBag<IMessage> messages = await GetMessagesAsync();
+            IEnumerable<IUser> usersToBan = messages.OrderByDescending(x => x.CreatedAt)
                 .Where(x => x.CreatedAt > DateTime.UtcNow.AddMinutes(-minutes))
                 .Where(x => IsSuspected(x.Author))
                 .GroupBy(x => x.Author)
@@ -192,16 +199,14 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 }
                 builder.AppendLine("```");
 
-                message.ModifyAsync(x => { x.Embed = null; x.Content = builder.ToString(); });
+                await message.ModifyAsync(x => { x.Embed = null; x.Content = builder.ToString(); });
 
-                BetterReplyAsync($"Ban confirmation. Selected time frame: {minutes.Minutes().Humanize(3)}; Token: `{RaidRecoveryTracker.BanToken(Context.Channel.Id)}`{Environment.NewLine}{Environment.NewLine}" +
+                await BetterReplyAsync($"**Ban confirmation.** Selected time frame: {minutes.Minutes().Humanize(3)}; Token: `{RaidRecoveryTracker.BanToken(Context.Channel.Id)}`{Environment.NewLine}{Environment.NewLine}" +
                     $"Type `@{Context.Guild.CurrentUser.Username} rr skip @User` to remove them from the ban list.{Environment.NewLine}" +
-                    $"Type `@{Context.Guild.CurrentUser.Username} rr ban {minutes} {RaidRecoveryTracker.BanToken(Context.Channel.Id)}` to ban the users above.").Wait();
+                    $"Type `@{Context.Guild.CurrentUser.Username} rr ban {minutes} {RaidRecoveryTracker.BanToken(Context.Channel.Id)}` to ban the users above.");
             } else {
-                message.ModifyAsync(x => { x.Embed = null; x.Content = $"There are no suspected users to ban from the past {minutes.Minutes().Humanize(3)}."; });
+                await message.ModifyAsync(x => { x.Embed = null; x.Content = $"There are no suspected users to ban from the past {minutes.Minutes().Humanize(3)}."; });
             }
-
-            return Task.CompletedTask;
         }
 
         [Command("skip")]
@@ -222,9 +227,9 @@ namespace HeadNonSub.Clients.Discord.Commands {
             }
         }
 
-        private ReadOnlyCollection<IMessage> GetMessages() {
+        private async Task<ConcurrentBag<IMessage>> GetMessagesAsync() {
             if (Context.Channel is SocketTextChannel channel) {
-                List<IMessage> channelMessages = new List<IMessage>();
+                ConcurrentBag<IMessage> channelMessages = new ConcurrentBag<IMessage>();
                 channel.CachedMessages.ToList().ForEach(x => {
                     if (!channelMessages.Any(m => m.Id == x.Id)) {
                         channelMessages.Add(x);
@@ -232,22 +237,24 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 });
 
                 if (channelMessages.Count > 0) {
-                    channel.GetMessagesAsync(channelMessages.OrderBy(x => x.CreatedAt).FirstOrDefault(), Direction.Before, 1000).Flatten().ToList().Result.ForEach(x => {
+                    IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(channelMessages.OrderBy(x => x.CreatedAt).FirstOrDefault(), Direction.Before, 1000).Flatten();
+                    await messages.ForEachAsync(x => {
                         if (!channelMessages.Any(m => m.Id == x.Id)) {
                             channelMessages.Add(x);
                         }
                     });
                 } else {
-                    channel.GetMessagesAsync(1000).Flatten().ToList().Result.ForEach(x => {
+                    IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(1000).Flatten();
+                    await messages.ForEachAsync(x => {
                         if (!channelMessages.Any(m => m.Id == x.Id)) {
                             channelMessages.Add(x);
                         }
                     });
                 }
 
-                return channelMessages.ToList().AsReadOnly();
+                return channelMessages;
             } else {
-                return new List<IMessage>().AsReadOnly();
+                return new ConcurrentBag<IMessage>();
             }
         }
 
