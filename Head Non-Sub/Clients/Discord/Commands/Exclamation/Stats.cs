@@ -31,7 +31,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
-                Title = $"Top used 'says' command {string.Concat(Enumerable.Repeat(Constants.DoubleSpace, 20))}"
+                Title = $"Top Used 'says' Commands {string.Concat(Enumerable.Repeat(Constants.DoubleSpace, 20))}"
             };
 
             builder.AddField("Command . . . Times Used", $"```{string.Join(Environment.NewLine, says.Select(x => $"{x.Key.PadRight(20, '.')} {x.Value}"))}```");

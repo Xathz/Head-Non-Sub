@@ -123,7 +123,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
-                Title = $"Undoing {Context.Client.CurrentUser.Username} messages...",
+                Title = $"Undoing {Context.Client.CurrentUser.Username} Messages",
                 Description = $"Deleting up to {messageCount} bot messages",
                 ThumbnailUrl = Constants.LoadingGifUrl
             };

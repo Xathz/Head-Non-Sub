@@ -70,7 +70,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
-                Title = "Undoing raves...",
+                Title = "Undoing Raves",
                 Description = $"Deleting up to {messageCount} rave messages",
                 ThumbnailUrl = Constants.LoadingGifUrl
             };

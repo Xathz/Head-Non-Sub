@@ -41,8 +41,8 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
-                Title = "Raid recovery system enabled",
-                Description = "This channel is now in slow mode, normal uses can only send one message every two minutes."
+                Title = "Raid Recovery System Enabled",
+                Description = "This channel is now in slow mode, normal users can only send one message every two minutes."
             };
 
             builder.AddField("Commands", string.Join(Environment.NewLine, new string[] {
@@ -71,7 +71,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
-                Title = "Raid recovery system disabled",
+                Title = "Raid Recovery System Disabled",
                 Description = "This channel has returned to normal."
             };
 

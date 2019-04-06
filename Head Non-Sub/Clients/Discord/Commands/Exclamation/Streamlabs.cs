@@ -53,16 +53,11 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     $"Maximum duration: **{TimeSpan.FromSeconds(mediaShareMaxDuration).Humanize(3)}**");
 
             builder.AddField("Special Amounts", string.Join(Environment.NewLine, new string[] { $"These amounts will trigger different alerts on stream.",
-                        "420 Blazeit: **$4.20**",
-                        "420 Blazeit: **$420.00**",
-                        "The devil: **$6.66**",
-                        "The devil: **$666.00**",
-                        "The count: **$12.34**",
-                        "The count: **$1,234.00**",
-                        "Slurpee: **$7.11**",
-                        "Slurpee: **$711.00**",
-                        "Heh 69: **$6.90**",
-                        "Heh 69: **$69.00**",
+                        "420 Blazeit: **$4.20** / **$420.00**",
+                        "The devil: **$6.66** / **$666.00**",
+                        "The count: **$12.34** / **$1,234.00**",
+                        "Slurpee: **$7.11** / **$711.00**",
+                        "Heh 69: **$6.90** / **$69.00**",
                         "Wake up wubby: **$50.00**" }));
 
             builder.Footer = new EmbedFooterBuilder() {
