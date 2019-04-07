@@ -26,7 +26,6 @@ All | Everyone
 Sub | Users that have at least one role and do not have the `Non-sub` role<br>Users that have no roles can not use
 Staff | **Built-in roles:** `Administrator`<br>**Guild (server) roles:** `Admins`, `Mods`, `Mod-Lite`<br>**Users:** `Xathz#6861`
 Xathz | `Xathz#6861` only
-Owner | `tt2468#2468` only, as he [invited the bot](https://discordapp.com/developers/docs/topics/oauth2#bot-vs-user-accounts)
 
 ## Exclamation Commands `!<command> <parameter(s)>`
 
@@ -34,6 +33,8 @@ Mainly used for memes and random things.
 
 Command | Parameters | Description | Access
 --- | --- | --- | ---
+`stalk` | `<user>` | Stalk a user :eyes: | Sub
+`stopstalking` | `<user>` | Stop stalking a user. **Alias:** `stopstalk` | Sub
 `trashpoll` | `<text>` `<emotes and emoji>` | Sometimes it fails to use the emotes and emoji so it's trash | All
 `ttsays` | `<text>` | Make tt reflect upon something | All
 `1024says` | `<text>` | Render text on 1024's screen | All

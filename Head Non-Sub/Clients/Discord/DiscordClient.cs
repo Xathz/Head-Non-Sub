@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Settings;
+using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HeadNonSub.Clients.Discord {
@@ -64,6 +66,7 @@ namespace HeadNonSub.Clients.Discord {
             _DiscordClient.GuildAvailable += GuildAvailable;
             _DiscordClient.GuildMembersDownloaded += GuildMembersDownloaded;
 
+            _DiscordClient.GuildMemberUpdated += GuildMemberUpdated;
             _DiscordClient.MessageReceived += MessageReceived;
 
             _MentionProvider.GetRequiredService<CommandService>().Log += Log;
@@ -213,6 +216,34 @@ namespace HeadNonSub.Clients.Discord {
         private static Task GuildMembersDownloaded(SocketGuild guild) {
             LoggingManager.Log.Info($"Full memberlist was downloaded for {guild.Name} ({guild.Id})");
             return Task.CompletedTask;
+        }
+
+        private static Task GuildMemberUpdated(SocketGuildUser oldUser, SocketGuildUser newUser) {
+            Task runner = Task.Run(() => {
+                if (Cache.Stalkers.Any(x => x.serverId == oldUser.Guild.Id & x.stalkingUserId == oldUser.Id)) {
+                    SocketUser stalker = _DiscordClient.GetUser(Cache.Stalkers.FirstOrDefault(x => x.serverId == oldUser.Guild.Id & x.stalkingUserId == oldUser.Id).userId);
+                    StringBuilder builder = new StringBuilder();
+
+                    if (oldUser.ToString() != newUser.ToString()) {
+                        builder.Append($"Changed their username from `{oldUser.ToString()}` to `{newUser.ToString()}`");
+                    }
+
+                    if (oldUser.Nickname != newUser.Nickname) {
+                        string oldNickname = (string.IsNullOrEmpty(oldUser.Nickname) ? oldUser.Username : oldUser.Nickname);
+                        string newNickname = (string.IsNullOrEmpty(newUser.Nickname) ? newUser.Username : newUser.Nickname);
+
+                        builder.Append($"Changed their nickname from `{oldNickname}` to `{newNickname}`");
+                    }
+
+                    if (oldUser.Status.ToString() != newUser.Status.ToString()) {
+                        builder.Append($"Status changed from `{oldUser.Status.Humanize()}` to `{newUser.Status.Humanize()}`");
+                    }
+
+                    stalker.SendMessageAsync($"{(!string.IsNullOrWhiteSpace(newUser.Nickname) ? newUser.Nickname : newUser.Username)} `{newUser.ToString()}` on {_DiscordClient.GetGuild(oldUser.Guild.Id).Name} :eyes: {string.Join(". ", builder)}.");
+                }
+            });
+
+            return runner;
         }
 
         private static async Task MessageReceived(SocketMessage socketMessage) {
