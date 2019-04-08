@@ -9,25 +9,57 @@ namespace HeadNonSub.Extensions {
         /// <summary>
         /// Split a string into chunks based on max length.
         /// </summary>
-        public static List<string> SplitIntoChunks(this string input, int maxLength) {
+        public static IEnumerable<string> SplitIntoChunks(this string input, int maxChunkSize) {
             string[] words = input.Split(' ');
-            List<string> parts = new List<string>();
-            string part = string.Empty;
-            int partCounter = 0;
+            List<string> chunks = new List<string>();
+            int index = 0;
 
             foreach (string word in words) {
-                if (part.Length + word.Length < maxLength) {
-                    part += string.IsNullOrEmpty(part) ? word : $" {word}";
-                } else {
-                    parts.Add(part);
+                if (chunks.Count == index) {
+                    chunks.Add("");
+                }
 
-                    part = word;
-                    partCounter++;
+                if ((chunks[index].Length + word.Length) <= maxChunkSize) {
+                    chunks[index] += $" {word}";
+
+                } else {
+                    chunks.Add($" {word}");
+                    index++;
                 }
             }
-            parts.Add(part);
 
-            return parts;
+            return chunks.Select(x => x.Trim()).AsEnumerable();
+        }
+
+        /// <summary>
+        /// Split a string into chunks based on max length, preserving and not breaking words or before a new line. 
+        /// </summary>
+        public static IEnumerable<string> SplitIntoChunksPreserveNewLines(this string input, int maxChunkSize) {
+            string[] lines = input.Split(new string[] { Environment.NewLine, "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
+            List<string> chunks = new List<string>();
+            int index = 0;
+
+            foreach (string line in lines) {
+                string currentLine = $"{line}{Environment.NewLine}";
+
+                if (currentLine.Length > maxChunkSize) {
+                    throw new OverflowException("A single currentLine is longer than maxChunkSize.");
+                }
+
+                if (chunks.Count == index) {
+                    chunks.Add("");
+                }
+
+                if ((chunks[index].Length + currentLine.Length) <= maxChunkSize) {
+                    chunks[index] += currentLine;
+
+                } else {
+                    chunks.Add(currentLine);
+                    index++;
+                }
+            }
+
+            return chunks.Select(x => x.Trim()).AsEnumerable();
         }
 
         /// <summary>

@@ -37,8 +37,8 @@ namespace HeadNonSub.Database {
             /// Delete a live Twitch stream.
             /// </summary>
             /// <param name="username">Username of the stream.</param>
-            /// <returns>True if deleted; false if does not exist.</returns>
-            public static bool Delete(string username) {
+            /// <returns>DateTime of when stream went live, null if not deleted or error.</returns>
+            public static DateTime? Delete(string username) {
                 try {
                     using (DatabaseContext database = new DatabaseContext()) {
                         if (database.ActiveStreams.AsNoTracking().Any(x => x.Username == username)) {
@@ -47,14 +47,14 @@ namespace HeadNonSub.Database {
 
                             database.SaveChanges();
 
-                            return true;
+                            return stream.StartedAt;
                         } else {
-                            return false;
+                            return null;
                         }
                     }
                 } catch (Exception ex) {
                     LoggingManager.Log.Error(ex);
-                    return false;
+                    return null;
                 }
             }
 
