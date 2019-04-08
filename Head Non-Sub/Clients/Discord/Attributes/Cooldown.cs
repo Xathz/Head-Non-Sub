@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
-using HeadNonSub.Settings;
 
 namespace HeadNonSub.Clients.Discord.Attributes {
 
@@ -28,8 +27,8 @@ namespace HeadNonSub.Clients.Discord.Attributes {
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
 
-                // If the user is whitelisted bypass the cooldown
-                if (SettingsManager.Configuration.DiscordWhitelist.Any(x => (x.Key == context.Guild.Id) & x.Value.Contains(user.Id))) {
+                // Discord staff
+                if (user.Roles.Any(x => WubbysFunHouse.DiscordStaffRoles.Contains(x.Id))) {
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
             }

@@ -114,7 +114,7 @@ namespace HeadNonSub {
             }
 
             // Load all stalkers to cache.
-            SetStalkers(Database.DatabaseManager.Stalking.GetAll());
+            //SetStalkers(Database.DatabaseManager.Stalking.GetAll());
 
             LoggingManager.Log.Info($"Loaded {_Cache.GetCount()} items into cache");
         }

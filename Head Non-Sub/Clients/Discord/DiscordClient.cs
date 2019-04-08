@@ -66,7 +66,7 @@ namespace HeadNonSub.Clients.Discord {
             _DiscordClient.GuildAvailable += GuildAvailable;
             _DiscordClient.GuildMembersDownloaded += GuildMembersDownloaded;
 
-            _DiscordClient.GuildMemberUpdated += GuildMemberUpdated;
+            //_DiscordClient.GuildMemberUpdated += GuildMemberUpdated;
             _DiscordClient.MessageReceived += MessageReceived;
 
             _MentionProvider.GetRequiredService<CommandService>().Log += Log;

@@ -21,18 +21,8 @@ namespace HeadNonSub.Clients.Discord.Attributes {
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
 
-                // Admins
-                if (user.Roles.Any(x => x.Id == WubbysFunHouse.AdminsRoleId)) {
-                    return Task.FromResult(PreconditionResult.FromSuccess());
-                }
-
-                // Mods
-                if (user.Roles.Any(x => x.Id == WubbysFunHouse.ModsRoleId)) {
-                    return Task.FromResult(PreconditionResult.FromSuccess());
-                }
-
-                // Mod-lites
-                if (user.Roles.Any(x => x.Id == WubbysFunHouse.ModLiteRoleId)) {
+                // Discord staff
+                if (user.Roles.Any(x => WubbysFunHouse.DiscordStaffRoles.Contains(x.Id))) {
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
 
