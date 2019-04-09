@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
+using HeadNonSub.Entities.Twitch;
 using HeadNonSub.Exceptions;
 using HeadNonSub.Extensions;
 
@@ -19,19 +19,19 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             string twitchChannel = channel.ToLower();
 
             try {
-                List<(DateTime createdAt, string title, int viewCount, string url)> clips;
+                List<Clip> clips;
 
-                if (Cache.Get($"clips:{twitchChannel}") is List<(DateTime createdAt, string title, int viewCount, string url)> validClips) {
+                if (Cache.Get($"clips:{twitchChannel}") is List<Clip> validClips) {
                     clips = validClips;
                 } else {
                     clips = await Twitch.TwitchClient.GetClipsAsync(twitchChannel);
                     Cache.Add($"clips:{twitchChannel}", clips, 30);
                 }
 
-                (DateTime createdAt, string title, int viewCount, string url) = clips.PickRandom();
+                Clip clip = clips.PickRandom();
 
-                if (!string.IsNullOrEmpty(url)) {
-                    await BetterReplyAsync(clips.PickRandom().url);
+                if (!string.IsNullOrEmpty(clip.Url)) {
+                    await BetterReplyAsync(clip.Url);
                 } else {
                     await BetterReplyAsync("Failed to pick a random clip.");
                 }

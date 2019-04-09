@@ -9,7 +9,7 @@ namespace HeadNonSub.Extensions {
         /// <summary>
         /// Split a string into chunks based on max length.
         /// </summary>
-        public static IEnumerable<string> SplitIntoChunks(this string input, int maxChunkSize) {
+        public static List<string> SplitIntoChunks(this string input, int maxChunkSize) {
             string[] words = input.Split(' ');
             List<string> chunks = new List<string>();
             int index = 0;
@@ -28,13 +28,13 @@ namespace HeadNonSub.Extensions {
                 }
             }
 
-            return chunks.Select(x => x.Trim()).AsEnumerable();
+            return chunks.Select(x => x.Trim()).ToList();
         }
 
         /// <summary>
         /// Split a string into chunks based on max length, preserving and not breaking words or before a new line. 
         /// </summary>
-        public static IEnumerable<string> SplitIntoChunksPreserveNewLines(this string input, int maxChunkSize) {
+        public static List<string> SplitIntoChunksPreserveNewLines(this string input, int maxChunkSize) {
             string[] lines = input.Split(new string[] { Environment.NewLine, "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
             List<string> chunks = new List<string>();
             int index = 0;
@@ -59,7 +59,7 @@ namespace HeadNonSub.Extensions {
                 }
             }
 
-            return chunks.Select(x => x.Trim()).AsEnumerable();
+            return chunks.Select(x => x.Trim()).ToList();
         }
 
         /// <summary>

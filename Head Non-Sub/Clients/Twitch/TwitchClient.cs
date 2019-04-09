@@ -15,6 +15,7 @@ using TwitchLib.Api.Services.Events.LiveStreamMonitor;
 using TwitchLib.Client.Models;
 using TwitchLib.Communication.Events;
 using Client = TwitchLib.Client;
+using TwitchEntities = HeadNonSub.Entities.Twitch;
 
 namespace HeadNonSub.Clients.Twitch {
 
@@ -83,18 +84,17 @@ namespace HeadNonSub.Clients.Twitch {
         /// </summary>
         /// <param name="name">Broadcaster's username or display name</param>
         /// <param name="count">Clips to return. Maximum: 100</param>
-        public static async Task<List<(DateTime createdAt, string title, int viewCount, string url)>> GetClipsAsync(string name, int count = 100) {
+        public static async Task<List<TwitchEntities.Clip>> GetClipsAsync(string name, int count = 100) {
             string userId = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == name.ToLower()).Select(x => x.UserId).FirstOrDefault();
 
             if (!string.IsNullOrEmpty(userId)) {
-                List<(DateTime createdAt, string title, int viewCount, string url)> returnClips =
-                    new List<(DateTime createdAt, string title, int viewCount, string url)>();
+                List<TwitchEntities.Clip> returnClips = new List<TwitchEntities.Clip>();
 
                 GetClipResponse result = await _TwitchApi.Helix.Clips.GetClipAsync(broadcasterId: userId, first: 100);
                 foreach (Clip clip in result.Clips) {
                     DateTime created = DateTime.Parse(clip.CreatedAt);
 
-                    returnClips.Add((DateTime.Parse(clip.CreatedAt), clip.Title, clip.ViewCount, clip.Url));
+                    returnClips.Add(new TwitchEntities.Clip(DateTime.Parse(clip.CreatedAt), clip.Title, clip.ViewCount, clip.Url));
                 }
 
                 LoggingManager.Log.Info($"Retrieved {returnClips.Count} for {name}");

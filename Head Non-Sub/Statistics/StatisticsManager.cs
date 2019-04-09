@@ -71,9 +71,9 @@ namespace HeadNonSub.Statistics {
             try {
                 using (StatisticsContext statistics = new StatisticsContext()) {
                     return statistics.Commands.Where(x => x.ServerId == serverId & commandNames.Any(c => c.Key == x.CommandName))
-                            .GroupBy(x => x.CommandName).Select(group => new {
-                                CommandName = group.Key,
-                                Count = group.LongCount()
+                            .GroupBy(x => x.CommandName).Select(g => new {
+                                CommandName = g.Key,
+                                Count = g.LongCount()
                             }).OrderByDescending(x => x.Count).ToDictionary(x => x.CommandName, x => x.Count).ToList();
                 }
             } catch (Exception ex) {
@@ -89,7 +89,7 @@ namespace HeadNonSub.Statistics {
             try {
                 using (StatisticsContext statistics = new StatisticsContext()) {
                     return statistics.Commands.Where(x => x.ChannelId == channelId & x.UserId == userId).OrderByDescending(x => x.DateTime)
-                            .Take(count).Select(x => new[] { x.MessageId, x.ReplyMessageId ?? null }).SelectMany(x => x).OfType<ulong>().ToList();
+                            .Where(x => x.ReplyMessageId.HasValue).Take(count).Select(x => new[] { x.MessageId, x.ReplyMessageId.Value }).SelectMany(x => x).Distinct().ToList();
                 }
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
