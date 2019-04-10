@@ -33,8 +33,7 @@ Mainly used for memes and random things.
 
 Command | Parameters | Description | Access
 --- | --- | --- | ---
-`stalk` | `<user>` | Stalk a user :eyes: | Sub
-`stopstalking` | `<user>` | Stop stalking a user. **Alias:** `stopstalk` | Sub
+`twitchuser` | `<twitch username>` | Get most recent Twitch messages and mod actions | Staff
 `trashpoll` | `<text>` `<emotes and emoji>` | Sometimes it fails to use the emotes and emoji so it's trash | All
 `ttsays` | `<text>` | Make tt reflect upon something | All
 `1024says` | `<text>` | Render text on 1024's screen | All

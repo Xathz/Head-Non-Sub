@@ -63,6 +63,24 @@ namespace HeadNonSub.Extensions {
         }
 
         /// <summary>
+        /// Extract a string between two strings.
+        /// </summary>
+        public static string Extract(this string input, string start, string end) {
+            int from = input.IndexOf(start) + start.Length;
+            int to = input.LastIndexOf(end);
+
+            return input.Substring(from, to - from);
+        }
+
+        /// <summary>
+        /// Remove all empty lines.
+        /// </summary>
+        public static string RemoveEmptyLines(this string input) {
+            List<string> clean = input.SplitByNewLines();
+            return string.Join(Environment.NewLine, clean);
+        }
+
+        /// <summary>
         /// Remove all new lines and line breaks from a string.
         /// </summary>
         public static string RemoveNewLines(this string input) => input.Replace(Environment.NewLine, " ").Replace("\r\n", " ").Replace("\n", " ").Replace("\r", " ");
