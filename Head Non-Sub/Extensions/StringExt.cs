@@ -63,12 +63,6 @@ namespace HeadNonSub.Extensions {
         }
 
         /// <summary>
-        /// Truncate the string.
-        /// </summary>
-        /// <remarks>https://stackoverflow.com/a/2776720</remarks>
-        public static string Truncate(this string input, int maxLength) => string.IsNullOrEmpty(input) ? input : input.Length <= maxLength ? input : input.Substring(0, maxLength);
-
-        /// <summary>
         /// Remove all new lines and line breaks from a string.
         /// </summary>
         public static string RemoveNewLines(this string input) => input.Replace(Environment.NewLine, " ").Replace("\r\n", " ").Replace("\n", " ").Replace("\r", " ");

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -9,6 +10,7 @@ using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Clients.Discord.Services;
 using HeadNonSub.Extensions;
 using HeadNonSub.Statistics;
+using Humanizer;
 
 namespace HeadNonSub.Clients.Discord.Commands {
 
@@ -158,6 +160,50 @@ namespace HeadNonSub.Clients.Discord.Commands {
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
                 await BetterReplyAsync("Failed to generate the server map.");
+            }
+        }
+
+        [Command("emotes")]
+        [DiscordStaffOnly]
+        public async Task Emotes() {
+            IReadOnlyCollection<GuildEmote> emotes = Context.Guild.Emotes;
+            StringBuilder builder = new StringBuilder();
+
+            foreach (GuildEmote emote in emotes) {
+                List<string> allowedRoleNames = new List<string>();
+                foreach (ulong id in emote.RoleIds) {
+                    allowedRoleNames.Add(Context.Guild.Roles.FirstOrDefault(x => x.Id == id).Name);
+                }
+                string allowedRoles = allowedRoleNames.Count > 0 ? string.Join(", ", allowedRoleNames) : "Everyone";
+
+                List<string> flagsList = new List<string>();
+                if (emote.Animated) { flagsList.Add("Animated"); }
+                if (emote.IsManaged) { flagsList.Add("Managed"); }
+
+                builder.AppendLine($"{emote.Name} ({emote.Id}) {emote.CreatedAt.DateTime.ToString(Constants.DateTimeFormatShort).ToLower()} utc ● {(flagsList.Count > 0 ? $"{string.Join(", ", flagsList)} ● " : "")}{allowedRoles}");
+            }
+
+            List<string> chunks = builder.ToString().SplitIntoChunksPreserveNewLines(1950);
+
+            foreach (string chunk in chunks) {
+                await BetterReplyAsync($"```{chunk}```");
+            }
+        }
+
+        [Command("roles")]
+        [DiscordStaffOnly]
+        public async Task Roles() {
+            List<SocketRole> roles = Context.Guild.Roles.OrderByDescending(x => x.Position).ToList();
+            StringBuilder builder = new StringBuilder();
+
+            foreach (SocketRole role in roles) {
+                builder.AppendLine($"{role.Name.Truncate(16, "...").PadRight(16)} {role.Id} {role.CreatedAt.DateTime.ToString(Constants.DateTimeFormatShort).ToLower()} utc {role.Color.ToString()}");
+            }
+
+            List<string> chunks = builder.ToString().SplitIntoChunksPreserveNewLines(1950);
+
+            foreach (string chunk in chunks) {
+                await BetterReplyAsync($"```{chunk}```");
             }
         }
 

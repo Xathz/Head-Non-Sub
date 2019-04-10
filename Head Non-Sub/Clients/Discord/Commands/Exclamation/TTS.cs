@@ -7,6 +7,7 @@ using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Entities.Streamlabs;
 using HeadNonSub.Extensions;
+using Humanizer;
 using Newtonsoft.Json;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
