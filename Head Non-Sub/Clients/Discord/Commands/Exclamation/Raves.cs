@@ -24,11 +24,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             foreach (string message in messages) {
                 if (RaveTracker.IsStopped(Context.Guild.Id, Context.Channel.Id)) { return; }
 
-                await ReplyAsync($":crab: {message} :crab:");
+                await BetterReplyAsync($":crab: {message} :crab:");
                 await Task.Delay(1250);
             }
-
-            TrackStatistics(parameters: input);
         }
 
         [Command("ravve")]
@@ -43,11 +41,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
                 string message = ":crab:".PadLeft(random.Next(0, 35), '.');
 
-                await ReplyAsync(message);
+                await BetterReplyAsync(message);
                 await Task.Delay(1250);
             }
-
-            TrackStatistics(parameters: length.ToString());
         }
 
         [Command("ravestop"), Alias("stoprave", "stopraves")]

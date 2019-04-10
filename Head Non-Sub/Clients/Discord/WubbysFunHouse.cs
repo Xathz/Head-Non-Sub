@@ -36,6 +36,11 @@ namespace HeadNonSub.Clients.Discord {
         public static readonly ReadOnlyCollection<ulong> DiscordStaffRoles = new ReadOnlyCollection<ulong>(new List<ulong> { AdminsRoleId, ModsRoleId, ModLiteRoleId });
 
         /// <summary>
+        /// Admins, mods, mod-lites, and twitch mods.
+        /// </summary>
+        public static readonly ReadOnlyCollection<ulong> TwitchStaffRoles = new ReadOnlyCollection<ulong>(new List<ulong> { AdminsRoleId, ModsRoleId, ModLiteRoleId, TwitchModRoleId });
+
+        /// <summary>
         /// Admins, mods, mod-lites, twitch mods, and subreddit mods.
         /// </summary>
         public static readonly ReadOnlyCollection<ulong> AllStaffRoles = new ReadOnlyCollection<ulong>(new List<ulong> { AdminsRoleId, ModsRoleId, ModLiteRoleId, TwitchModRoleId, SubredditModRoleId });

@@ -30,6 +30,11 @@ namespace HeadNonSub.Settings {
         public string TwitchToken { get; set; } = string.Empty;
 
         /// <summary>
+        /// CBenni api token.
+        /// </summary>
+        public string CBenniToken { get; set; } = string.Empty;
+
+        /// <summary>
         /// MariaDB host.
         /// </summary>
         public string MariaDBHost { get; set; } = string.Empty;
