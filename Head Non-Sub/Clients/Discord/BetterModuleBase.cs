@@ -45,18 +45,26 @@ namespace HeadNonSub.Clients.Discord {
         /// Formats a user's display name and username.
         /// </summary>
         /// <param name="user">Optional user, if <see langword="null" /> use <see cref="CommandContext.User"/>.</param>
-        public string BetterUserFormat(SocketUser user = null, bool useGrave = true) {
+        public string BetterUserFormat(SocketUser user = null, bool nicknameOnly = false, bool useGrave = true) {
             string formatChar = "`";
             if (!useGrave) { formatChar = ""; }
 
             if (user is null) {
                 if (Context.User is SocketGuildUser contextUser) {
-                    return $"{(!string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Nickname : contextUser.Username)} {formatChar}{contextUser.ToString()}{formatChar}";
+                    if (nicknameOnly) {
+                        return $"{(string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Username : contextUser.Nickname)}";
+                    } else {
+                        return $"{(string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Username : contextUser.Nickname)} {formatChar}{contextUser.ToString()}{formatChar}";
+                    }
                 }
             }
 
             if (user is SocketGuildUser guildUser) {
-                return $"{(!string.IsNullOrWhiteSpace(guildUser.Nickname) ? guildUser.Nickname : guildUser.Username)} {formatChar}{guildUser.ToString()}{formatChar}";
+                if (nicknameOnly) {
+                    return $"{(string.IsNullOrWhiteSpace(guildUser.Nickname) ? guildUser.Username : guildUser.Nickname)}";
+                } else {
+                    return $"{(string.IsNullOrWhiteSpace(guildUser.Nickname) ? guildUser.Username : guildUser.Nickname)} {formatChar}{guildUser.ToString()}{formatChar}";
+                }
             }
 
             return $"{Context.User.Username} {formatChar}{Context.User.ToString()}{formatChar}";

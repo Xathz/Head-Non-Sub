@@ -63,6 +63,11 @@ namespace HeadNonSub {
         public const string LoadingGifUrl = "https://cdn.discordapp.com/attachments/559869208976949278/559869759257051136/Loading.gif";
 
         /// <summary>
+        /// Twitch logo.
+        /// </summary>
+        public const string TwitchLogoTransparent = "https://cdn.discordapp.com/attachments/559869208976949278/566009004778848296/Twitch.png";
+
+        /// <summary>
         /// Commands help file url.
         /// </summary>
         public const string CommandsHelpUrl = "https://github.com/Xathz/Head-Non-Sub/tree/master/Head%20Non-Sub/Clients/Discord/Commands/Commands.md";

@@ -166,7 +166,7 @@ namespace HeadNonSub.Clients.Twitch {
                 _ = Discord.DiscordClient.SetStatus();
             }
 
-            string duration = (startedAt.HasValue ? $"{stream.DisplayName} was live for {(DateTime.UtcNow - startedAt.Value).TotalMilliseconds.Milliseconds().Humanize(3)}{Environment.NewLine}" : "");
+            string duration = (startedAt.HasValue ? $"They were live for {(DateTime.UtcNow - startedAt.Value).TotalMilliseconds.Milliseconds().Humanize(3)}{Environment.NewLine}" : "");
             _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, null, $"{stream.DisplayName} is now offline", $"{duration}Thanks for watching");
 
             LoggingManager.Log.Info($"{stream.DisplayName} is now offline");
