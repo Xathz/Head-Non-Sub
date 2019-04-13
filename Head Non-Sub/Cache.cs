@@ -11,17 +11,6 @@ namespace HeadNonSub {
         private static MemoryCache _Cache = MemoryCache.Default;
 
         /// <summary>
-        /// All stalkers.
-        /// </summary>
-        public static ConcurrentBag<(ulong serverId, ulong userId, ulong stalkingUserId)> Stalkers { get; private set; }
-
-        /// <summary>
-        /// Set <see cref="Stalkers"/>.
-        /// </summary>
-        /// <param name="stalkers">List of stalkers.</param>
-        public static void SetStalkers(ConcurrentBag<(ulong serverId, ulong userId, ulong stalkingUserId)> stalkers) => Stalkers = stalkers;
-
-        /// <summary>
         /// Add an entry to the cache.
         /// </summary>
         /// <param name="key">A unique identifier for the cache entry to add.</param>
@@ -112,9 +101,6 @@ namespace HeadNonSub {
                 memoryStream.Seek(0, SeekOrigin.Begin);
                 _Cache.Add(fileInfo.Name, memoryStream, ObjectCache.InfiniteAbsoluteExpiration);
             }
-
-            // Load all stalkers to cache.
-            //SetStalkers(Database.DatabaseManager.Stalking.GetAll());
 
             LoggingManager.Log.Info($"Loaded {_Cache.GetCount()} items into cache");
         }

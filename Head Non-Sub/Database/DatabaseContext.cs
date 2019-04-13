@@ -11,8 +11,6 @@ namespace HeadNonSub.Database {
 
         public DbSet<DynamicCommand> DynamicCommands { get; set; }
 
-        public DbSet<Stalker> Stalkers { get; set; }
-
         public DbSet<UserNote> UserNotes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
@@ -37,10 +35,6 @@ namespace HeadNonSub.Database {
                 // Dynamic commands
                 modelBuilder.Entity<DynamicCommand>().ToTable("dynamic_commands");
                 modelBuilder.Entity<DynamicCommand>().HasKey(x => x.OwnerId);
-
-                // Stalkers
-                modelBuilder.Entity<Stalker>().ToTable("stalkers");
-                modelBuilder.Entity<Stalker>().HasKey(x => new { x.ServerId, x.UserId, x.StalkingUserId });
 
                 // User notes
                 modelBuilder.Entity<UserNote>().ToTable("user_notes");
