@@ -45,9 +45,13 @@ namespace HeadNonSub.Clients.Discord {
         /// </summary>
         public static readonly ReadOnlyCollection<ulong> AllStaffRoles = new ReadOnlyCollection<ulong>(new List<ulong> { AdminsRoleId, ModsRoleId, ModLiteRoleId, TwitchModRoleId, SubredditModRoleId });
 
-        public const ulong ActualFuckingSpamChannelId = 537727672747294738;
+        public const ulong MainChannelId = 403341336129830918;
+
+        public const ulong LinksChannelId = 553407177654665216;
 
         public const ulong MarketResearchChannelId = 526223101101604873;
+
+        public const ulong ActualFuckingSpamChannelId = 537727672747294738;
 
     }
 

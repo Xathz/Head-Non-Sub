@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using HeadNonSub.Extensions;
 using HeadNonSub.Settings;
 using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
@@ -227,29 +228,45 @@ namespace HeadNonSub.Clients.Discord {
                 return;
             }
 
-            // If message author is a staff member skip the rest of statement
             if (message.Author is SocketGuildUser user) {
-                if (user.Roles.Any(x => WubbysFunHouse.DiscordStaffRoles.Contains(x.Id))) {
-                    return;
-                }
+                Task runner = Task.Run(async () => {
+                    await ProcessMessageAsync(message, user);
+                });
+            }
+        }
+
+        private static async Task ProcessMessageAsync(SocketUserMessage message, SocketGuildUser user) {
+
+            // If discord staff exit
+            if (user.Roles.Any(x => WubbysFunHouse.DiscordStaffRoles.Contains(x.Id))) {
+                return;
             }
 
-            // =====================================================
+            string betterUserFormat = $"{(string.IsNullOrWhiteSpace(user.Nickname) ? user.Username : user.Nickname)} `{user.ToString()}`";
 
             try {
+                if (message.Channel.Id == WubbysFunHouse.MainChannelId) {
+                    if (message.Content.ContainsUrls()) {
+                        if (_DiscordClient.GetChannel(WubbysFunHouse.LinksChannelId) is IMessageChannel channel) {
+                            LoggingManager.Log.Info($"Link in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id})");
+
+                            await message.DeleteAsync();
+                            await message.Channel.SendMessageAsync($"{user.Mention} Your link was moved to <#{WubbysFunHouse.LinksChannelId}>.");
+                            await channel.SendMessageAsync($"● Posted by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
+                        }
+                    }
+                }
+
                 if (message.Channel.Id == WubbysFunHouse.MarketResearchChannelId) {
                     string channelName = _DiscordClient.GetGuild(WubbysFunHouse.ServerId).GetChannel(WubbysFunHouse.MarketResearchChannelId).Name;
 
                     if (!_ValidPolls.Any(x => message.Content.Contains(x, StringComparison.OrdinalIgnoreCase))) {
-
                         LoggingManager.Log.Info($"Invalid poll in #{channelName} by {message.Author.ToString()} ({message.Author.Id})");
+
                         await message.DeleteAsync();
                         await message.Author.SendMessageAsync($"You can only post polls in #{channelName} on {_DiscordClient.GetGuild(WubbysFunHouse.ServerId).Name}.");
                     }
                 }
-
-
-
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }

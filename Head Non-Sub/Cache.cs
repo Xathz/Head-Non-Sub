@@ -1,14 +1,20 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
+using System.Net;
 using System.Runtime.Caching;
+using HeadNonSub.Extensions;
+using HeadNonSub.Properties;
 
 namespace HeadNonSub {
 
     public static class Cache {
 
         private static MemoryCache _Cache = MemoryCache.Default;
+
+        public static IReadOnlyCollection<string> TLDs { get; private set; }
 
         /// <summary>
         /// Add an entry to the cache.
@@ -102,7 +108,51 @@ namespace HeadNonSub {
                 _Cache.Add(fileInfo.Name, memoryStream, ObjectCache.InfiniteAbsoluteExpiration);
             }
 
+            // Download and parse top level domains
+            DownloadTLDs();
+
             LoggingManager.Log.Info($"Loaded {_Cache.GetCount()} items into cache");
+        }
+
+        private static void DownloadTLDs() {
+            try {
+                WebClient webClient = new WebClient();
+                string list = webClient.DownloadString("https://data.iana.org/TLD/tlds-alpha-by-domain.txt");
+
+                if (string.IsNullOrWhiteSpace(list)) {
+                    throw new ArgumentNullException("list");
+                }
+
+                List<string> lines = list.SplitByNewLines();
+                HashSet<string> domains = new HashSet<string>();
+                foreach (string line in lines) {
+                    if (!line.StartsWith("#")) {
+                        domains.Add(line.ToLower());
+                    }
+                }
+
+                if (domains.Count == 0) {
+                    throw new ArgumentNullException("domains");
+                }
+
+                TLDs = domains.ToList().AsReadOnly();
+
+                LoggingManager.Log.Info($"Downloaded and parsed {TLDs.Count} top level domains");
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+
+                List<string> lines = Resources.TLDs.SplitByNewLines();
+                HashSet<string> domains = new HashSet<string>();
+                foreach (string line in lines) {
+                    if (!line.StartsWith("#")) {
+                        domains.Add(line.ToLower());
+                    }
+                }
+
+                TLDs = domains.ToList().AsReadOnly();
+
+                LoggingManager.Log.Info($"Parsed from resources {TLDs.Count} top level domains");
+            }
         }
 
     }

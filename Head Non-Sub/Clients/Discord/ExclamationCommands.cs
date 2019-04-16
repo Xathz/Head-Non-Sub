@@ -57,7 +57,7 @@ namespace HeadNonSub.Clients.Discord {
 
 #if DEBUG
             if (context.User.Id != Constants.XathzUserId) {
-                await context.Channel.SendMessageAsync($"{context.User.Mention} I am currently being worked on, please try that again later.");
+                //await context.Channel.SendMessageAsync($"{context.User.Mention} I am currently being worked on, please try that again later.");
                 return;
             }
 #endif
