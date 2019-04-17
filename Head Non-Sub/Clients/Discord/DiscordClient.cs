@@ -253,33 +253,36 @@ namespace HeadNonSub.Clients.Discord {
             string betterUserFormat = $"{(string.IsNullOrWhiteSpace(user.Nickname) ? user.Username : user.Nickname)} `{user.ToString()}`";
 
             try {
-                if (message.Channel.Id == WubbysFunHouse.MainChannelId) {
-                    if (message.Content.ContainsUrls()) {
-                        if (_DiscordClient.GetChannel(WubbysFunHouse.LinksChannelId) is IMessageChannel channel) {
-                            LoggingManager.Log.Info($"Link in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id})");
+                // If not rank 10 or higher
+                if (!user.Roles.Any(x => x.Id == WubbysFunHouse.NakedCowboyRoleId)) {
+                    if (message.Channel.Id == WubbysFunHouse.MainChannelId) {
+                        if (message.Content.ContainsUrls()) {
+                            if (_DiscordClient.GetChannel(WubbysFunHouse.LinksChannelId) is IMessageChannel channel) {
+                                LoggingManager.Log.Info($"Link in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id})");
 
-                            await message.DeleteAsync();
-                            await message.Channel.SendMessageAsync($"{user.Mention} Your link was moved to <#{WubbysFunHouse.LinksChannelId}>.");
-                            await channel.SendMessageAsync($"● Posted by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
-                        }
-                    } else if (message.Attachments.Count > 0) {
-                        if (_DiscordClient.GetChannel(WubbysFunHouse.ActualFuckingSpamChannelId) is IMessageChannel channel) {
-                            foreach (Attachment attachment in message.Attachments) {
-                                using (WebClient webClient = new WebClient())
-                                using (MemoryStream stream = new MemoryStream(webClient.DownloadData(attachment.Url))) {
-                                    LoggingManager.Log.Info($"Attachment in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id}); {attachment.Filename}; api: {attachment.Size.Bytes().Humanize("#.##")}; downloaded: {stream.Length.Bytes().Humanize("#.##")}");
+                                await message.DeleteAsync();
+                                await channel.SendMessageAsync($"● Posted by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
+                                await message.Channel.SendMessageAsync($"{user.Mention} You need to be <@&{WubbysFunHouse.NakedCowboyRoleId}> or higher to post links here. Link was moved to <#{WubbysFunHouse.LinksChannelId}>.");
+                            }
+                        } else if (message.Attachments.Count > 0) {
+                            if (_DiscordClient.GetChannel(WubbysFunHouse.ActualFuckingSpamChannelId) is IMessageChannel channel) {
+                                foreach (Attachment attachment in message.Attachments) {
+                                    using (WebClient webClient = new WebClient())
+                                    using (MemoryStream stream = new MemoryStream(webClient.DownloadData(attachment.Url))) {
+                                        LoggingManager.Log.Info($"Attachment in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id}); {attachment.Filename}; api: {attachment.Size.Bytes().Humanize("#.##")}; downloaded: {stream.Length.Bytes().Humanize("#.##")}");
 
-                                    if (stream.Length > 8388119) {
-                                        await channel.SendMessageAsync($"An attachment was uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}> and can not be re-uploaded, the attachment is too large for a bot to upload (`{attachment.Size.Bytes().Humanize("#.##")} / {stream.Length.Bytes().Humanize("#.##")}`). They probably have Nitro.");
-                                    } else {
-                                        stream.Seek(0, SeekOrigin.Begin);
-                                        await channel.SendFileAsync(stream, attachment.Filename, $"● Uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
+                                        if (stream.Length > 8388119) {
+                                            await channel.SendMessageAsync($"An attachment was uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}> and can not be re-uploaded, the attachment is too large for a bot to upload (`{attachment.Size.Bytes().Humanize("#.##")} / {stream.Length.Bytes().Humanize("#.##")}`). They probably have Nitro.");
+                                        } else {
+                                            stream.Seek(0, SeekOrigin.Begin);
+                                            await channel.SendFileAsync(stream, attachment.Filename, $"● Uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
+                                        }
                                     }
                                 }
-                            }
 
-                            await message.DeleteAsync();
-                            await message.Channel.SendMessageAsync($"{user.Mention} Your attachment was moved to <#{WubbysFunHouse.ActualFuckingSpamChannelId}>.");
+                                await message.DeleteAsync();
+                                await message.Channel.SendMessageAsync($"{user.Mention} You need to be <@&{WubbysFunHouse.NakedCowboyRoleId}> or higher to upload files here. Attachment was moved to <#{WubbysFunHouse.ActualFuckingSpamChannelId}>.");
+                            }
                         }
                     }
                 }

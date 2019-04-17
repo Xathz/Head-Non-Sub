@@ -30,6 +30,13 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong MutedRoleId = 445807715655221259;
 
+        /// <summary>MEE6 rank 10</summary>
+        /// <remarks>
+        /// https://wub.by/discordranks
+        /// https://mee6.xyz/leaderboard/328300333010911242
+        /// </remarks>
+        public const ulong NakedCowboyRoleId = 502699098646904833;
+
         /// <summary>
         /// Admins, mods, and mod-lites.
         /// </summary>
