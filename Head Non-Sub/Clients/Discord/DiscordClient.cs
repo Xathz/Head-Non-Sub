@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
@@ -228,9 +229,16 @@ namespace HeadNonSub.Clients.Discord {
                 return;
             }
 
+
+#if DEBUG
+            if (message.Author.Id != Constants.XathzUserId) {
+                return;
+            }
+#endif
+
             if (message.Author is SocketGuildUser user) {
                 Task runner = Task.Run(async () => {
-                    await ProcessMessageAsync(message, user);
+                    await ProcessMessageAsync(message, user).ConfigureAwait(false);
                 });
             }
         }
@@ -253,6 +261,25 @@ namespace HeadNonSub.Clients.Discord {
                             await message.DeleteAsync();
                             await message.Channel.SendMessageAsync($"{user.Mention} Your link was moved to <#{WubbysFunHouse.LinksChannelId}>.");
                             await channel.SendMessageAsync($"● Posted by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
+                        }
+                    } else if (message.Attachments.Count > 0) {
+                        if (_DiscordClient.GetChannel(WubbysFunHouse.ActualFuckingSpamChannelId) is IMessageChannel channel) {
+                            foreach (Attachment attachment in message.Attachments) {
+                                using (WebClient webClient = new WebClient())
+                                using (MemoryStream stream = new MemoryStream(webClient.DownloadData(attachment.Url))) {
+                                    LoggingManager.Log.Info($"Attachment in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id}); {attachment.Filename}; api: {attachment.Size.Bytes().Humanize("#.##")}; downloaded: {stream.Length.Bytes().Humanize("#.##")}");
+
+                                    if (stream.Length > 8388119) {
+                                        await channel.SendMessageAsync($"An attachment was uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}> and can not be re-uploaded, the attachment is too large for a bot to upload (`{attachment.Size.Bytes().Humanize("#.##")} / {stream.Length.Bytes().Humanize("#.##")}`). They probably have Nitro.");
+                                    } else {
+                                        stream.Seek(0, SeekOrigin.Begin);
+                                        await channel.SendFileAsync(stream, attachment.Filename, $"● Uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
+                                    }
+                                }
+                            }
+
+                            await message.DeleteAsync();
+                            await message.Channel.SendMessageAsync($"{user.Mention} Your attachment was moved to <#{WubbysFunHouse.ActualFuckingSpamChannelId}>.");
                         }
                     }
                 }
