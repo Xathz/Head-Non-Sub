@@ -16,7 +16,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     [RequireContext(ContextType.Guild)]
     public class TTS : BetterModuleBase {
 
-        [Command("tts")]
+        [Command("tts"), Alias("ttsdonate", "ttssub")]
         [Cooldown(30, true)]
         public async Task Joanna([Remainder]string input) => await GenerateAndSend(input, "tts", "Joanna");
 
@@ -31,6 +31,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("tts4")]
         [Cooldown(30, true)]
         public async Task Mizuki([Remainder]string input) => await GenerateAndSend(input, "tts4", "Mizuki");
+
+        [Command("tts5"), Alias("ttsbits")]
+        [Cooldown(30, true)]
+        public async Task Russell([Remainder]string input) => await GenerateAndSend(input, "tts4", "Russell");
 
         private async Task GenerateAndSend(string text, string command, string voice) {
             await Context.Channel.TriggerTypingAsync();

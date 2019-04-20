@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -228,7 +227,6 @@ namespace HeadNonSub.Clients.Discord {
                 await message.Channel.SendMessageAsync($"No commands are available via direct message. Please @ the bot (`@{_DiscordClient.CurrentUser.Username}`) on the server.");
                 return;
             }
-
 
 #if DEBUG
             if (message.Author.Id != Constants.XathzUserId) {
