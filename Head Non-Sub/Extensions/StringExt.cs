@@ -7,6 +7,8 @@ namespace HeadNonSub.Extensions {
 
     public static class StringExt {
 
+        private static readonly Regex _UrlRegex = new Regex("https?://", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
         /// <summary>
         /// Split a string into chunks based on max length.
         /// </summary>
@@ -96,38 +98,11 @@ namespace HeadNonSub.Extensions {
         /// </summary>
         public static List<string> SplitBySpace(this string input) => input.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
 
-        #region Url Parsing
-        // Taken from Chatty since they did it better than I could - https://github.com/chatty/chatty
-        // https://github.com/chatty/chatty/blob/888116a8b8f404eb635880457111db15ff969acb/src/chatty/Helper.java#L557
-
-        // gtld/cctld list: https://data.iana.org/TLD/tlds-alpha-by-domain.txt
-
-        private static readonly string _TLD = $"(?:{string.Join("|", Cache.TLDs)})";
-
-        private static readonly string _MID = "[-A-Z0-9+&@#/%=~_|$?!:,;.()]";
-
-        private static readonly string _END = "[A-Z0-9+&@#/%=~_|$)]";
-
-        private static readonly string _S1 = "(?:(?:https?)://|www\\.)";
-
-        private static readonly string _S2 = $"(?:[A-Z0-9.-]+[A-Z0-9]\\.{_TLD}\\b)";
-
-        // Complete URL (match both _S1 and _S2)
-        private static readonly string _T1 = $"(?:(?:{_S1}{_S2}){_MID}*{_END})";
-
-        // Complete URL (only domain)
-        private static readonly string _T2 = $"(?:{_S2})";
-
-        // The regex String for finding URLs in messages.
-        private static readonly string _Pattern = $"(?i)\\b{_T1}|{_T2}";
-
-        private static readonly Regex _Regex = new Regex(_Pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
         /// <summary>
         /// Check if string contains at least 1 url.
         /// </summary>
         public static bool ContainsUrls(this string input) {
-            MatchCollection matches = _Regex.Matches(input);
+            MatchCollection matches = _UrlRegex.Matches(input);
             return (matches.Count > 0) ? true : false;
         }
 
@@ -135,7 +110,7 @@ namespace HeadNonSub.Extensions {
         /// Get all urls from a string.
         /// </summary>
         public static List<string> GetUrls(this string input) {
-            MatchCollection matches = _Regex.Matches(input);
+            MatchCollection matches = _UrlRegex.Matches(input);
             List<string> urls = new List<string>();
 
             foreach (Match match in matches) {
@@ -144,7 +119,6 @@ namespace HeadNonSub.Extensions {
 
             return urls;
         }
-        #endregion
 
     }
 
