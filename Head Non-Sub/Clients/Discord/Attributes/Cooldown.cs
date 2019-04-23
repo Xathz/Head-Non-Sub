@@ -3,26 +3,33 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
+using HeadNonSub.Database;
+using Humanizer;
 
 namespace HeadNonSub.Clients.Discord.Attributes {
 
     public class Cooldown : PreconditionAttribute {
 
-        private readonly int _CooldownSeconds;
-        private readonly bool _CooldownPerUser;
+        private readonly int _Seconds;
+        private readonly bool _PerUser;
 
         /// <summary>
         /// Restrict how often a command can be used.
         /// </summary>
         public Cooldown(int seconds, bool perUser = false) {
-            _CooldownSeconds = seconds;
-            _CooldownPerUser = perUser;
+            _Seconds = seconds;
+            _PerUser = perUser;
         }
 
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services) {
             if (context.User is SocketGuildUser user) {
 
-                // If the user is an admin bypass cooldown
+                // Xathz
+                if (user.Id == Constants.XathzUserId) {
+                    return Task.FromResult(PreconditionResult.FromSuccess());
+                }
+
+                // Administrator
                 if (user.Roles.Any(x => x.Permissions.Administrator)) {
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
@@ -31,26 +38,29 @@ namespace HeadNonSub.Clients.Discord.Attributes {
                 if (user.Roles.Any(x => WubbysFunHouse.DiscordStaffRoles.Contains(x.Id))) {
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
+
             }
 
-            (bool isAllowed, int secondsRemaining) = CooldownTracker.IsAllowed(context.Guild.Id, context.User.Id, command.Name, _CooldownSeconds, _CooldownPerUser);
+            DateTimeOffset? offset = DatabaseManager.Cooldowns.Check(context.Guild.Id, context.User.Id, command.Name, _PerUser);
 
-            if (isAllowed) {
-                CooldownTracker.Track(context.Guild.Id, context.User.Id, command.Name);
+            if (offset.HasValue) {
+                if (offset.Value.AddSeconds(_Seconds) >= DateTimeOffset.Now) {
+                    string remaining = (offset.Value.AddSeconds(_Seconds) - DateTimeOffset.Now).TotalSeconds.Seconds().Humanize();
 
-                return Task.FromResult(PreconditionResult.FromSuccess());
-            } else {
-                PreconditionResult result;
-                string remaining = (secondsRemaining == 1 ? "1 more second" : $"{secondsRemaining} more seconds");
-
-                if (_CooldownPerUser) {
-                    result = PreconditionResult.FromError($"{context.User.Mention} you have to wait {remaining} before you can use the `{command.Name}` command again.");
+                    if (_PerUser) {
+                        return Task.FromResult(PreconditionResult.FromError($"{context.User.Mention} You need to wait {remaining} before you can use `{command.Name}` again. Cooldown is per-user."));
+                    } else {
+                        return Task.FromResult(PreconditionResult.FromError($"You need to wait {remaining} before you can use `{command.Name}` again. Cooldown is server wide."));
+                    }
                 } else {
-                    result = PreconditionResult.FromError($"You have to wait {remaining} before you can use the `{command.Name}` command again.");
+                    DatabaseManager.Cooldowns.Delete(context.Guild.Id, context.User.Id, command.Name);
+                    return Task.FromResult(PreconditionResult.FromSuccess());
                 }
-
-                return Task.FromResult(result);
+            } else {
+                DatabaseManager.Cooldowns.Insert(context.Guild.Id, context.User.Id, command.Name);
+                return Task.FromResult(PreconditionResult.FromSuccess());
             }
+    
         }
 
     }

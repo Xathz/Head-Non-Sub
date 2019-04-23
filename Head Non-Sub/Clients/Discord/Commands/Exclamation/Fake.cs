@@ -25,6 +25,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(300)]
         [SubscriberOnly]
         public async Task Executie(SocketUser user = null, [Remainder]string reason = "") {
+            await BetterReplyAsync("Executie has been disabled until you idiots use it properly.");
+            return;
+
             if (user == null) {
                 await BetterReplyAsync("You must mention a user to executie them.");
                 return;

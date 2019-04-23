@@ -9,6 +9,8 @@ namespace HeadNonSub.Database {
 
         public DbSet<ActiveStream> ActiveStreams { get; set; }
 
+        public DbSet<Cooldown> Cooldowns { get; set; }
+
         public DbSet<DynamicCommand> DynamicCommands { get; set; }
 
         public DbSet<UserNote> UserNotes { get; set; }
@@ -31,6 +33,12 @@ namespace HeadNonSub.Database {
                 // Active streams
                 modelBuilder.Entity<ActiveStream>().ToTable("active_streams");
                 modelBuilder.Entity<ActiveStream>().HasKey(x => x.Username);
+
+                // Cooldowns
+                modelBuilder.Entity<Cooldown>().ToTable("cooldowns");
+                modelBuilder.Entity<Cooldown>().HasKey(x => new { x.ServerId, x.UserId, x.Command });
+                modelBuilder.Entity<Cooldown>().HasIndex(x => x.ServerId);
+                modelBuilder.Entity<Cooldown>().HasIndex(x => x.UserId);
 
                 // Dynamic commands
                 modelBuilder.Entity<DynamicCommand>().ToTable("dynamic_commands");
