@@ -25,7 +25,6 @@ namespace HeadNonSub.Database {
                             database.Cooldowns.Add(new Cooldown() { DateTimeOffset = DateTimeOffset.UtcNow, ServerId = serverId, UserId = userId, Command = command });
 
                             database.SaveChanges();
-
                             return true;
                         }
                     }
@@ -36,24 +35,25 @@ namespace HeadNonSub.Database {
             }
 
             /// <summary>
-            /// Check if a command has a cooldown.
+            /// Check if a cooldown exists.
             /// </summary>
             /// <param name="serverId">Server (guild) id.</param>
             /// <param name="userId">User id of who executed.</param>
             /// <param name="command">Name of the command.</param>
+            /// <param name="perUser">Is the command per-user (true) or server wide (false).</param>
             /// <returns>DateTimeOffset if found; null if not found.</returns>
             public static DateTimeOffset? Check(ulong serverId, ulong userId, string command, bool perUser) {
                 try {
                     using (DatabaseContext database = new DatabaseContext()) {
                         if (perUser) {
                             if (database.Cooldowns.AsNoTracking().Any(x => x.ServerId == serverId & x.UserId == userId & x.Command == command)) {
-                                return database.Cooldowns.AsNoTracking().Where(x => x.ServerId == serverId & x.UserId == userId & x.Command == command).Select(x => x.DateTimeOffset).FirstOrDefault();
+                                return database.Cooldowns.AsNoTracking().FirstOrDefault(x => x.ServerId == serverId & x.UserId == userId & x.Command == command).DateTimeOffset;
                             } else {
                                 return null;
                             }
                         } else {
                             if (database.Cooldowns.AsNoTracking().Any(x => x.ServerId == serverId & x.Command == command)) {
-                                return database.Cooldowns.AsNoTracking().Where(x => x.ServerId == serverId & x.Command == command).Select(x => x.DateTimeOffset).FirstOrDefault();
+                                return database.Cooldowns.AsNoTracking().FirstOrDefault(x => x.ServerId == serverId & x.Command == command).DateTimeOffset;
                             } else {
                                 return null;
                             }
@@ -71,15 +71,16 @@ namespace HeadNonSub.Database {
             /// <param name="serverId">Server (guild) id.</param>
             /// <param name="userId">User id of who executed.</param>
             /// <param name="command">Name of the command.</param>
+            /// <param name="perUser">Is the command per-user (true) or server wide (false).</param>
             /// <returns>True if deleted; false if id does not exist.</returns>
             public static bool Delete(ulong serverId, ulong userId, string command, bool perUser) {
                 try {
                     using (DatabaseContext database = new DatabaseContext()) {
                         if (perUser) {
                             if (database.Cooldowns.AsNoTracking().Any(x => x.ServerId == serverId & x.UserId == userId & x.Command == command)) {
-                                Cooldown cooldown = database.Cooldowns.AsNoTracking().FirstOrDefault(x => x.ServerId == serverId & x.UserId == userId & x.Command == command);
+                                List<Cooldown> cooldowns = database.Cooldowns.AsNoTracking().Where(x => x.ServerId == serverId & x.UserId == userId & x.Command == command).ToList();
 
-                                database.Cooldowns.Remove(cooldown);
+                                database.Cooldowns.RemoveRange(cooldowns);
 
                                 database.SaveChanges();
                                 return true;

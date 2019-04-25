@@ -42,7 +42,7 @@ namespace HeadNonSub.Database {
                 try {
                     using (DatabaseContext database = new DatabaseContext()) {
                         if (database.ActiveStreams.AsNoTracking().Any(x => x.Username == username)) {
-                            ActiveStream stream = database.ActiveStreams.Where(x => x.Username == username).FirstOrDefault();
+                            ActiveStream stream = database.ActiveStreams.AsNoTracking().Where(x => x.Username == username).FirstOrDefault();
                             database.ActiveStreams.Remove(stream);
 
                             database.SaveChanges();

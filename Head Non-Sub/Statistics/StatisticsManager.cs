@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using HeadNonSub.Statistics.Tables;
+using Microsoft.EntityFrameworkCore;
 
 namespace HeadNonSub.Statistics {
 
@@ -56,7 +57,7 @@ namespace HeadNonSub.Statistics {
         public static long GetTrueCount(ulong serverId) {
             try {
                 using (StatisticsContext statistics = new StatisticsContext()) {
-                    return statistics.Commands.Where(x => x.ServerId == serverId & x.CommandName == "ThatsTrue").LongCount();
+                    return statistics.Commands.AsNoTracking().Where(x => x.ServerId == serverId & x.CommandName == "ThatsTrue").LongCount();
                 }
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
@@ -70,7 +71,7 @@ namespace HeadNonSub.Statistics {
         public static List<KeyValuePair<string, long>> GetSaysCount(ulong serverId, Dictionary<string, string> commandNames) {
             try {
                 using (StatisticsContext statistics = new StatisticsContext()) {
-                    return statistics.Commands.Where(x => x.ServerId == serverId & commandNames.Any(c => c.Key == x.CommandName))
+                    return statistics.Commands.AsNoTracking().Where(x => x.ServerId == serverId & commandNames.Any(c => c.Key == x.CommandName))
                             .GroupBy(x => x.CommandName).Select(g => new {
                                 CommandName = g.Key,
                                 Count = g.LongCount()
@@ -89,10 +90,10 @@ namespace HeadNonSub.Statistics {
             try {
                 using (StatisticsContext statistics = new StatisticsContext()) {
 
-                    ulong[] messageId = statistics.Commands.Where(x => x.ChannelId == channelId & x.UserId == userId).OrderByDescending(x => x.DateTime)
+                    ulong[] messageId = statistics.Commands.AsNoTracking().Where(x => x.ChannelId == channelId & x.UserId == userId).OrderByDescending(x => x.DateTime)
                                         .Where(x => x.ReplyMessageId.HasValue).Take(count).Select(x => x.MessageId).Distinct().ToArray();
 
-                    ulong[] replyMessageIds = statistics.Commands.Where(x => x.ChannelId == channelId & x.UserId == userId).OrderByDescending(x => x.DateTime)
+                    ulong[] replyMessageIds = statistics.Commands.AsNoTracking().Where(x => x.ChannelId == channelId & x.UserId == userId).OrderByDescending(x => x.DateTime)
                                         .Where(x => x.ReplyMessageId.HasValue).Where(x => messageId.Contains(x.MessageId)).Select(x => x.ReplyMessageId.Value).Distinct().ToArray();
 
                     return new List<ulong>(messageId.Concat(replyMessageIds));

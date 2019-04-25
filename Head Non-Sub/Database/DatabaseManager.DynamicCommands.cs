@@ -44,7 +44,7 @@ namespace HeadNonSub.Database {
             public static Dictionary<string, string> GetAll() {
                 try {
                     using (DatabaseContext database = new DatabaseContext()) {
-                        return database.DynamicCommands.Select(x => new { x.Command, x.Text }).ToDictionary(x => x.Command, x => x.Text);
+                        return database.DynamicCommands.AsNoTracking().Select(x => new { x.Command, x.Text }).ToDictionary(x => x.Command, x => x.Text);
                     }
                 } catch (Exception ex) {
                     LoggingManager.Log.Error(ex);
@@ -61,7 +61,7 @@ namespace HeadNonSub.Database {
                 try {
                     using (DatabaseContext database = new DatabaseContext()) {
                         if (database.DynamicCommands.AsNoTracking().Any(x => x.Command == command)) {
-                            return database.DynamicCommands.Where(x => x.Command == command).Select(x => x.OwnerId).FirstOrDefault();
+                            return database.DynamicCommands.AsNoTracking().Where(x => x.Command == command).Select(x => x.OwnerId).FirstOrDefault();
                         } else {
                             return null;
                         }
