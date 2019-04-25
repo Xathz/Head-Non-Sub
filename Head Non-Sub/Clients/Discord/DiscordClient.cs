@@ -243,18 +243,22 @@ namespace HeadNonSub.Clients.Discord {
 
         private static async Task ProcessMessageAsync(SocketUserMessage message, SocketGuildUser user) {
 
-            // If discord staff exit
+            // If discord staff, exit
             if (user.Roles.Any(x => WubbysFunHouse.DiscordStaffRoles.Contains(x.Id))) {
                 return;
             }
 
-            string betterUserFormat = $"{(string.IsNullOrWhiteSpace(user.Nickname) ? user.Username : user.Nickname)} `{user.ToString()}`";
+            try {
 
-            try {      
+                // Main channel
                 if (message.Channel.Id == WubbysFunHouse.MainChannelId) {
 
                     // If not rank 10 or higher
-                    if (!user.Roles.Any(x => x.Id == WubbysFunHouse.NakedCowboyRoleId)) {                
+                    if (!user.Roles.Any(x => x.Id == WubbysFunHouse.NakedCowboyRoleId)) {
+
+                        string betterUserFormat = $"{(string.IsNullOrWhiteSpace(user.Nickname) ? user.Username : user.Nickname)} `{user.ToString()}`";
+
+                        // Move links
                         if (message.Content.ContainsUrls()) {
                             if (_DiscordClient.GetChannel(WubbysFunHouse.LinksChannelId) is IMessageChannel channel) {
                                 LoggingManager.Log.Info($"Link in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id})");
@@ -263,6 +267,8 @@ namespace HeadNonSub.Clients.Discord {
                                 await channel.SendMessageAsync($"● Posted by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
                                 await message.Channel.SendMessageAsync($"{user.Mention} You need to be <@&{WubbysFunHouse.NakedCowboyRoleId}> or higher to post links here. Link was moved to <#{WubbysFunHouse.LinksChannelId}>.");
                             }
+
+                            // Move attachments
                         } else if (message.Attachments.Count > 0) {
                             if (_DiscordClient.GetChannel(WubbysFunHouse.ActualFuckingSpamChannelId) is IMessageChannel channel) {
                                 foreach (Attachment attachment in message.Attachments) {
@@ -286,6 +292,7 @@ namespace HeadNonSub.Clients.Discord {
                     }
                 }
 
+                // Invalid poll in market research
                 if (message.Channel.Id == WubbysFunHouse.MarketResearchChannelId) {
                     string channelName = _DiscordClient.GetGuild(WubbysFunHouse.ServerId).GetChannel(WubbysFunHouse.MarketResearchChannelId).Name;
 
@@ -297,6 +304,7 @@ namespace HeadNonSub.Clients.Discord {
                     }
                 }
 
+                // Too many animated emotes in actual fucking spam
                 if (message.Channel.Id == WubbysFunHouse.ActualFuckingSpamChannelId) {
                     int count = message.Content.CountStringOccurrences("<a:");
 

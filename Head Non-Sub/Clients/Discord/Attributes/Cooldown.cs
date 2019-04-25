@@ -39,28 +39,32 @@ namespace HeadNonSub.Clients.Discord.Attributes {
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
 
-            }
+                DateTimeOffset? offset = DatabaseManager.Cooldowns.Check(context.Guild.Id, context.User.Id, command.Name, _PerUser);
 
-            DateTimeOffset? offset = DatabaseManager.Cooldowns.Check(context.Guild.Id, context.User.Id, command.Name, _PerUser);
+                if (offset.HasValue) {
+                    if (offset.Value.AddSeconds(_Seconds) >= DateTimeOffset.UtcNow) {
+                        string remaining = (offset.Value.AddSeconds(_Seconds) - DateTimeOffset.UtcNow).TotalSeconds.Seconds().Humanize();
 
-            if (offset.HasValue) {
-                if (offset.Value.AddSeconds(_Seconds) >= DateTimeOffset.UtcNow) {
-                    string remaining = (offset.Value.AddSeconds(_Seconds) - DateTimeOffset.UtcNow).TotalSeconds.Seconds().Humanize();
-
-                    if (_PerUser) {
-                        return Task.FromResult(PreconditionResult.FromError($"{context.User.Mention} You need to wait {remaining} before you can use `{command.Name}` again. Cooldown is per-user."));
+                        if (_PerUser) {
+                            return Task.FromResult(PreconditionResult.FromError($"{context.User.Mention} You need to wait {remaining} before you can use `{command.Name}` again. Cooldown is per-user."));
+                        } else {
+                            return Task.FromResult(PreconditionResult.FromError($"You need to wait {remaining} before you can use `{command.Name}` again. Cooldown is server wide."));
+                        }
                     } else {
-                        return Task.FromResult(PreconditionResult.FromError($"You need to wait {remaining} before you can use `{command.Name}` again. Cooldown is server wide."));
+                        LoggingManager.Log.Debug($"Command \"{command.Name}\" {(_PerUser ? "per-user" : "server wide")} cooldown finished {(_PerUser ? $"for {context.User.ToString()}" : "")} in {context.Guild.Name}");
+
+                        DatabaseManager.Cooldowns.Delete(context.Guild.Id, context.User.Id, command.Name, _PerUser);
+                        return Task.FromResult(PreconditionResult.FromSuccess());
                     }
                 } else {
-                    DatabaseManager.Cooldowns.Delete(context.Guild.Id, context.User.Id, command.Name, _PerUser);
+                    LoggingManager.Log.Debug($"Command \"{command.Name}\" ({_Seconds}sec) {(_PerUser ? "per-user" : "server wide")} cooldown started {(_PerUser ? $"for {context.User.ToString()}"  : "")} in {context.Guild.Name}");
+
+                    DatabaseManager.Cooldowns.Insert(context.Guild.Id, context.User.Id, command.Name);
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
             } else {
-                DatabaseManager.Cooldowns.Insert(context.Guild.Id, context.User.Id, command.Name);
-                return Task.FromResult(PreconditionResult.FromSuccess());
+                return Task.FromResult(PreconditionResult.FromError($"`{command.Name}` has a cooldown and can only be used on a server, not via direct messages."));
             }
-    
         }
 
     }
