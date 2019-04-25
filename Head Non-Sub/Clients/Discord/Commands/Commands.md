@@ -80,6 +80,7 @@ Command | Parameters | Description | Access
 `lucky` | | [Lit and lucky](https://github.com/Xathz/Head-Non-Sub/blob/master/Content/lucky.png) | All
 `dickdowndennis` | | [Came twice](https://github.com/Xathz/Head-Non-Sub/blob/master/Content/dickdowndennis.png) just typing this out | All
 `night` | | Big night sky with emotes | All
+`weebshit` | | I have had it with these motherfucking [weebs](https://github.com/Xathz/Head-Non-Sub/blob/master/Content/weebshit.png) in this motherfucking Discord! | All
 
 ## Mention Commands `@Head Non-Sub <command> <parameter(s)>`
 

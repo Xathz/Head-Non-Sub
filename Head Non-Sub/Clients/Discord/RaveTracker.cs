@@ -1,60 +1,51 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Concurrent;
 
 namespace HeadNonSub.Clients.Discord {
 
     public class RaveTracker {
 
-        private static List<Rave> _Raves = new List<Rave>();
+        private static ConcurrentDictionary<ulong, Status> _Raves = new ConcurrentDictionary<ulong, Status>();
 
         /// <summary>
         /// Track a rave.
         /// </summary>
-        /// <param name="server">Server (guild) id.</param>
         /// <param name="channel">Channel id.</param>
-        public static void Track(ulong server, ulong channel) {
-            _Raves.Add(new Rave(DateTime.Now, server, channel, true));
-        }
+        public static void Track(ulong channel) => _Raves.TryAdd(channel, Status.Running);
 
         /// <summary>
         /// Stop a rave.
         /// </summary>
-        /// <param name="server">Server (guild) id.</param>
         /// <param name="channel">Channel id.</param>
-        public static void Stop(ulong server, ulong channel) {
-            _Raves.Where(x => x.Server == server & x.Channel == channel & x.Active == true).ToList().ForEach(x => x.Active = false);
+        public static void Stop(ulong channel) {
+            if (_Raves.ContainsKey(channel)) {
+                _Raves.TryUpdate(channel, Status.StopRequested, Status.Running);
+            }
         }
 
         /// <summary>
-        /// Check if a rave is to be stopped.
+        /// Check if a rave should be stopped.
         /// </summary>
-        /// <param name="server">Server (guild) id.</param>
         /// <param name="channel">Channel id.</param>
-        public static bool IsStopped(ulong server, ulong channel) {
-            bool isStopped = _Raves.Where(x => x.Server == server & x.Channel == channel & x.Active == false).OrderByDescending(x => x.DateTime).Any();
+        public static Status GetStatus(ulong channel) {
+            if (_Raves.ContainsKey(channel)) {
 
-            if (isStopped) {
-                _Raves.RemoveAll(x => x.Server == server & x.Channel == channel & x.Active == false);
+                if (_Raves.TryGetValue(channel, out Status status)) {
+                    if (status == Status.StopRequested) {
+                        _Raves.TryRemove(channel, out Status _);
+                    } 
+                }
+
+                return status;
+
+            } else {
+                return Status.InvalidChannel;
             }
-
-            return isStopped;
         }
 
-        private class Rave {
-
-            public Rave(DateTime dateTime, ulong server, ulong channel, bool active) {
-                DateTime = dateTime;
-                Server = server;
-                Channel = channel;
-                Active = active;
-            }
-
-            public DateTime DateTime { get; protected set; }
-            public ulong Server { get; protected set; }
-            public ulong Channel { get; protected set; }
-            public bool Active { get; set; }
-
+        public enum Status {
+            Running,
+            StopRequested,
+            InvalidChannel
         }
 
     }

@@ -44,8 +44,8 @@ namespace HeadNonSub.Clients.Discord.Attributes {
             DateTimeOffset? offset = DatabaseManager.Cooldowns.Check(context.Guild.Id, context.User.Id, command.Name, _PerUser);
 
             if (offset.HasValue) {
-                if (offset.Value.AddSeconds(_Seconds) >= DateTimeOffset.Now) {
-                    string remaining = (offset.Value.AddSeconds(_Seconds) - DateTimeOffset.Now).TotalSeconds.Seconds().Humanize();
+                if (offset.Value.AddSeconds(_Seconds) >= DateTimeOffset.UtcNow) {
+                    string remaining = (offset.Value.AddSeconds(_Seconds) - DateTimeOffset.UtcNow).TotalSeconds.Seconds().Humanize();
 
                     if (_PerUser) {
                         return Task.FromResult(PreconditionResult.FromError($"{context.User.Mention} You need to wait {remaining} before you can use `{command.Name}` again. Cooldown is per-user."));
@@ -53,7 +53,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
                         return Task.FromResult(PreconditionResult.FromError($"You need to wait {remaining} before you can use `{command.Name}` again. Cooldown is server wide."));
                     }
                 } else {
-                    DatabaseManager.Cooldowns.Delete(context.Guild.Id, context.User.Id, command.Name);
+                    DatabaseManager.Cooldowns.Delete(context.Guild.Id, context.User.Id, command.Name, _PerUser);
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
             } else {

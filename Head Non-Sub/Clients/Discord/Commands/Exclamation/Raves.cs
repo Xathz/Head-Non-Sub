@@ -6,6 +6,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
+using Humanizer;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -17,39 +18,46 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(1800)]
         [SubscriberOnly]
         public async Task Rave([Remainder]string input) {
+            RaveTracker.Track(Context.Channel.Id);
+            DateTimeOffset start = DateTimeOffset.UtcNow;
             string[] messages = input.Split(' ');
 
-            RaveTracker.Track(Context.Guild.Id, Context.Channel.Id);
-
             foreach (string message in messages) {
-                if (RaveTracker.IsStopped(Context.Guild.Id, Context.Channel.Id)) { return; }
+                if (RaveTracker.GetStatus(Context.Channel.Id) != RaveTracker.Status.Running) { break; }
 
-                await BetterReplyAsync($":crab: {message} :crab:");
-                await Task.Delay(1250);
+                await BetterReplyAsync($":crab: {message} :crab:", parameters: message);
+                await Task.Delay(1400);
             }
+
+            string runtime = (start - DateTimeOffset.UtcNow).TotalMilliseconds.Milliseconds().Humanize();
+            await BetterReplyAsync($"{BetterUserFormat()} rave lasted for {runtime} and had {messages.Count()} messages.");
         }
 
         [Command("ravve")]
         [Cooldown(1800)]
         [SubscriberOnly]
         public async Task Ravve([Remainder] int length = 30) {
-            RaveTracker.Track(Context.Guild.Id, Context.Channel.Id);
+            RaveTracker.Track(Context.Channel.Id);
+            DateTimeOffset start = DateTimeOffset.UtcNow;
             Random random = new Random();
 
             for (int i = 0; i < length; i++) {
-                if (RaveTracker.IsStopped(Context.Guild.Id, Context.Channel.Id)) { return; }
+                if (RaveTracker.GetStatus(Context.Channel.Id) != RaveTracker.Status.Running) { break; }
 
                 string message = ":crab:".PadLeft(random.Next(0, 35), '.');
 
-                await BetterReplyAsync(message);
-                await Task.Delay(1250);
+                await BetterReplyAsync(message, parameters: message);
+                await Task.Delay(1400);
             }
+
+            string runtime = (start - DateTimeOffset.UtcNow).TotalMilliseconds.Milliseconds().Humanize();
+            await BetterReplyAsync($"{BetterUserFormat()} ravve lasted for {runtime} and had {length} messages.");
         }
 
         [Command("ravestop"), Alias("stoprave", "stopraves")]
         [DiscordStaffOnly]
         public Task RaveStop() {
-            RaveTracker.Stop(Context.Guild.Id, Context.Channel.Id);
+            RaveTracker.Stop(Context.Channel.Id);
 
             return BetterReplyAsync("Stopping all raves in this channel... you party pooper.");
         }

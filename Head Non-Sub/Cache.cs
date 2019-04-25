@@ -24,7 +24,7 @@ namespace HeadNonSub {
         /// <param name="expirationMin">Number of minutes the cache will live. If null it will never expire.</param>
         public static void Add(string key, object item, int? expirationMin = 5) {
             if (expirationMin.HasValue) {
-                _Cache.Add(key, item, DateTimeOffset.Now.AddMinutes(expirationMin.Value));
+                _Cache.Add(key, item, DateTimeOffset.UtcNow.AddMinutes(expirationMin.Value));
                 LoggingManager.Log.Info($"Added '{key}' to the cache and will expire in {expirationMin} minute(s)");
             } else {
                 _Cache.Add(key, item, ObjectCache.InfiniteAbsoluteExpiration);
@@ -45,7 +45,7 @@ namespace HeadNonSub {
             }
 
             if (expirationMin.HasValue) {
-                _Cache.Add(key, item, DateTimeOffset.Now.AddMinutes(expirationMin.Value));
+                _Cache.Add(key, item, DateTimeOffset.UtcNow.AddMinutes(expirationMin.Value));
                 LoggingManager.Log.Info($"Added '{key}' to the cache and will expire in {expirationMin} minute(s)");
             } else {
                 _Cache.Add(key, item, ObjectCache.InfiniteAbsoluteExpiration);
