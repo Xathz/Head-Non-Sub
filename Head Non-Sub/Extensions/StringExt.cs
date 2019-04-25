@@ -99,6 +99,20 @@ namespace HeadNonSub.Extensions {
         public static List<string> SplitBySpace(this string input) => input.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
 
         /// <summary>
+        /// Count occurrences of a pattern.
+        /// </summary>
+        /// <remarks>https://www.dotnetperls.com/string-occurrence</remarks>
+        public static int CountStringOccurrences(this string input, string pattern) {
+            int count = 0;
+            int i = 0;
+            while ((i = input.IndexOf(pattern, i)) != -1) {
+                i += pattern.Length;
+                count++;
+            }
+            return count;
+        }
+
+        /// <summary>
         /// Check if string contains at least 1 url.
         /// </summary>
         public static bool ContainsUrls(this string input) {

@@ -250,10 +250,11 @@ namespace HeadNonSub.Clients.Discord {
 
             string betterUserFormat = $"{(string.IsNullOrWhiteSpace(user.Nickname) ? user.Username : user.Nickname)} `{user.ToString()}`";
 
-            try {
-                // If not rank 10 or higher
-                if (!user.Roles.Any(x => x.Id == WubbysFunHouse.NakedCowboyRoleId)) {
-                    if (message.Channel.Id == WubbysFunHouse.MainChannelId) {
+            try {      
+                if (message.Channel.Id == WubbysFunHouse.MainChannelId) {
+
+                    // If not rank 10 or higher
+                    if (!user.Roles.Any(x => x.Id == WubbysFunHouse.NakedCowboyRoleId)) {                
                         if (message.Content.ContainsUrls()) {
                             if (_DiscordClient.GetChannel(WubbysFunHouse.LinksChannelId) is IMessageChannel channel) {
                                 LoggingManager.Log.Info($"Link in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id})");
@@ -293,6 +294,15 @@ namespace HeadNonSub.Clients.Discord {
 
                         await message.DeleteAsync();
                         await message.Author.SendMessageAsync($"You can only post polls in #{channelName} on {_DiscordClient.GetGuild(WubbysFunHouse.ServerId).Name}.");
+                    }
+                }
+
+                if (message.Channel.Id == WubbysFunHouse.ActualFuckingSpamChannelId) {
+                    int count = message.Content.CountStringOccurrences("<a:");
+
+                    if (count > 10) {
+                        await message.DeleteAsync();
+                        await message.Channel.SendMessageAsync($"{user.Mention} Only 10 or less animated emotes/emoji per-message. Having many of them breaks the channel for some people.");
                     }
                 }
             } catch (Exception ex) {
