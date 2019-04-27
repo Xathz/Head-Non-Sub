@@ -51,10 +51,6 @@ Command | Parameters | Description | Access
 `strawpoll` | `<title>` \| `<option 1>` \| `<option 2>` etc.. | Make a [Straw Poll](https://www.strawpoll.me). Title and options are seperated by a pipe `\|` | All
 `strawpollresults` | `<url>` | Get the results of a [Straw Poll](https://www.strawpoll.me). **Alias:** `strawpollr` | All
 `randomsong` | | Random song that Rythm Bot or Rythm Bot 2 has played | All
-`rave` | `<text>` | Crab rave your words | Sub
-`ravve` | | Dancing crabs... poorly | Sub
-`ravestop` | | Stop all raves. **Aliases:** `stoprave`, `stopraves` | Staff
-`raveundo` | `<count>` | Delete `x` most recent rave messages. **Aliases:** `undorave`, `undoraves` | Staff
 `executie` | `<user>` `<reason>` | A parody of the `!execute` command in [WubbyBot](https://github.com/tt2468/WubbyBot) | All
 `dating` | | Haha. **Aliases:** `speeddating`, `datenight` | All
 `randomclip` | | Get a random [PaymoneyWubby](https://wub.by/ttv) Twitch clip | All

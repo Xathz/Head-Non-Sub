@@ -32,6 +32,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Clients\Discord\Commands\Exclamation\Raves.cs" />
+    <Compile Remove="Clients\Discord\RaveTracker.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Clients\Discord\Commands\Commands.md" />
   </ItemGroup>
 

@@ -18,6 +18,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(1800)]
         [SubscriberOnly]
         public async Task Rave([Remainder]string input) {
+            await BetterReplyAsync("The `rave` command has been retired... for now.");
+            return;
+
             RaveTracker.Track(Context.Channel.Id);
             DateTimeOffset start = DateTimeOffset.UtcNow;
             string[] messages = input.Split(' ');
@@ -37,6 +40,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(1800)]
         [SubscriberOnly]
         public async Task Ravve([Remainder] int length = 30) {
+            await BetterReplyAsync("The `ravve` command has been retired... for now.");
+            return;
+
             RaveTracker.Track(Context.Channel.Id);
             DateTimeOffset start = DateTimeOffset.UtcNow;
             Random random = new Random();
@@ -57,6 +63,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("ravestop"), Alias("stoprave", "stopraves")]
         [DiscordStaffOnly]
         public Task RaveStop() {
+            return BetterReplyAsync("The `ravestop`, `stoprave`, and `stopraves` commands have been retired... for now.");
+
             RaveTracker.Stop(Context.Channel.Id);
 
             return BetterReplyAsync("Stopping all raves in this channel... you party pooper.");
@@ -65,6 +73,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("raveundo"), Alias("undorave", "undoraves")]
         [DiscordStaffOnly]
         public async Task RaveUndo(int messageCount = 300) {
+            await BetterReplyAsync("The `raveundo`, `undorave`, and `undoraves` commands have been retired... for now.");
+            return;
+
             if (messageCount == 0 || messageCount > 500) {
                 await BetterReplyAsync("Must be between 1 and 500.", messageCount.ToString());
                 return;
