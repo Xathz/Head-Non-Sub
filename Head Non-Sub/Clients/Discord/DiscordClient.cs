@@ -93,7 +93,7 @@ namespace HeadNonSub.Clients.Discord {
 
         public static async void FailFast() {
             try {
-                File.WriteAllText(Constants.FailFastFile, "This file was generated becuase the fail fast command was executed." +
+                File.WriteAllText(Constants.FailFastFile, $"{DateTime.UtcNow.ToString("o")} This file was generated becuase the fail fast command was executed." +
                      " The watchdog script (Watchdog.ps1) will not start/restart the bot if this file is here.");
 
             } catch (Exception ex) {
