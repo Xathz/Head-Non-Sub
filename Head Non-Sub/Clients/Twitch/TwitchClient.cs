@@ -62,9 +62,13 @@ namespace HeadNonSub.Clients.Twitch {
                     AutoReListenOnException = true
                 };
 
-                _TwitchClient.Initialize(_ConnectionCredentials);
+                _TwitchClient.Initialize(_ConnectionCredentials, "paymoneywubby");
 
                 _TwitchClient.Connect();
+
+#if DEBUG
+                _TwitchClient.OnLog += (s, e) => { LoggingManager.Log.Debug(e.Data); };
+#endif
 
                 _TwitchClient.OnConnected += OnConnected;
                 _TwitchClient.OnDisconnected += OnDisconnected;

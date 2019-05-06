@@ -215,7 +215,7 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static Task GuildMembersDownloaded(SocketGuild guild) {
-            LoggingManager.Log.Info($"Full memberlist was downloaded for {guild.Name} ({guild.Id})");
+            LoggingManager.Log.Info($"Full memberlist was downloaded for {guild.Name} ({guild.Id}); {guild.Users.Count.ToString("N0")} total members ({guild.Users.Where(x => x.Status == UserStatus.Online).Count().ToString("N0")} online)");
             return Task.CompletedTask;
         }
 

@@ -10,6 +10,8 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong ServerId = 328300333010911242;
 
+        public const ulong GingerBoyRoleId = 465872398772862976;
+
         public const ulong AdminsRoleId = 372244721625464845;
 
         public const ulong ModsRoleId = 336022934621519874;
@@ -29,6 +31,8 @@ namespace HeadNonSub.Clients.Discord {
         public const ulong NonSubRoleId = 508752510216044547;
 
         public const ulong MutedRoleId = 445807715655221259;
+
+        public const ulong Tier3RoleId = 493641643765792768;
 
         /// <summary>MEE6 rank 10</summary>
         /// <remarks>

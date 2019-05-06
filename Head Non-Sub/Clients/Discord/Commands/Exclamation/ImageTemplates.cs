@@ -105,7 +105,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             await Context.Channel.TriggerTypingAsync();
 
             using (MemoryStream stream = new MemoryStream(256))
-            using (MagickImage image = new MagickImage(Cache.GetStream("satasays.png"))) {
+            using (MagickImage image = new MagickImage(Cache.GetStream("satasays_ariana.png"))) {
 
                 string text = string.Join(Environment.NewLine, input.SplitIntoChunks(34));
                 int max = (text.Length <= 230 ? text.Length : 230);
