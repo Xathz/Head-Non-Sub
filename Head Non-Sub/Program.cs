@@ -84,7 +84,7 @@ namespace HeadNonSub {
                     string message = input.Replace(args[0], "").Replace(args[1], "").Trim();
 
                     if (args.Length >= 2) {
-                        ulong? reply = await DiscordClient.SendMessageToChannelAsync(ulong.Parse(args[1]), message);
+                        ulong? reply = await DiscordClient.SendMessageAsync(ulong.Parse(args[1]), message);
 
                         if (reply.HasValue) {
                             Console.WriteLine($"Message was sent: {reply.Value}");

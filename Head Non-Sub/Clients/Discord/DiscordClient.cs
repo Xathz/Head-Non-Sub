@@ -104,10 +104,14 @@ namespace HeadNonSub.Clients.Discord {
             Environment.Exit(13);
         }
 
-        public static async Task<ulong?> SendMessageToChannelAsync(ulong channelId, string message) {
+        public static async Task<ulong?> SendMessageAsync(ulong id, string message) {
             try {
-                if (_DiscordClient.GetChannel(channelId) is IMessageChannel channel) {
+                if (_DiscordClient.GetChannel(id) is IMessageChannel channel) {
                     return (await channel.SendMessageAsync(message)).Id;
+                }
+
+                if (_DiscordClient.GetUser(id) is IUser user) {
+                    return (await user.SendMessageAsync(message)).Id;
                 }
 
                 return null;
@@ -223,7 +227,7 @@ namespace HeadNonSub.Clients.Discord {
             if (!(socketMessage is SocketUserMessage message)) { return; }
             if (socketMessage.Source != MessageSource.User) { return; }
 
-            if (socketMessage.Channel is IPrivateChannel channel) {
+            if (socketMessage.Channel is IPrivateChannel) {
                 await message.Channel.SendMessageAsync($"No commands are available via direct message. Please @ the bot (`@{_DiscordClient.CurrentUser.Username}`) on the server.");
                 return;
             }
