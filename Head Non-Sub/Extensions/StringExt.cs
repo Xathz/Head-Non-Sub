@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using HeadNonSub.Entities.Discord.MessageTag;
 
 namespace HeadNonSub.Extensions {
 
@@ -132,6 +134,132 @@ namespace HeadNonSub.Extensions {
             }
 
             return urls;
+        }
+
+        /// <summary>
+        /// Tries to parse a provided user mention string.
+        /// </summary>
+        /// <remarks>https://github.com/discord-net/Discord.Net/blob/0275f7df507a2ad3f74be326488de2aa69bfccde/src/Discord.Net.Core/Utils/MentionUtils.cs#L53</remarks>
+        public static bool TryParseDiscordUser(this string input, out ulong userId) {
+            if (input.Length >= 3 && input[0] == '<' && input[1] == '@' && input[input.Length - 1] == '>') {
+                input = input.Length >= 4 && input[2] == '!' ? input.Substring(3, input.Length - 4) : input.Substring(2, input.Length - 3);
+
+                if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out userId)) {
+                    return true;
+                }
+            }
+
+            userId = 0;
+            return false;
+        }
+
+        /// <summary>
+        /// Tries to parse a provided channel mention string.
+        /// </summary>
+        /// <remarks>https://github.com/discord-net/Discord.Net/blob/0275f7df507a2ad3f74be326488de2aa69bfccde/src/Discord.Net.Core/Utils/MentionUtils.cs#L82</remarks>
+        public static bool TryParseDiscordChannel(this string input, out ulong channelId) {
+            if (input.Length >= 3 && input[0] == '<' && input[1] == '#' && input[input.Length - 1] == '>') {
+                input = input.Substring(2, input.Length - 3);
+
+                if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out channelId)) {
+                    return true;
+                }
+            }
+
+            channelId = 0;
+            return false;
+        }
+
+        /// <summary>
+        /// Tries to parse a provided role mention string.
+        /// </summary>
+        /// <remarks>https://github.com/discord-net/Discord.Net/blob/0275f7df507a2ad3f74be326488de2aa69bfccde/src/Discord.Net.Core/Utils/MentionUtils.cs#L108</remarks>
+        public static bool TryParseDiscordRole(this string input, out ulong roleId) {
+            if (input.Length >= 4 && input[0] == '<' && input[1] == '@' && input[2] == '&' && input[input.Length - 1] == '>') {
+                input = input.Substring(3, input.Length - 4);
+
+                if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out roleId)) {
+                    return true;
+                }
+            }
+
+            roleId = 0;
+            return false;
+        }
+
+        /// <summary>
+        /// Parse a string for discord tags. Mentioned users, roles, channels, @everyone, and @here.
+        /// </summary>
+        /// <remarks>https://github.com/discord-net/Discord.Net/blob/0275f7df507a2ad3f74be326488de2aa69bfccde/src/Discord.Net.Rest/Entities/Messages/MessageHelper.cs#L98</remarks>
+        public static List<MessageTag> ParseDiscordMessage(this string text) {
+            List<MessageTag> tags = new List<MessageTag>();
+            int index = 0;
+
+            while (true) {
+                index = text.IndexOf('<', index);
+                if (index == -1) { break; }
+
+                int endIndex = text.IndexOf('>', index + 1);
+                if (endIndex == -1) { break; }
+
+                string content = text.Substring(index, endIndex - index + 1);
+
+                if (TryParseDiscordUser(content, out ulong userId)) {
+                    tags.Add(new MessageTag(TagType.User, userId, index, content.Length));
+
+                } else if (TryParseDiscordRole(content, out ulong roleId)) {
+                    tags.Add(new MessageTag(TagType.Role, roleId, index, content.Length));
+
+                } else if (TryParseDiscordChannel(content, out ulong channelId)) {
+                    tags.Add(new MessageTag(TagType.Channel, channelId, index, content.Length));
+
+                } else {
+                    index = index + 1;
+                    continue;
+                }
+
+                index = endIndex + 1;
+            }
+
+            index = 0;
+            while (true) {
+                index = text.IndexOf("@everyone", index);
+                if (index == -1) { break; }
+
+                int? tagIndex = FindIndex(tags, index);
+                if (tagIndex.HasValue) {
+                    tags.Add(new MessageTag(TagType.Everyone, 0, index, "@everyone".Length));
+                }
+
+                index++;
+            }
+
+            index = 0;
+            while (true) {
+                index = text.IndexOf("@here", index);
+                if (index == -1) { break; }
+
+                int? tagIndex = FindIndex(tags, index);
+                if (tagIndex.HasValue) {
+                    tags.Add(new MessageTag(TagType.Here, 0, index, "@here".Length));
+                }
+
+                index++;
+            }
+
+            return tags;
+        }
+
+        private static int? FindIndex(List<MessageTag> tags, int index) {
+            int i = 0;
+            for (; i < tags.Count; i++) {
+                MessageTag tag = tags[i];
+                if (index < tag.Index) {
+                    break;
+                }
+            }
+
+            return i > 0 && index < tags[i - 1].Index + tags[i - 1].Length ? null : (int?)i;
         }
 
     }
