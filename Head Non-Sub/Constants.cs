@@ -35,7 +35,12 @@ namespace HeadNonSub {
         /// <summary>
         /// Date and time format used in messages.
         /// </summary>
-        public const string DateTimeFormat = "MM/dd/yyyy hh:mm:ss.fff";
+        public const string DateTimeFormat = "MM/dd/yyyy hh:mm:ss.fff tt";
+
+        /// <summary>
+        /// Date and time format used in messages.
+        /// </summary>
+        public const string DateTimeFormatMedium = "MM/dd/yyyy hh:mm:ss tt";
 
         /// <summary>
         /// Date and time format used in messages.

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace HeadNonSub.Entities.MeeSix {
+namespace HeadNonSub.Entities.MeeSix.Leaderboard {
 
     public class Guild {
 

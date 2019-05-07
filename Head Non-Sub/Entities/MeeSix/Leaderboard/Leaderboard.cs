@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace HeadNonSub.Entities.MeeSix {
+namespace HeadNonSub.Entities.MeeSix.Leaderboard {
 
-    public class MeeSix {
+    public class Leaderboard {
 
         [JsonProperty("guild")]
         public Guild Guild { get; set; }

@@ -25,18 +25,31 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(300)]
         [SubscriberOnly]
         public async Task Executie(SocketUser user = null, [Remainder]string reason = "") {
-            await BetterReplyAsync("Executie has been disabled until you idiots use it properly.");
-            return;
-
             if (user == null) {
                 await BetterReplyAsync("You must mention a user to executie them.");
+                return;
+            }
+
+            if (user is SocketGuildUser guildUser) {
+                if (guildUser.Roles.Count == 0) {
+                    await BetterReplyAsync("You can not executie a non-sub. Executie is for someone you like and no one likes a non-sub.");
+                    return;
+                }  else if (guildUser.Roles.Any(x => x.Id == WubbysFunHouse.NonSubRoleId)) {
+                    await BetterReplyAsync("You can not executie a non-sub. Executie is for someone you like and no one likes a non-sub.");
+                    return;
+                } else if (guildUser.Roles.Any(x => x.Id == WubbysFunHouse.MutedRoleId)) {
+                    await BetterReplyAsync("You can not executie a muted user. They are to be ignored and given no affection.");
+                    return;
+                }
+            } else {
+                await BetterReplyAsync($"{user.ToString()} is not a guild member. This is a rare error message so you win I guess...");
                 return;
             }
 
             await BetterReplyAsync($"{user.Mention} you have 10 seconds to say last words before you are executie'd.", parameters: $"{user.ToString()}, {reason}");
             await Task.Delay(10000);
 
-            await ReplyAsync($"10 seconds over. Now executing {user.ToString()} for reason: `{reason}`...");
+            await ReplyAsync($"10 seconds over. Now executie-ing {user.ToString()} for reason: `{reason}`...");
 
             await Task.Delay(1000);
             await ReplyAsync("3");

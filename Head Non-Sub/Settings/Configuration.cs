@@ -30,6 +30,11 @@ namespace HeadNonSub.Settings {
         public string TwitchToken { get; set; } = string.Empty;
 
         /// <summary>
+        /// MeeSix (MEE6) api token.
+        /// </summary>
+        public string MeeSixToken { get; set; } = string.Empty;
+
+        /// <summary>
         /// CBenni api token.
         /// </summary>
         public string CBenniToken { get; set; } = string.Empty;
