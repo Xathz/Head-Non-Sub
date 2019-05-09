@@ -1,8 +1,11 @@
 ﻿using System;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Extensions;
 using ImageMagick;
@@ -184,6 +187,42 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
                 await BetterSendFileAsync(stream, "strongbadSays.png", $"● {BetterUserFormat()}", parameters: input);
             }
+        }
+
+        [Command("warm")]
+        public async Task Warm(SocketUser user = null, [Remainder]string input = "") {
+            if (user == null) {
+                await BetterReplyAsync("You must provide a user to warm.");
+                return;
+            }
+
+            await Context.Channel.TriggerTypingAsync();
+
+            WebClient webClient = new WebClient();
+            MemoryStream downloadStream = new MemoryStream(webClient.DownloadData(user.GetAvatarUrl(ImageFormat.Png)));
+            downloadStream.Seek(0, SeekOrigin.Begin);
+
+            using (MemoryStream stream = new MemoryStream(256))
+            using (MagickImage image = new MagickImage(Cache.GetStream("warm.png")))
+            using (MagickImage avatar = new MagickImage(downloadStream)) {
+
+                avatar.BackgroundColor = new MagickColor(0, 0, 0, 0);
+                avatar.Resize(225, 225);
+                avatar.Rotate(-5.5);
+
+                new Drawables()
+                 .Composite(160, 138, avatar)
+                 .Draw(image);
+
+                image.Resize(200, 200);
+                image.Write(stream, MagickFormat.Png);
+
+                stream.Seek(0, SeekOrigin.Begin);
+
+                await BetterSendFileAsync(stream, "warm.png", $"{BetterUserFormat(user)} has been warmed{(string.IsNullOrWhiteSpace(input) ? "" : $" for `{input}`")}.", parameters: user.ToString());
+            }
+
+            downloadStream.Dispose();
         }
 
     }
