@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,7 +27,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             await Context.Channel.TriggerTypingAsync();
 
-            Moderator result = GetUserInfractions(Context.Guild.Id, user.Id);
+            Moderator result = await GetUserInfractionsAsync(Context.Guild.Id, user.Id);
 
             if (result is Moderator) {
                 StringBuilder builder = new StringBuilder();
@@ -73,7 +73,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 return;
             }
 
-            bool result = DeleteInfraction(Context.Guild.Id, id);
+            bool result = await DeleteInfractionAsync(Context.Guild.Id, id);
 
             if (result) {
                 await BetterReplyAsync("The infraction was deleted.", id);
@@ -92,12 +92,12 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             await Context.Channel.TriggerTypingAsync();
 
-            Moderator result = GetUserInfractions(Context.Guild.Id, user.Id);
+            Moderator result = await GetUserInfractionsAsync(Context.Guild.Id, user.Id);
 
             int deleteCount = 0;
             foreach (Infraction infraction in result.Infractions) {
 
-                if (DeleteInfraction(Context.Guild.Id, infraction.Id)) {
+                if (await DeleteInfractionAsync(Context.Guild.Id, infraction.Id)) {
                     deleteCount++;
                 }
             }
@@ -105,30 +105,50 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             await BetterReplyAsync($"● **{deleteCount}** infractions for {BetterUserFormat(user)} were deleted.", user.Id.ToString());
         }
 
-        private Moderator GetUserInfractions(ulong serverId, ulong userId) {
-            Moderator moderator = null;
+        private async Task<Moderator> GetUserInfractionsAsync(ulong serverId, ulong userId) {
+            try {
+                using (HttpClient client = new HttpClient()) {
+                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"https://mee6.xyz/api/plugins/moderator/guilds/{serverId}/infractions?page=0&limit=1000&user_id={userId}");
+                    request.Headers.TryAddWithoutValidation("Authorization", SettingsManager.Configuration.MeeSixToken);
 
-            WebClient webClient = new WebClient();
-            webClient.Headers.Add(HttpRequestHeader.Authorization, SettingsManager.Configuration.MeeSixToken);
-            string json = webClient.DownloadString($"https://mee6.xyz/api/plugins/moderator/guilds/{serverId}/infractions?page=0&limit=1000&user_id={userId}");
+                    using (HttpResponseMessage response = await client.SendAsync(request)) {
 
-            using (StringReader jsonReader = new StringReader(json)) {
-                JsonSerializer jsonSerializer = new JsonSerializer {
-                    DateTimeZoneHandling = DateTimeZoneHandling.Utc
-                };
+                        if (response.IsSuccessStatusCode) {
+                            using (HttpContent content = response.Content) {
+                                string json = await content.ReadAsStringAsync();
 
-                moderator = jsonSerializer.Deserialize(jsonReader, typeof(Moderator)) as Moderator;
+                                using (StringReader jsonReader = new StringReader(json)) {
+                                    JsonSerializer jsonSerializer = new JsonSerializer {
+                                        DateTimeZoneHandling = DateTimeZoneHandling.Utc
+                                    };
+
+                                    return jsonSerializer.Deserialize(jsonReader, typeof(Moderator)) as Moderator;
+                                }
+                            }
+                        } else {
+                            throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return null;
             }
-
-            return moderator;
         }
 
-        private bool DeleteInfraction(ulong serverId, string infractionId) {
-            using (HttpClient httpClient = new HttpClient()) {
-                HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Delete, $"https://mee6.xyz/api/plugins/moderator/guilds/{serverId}/infractions/{infractionId}");
-                requestMessage.Headers.TryAddWithoutValidation("Authorization", SettingsManager.Configuration.MeeSixToken);
+        private async Task<bool> DeleteInfractionAsync(ulong serverId, string infractionId) {
+            try {
+                using (HttpClient client = new HttpClient()) {
+                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, $"https://mee6.xyz/api/plugins/moderator/guilds/{serverId}/infractions/{infractionId}");
+                    request.Headers.TryAddWithoutValidation("Authorization", SettingsManager.Configuration.MeeSixToken);
 
-                return httpClient.SendAsync(requestMessage).Result.IsSuccessStatusCode;
+                    using (HttpResponseMessage response = await client.SendAsync(request)) {
+                        return response.IsSuccessStatusCode;
+                    }
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return false;
             }
         }
 

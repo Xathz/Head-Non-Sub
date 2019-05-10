@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
@@ -198,31 +199,43 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             await Context.Channel.TriggerTypingAsync();
 
-            WebClient webClient = new WebClient();
-            MemoryStream downloadStream = new MemoryStream(webClient.DownloadData(user.GetAvatarUrl(ImageFormat.Png)));
-            downloadStream.Seek(0, SeekOrigin.Begin);
+            try {
+                using (HttpClient client = new HttpClient())
+                using (HttpResponseMessage response = await client.GetAsync(user.GetAvatarUrl(ImageFormat.Png))) {
 
-            using (MemoryStream stream = new MemoryStream(256))
-            using (MagickImage image = new MagickImage(Cache.GetStream("warm.png")))
-            using (MagickImage avatar = new MagickImage(downloadStream)) {
+                    if (response.IsSuccessStatusCode) {
+                        using (HttpContent content = response.Content) {
+                            Stream downloadStream = await content.ReadAsStreamAsync();
+                            downloadStream.Seek(0, SeekOrigin.Begin);
 
-                avatar.BackgroundColor = new MagickColor(0, 0, 0, 0);
-                avatar.Resize(225, 225);
-                avatar.Rotate(-5.5);
+                            using (MemoryStream stream = new MemoryStream(256))
+                            using (MagickImage image = new MagickImage(Cache.GetStream("warm.png")))
+                            using (MagickImage avatar = new MagickImage(downloadStream)) {
 
-                new Drawables()
-                 .Composite(160, 138, avatar)
-                 .Draw(image);
+                                avatar.BackgroundColor = new MagickColor(0, 0, 0, 0);
+                                avatar.Resize(225, 225);
+                                avatar.Rotate(-5.5);
 
-                image.Resize(200, 200);
-                image.Write(stream, MagickFormat.Png);
+                                new Drawables()
+                                 .Composite(160, 138, avatar)
+                                 .Draw(image);
 
-                stream.Seek(0, SeekOrigin.Begin);
+                                image.Resize(200, 200);
+                                image.Write(stream, MagickFormat.Png);
 
-                await BetterSendFileAsync(stream, "warm.png", $"{BetterUserFormat(user)} has been warmed{(string.IsNullOrWhiteSpace(input) ? "" : $" for `{input}`")}.", parameters: user.ToString());
+                                stream.Seek(0, SeekOrigin.Begin);
+
+                                await BetterSendFileAsync(stream, "warm.png", $"{BetterUserFormat(user)} has been warmed{(string.IsNullOrWhiteSpace(input) ? "" : $" for `{input}`")}.", parameters: user.ToString());
+                            }
+
+                        }
+                    } else {
+                        throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
+                    }
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
             }
-
-            downloadStream.Dispose();
         }
 
     }

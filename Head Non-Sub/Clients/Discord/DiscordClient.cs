@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -276,15 +277,23 @@ namespace HeadNonSub.Clients.Discord {
                         } else if (message.Attachments.Count > 0) {
                             if (_DiscordClient.GetChannel(WubbysFunHouse.ActualFuckingSpamChannelId) is IMessageChannel channel) {
                                 foreach (Attachment attachment in message.Attachments) {
-                                    using (WebClient webClient = new WebClient())
-                                    using (MemoryStream stream = new MemoryStream(webClient.DownloadData(attachment.Url))) {
-                                        LoggingManager.Log.Info($"Attachment in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id}); {attachment.Filename}; api: {attachment.Size.Bytes().Humanize("#.##")}; downloaded: {stream.Length.Bytes().Humanize("#.##")}");
+                                    using (HttpClient client = new HttpClient())
+                                    using (HttpResponseMessage response = await client.GetAsync(attachment.Url)) {
+                                        if (response.IsSuccessStatusCode) {
+                                            using (HttpContent content = response.Content) {
+                                                Stream stream = await content.ReadAsStreamAsync();
 
-                                        if (stream.Length > 8388119) {
-                                            await channel.SendMessageAsync($"An attachment was uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}> and can not be re-uploaded, the attachment is too large for a bot to upload (`{attachment.Size.Bytes().Humanize("#.##")} / {stream.Length.Bytes().Humanize("#.##")}`). They probably have Nitro.");
+                                                LoggingManager.Log.Info($"Attachment in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id}); {attachment.Filename}; api: {attachment.Size.Bytes().Humanize("#.##")}; downloaded: {stream.Length.Bytes().Humanize("#.##")}");
+
+                                                if (stream.Length > 8388119) {
+                                                    await channel.SendMessageAsync($"An attachment was uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}> and can not be re-uploaded, the attachment is too large for a bot to upload (`{attachment.Size.Bytes().Humanize("#.##")} / {stream.Length.Bytes().Humanize("#.##")}`). They probably have Nitro.");
+                                                } else {
+                                                    stream.Seek(0, SeekOrigin.Begin);
+                                                    await channel.SendFileAsync(stream, attachment.Filename, $"● Uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
+                                                }
+                                            }
                                         } else {
-                                            stream.Seek(0, SeekOrigin.Begin);
-                                            await channel.SendFileAsync(stream, attachment.Filename, $"● Uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
+                                            throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
                                         }
                                     }
                                 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
@@ -28,7 +28,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             await Context.Channel.TriggerTypingAsync();
 
-            string log = GetCBenniUser(user.ToLower(), count);
+            string log = await GetCBenniUserAsync(user.ToLower(), count);
+            log = log.RemoveEmptyLines();
+
             string messages = log.Extract("```", "```");
             List<string> messageChunks = messages.SplitIntoChunksPreserveNewLines(1980);
 
@@ -46,11 +48,23 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
         }
 
-        private string GetCBenniUser(string user, int count) {
-            WebClient webClient = new WebClient();
-            string reply = webClient.DownloadString($"https://cbenni.com/api/slack/?default_channel=paymoneywubby&text={user} {count}&lvtoken={SettingsManager.Configuration.CBenniToken}");
-
-            return reply.RemoveEmptyLines();
+        private async Task<string> GetCBenniUserAsync(string user, int count) {
+            try {
+                using (HttpClient client = new HttpClient()) {
+                    using (HttpResponseMessage response = await client.GetAsync($"https://cbenni.com/api/slack/?default_channel=paymoneywubby&text={user} {count}&lvtoken={SettingsManager.Configuration.CBenniToken}")) {
+                        if (response.IsSuccessStatusCode) {
+                            using (HttpContent content = response.Content) {
+                                return await content.ReadAsStringAsync();
+                            }
+                        } else {
+                            throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return string.Empty;
+            }
         }
 
     }

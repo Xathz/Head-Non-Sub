@@ -47,12 +47,13 @@ namespace HeadNonSub {
 
             DatabaseManager.Load();
             StatisticsManager.Load();
-
-            Cache.LoadContent();
         }
 
         private async Task StartAsync() {
             LoggingManager.Log.Info("Starting...");
+
+            // Load content into cache
+            await Cache.LoadContentAsync();
 
             // Connect to discord
             await DiscordClient.ConnectAsync();

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -17,17 +17,23 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         private readonly DateTime _Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         [Command("stock")]
-        public Task PaymoneyWubbyStock() {
-            Context.Channel.TriggerTypingAsync();
+        public async Task PaymoneyWubbyStock() {
+            await Context.Channel.TriggerTypingAsync();
 
             bool fromCache = false;
-            KeyValuePair<long, double> recent;
+            KeyValuePair<long, double>? recent;
 
             if (Cache.Get("stock:paymoneywubby") is KeyValuePair<long, double> validStock) {
                 fromCache = true;
                 recent = validStock;
             } else {
-                recent = GetRecentStockValue();
+                recent = await GetRecentStockValueAsync();
+
+                if (recent is null) {
+                    await BetterReplyAsync("Failed to retrieve price data from Streamlabs.");
+                    return;
+                }
+
                 Cache.Add("stock:paymoneywubby", recent);
             }
 
@@ -38,55 +44,76 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 Description = "[More data on TwitchStocks](https://twitchstocks.com/stock/pymny)"
             };
 
-            builder.AddField("Value", $"**${recent.Value.ToString("N2")}** _${recent.Value.ToString("N6")}_");
+            builder.AddField("Value", $"**${recent.Value.Value.ToString("N2")}** _${recent.Value.Value.ToString("N6")}_");
 
             builder.Footer = new EmbedFooterBuilder() {
-                Text = $"As of {FromUnixTime(recent.Key).ToString().ToLower()} utc{(fromCache ? "; from cache" : "")}"
+                Text = $"As of {FromUnixTime(recent.Value.Key).ToString().ToLower()} utc{(fromCache ? "; from cache" : "")}"
             };
 
-            return BetterReplyAsync(builder.Build());
+            await BetterReplyAsync(builder.Build());
         }
 
-        private KeyValuePair<long, double> GetRecentStockValue() {
-            Dictionary<long, double> stocks = GetStocks();
+        private async Task<KeyValuePair<long, double>?> GetRecentStockValueAsync() {
+            Dictionary<long, double> stocks = await GetStocksAsync();
+
+            if (stocks.Count == 0) {
+                return null;
+            }
+
             return stocks.OrderByDescending(x => x.Key).FirstOrDefault();
         }
 
-        private Dictionary<long, double> GetStocks() {
+        private async Task<Dictionary<long, double>> GetStocksAsync() {
             Dictionary<long, double> returnValues = new Dictionary<long, double>();
-            Values values = new Values();
 
-            WebClient webClient = new WebClient();
-            webClient.Headers.Add(HttpRequestHeader.Referer, "https://twitchstocks.com");
-            string json = webClient.DownloadString("https://api.twitchstocks.com/api/v1/stocks/38251312/history/1hr");
+            try {
+                using (HttpClient client = new HttpClient()) {
+                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "https://api.twitchstocks.com/api/v1/stocks/38251312/history/1hr");
+                    request.Headers.TryAddWithoutValidation("Referer", "https://twitchstocks.com");
 
-            using (StringReader jsonReader = new StringReader(json)) {
-                JsonSerializer jsonSerializer = new JsonSerializer {
-                    DateTimeZoneHandling = DateTimeZoneHandling.Local
-                };
+                    using (HttpResponseMessage response = await client.SendAsync(request)) {
+                        if (response.IsSuccessStatusCode) {
+                            using (HttpContent content = response.Content) {
+                                string json = await content.ReadAsStringAsync();
+                                Values values = new Values();
 
-                values = jsonSerializer.Deserialize(jsonReader, typeof(Values)) as Values;
-            }
+                                using (StringReader jsonReader = new StringReader(json)) {
+                                    JsonSerializer jsonSerializer = new JsonSerializer {
+                                        DateTimeZoneHandling = DateTimeZoneHandling.Utc
+                                    };
 
-            foreach (List<double> pair in values.Data) {
-                double? value = null;
-                long? timestamp = null;
+                                    values = jsonSerializer.Deserialize(jsonReader, typeof(Values)) as Values;
+                                }
 
-                foreach (double item in pair) {
-                    if (!value.HasValue) {
-                        value = item;
-                        continue;
-                    }
+                                foreach (List<double> pair in values.Data) {
+                                    double? value = null;
+                                    long? timestamp = null;
 
-                    if (!timestamp.HasValue) {
-                        timestamp = Convert.ToInt64(item);
+                                    foreach (double item in pair) {
+                                        if (!value.HasValue) {
+                                            value = item;
+                                            continue;
+                                        }
+
+                                        if (!timestamp.HasValue) {
+                                            timestamp = Convert.ToInt64(item);
+                                        }
+                                    }
+
+                                    returnValues.Add(timestamp.Value, value.Value);
+                                }
+
+                                return returnValues;
+                            }
+                        } else {
+                            throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
+                        }
                     }
                 }
-
-                returnValues.Add(timestamp.Value, value.Value);
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return returnValues;
             }
-
-            return returnValues;
         }
 
         private DateTime FromUnixTime(long unixTime) => _Epoch.AddMilliseconds(unixTime);

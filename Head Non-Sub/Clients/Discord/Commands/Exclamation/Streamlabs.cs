@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -15,8 +16,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     public class Streamlabs : BetterModuleBase {
 
         [Command("prices"), Alias("mediashare")]
-        public Task Prices([Remainder]string input = "") {
-            Context.Channel.TriggerTypingAsync();
+        public async Task Prices([Remainder]string input = "") {
+            await Context.Channel.TriggerTypingAsync();
 
             bool fromCache = false;
             StreamlabsEntities.Tip streamlabsTip;
@@ -25,7 +26,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 fromCache = true;
                 streamlabsTip = validStreamlabsTip;
             } else {
-                streamlabsTip = GetTipData();
+                streamlabsTip = await GetTipDataAsync();
+
+                if (streamlabsTip is null) {
+                    await BetterReplyAsync("Failed to retrieve price data from Streamlabs.");
+                    return;
+                }
+
                 Cache.Add("prices:paymoneywubby", streamlabsTip, 15);
             }
 
@@ -64,24 +71,34 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 Text = $"As of {streamlabsTip.Settings.CreatedAt.ToString().ToLower()} utc{(fromCache ? "; from cache" : "")}"
             };
 
-            return BetterReplyAsync(builder.Build());
+            await BetterReplyAsync(builder.Build());
         }
 
-        private StreamlabsEntities.Tip GetTipData() {
-            StreamlabsEntities.Tip streamlabsTip = new StreamlabsEntities.Tip();
+        private async Task<StreamlabsEntities.Tip> GetTipDataAsync() {
+            try {
+                using (HttpClient client = new HttpClient()) {
+                    using (HttpResponseMessage response = await client.GetAsync("https://streamlabs.com/api/v6/1f510f07ca2978f/tip")) {
+                        if (response.IsSuccessStatusCode) {
+                            using (HttpContent content = response.Content) {
+                                string json = await content.ReadAsStringAsync();
 
-            WebClient webClient = new WebClient();
-            string json = webClient.DownloadString("https://streamlabs.com/api/v6/1f510f07ca2978f/tip");
+                                using (StringReader jsonReader = new StringReader(json)) {
+                                    JsonSerializer jsonSerializer = new JsonSerializer {
+                                        DateTimeZoneHandling = DateTimeZoneHandling.Utc
+                                    };
 
-            using (StringReader jsonReader = new StringReader(json)) {
-                JsonSerializer jsonSerializer = new JsonSerializer {
-                    DateTimeZoneHandling = DateTimeZoneHandling.Local
-                };
-
-                streamlabsTip = jsonSerializer.Deserialize(jsonReader, typeof(StreamlabsEntities.Tip)) as StreamlabsEntities.Tip;
+                                    return jsonSerializer.Deserialize(jsonReader, typeof(StreamlabsEntities.Tip)) as StreamlabsEntities.Tip;
+                                }
+                            }
+                        } else {
+                            throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return null;
             }
-
-            return streamlabsTip;
         }
 
     }

@@ -61,7 +61,7 @@ namespace HeadNonSub.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to # Version 2019041600, Last Updated Tue Apr 16 07:07:01 2019 UTC
+        ///   Looks up a localized string similar to # Version 2019051000, Last Updated Fri May 10 07:07:01 2019 UTC
         ///AAA
         ///AARP
         ///ABARTH
@@ -120,17 +120,7 @@ namespace HeadNonSub.Properties {
         ///ANALYTICS
         ///ANDROID
         ///ANQUAN
-        ///ANZ
-        ///AO
-        ///AOL
-        ///APARTMENTS
-        ///APP
-        ///APPLE
-        ///AQ
-        ///AQUARELLE
-        ///AR
-        ///ARAB
-        ///ARAMCO [rest of string was truncated]&quot;;.
+        /// [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string TLDs {
             get {

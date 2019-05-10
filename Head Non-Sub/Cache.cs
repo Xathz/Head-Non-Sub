@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Runtime.Caching;
+using System.Threading.Tasks;
 using HeadNonSub.Extensions;
 using HeadNonSub.Properties;
 
@@ -19,54 +19,61 @@ namespace HeadNonSub {
         /// <summary>
         /// Add an entry to the cache.
         /// </summary>
-        /// <param name="key">A unique identifier for the cache entry to add.</param>
-        /// <param name="item">The data for the cache entry.</param>
-        /// <param name="expirationMin">Number of minutes the cache will live. If null it will never expire.</param>
+        /// <param name="key">Unique identifier for the cache entry to add.</param>
+        /// <param name="item">Data for the cache entry.</param>
+        /// <param name="expirationMin">Number of minutes the cache will live. If <see langword="null"/> it will never expire.</param>
         public static void Add(string key, object item, int? expirationMin = 5) {
             if (expirationMin.HasValue) {
                 _Cache.Add(key, item, DateTimeOffset.UtcNow.AddMinutes(expirationMin.Value));
-                LoggingManager.Log.Info($"Added '{key}' to the cache and will expire in {expirationMin} minute(s)");
+                LoggingManager.Log.Debug($"Added '{key}' and will expire in {expirationMin} minute(s)");
             } else {
                 _Cache.Add(key, item, ObjectCache.InfiniteAbsoluteExpiration);
-                LoggingManager.Log.Info($"Added '{key}' to the cache and will never expire");
+                LoggingManager.Log.Debug($"Added '{key}' and will never expire");
             }
         }
 
         /// <summary>
-        /// Add or update an entry to/in the cache.
+        /// Add or update an entry to the cache.
         /// </summary>
-        /// <param name="key">A unique identifier for the cache entry to add.</param>
-        /// <param name="item">The data for the cache entry.</param>
-        /// <param name="expirationMin">Number of minutes the cache will live. If null it will never expire.</param>
+        /// <param name="key">Unique identifier for the cache entry to update.</param>
+        /// <param name="item">Data for the cache entry.</param>
+        /// <param name="expirationMin">Number of minutes the cache will live. If <see langword="null"/> it will never expire.</param>
         public static void AddOrUpdate(string key, object item, int? expirationMin = 5) {
+            bool wasUpdated = _Cache.Contains(key);
+
+            Remove(key);
+            Add(key, item, expirationMin);
+
+            if (wasUpdated) {
+                LoggingManager.Log.Debug($"Removed and readded '{key}'");
+            }
+        }
+
+        /// <summary>
+        /// Remove an entry from the cache.
+        /// </summary>
+        /// <param name="key">Unique identifier for the cache entry to update.</param>
+        public static void Remove(string key) {
             if (_Cache.Contains(key)) {
                 _Cache.Remove(key);
-                LoggingManager.Log.Info($"Removed '{key}' from the cache");
-            }
-
-            if (expirationMin.HasValue) {
-                _Cache.Add(key, item, DateTimeOffset.UtcNow.AddMinutes(expirationMin.Value));
-                LoggingManager.Log.Info($"Added '{key}' to the cache and will expire in {expirationMin} minute(s)");
+                LoggingManager.Log.Debug($"Removed '{key}'");
             } else {
-                _Cache.Add(key, item, ObjectCache.InfiniteAbsoluteExpiration);
-                LoggingManager.Log.Info($"Added '{key}' to the cache and will never expire");
+                LoggingManager.Log.Debug($"Attempted to remove '{key}' but the key does not exist");
             }
         }
 
         /// <summary>
         /// Get a entry from the cache.
         /// </summary>
-        /// <param name="key">A unique identifier for the cache entry to get.</param>
+        /// <param name="key">Unique identifier for the cache entry to get.</param>
         public static object Get(string key) {
-            object entry = _Cache.Get(key);
-
-            if (entry is null) {
-                LoggingManager.Log.Info($"Attempted to retrieved '{key}' from cache but is null");
+            if (_Cache.Contains(key)) {
+                LoggingManager.Log.Debug($"Retrieved '{key}'");
+                return _Cache.Get(key);
             } else {
-                LoggingManager.Log.Info($"Retrieved '{key}' from cache");
+                LoggingManager.Log.Debug($"Attempted to retrieve '{key}' but the key does not exist");
+                return null;
             }
-
-            return entry;
         }
 
         /// <summary>
@@ -89,9 +96,9 @@ namespace HeadNonSub {
         }
 
         /// <summary>
-        /// Load all the items in the <see cref="Constants.ContentDirectory"/> and <see cref="Constants.TemplatesDirectory"/> into the cache.
+        /// Load all items in <see cref="Constants.ContentDirectory"/> and <see cref="Constants.TemplatesDirectory"/> into the cache.
         /// </summary>
-        public static void LoadContent() {
+        public static async Task LoadContentAsync() {
             List<string> files = new List<string>();
             files.AddRange(Directory.GetFiles(Constants.ContentDirectory, "*.*", SearchOption.TopDirectoryOnly));
             files.AddRange(Directory.GetFiles(Constants.TemplatesDirectory, "*.*", SearchOption.TopDirectoryOnly));
@@ -109,35 +116,44 @@ namespace HeadNonSub {
             }
 
             // Download and parse top level domains
-            DownloadTLDs();
+            await DownloadTLDsAsync();
 
             LoggingManager.Log.Info($"Loaded {_Cache.GetCount()} items into cache");
         }
 
-        private static void DownloadTLDs() {
+        private static async Task DownloadTLDsAsync() {
             try {
-                WebClient webClient = new WebClient();
-                string list = webClient.DownloadString("https://data.iana.org/TLD/tlds-alpha-by-domain.txt");
+                using (HttpClient client = new HttpClient()) {
+                    using (HttpResponseMessage response = await client.GetAsync("https://data.iana.org/TLD/tlds-alpha-by-domain.txt")) {
+                        using (HttpContent content = response.Content) {
+                            string list = await content.ReadAsStringAsync();
 
-                if (string.IsNullOrWhiteSpace(list)) {
-                    throw new ArgumentNullException("list");
-                }
+                            if (!response.IsSuccessStatusCode) {
+                                throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
+                            }
 
-                List<string> lines = list.SplitByNewLines();
-                HashSet<string> domains = new HashSet<string>();
-                foreach (string line in lines) {
-                    if (!line.StartsWith("#")) {
-                        domains.Add(line.ToLower());
+                            if (string.IsNullOrWhiteSpace(list)) {
+                                throw new ArgumentNullException(nameof(list));
+                            }
+
+                            List<string> lines = list.SplitByNewLines();
+                            HashSet<string> domains = new HashSet<string>();
+                            foreach (string line in lines) {
+                                if (!line.StartsWith("#")) {
+                                    domains.Add(line.ToLower());
+                                }
+                            }
+
+                            if (domains.Count == 0) {
+                                throw new ArgumentException("Collection is empty", nameof(domains));
+                            }
+
+                            TLDs = domains.ToList().AsReadOnly();
+
+                            LoggingManager.Log.Info($"Downloaded and parsed {TLDs.Count} top level domains");
+                        }
                     }
                 }
-
-                if (domains.Count == 0) {
-                    throw new ArgumentNullException("domains");
-                }
-
-                TLDs = domains.ToList().AsReadOnly();
-
-                LoggingManager.Log.Info($"Downloaded and parsed {TLDs.Count} top level domains");
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
 
