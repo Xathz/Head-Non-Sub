@@ -50,7 +50,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             TrackStatistics(parameters: count.ToString());
         }
 
-        [Command("undobot")]
+        [Command("undobot"), Alias("botundo")]
         [DiscordStaffOnly]
         public async Task UndoBot(int messageCount = 100) {
             if (messageCount == 0 || messageCount > 500) {

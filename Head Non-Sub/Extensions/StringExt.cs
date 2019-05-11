@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-using HeadNonSub.Entities.Discord.MessageTag;
+using HeadNonSub.Entities.Discord;
 
 namespace HeadNonSub.Extensions {
 
     public static class StringExt {
 
         private static readonly Regex _UrlRegex = new Regex("https?://", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        private static readonly Regex _EmojiRegex = new Regex(@"(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])", RegexOptions.Compiled);
 
         /// <summary>
         /// Split a string into chunks based on max length.
@@ -188,21 +190,49 @@ namespace HeadNonSub.Extensions {
         }
 
         /// <summary>
+        /// Tries to parse an <see cref="EmoteOrEmoji"/> from its raw format.
+        /// </summary>
+        /// <remarks>https://github.com/discord-net/Discord.Net/blob/0275f7df507a2ad3f74be326488de2aa69bfccde/src/Discord.Net.Core/Entities/Emotes/Emote.cs#L79</remarks>
+        public static bool TryParseDiscordEmote(this string input, out EmoteOrEmoji result) {
+            result = null;
+
+            if (input.Length >= 4 && input[0] == '<' && (input[1] == ':' || (input[1] == 'a' && input[2] == ':')) && input[input.Length - 1] == '>') {
+                bool animated = input[1] == 'a';
+                int startIndex = animated ? 3 : 2;
+
+                int splitIndex = input.IndexOf(':', startIndex);
+                if (splitIndex == -1) {
+                    return false;
+                }
+
+                if (!ulong.TryParse(input.Substring(splitIndex + 1, input.Length - splitIndex - 2), NumberStyles.None, CultureInfo.InvariantCulture, out ulong id)) {
+                    return false;
+                }
+
+                string name = input.Substring(startIndex, splitIndex - startIndex);
+                result = new EmoteOrEmoji(id, name, animated);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Parse a string for discord tags. Mentioned users, roles, channels, @everyone, and @here.
         /// </summary>
         /// <remarks>https://github.com/discord-net/Discord.Net/blob/0275f7df507a2ad3f74be326488de2aa69bfccde/src/Discord.Net.Rest/Entities/Messages/MessageHelper.cs#L98</remarks>
-        public static List<MessageTag> ParseDiscordMessage(this string text) {
+        public static List<MessageTag> ParseDiscordMessageTags(this string input) {
             List<MessageTag> tags = new List<MessageTag>();
             int index = 0;
 
             while (true) {
-                index = text.IndexOf('<', index);
+                index = input.IndexOf('<', index);
                 if (index == -1) { break; }
 
-                int endIndex = text.IndexOf('>', index + 1);
+                int endIndex = input.IndexOf('>', index + 1);
                 if (endIndex == -1) { break; }
 
-                string content = text.Substring(index, endIndex - index + 1);
+                string content = input.Substring(index, endIndex - index + 1);
 
                 if (TryParseDiscordUser(content, out ulong userId)) {
                     tags.Add(new MessageTag(TagType.User, userId, index, content.Length));
@@ -223,7 +253,7 @@ namespace HeadNonSub.Extensions {
 
             index = 0;
             while (true) {
-                index = text.IndexOf("@everyone", index);
+                index = input.IndexOf("@everyone", index);
                 if (index == -1) { break; }
 
                 int? tagIndex = FindIndex(tags, index);
@@ -236,7 +266,7 @@ namespace HeadNonSub.Extensions {
 
             index = 0;
             while (true) {
-                index = text.IndexOf("@here", index);
+                index = input.IndexOf("@here", index);
                 if (index == -1) { break; }
 
                 int? tagIndex = FindIndex(tags, index);
@@ -248,6 +278,41 @@ namespace HeadNonSub.Extensions {
             }
 
             return tags;
+        }
+
+        /// <summary>
+        /// Parse a string for emotes.
+        /// </summary>
+        public static List<EmoteOrEmoji> ParseDiscordMessageEmotes(this string input) {
+            List<EmoteOrEmoji> emotes = new List<EmoteOrEmoji>();
+            int index = 0;
+
+            while (true) {
+                index = input.IndexOf('<', index);
+                if (index == -1) { break; }
+
+                int endIndex = input.IndexOf('>', index + 1);
+                if (endIndex == -1) { break; }
+
+                string content = input.Substring(index, endIndex - index + 1);
+
+                if (TryParseDiscordEmote(content, out EmoteOrEmoji emote)) {
+                    emotes.Add(new EmoteOrEmoji(emote.Id, emote.Name, emote.Animated));
+
+                } else {
+                    index = index + 1;
+                    continue;
+                }
+
+                index = endIndex + 1;
+            }
+
+            MatchCollection matches = _EmojiRegex.Matches(input);
+            foreach (Match match in matches) {
+                emotes.Add(new EmoteOrEmoji(match.Value));
+            }
+
+            return emotes;
         }
 
         private static int? FindIndex(List<MessageTag> tags, int index) {

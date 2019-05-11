@@ -1,4 +1,4 @@
-﻿namespace HeadNonSub.Entities.Discord.MessageTag {
+﻿namespace HeadNonSub.Entities.Discord {
 
     public class MessageTag {
 

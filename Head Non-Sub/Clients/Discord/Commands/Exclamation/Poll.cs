@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
+using HeadNonSub.Entities.Discord;
+using HeadNonSub.Extensions;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -18,44 +20,16 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         public async Task TrashPoll([Remainder]string input) {
             IGuildUser user = Context.User as IGuildUser;
 
-            StringBuilder content = new StringBuilder();
-            HashSet<IEmote> reactions = new HashSet<IEmote>();
+            List<EmoteOrEmoji> items = Context.Message.Content.ParseDiscordMessageEmotes();
+            string content = Context.Message.Content;
 
-            string[] split = input.Split(new char[] { '<', '>' }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (string item in split) {
-                string workingItem = item.Trim();
-
-                // Emotes
-                if (workingItem.Count(x => x == ':') == 2) {
-                    Emote.TryParse($"<{workingItem}>", out Emote emote);
-
-                    if (emote is Emote) {
-                        reactions.Add(emote);
-                    }
-
-                    continue;
-                }
-
-                // Emoji
-                List<char> emoji = workingItem.Where(x => char.GetUnicodeCategory(x) == UnicodeCategory.OtherSymbol).ToList();
-                emoji.ForEach(x => reactions.Add(new Emoji(x.ToString())));
-                emoji.ForEach(x => workingItem = workingItem.Trim(x));
-
-                // Normal characters
-                bool isNormal = false;
-                isNormal = workingItem.Any(x => char.IsLetterOrDigit(x) || char.IsPunctuation(x) || char.IsSymbol(x) || char.IsWhiteSpace(x) || char.IsControl(x));
-                if (isNormal) {
-                    if (!string.IsNullOrWhiteSpace(workingItem)) {
-                        content.Append(workingItem);
-                    }
-                }
+            foreach (EmoteOrEmoji item in items) {
+                content = content.Replace(item.ToString(), "");
             }
 
-            // Embed
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
-                Description = content.ToString()
+                Description = content
             };
 
             builder.Author = new EmbedAuthorBuilder() {
@@ -72,9 +46,15 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             IUserMessage message = await BetterReplyAsync(builder.Build(), parameters: input);
 
             // Might throw if the bot does not have access to the emote
-            foreach (IEmote reaction in reactions) {
+            foreach (EmoteOrEmoji item in items) {
                 try {
-                    await message.AddReactionAsync(reaction);
+                    if (item.IsEmoji) {
+                        await message.AddReactionAsync(new Emoji(item.ToString()));
+                    } else {
+                        if (Emote.TryParse(item.ToString(), out Emote emote)) {
+                            await message.AddReactionAsync(emote);
+                        }
+                    }
                 } catch { }
             }
         }

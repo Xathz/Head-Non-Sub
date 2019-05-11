@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
-using HeadNonSub.Entities.Discord.MessageTag;
+using HeadNonSub.Entities.Discord;
 using HeadNonSub.Entities.MeeSix.Moderator;
 using HeadNonSub.Extensions;
 using HeadNonSub.Settings;
@@ -34,7 +34,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
                 foreach (Infraction infraction in result.Infractions) {
 
-                    List<MessageTag> tags = infraction.Reason.ParseDiscordMessage();
+                    List<MessageTag> tags = infraction.Reason.ParseDiscordMessageTags();
                     string reason = infraction.Reason;
 
                     foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.Channel)) {
