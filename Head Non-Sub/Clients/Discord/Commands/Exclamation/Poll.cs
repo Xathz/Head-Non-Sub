@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -22,6 +18,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             List<EmoteOrEmoji> items = Context.Message.Content.ParseDiscordMessageEmotes();
             string content = Context.Message.Content;
+            content = content.Remove(0, "!trashpoll".Length);
 
             foreach (EmoteOrEmoji item in items) {
                 content = content.Replace(item.ToString(), "");

@@ -8,6 +8,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Clients.Discord.Services;
+using HeadNonSub.Entities.Discord;
 using HeadNonSub.Extensions;
 using HeadNonSub.Statistics;
 using Humanizer;
@@ -72,6 +73,51 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 if (Context.Channel is SocketTextChannel channel) {
                     IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(500).Flatten();
                     IEnumerable<IMessage> foundToDelete = messages.Where(x => (x.Author.Id == Context.Client.CurrentUser.Id)).OrderByDescending(x => x.CreatedAt).Take(messageCount).ToEnumerable();
+                    toDelete.AddRange(foundToDelete);
+
+                    await channel.DeleteMessagesAsync(toDelete);
+                }
+            } catch { }
+
+            await noticeMessage.DeleteAsync();
+        }
+
+        [Command("undoemotes"), Alias("undoemoji")]
+        [DiscordStaffOnly]
+        public async Task UndoEmotes(int messageCount = 100) {
+            if (messageCount == 0 || messageCount > 500) {
+                await BetterReplyAsync("Must be between 1 and 500.", messageCount.ToString());
+            }
+
+            EmbedBuilder builder = new EmbedBuilder() {
+                Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
+                Title = $"Undoing Emote/Emoji Only Messages",
+                Description = $"Deleting up to {messageCount} messages",
+                ThumbnailUrl = Constants.LoadingGifUrl
+            };
+
+            IUserMessage noticeMessage = await BetterReplyAsync(builder.Build(), messageCount.ToString());
+
+            try {
+                List<IMessage> toDelete = new List<IMessage> { Context.Message };
+
+                if (Context.Channel is SocketTextChannel channel) {
+                    IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(500).Flatten();
+                    IEnumerable<IMessage> foundToDelete = messages.Where(x => {
+                        List<EmoteOrEmoji> emotes = x.Content.ParseDiscordMessageEmotes();
+
+                        if (emotes.Count > 0) {
+                            string content = x.Content;
+
+                            foreach (EmoteOrEmoji emote in emotes) {
+                                content = content.Replace(emote.ToString(), "");
+                            }
+
+                            return string.IsNullOrWhiteSpace(content);
+                        } else {
+                            return false;
+                        }
+                    }).OrderByDescending(x => x.CreatedAt).Take(messageCount).ToEnumerable();
                     toDelete.AddRange(foundToDelete);
 
                     await channel.DeleteMessagesAsync(toDelete);
