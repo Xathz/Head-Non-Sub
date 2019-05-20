@@ -92,6 +92,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(20)]
         public Task WeebShit() => BetterSendFileAsync(Cache.GetStream("weebshit.png"), "weebshit.png", $"● {BetterUserFormat()}");
 
+        [Command("gottem"), Alias("gotem")]
+        [Cooldown(20)]
+        public Task Gottem() {
+            Context.Channel.TriggerTypingAsync();
+            return BetterSendFileAsync(Cache.GetStream("gottem.gif"), "gottem.gif", $"● {BetterUserFormat()}");
+        }
+
         [Command("youareallretarded")]
         [Cooldown(120)]
         public Task AllRetarded() {
