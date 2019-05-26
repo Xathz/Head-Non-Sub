@@ -31,13 +31,17 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 Context.Guild.Users.Where(x => x.JoinedAt.HasValue).Where(x => x.JoinedAt >= DateTime.UtcNow.AddDays(-7)).Count().ToString("N0") + " / " +
                 Context.Guild.Users.Where(x => x.JoinedAt.HasValue).Where(x => x.JoinedAt >= DateTime.UtcNow.AddMonths(-1)).Count().ToString("N0"), true);
 
-            int nonSubs = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == WubbysFunHouse.NonSubRoleId)).Count();
-            string nonSubsPercent = ((double)nonSubs / total).ToString("0.00%");
-            builder.AddField("Non-subs", $"{nonSubs.ToString("N0")} (_{nonSubsPercent}_)", true);
+            int ruleReaders = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == WubbysFunHouse.RuleReaderRoleId)).Distinct().Count();
+            string ruleReadersPercent = ((double)ruleReaders / total).ToString("0%");
+            builder.AddField("People who read the rules", $"{ruleReaders.ToString("N0")} (_{ruleReadersPercent}_)", true);
 
             int subsAndPatrons = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == WubbysFunHouse.TwitchSubscriberRoleId || r.Id == WubbysFunHouse.PatronRoleId)).Distinct().Count();
             string subsAndPatronsPercent = ((double)subsAndPatrons / total).ToString("0%");
             builder.AddField("Subs / Patrons", $"{subsAndPatrons.ToString("N0")} (_{subsAndPatronsPercent}_)", true);
+
+            int nonSubs = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == WubbysFunHouse.NonSubRoleId)).Count();
+            string nonSubsPercent = ((double)nonSubs / total).ToString("0.00%");
+            builder.AddField("Non-subs", $"{nonSubs.ToString("N0")} (_{nonSubsPercent}_)", true);
 
             return BetterReplyAsync(builder.Build());
         }

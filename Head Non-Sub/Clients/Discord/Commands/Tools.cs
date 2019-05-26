@@ -143,6 +143,22 @@ namespace HeadNonSub.Clients.Discord.Commands {
             }
         }
 
+        [Command("membermap")]
+        [DiscordStaffOnly]
+        public async Task MemberMap() {
+            try {
+                MemberMap map = new MemberMap(Context);
+                string jsonFile = map.Generate();
+
+                await Context.User.SendFileAsync(jsonFile, $"{Context.Guild.Name} (`{Context.Guild.Id}`): Member Map");
+
+                await BetterReplyAsync($"{Context.User.Mention} the member map was sent to you privately. The message may be blocked if you reject direct messages.");
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                await BetterReplyAsync("Failed to generate the member map.");
+            }
+        }
+
         [Command("emotes")]
         [DiscordStaffOnly]
         public async Task Emotes() {

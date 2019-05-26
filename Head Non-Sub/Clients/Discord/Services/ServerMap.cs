@@ -24,12 +24,12 @@ namespace HeadNonSub.Clients.Discord.Services {
             MapEntities.ServerMap map = new MapEntities.ServerMap {
                 Id = _Context.Guild.Id,
                 Name = _Context.Guild.Name,
-                Created = _Context.Guild.CreatedAt.DateTime,
+                Created = _Context.Guild.CreatedAt.UtcDateTime,
                 Owner = new MapEntities.User {
                     Id = _Context.Guild.Owner.Id,
                     Name = _Context.Guild.Owner.ToString(),
-                    Created = _Context.Guild.Owner.CreatedAt.DateTime,
-                    Joined = _Context.Guild.Owner.JoinedAt.HasValue ? _Context.Guild.Owner.JoinedAt.Value.DateTime : null as DateTime?,
+                    Created = _Context.Guild.Owner.CreatedAt.UtcDateTime,
+                    Joined = _Context.Guild.Owner.JoinedAt.HasValue ? _Context.Guild.Owner.JoinedAt.Value.UtcDateTime : null as DateTime?,
                     AvatarUrl = _Context.Guild.Owner.GetAvatarUrl()
                 },
                 TotalMembers = _Context.Guild.MemberCount,
@@ -43,7 +43,7 @@ namespace HeadNonSub.Clients.Discord.Services {
                 MapEntities.Role role = new MapEntities.Role {
                     Id = guildRole.Id,
                     Name = guildRole.Name,
-                    Created = guildRole.CreatedAt.DateTime,
+                    Created = guildRole.CreatedAt.UtcDateTime,
                     Color = guildRole.Color.RawValue == 0 ? "#ffffff" : guildRole.Color.ToString(),
                     Mentionable = guildRole.IsMentionable,
                     Hoisted = guildRole.IsHoisted
@@ -59,7 +59,7 @@ namespace HeadNonSub.Clients.Discord.Services {
                 MapEntities.Category category = new MapEntities.Category {
                     Id = guildCategory.Id,
                     Name = guildCategory.Name,
-                    Created = guildCategory.CreatedAt.DateTime
+                    Created = guildCategory.CreatedAt.UtcDateTime
                 };
 
                 // Channel in the category
@@ -67,7 +67,7 @@ namespace HeadNonSub.Clients.Discord.Services {
                     MapEntities.Channel channel = new MapEntities.Channel {
                         Id = categoryChannel.Id,
                         Name = categoryChannel.Name,
-                        Created = categoryChannel.CreatedAt.DateTime
+                        Created = categoryChannel.CreatedAt.UtcDateTime
                     };
 
                     if (categoryChannel is SocketTextChannel textChannel) {
@@ -110,7 +110,7 @@ namespace HeadNonSub.Clients.Discord.Services {
                 MapEntities.Channel channel = new MapEntities.Channel {
                     Id = categorylessChannel.Id,
                     Name = categorylessChannel.Name,
-                    Created = categorylessChannel.CreatedAt.DateTime
+                    Created = categorylessChannel.CreatedAt.UtcDateTime
                 };
 
                 if (categorylessChannel is SocketTextChannel textChannel) {
@@ -134,7 +134,7 @@ namespace HeadNonSub.Clients.Discord.Services {
                 MapEntities.Emote emote = new MapEntities.Emote {
                     Id = guildEmote.Id,
                     Name = guildEmote.Name,
-                    Created = guildEmote.CreatedAt.DateTime,
+                    Created = guildEmote.CreatedAt.UtcDateTime,
                     Animated = guildEmote.Animated,
                     Url = guildEmote.Url
                 };
@@ -153,6 +153,10 @@ namespace HeadNonSub.Clients.Discord.Services {
                 string tempUserFiles = Path.Combine(Constants.TemporaryDirectory, _Context.Guild.Id.ToString(), _Context.User.Id.ToString());
                 Directory.CreateDirectory(tempUserFiles);
                 string jsonFile = Path.Combine(tempUserFiles, "ServerMap.json");
+
+                if (File.Exists(jsonFile)) {
+                    File.Delete(jsonFile);
+                }
 
                 using (StreamWriter streamWriter = new StreamWriter(jsonFile))
                 using (JsonWriter jsonWriter = new JsonTextWriter(streamWriter)) {

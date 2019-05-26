@@ -34,6 +34,8 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong Tier3RoleId = 493641643765792768;
 
+        public const ulong RuleReaderRoleId = 580577184809353226;
+
         /// <summary>MEE6 rank 10</summary>
         /// <remarks>
         /// https://wub.by/discordranks
