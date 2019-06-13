@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
+using HeadNonSub.Extensions;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -135,6 +137,37 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             TrackStatistics();
             return Task.CompletedTask;
+        }
+
+        [Command("clap")]
+        [Cooldown(180, true)]
+        [SubscriberOnly]
+        public async Task TestCommand([Remainder] string input = "") {
+            await Context.Message.DeleteAsync();
+
+            if (string.IsNullOrWhiteSpace(input)) {
+                input = $"{BetterUserFormat(Context.User, true)} did not say anything and is dumb.";
+            }
+
+            IUserMessage message = await ReplyAsync(input);
+            await Task.Delay(500);
+
+            List<int> spaceIndexes = new List<int>();
+            for (int i = input.IndexOf(' '); i > -1; i = input.IndexOf(' ', i + 1)) {
+                spaceIndexes.Add(i);
+            }
+
+            foreach (int spaceIndex in spaceIndexes) {
+                string tempInput = input.Remove(spaceIndex, 1).Insert(spaceIndex, $":clap::skin-tone-{new Random().Next(1, 5)}:");
+
+                await message.ModifyAsync(x => x.Content = tempInput);
+                await Task.Delay(500);
+            }
+
+            await message.ModifyAsync(x => x.Content = $":clap::skin-tone-{new Random().Next(1, 5)}:");
+            await Task.Delay(500);
+
+            await message.DeleteAsync();
         }
 
         [Command("night")]
