@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Discord;
@@ -38,7 +37,8 @@ namespace HeadNonSub.Clients.Discord {
 
         public static async Task ConnectAsync() {
             _DiscordConfig = new DiscordSocketConfig {
-                DefaultRetryMode = RetryMode.RetryRatelimit,
+                DefaultRetryMode = RetryMode.AlwaysRetry,
+                ExclusiveBulkDelete = true,
                 MessageCacheSize = 2500,
                 AlwaysDownloadUsers = true,
                 LogLevel = LogSeverity.Info

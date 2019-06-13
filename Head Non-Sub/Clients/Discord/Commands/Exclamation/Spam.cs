@@ -143,13 +143,11 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(180, true)]
         [SubscriberOnly]
         public async Task TestCommand([Remainder] string input = "") {
-            await Context.Message.DeleteAsync();
-
             if (string.IsNullOrWhiteSpace(input)) {
                 input = $"{BetterUserFormat(Context.User, true)} did not say anything and is dumb.";
             }
 
-            IUserMessage message = await ReplyAsync(input);
+            IUserMessage message = await BetterReplyAsync(input, input);
             await Task.Delay(500);
 
             List<int> spaceIndexes = new List<int>();
@@ -160,7 +158,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             foreach (int spaceIndex in spaceIndexes) {
                 string tempInput = input.Remove(spaceIndex, 1).Insert(spaceIndex, $":clap::skin-tone-{new Random().Next(1, 5)}:");
 
-                await message.ModifyAsync(x => x.Content = tempInput);
+                await message.ModifyAsync(x => x.Content = tempInput).ConfigureAwait(false);
                 await Task.Delay(500);
             }
 
