@@ -143,6 +143,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(180, true)]
         [SubscriberOnly]
         public async Task TestCommand([Remainder] string input = "") {
+            await BetterReplyAsync("No :clap::skin-tone-3:");
+            return;
+
             if (string.IsNullOrWhiteSpace(input)) {
                 input = $"{BetterUserFormat(Context.User, true)} did not say anything and is dumb.";
             }
