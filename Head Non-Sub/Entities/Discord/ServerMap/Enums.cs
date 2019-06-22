@@ -6,7 +6,8 @@ namespace HeadNonSub.Entities.Discord.ServerMap {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum ChannelType {
         Text,
-        Voice
+        Voice,
+        News
     }
 
     [JsonConverter(typeof(StringEnumConverter))]

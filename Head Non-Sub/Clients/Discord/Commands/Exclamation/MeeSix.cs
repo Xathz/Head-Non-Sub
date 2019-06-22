@@ -77,8 +77,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             if (result) {
                 await BetterReplyAsync("The infraction was deleted.", id);
+                await LogMessageAsync("MEE6 infraction deleted", $"Id: {id}");
             } else {
                 await BetterReplyAsync("The infraction was **not** deleted.", id);
+                await LogMessageAsync("Failed MEE6 infraction deletion", $"Attempted id: {id}");
             }
         }
 
@@ -103,6 +105,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
 
             await BetterReplyAsync($"● **{deleteCount}** infractions for {BetterUserFormat(user)} were deleted.", user.Id.ToString());
+            await LogMessageAsync("All MEE6 infractions deleted", user: user);
         }
 
         private async Task<Moderator> GetUserInfractionsAsync(ulong serverId, ulong userId) {

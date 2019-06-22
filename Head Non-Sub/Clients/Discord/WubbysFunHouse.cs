@@ -66,6 +66,10 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong ActualFuckingSpamChannelId = 537727672747294738;
 
+        public const ulong ModLogsChannelId = 502940074036690954;
+
+        public const ulong UserLogsChannelId = 490766846761500683;
+
     }
 
 }

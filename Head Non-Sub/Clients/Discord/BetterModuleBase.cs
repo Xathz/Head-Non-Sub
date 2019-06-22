@@ -13,6 +13,14 @@ namespace HeadNonSub.Clients.Discord {
 
         public BetterModuleBase() { }
 
+        private string DisplayName() {
+            if (Context.User is SocketGuildUser contextUser) {
+                return (!string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Nickname : "");
+            } else {
+                return string.Empty;
+            }
+        }
+
         /// <summary>
         /// Get a socket user from a user id.
         /// </summary>
@@ -172,11 +180,40 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
-        private string DisplayName() {
-            if (Context.User is SocketGuildUser contextUser) {
-                return (!string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Nickname : "");
-            } else {
-                return string.Empty;
+        /// <summary>
+        /// Log a message to <see cref="WubbysFunHouse.ModLogsChannelId"/>.
+        /// </summary>
+        /// <param name="title">Log message title line.</param>
+        /// <param name="info">General event information.</param>
+        /// <param name="user">User the action was performed on if applicable.</param>
+        public async Task<IUserMessage> LogMessageAsync(string title, string info = "", IUser user = null) {
+            try {
+                if (Context.Guild.Id == WubbysFunHouse.ServerId) {
+                    if (Context.Guild.GetChannel(WubbysFunHouse.ModLogsChannelId) is IMessageChannel channel) {
+
+                        EmbedBuilder builder = new EmbedBuilder() {
+                            Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
+                            Title = title
+                        };
+
+                        builder.AddField("Moderator", Context.User.Mention, true);
+
+                        if (user is IUser) {
+                            builder.AddField("User", user.Mention, true);
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(info)) {
+                            builder.AddField("Info", info, true);
+                        }
+
+                        return await channel.SendMessageAsync(embed: builder.Build()).ConfigureAwait(false);
+                    }
+                }
+
+                return null;
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return null;
             }
         }
 

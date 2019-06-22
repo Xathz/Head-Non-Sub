@@ -22,21 +22,24 @@ namespace HeadNonSub.Clients.Discord.Commands {
         private readonly int _MessageThreshold = 3;
 
         [Command("enable")]
-        public Task Enable() {
+        public async Task EnableRaidRecovery() {
             if (Context.Channel is SocketTextChannel channel) {
                 if (!RaidRecoveryTracker.Track(Context.Channel.Id, Context.User.Id, channel.SlowModeInterval)) {
                     ulong? startedBy = RaidRecoveryTracker.StartedBy(Context.Channel.Id);
 
                     if (startedBy.HasValue) {
-                        return BetterReplyAsync($"Raid recovery system is already enabled. Enabled by {BetterUserFormat(UserFromUserId(startedBy.Value))}.");
+                        await BetterReplyAsync($"Raid recovery system is already enabled. Enabled by {BetterUserFormat(UserFromUserId(startedBy.Value))}.");
+                        return;
                     } else {
-                        return BetterReplyAsync($"Raid recovery system is already enabled.");
+                        await BetterReplyAsync($"Raid recovery system is already enabled.");
+                        return;
                     }
                 }
 
-                channel.ModifyAsync(x => { x.SlowModeInterval = 120; });
+                await channel.ModifyAsync(x => { x.SlowModeInterval = 120; });
             } else {
-                return BetterReplyAsync("Invalid channel, not a text only channel.");
+                await BetterReplyAsync("Invalid channel, not a text only channel.");
+                return;
             }
 
             EmbedBuilder builder = new EmbedBuilder() {
@@ -53,18 +56,20 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 "`ban <minutes>` Ban suspected users in the past # minutes, will prompt for confirmation" }));
 
             LoggingManager.Log.Warn($"Raid recovery system enabled. {BetterLogFormat()}");
-            return BetterReplyAsync(builder.Build());
+            await BetterReplyAsync(builder.Build());
+            await LogMessageAsync("Raid recovery system enabled");
         }
 
         [Command("disable")]
-        public Task Disable() {
+        public async Task DisableRaidRecovery() {
             if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
-                return BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
+                await BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
+                return;
             }
 
             int previousSlowModeInterval = RaidRecoveryTracker.PreviousSlowModeInterval(Context.Channel.Id);
             if (Context.Channel is SocketTextChannel channel) {
-                channel.ModifyAsync(x => { x.SlowModeInterval = previousSlowModeInterval; });
+                await channel.ModifyAsync(x => { x.SlowModeInterval = previousSlowModeInterval; });
             }
 
             RaidRecoveryTracker.Untrack(Context.Channel.Id);
@@ -76,11 +81,12 @@ namespace HeadNonSub.Clients.Discord.Commands {
             };
 
             LoggingManager.Log.Warn($"Raid recovery system disabled. {BetterLogFormat()}");
-            return BetterReplyAsync(builder.Build());
+            await BetterReplyAsync(builder.Build());
+            await LogMessageAsync("Raid recovery system disabled");
         }
 
         [Command("list")]
-        public async Task List(int minutes = 10) {
+        public async Task ListRaidRecovery(int minutes = 10) {
             if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
                 await BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
                 return;
@@ -119,7 +125,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         }
 
         [Command("clean")]
-        public async Task Clean(int minutes = 10) {
+        public async Task CleanRaidRecovery(int minutes = 10) {
             if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
                 await BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
                 return;
@@ -141,12 +147,13 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
             await channel.DeleteMessagesAsync(messagesToDelete);
 
-            await message.ModifyAsync(x => { x.Embed = null; x.Content = $"Deleted {messagesToDelete.Count()} messages from the past {minutes.Minutes().Humanize(3)}."; });
+            await message.ModifyAsync(x => { x.Embed = null; x.Content = $"Deleted {messagesToDelete.Count()} messages from the past {minutes.Minutes().Humanize(3)}."; });   
+            await LogMessageAsync("Raid recovery system", $"Deleted {messagesToDelete.Count()} messages from the past {minutes.Minutes().Humanize(3)}.");
         }
 
         [Command("ban")]
         [RequireBotPermission(GuildPermission.BanMembers, ErrorMessage = "I do not have the `Ban Members` permission.")]
-        public async Task Ban(int minutes = 10, [Remainder]string banToken = "") {
+        public async Task BanRaidRecovery(int minutes = 10, [Remainder]string banToken = "") {
             if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
                 await BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
                 return;
@@ -169,6 +176,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     } catch { }
 
                     await banningMessage.ModifyAsync(x => { x.Embed = null; x.Content = $"Banned {usersIdsToBan.Count} users."; });
+                    await LogMessageAsync("Raid recovery system", $"Banned {usersIdsToBan.Count} users.{Environment.NewLine}{Environment.NewLine}{string.Join(", ", usersIdsToBan)}");
                     return;
                 } else {
                     await BetterReplyAsync("Invalid ban token.");
@@ -211,19 +219,23 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("skip")]
         [RequireBotPermission(GuildPermission.BanMembers, ErrorMessage = "I do not have the `Ban Members` permission.")]
-        public Task Skip(SocketUser user = null) {
+        public async Task SkipRaidRecovery(SocketUser user = null) {
             if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
-                return BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
+                await BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
+                return;
             }
 
             if (user == null) {
-                return BetterReplyAsync("You must provide a user to skip them from being banned.");
+                await BetterReplyAsync("You must provide a user to skip them from being banned.");
+                return;
             }
 
             if (RaidRecoveryTracker.SkipUserToBan(Context.Channel.Id, user.Id)) {
-                return BetterReplyAsync($"{BetterUserFormat(user)} will be skipped and **not** banned.");
+                await BetterReplyAsync($"{BetterUserFormat(user)} will be skipped and **not** banned.");
+                await LogMessageAsync("Raid recovery system", $"{BetterUserFormat(user)} will be skipped and **not** banned.");
+
             } else {
-                return BetterReplyAsync($"{BetterUserFormat(user)} was not suspected and will **not** be banned.");
+                await BetterReplyAsync($"{BetterUserFormat(user)} was not suspected and will **not** be banned.");
             }
         }
 

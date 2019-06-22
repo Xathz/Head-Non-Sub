@@ -78,10 +78,14 @@ namespace HeadNonSub.Clients.Discord.Services {
                         channel.Type = MapEntities.ChannelType.Voice;
                         channel.UserLimit = voiceChannel.UserLimit;
                         channel.Bitrate = voiceChannel.Bitrate;
+                    } else if (categoryChannel is SocketNewsChannel newsChannel) {
+                        channel.Type = MapEntities.ChannelType.News;
                     }
 
-                    // Permission overwrites for channel
-                    channel.PermissionOverwrites.AddRange(ProcessPermissionOverwrites(categoryChannel.PermissionOverwrites));
+                    if (channel.Type != MapEntities.ChannelType.News) {
+                        // Permission overwrites for channel
+                        channel.PermissionOverwrites.AddRange(ProcessPermissionOverwrites(categoryChannel.PermissionOverwrites));
+                    }
 
                     category.Channels.Add(channel);
                 }
@@ -121,10 +125,14 @@ namespace HeadNonSub.Clients.Discord.Services {
                     channel.Type = MapEntities.ChannelType.Voice;
                     channel.UserLimit = voiceChannel.UserLimit;
                     channel.Bitrate = voiceChannel.Bitrate;
+                } else if (categorylessChannel is SocketNewsChannel newsChannel) {
+                    channel.Type = MapEntities.ChannelType.News;
                 }
 
-                // Permission overwrites
-                channel.PermissionOverwrites.AddRange(ProcessPermissionOverwrites(categorylessChannel.PermissionOverwrites));
+                if (channel.Type != MapEntities.ChannelType.News) {
+                    // Permission overwrites
+                    channel.PermissionOverwrites.AddRange(ProcessPermissionOverwrites(categorylessChannel.PermissionOverwrites));
+                }
 
                 map.CategorylessChannels.Add(channel);
             }
