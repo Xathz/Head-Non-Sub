@@ -69,11 +69,15 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("nonsub")]
         [Cooldown(20)]
         [SubscriberOnly]
-        public Task NonSub() => BetterSendFileAsync(Cache.GetStream("nonsub.png"), "nonsub.png", $"● {BetterUserFormat()}");
+        public Task NonSub() => BetterSendFileAsync(Cache.GetStream("nonsub.png"), "nonsub.png", $"● {BetterUserFormat()}, created by MisterMonarchy");
 
         [Command("lucky")]
         [Cooldown(20)]
         public Task Lucky() => BetterSendFileAsync(Cache.GetStream("lucky.png"), "lucky.png", $"● {BetterUserFormat()}");
+
+        [Command("wubbycheeto")]
+        [Cooldown(20)]
+        public Task WubbyCheeto() => BetterSendFileAsync(Cache.GetStream("wubbycheeto.png"), "wubbycheeto.png", $"● {BetterUserFormat()}, created by icy_ann");
 
         [Command("dickdowndennis")]
         [Cooldown(20)]
