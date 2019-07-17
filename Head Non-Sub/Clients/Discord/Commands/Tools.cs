@@ -33,7 +33,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             LoggingManager.Log.Fatal($"Forcibly disconnected from Discord. Server: {Context.Guild.Name} ({Context.Guild.Id}); Channel: {Context.Channel.Name} ({Context.Channel.Id}); User: {Context.User.Username} ({Context.User.Id})");
 
             await BetterReplyAsync($"Forcibly disconnecting from Discord, please tell <@!{Constants.XathzUserId}> as soon as possible. Good bye.");
-            await LogMessageAsync($"Fail fast executed `!failfast`", $"Forcibly disconnecting from Discord, please tell <@!{Constants.XathzUserId}> as soon as possible. Good bye.");
+            await LogMessageAsync($"Fail fast executed `{Context.Guild.CurrentUser.ToString()} failfast`", $"Forcibly disconnecting from Discord, please tell <@!{Constants.XathzUserId}> as soon as possible. Good bye.");
 
             DiscordClient.FailFast();
         }
@@ -80,7 +80,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     await channel.DeleteMessagesAsync(toDelete);
                 }
 
-                await LogMessageAsync($"Undo bot executed `!undobot`", $"{messageCount} messages were requested to be deleted, {toDelete.Count + 1} were deleted.");
+                await LogMessageAsync($"Undo bot executed `{Context.Guild.CurrentUser.ToString()} undobot`", $"{messageCount} messages were requested to be deleted, {toDelete.Count} were deleted.");
             } catch { }
 
             await noticeMessage.DeleteAsync();
@@ -126,7 +126,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
                     await channel.DeleteMessagesAsync(toDelete);
 
-                    await LogMessageAsync($"Undo emotes executed `!undoemotes`", $"{messageCount} emotes were requested to be deleted, {toDelete.Count + 1} were deleted.");
+                    await LogMessageAsync($"Undo emotes executed `{Context.Guild.CurrentUser.ToString()} undoemotes`", $"{messageCount} emotes were requested to be deleted, {toDelete.Count} were deleted.");
                 }
             } catch { }
 
@@ -148,7 +148,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 await BetterReplyAsync("Failed to generate the server map.");
             }
 
-            await LogMessageAsync($"Server map executed `!servermap`");
+            await LogMessageAsync($"Server map executed `{Context.Guild.CurrentUser.ToString()} servermap`");
         }
 
         [Command("membermap")]
@@ -166,7 +166,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 await BetterReplyAsync("Failed to generate the member map.");
             }
 
-            await LogMessageAsync($"Member map executed `!membermap`");
+            await LogMessageAsync($"Member map executed `{Context.Guild.CurrentUser.ToString()} membermap`");
         }
 
         [Command("emotes")]

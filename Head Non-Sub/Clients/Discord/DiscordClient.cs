@@ -69,6 +69,8 @@ namespace HeadNonSub.Clients.Discord {
             _DiscordClient.GuildMembersDownloaded += GuildMembersDownloaded;
 
             _DiscordClient.MessageReceived += MessageReceived;
+            //_DiscordClient.MessageDeleted += MessageDeleted;
+            //_DiscordClient.MessageUpdated += MessageUpdated;
 
             _MentionProvider.GetRequiredService<CommandService>().Log += Log;
             _ExclamationProvider.GetRequiredService<CommandService>().Log += Log;
@@ -243,6 +245,34 @@ namespace HeadNonSub.Clients.Discord {
                 Task runner = Task.Run(async () => {
                     await ProcessMessageAsync(message, user).ConfigureAwait(false);
                 });
+            }
+        }
+
+        private static async Task MessageDeleted(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel) {
+            string logMessage = "";
+
+            if (message.HasValue) {
+                logMessage = $"`[{message.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :wastebasket: {message.Value.Author.ToString()} (`{message.Value.Author.Id}`) message deleted in **#{channel.Name}**:{Environment.NewLine}{message.Value.Content}";
+            } else {
+                logMessage = $":warning: An unknown message was deleted in **#{channel.Name}**: {Environment.NewLine}Message id was: {message.Id}";
+            }
+
+            if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
+                await logChannel.SendMessageAsync(logMessage);
+            }
+        }
+
+        private static async Task MessageUpdated(Cacheable<IMessage, ulong> originalMessage, SocketMessage updatedMessage, ISocketMessageChannel channel) {
+            string logMessage = "";
+
+            if (originalMessage.HasValue) {
+                logMessage = $"`[{originalMessage.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :pencil: {originalMessage.Value.Author.ToString()} (`{originalMessage.Value.Author.Id}`) message edited in **#{channel.Name}**:{Environment.NewLine}**B:** {originalMessage.Value.Content}{Environment.NewLine}**A:** {updatedMessage.Content}";
+            } else {
+                logMessage = $":warning: An unknown message was edited in **#{channel.Name}**: {Environment.NewLine}Old id was: {originalMessage.Id}{Environment.NewLine}New id is: {updatedMessage.Id}";
+            }
+
+            if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
+                await logChannel.SendMessageAsync(logMessage);
             }
         }
 
