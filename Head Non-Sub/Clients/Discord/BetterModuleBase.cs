@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using HeadNonSub.Extensions;
 using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord {
@@ -181,12 +183,12 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         /// <summary>
-        /// Log a message to <see cref="WubbysFunHouse.ModLogsChannelId"/>.
+        /// Log a message embed to <see cref="WubbysFunHouse.ModLogsChannelId"/>.
         /// </summary>
         /// <param name="title">Log message title line.</param>
         /// <param name="info">General event information.</param>
         /// <param name="user">User the action was performed on if applicable.</param>
-        public async Task<IUserMessage> LogMessageAsync(string title, string info = "", IUser user = null) {
+        public async Task<IUserMessage> LogMessageEmbedAsync(string title, string info = "", IUser user = null) {
             try {
                 if (Context.Guild.Id == WubbysFunHouse.ServerId) {
                     if (Context.Guild.GetChannel(WubbysFunHouse.ModLogsChannelId) is IMessageChannel channel) {
@@ -214,6 +216,34 @@ namespace HeadNonSub.Clients.Discord {
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Log a message to <see cref="WubbysFunHouse.ModLogsChannelId"/>.
+        /// </summary>
+        public async Task<List<IUserMessage>> LogMessageAsync(string title, string info) {
+            try {
+                if (Context.Guild.Id == WubbysFunHouse.ServerId) {
+                    if (Context.Guild.GetChannel(WubbysFunHouse.ModLogsChannelId) is IMessageChannel channel) {
+
+                        // Max length per-message is 2,000 characters
+                        List<string> chunks = info.SplitIntoChunksPreserveNewLines(1998 - title.Length);
+
+                        List<IUserMessage> sentMessages = new List<IUserMessage>();
+
+                        foreach (string chunk in chunks) {
+                            sentMessages.Add(await channel.SendMessageAsync($"{title} ```{chunk}```").ConfigureAwait(false));
+                        }
+
+                        return sentMessages;
+                    }
+                }
+
+                return new List<IUserMessage>();
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return new List<IUserMessage>();
             }
         }
 

@@ -278,6 +278,16 @@ namespace HeadNonSub.Clients.Discord {
 
         private static async Task ProcessMessageAsync(SocketUserMessage message, SocketGuildUser user) {
 
+            // Xathz
+            if (user.Id == Constants.XathzUserId) {
+                return;
+            }
+
+            // Administrator
+            if (user.Roles.Any(x => x.Permissions.Administrator)) {
+                return;
+            }
+
             // If discord staff, exit
             if (user.Roles.Any(x => WubbysFunHouse.DiscordStaffRoles.Contains(x.Id))) {
                 return;

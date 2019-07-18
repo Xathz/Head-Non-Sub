@@ -57,7 +57,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
             LoggingManager.Log.Warn($"Raid recovery system enabled. {BetterLogFormat()}");
             await BetterReplyAsync(builder.Build());
-            await LogMessageAsync("Raid recovery system enabled");
+            await LogMessageEmbedAsync("Raid recovery system enabled");
         }
 
         [Command("disable")]
@@ -82,7 +82,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
             LoggingManager.Log.Warn($"Raid recovery system disabled. {BetterLogFormat()}");
             await BetterReplyAsync(builder.Build());
-            await LogMessageAsync("Raid recovery system disabled");
+            await LogMessageEmbedAsync("Raid recovery system disabled");
         }
 
         [Command("list")]
@@ -148,7 +148,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             await channel.DeleteMessagesAsync(messagesToDelete);
 
             await message.ModifyAsync(x => { x.Embed = null; x.Content = $"Deleted {messagesToDelete.Count()} messages from the past {minutes.Minutes().Humanize(3)}."; });   
-            await LogMessageAsync("Raid recovery system", $"Deleted {messagesToDelete.Count()} messages from the past {minutes.Minutes().Humanize(3)}.");
+            await LogMessageEmbedAsync("Raid recovery system", $"Deleted {messagesToDelete.Count()} messages from the past {minutes.Minutes().Humanize(3)}.");
         }
 
         [Command("ban")]
@@ -176,7 +176,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     } catch { }
 
                     await banningMessage.ModifyAsync(x => { x.Embed = null; x.Content = $"Banned {usersIdsToBan.Count} users."; });
-                    await LogMessageAsync("Raid recovery system", $"Banned {usersIdsToBan.Count} users.{Environment.NewLine}{Environment.NewLine}{string.Join(", ", usersIdsToBan)}");
+                    await LogMessageEmbedAsync("Raid recovery system", $"Banned {usersIdsToBan.Count} users.{Environment.NewLine}{Environment.NewLine}{string.Join(", ", usersIdsToBan)}");
                     return;
                 } else {
                     await BetterReplyAsync("Invalid ban token.");
@@ -232,7 +232,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
             if (RaidRecoveryTracker.SkipUserToBan(Context.Channel.Id, user.Id)) {
                 await BetterReplyAsync($"{BetterUserFormat(user)} will be skipped and **not** banned.");
-                await LogMessageAsync("Raid recovery system", $"{BetterUserFormat(user)} will be skipped and **not** banned.");
+                await LogMessageEmbedAsync("Raid recovery system", $"{BetterUserFormat(user)} will be skipped and **not** banned.");
 
             } else {
                 await BetterReplyAsync($"{BetterUserFormat(user)} was not suspected and will **not** be banned.");

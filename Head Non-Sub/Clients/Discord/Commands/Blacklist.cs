@@ -34,7 +34,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 LoggingManager.Log.Info($"{user.ToString()} ({user.Id}) was added to the blacklist by {Context.User.ToString()} ({Context.User.Id})");
 
                 await BetterReplyAsync($"{BetterUserFormat(user)} was added to the blacklist.", parameters: user.ToString());
-                await LogMessageAsync($"User blacklisted from using {Constants.ApplicationName}", user: user);
+                await LogMessageEmbedAsync($"User blacklisted from using {Constants.ApplicationName}", user: user);
             }
         }
 
@@ -52,7 +52,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 LoggingManager.Log.Info($"{user.ToString()} ({user.Id}) was removed from the blacklist by {Context.User.ToString()} ({Context.User.Id})");
 
                 await BetterReplyAsync($"{BetterUserFormat(user)} was removed from the blacklist.", parameters: user.ToString());
-                await LogMessageAsync($"User removed from the {Constants.ApplicationName} blacklist", user: user);
+                await LogMessageEmbedAsync($"User removed from the {Constants.ApplicationName} blacklist", user: user);
             } else {
                 await BetterReplyAsync($"{BetterUserFormat(user)} is not on the blacklist.", parameters: user.ToString());
             }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
@@ -13,6 +14,7 @@ using HeadNonSub.Entities.MeeSix.Moderator;
 using HeadNonSub.Extensions;
 using HeadNonSub.Settings;
 using Newtonsoft.Json;
+using TagType = HeadNonSub.Entities.Discord.TagType;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -65,6 +67,46 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
         }
 
+        [Command("warn")]
+        public async Task Warn(SocketUser user = null, [Remainder]string reason = "") {
+            if (user == null) { return; }
+
+            if (Context.User is SocketGuildUser contextUser) {
+                if (contextUser.Roles.Any(x => x.Permissions.Administrator) || contextUser.Roles.Any(x => WubbysFunHouse.DiscordStaffRoles.Contains(x.Id))) {
+
+                    if (Context.Channel is SocketTextChannel channel) {
+                        IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(200).Flatten();
+                        IEnumerable<IMessage> foundMessages = messages.Where(x => x.Author.Id == user.Id).OrderByDescending(x => x.CreatedAt).Take(10).ToEnumerable();
+
+                        StringBuilder builder = new StringBuilder();
+                        foreach (IMessage message in foundMessages) {
+
+                            string header = "";
+                            if (message.Attachments.Count > 0) {
+                                header = "<There is a file attachment with this message> ";
+                            }
+
+                            string content = "";
+                            if (!string.IsNullOrWhiteSpace(message.Content)) {
+                                content = message.Content;
+                            }
+
+                            builder.AppendLine($"{message.CreatedAt.ToString(Constants.DateTimeFormatMedium).ToLower()} utc: {header}{content}");
+                        }
+
+                        await Task.Delay(750);
+
+                        await LogMessageAsync($"● Recent messages from {BetterUserFormat(user)}", builder.ToString());
+
+                    } else {
+                        await BetterReplyAsync($"Failed to retrieve context around the warn for {BetterUserFormat(user)}.");
+                    }
+                }
+            } else {
+                await BetterReplyAsync($"Failed to retrieve context around the warn for {BetterUserFormat(user)}.");
+            }
+        }
+
         [Command("deleteinfraction")]
         [DiscordStaffOnly]
         public async Task DeleteInfraction(string id = "") {
@@ -77,10 +119,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             if (result) {
                 await BetterReplyAsync("The infraction was deleted.", id);
-                await LogMessageAsync("MEE6 infraction deleted", $"Id: {id}");
+                await LogMessageEmbedAsync("MEE6 infraction deleted", $"Id: {id}");
             } else {
                 await BetterReplyAsync("The infraction was **not** deleted.", id);
-                await LogMessageAsync("Failed MEE6 infraction deletion", $"Attempted id: {id}");
+                await LogMessageEmbedAsync("Failed MEE6 infraction deletion", $"Attempted id: {id}");
             }
         }
 
@@ -105,7 +147,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
 
             await BetterReplyAsync($"● **{deleteCount}** infractions for {BetterUserFormat(user)} were deleted.", user.Id.ToString());
-            await LogMessageAsync("All MEE6 infractions deleted", user: user);
+            await LogMessageEmbedAsync("All MEE6 infractions deleted", user: user);
         }
 
         private async Task<Moderator> GetUserInfractionsAsync(ulong serverId, ulong userId) {
