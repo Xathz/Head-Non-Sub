@@ -299,7 +299,7 @@ namespace HeadNonSub.Clients.Discord {
                 if (message.Channel.Id == WubbysFunHouse.MainChannelId) {
 
                     // If not rank 10 or higher
-                    if (!user.Roles.Any(x => x.Id == WubbysFunHouse.NakedCowboyRoleId)) {
+                    if (!user.Roles.Any(x => x.Id == WubbysFunHouse.ForkliftDriversRoleId)) {
 
                         string betterUserFormat = $"{(string.IsNullOrWhiteSpace(user.Nickname) ? user.Username : user.Nickname)} `{user.ToString()}`";
 
@@ -310,7 +310,7 @@ namespace HeadNonSub.Clients.Discord {
 
                                 await message.DeleteAsync();
                                 await channel.SendMessageAsync($"● Posted by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
-                                await message.Channel.SendMessageAsync($"{user.Mention} You need to be <@&{WubbysFunHouse.NakedCowboyRoleId}> or higher to post links here. Link was moved to <#{WubbysFunHouse.LinksChannelId}>.");
+                                await message.Channel.SendMessageAsync($"{user.Mention} You need to be <@&{WubbysFunHouse.ForkliftDriversRoleId}> or higher to post links here. Link was moved to <#{WubbysFunHouse.LinksChannelId}>.");
                             }
 
                             // Move attachments
@@ -339,7 +339,7 @@ namespace HeadNonSub.Clients.Discord {
                                 }
 
                                 await message.DeleteAsync();
-                                await message.Channel.SendMessageAsync($"{user.Mention} You need to be <@&{WubbysFunHouse.NakedCowboyRoleId}> or higher to upload files here. Attachment was moved to <#{WubbysFunHouse.ActualFuckingSpamChannelId}>.");
+                                await message.Channel.SendMessageAsync($"{user.Mention} You need to be <@&{WubbysFunHouse.ForkliftDriversRoleId}> or higher to upload files here. Attachment was moved to <#{WubbysFunHouse.ActualFuckingSpamChannelId}>.");
                             }
                         }
                     }
