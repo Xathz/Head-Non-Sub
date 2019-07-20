@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,8 +21,15 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         public async Task TTSays([Remainder]string input) {
             await Context.Channel.TriggerTypingAsync();
 
+            string imageName = "ttsays.png";
+
+            // 5% chance to be old tt
+            if (new Random().Next(0, 100) >= 95) {
+                imageName = "ttsays_old.png";
+            }
+
             using (MemoryStream stream = new MemoryStream(256))
-            using (MagickImage image = new MagickImage(Cache.GetStream("ttsays.png"))) {
+            using (MagickImage image = new MagickImage(Cache.GetStream(imageName))) {
 
                 string text = string.Join(Environment.NewLine, input.SplitIntoChunks(26));
                 int max = (text.Length <= 150 ? text.Length : 150);

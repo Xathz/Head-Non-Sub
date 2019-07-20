@@ -193,6 +193,8 @@ namespace HeadNonSub.Clients.Discord {
                 if (Context.Guild.Id == WubbysFunHouse.ServerId) {
                     if (Context.Guild.GetChannel(WubbysFunHouse.ModLogsChannelId) is IMessageChannel channel) {
 
+                        await channel.TriggerTypingAsync();
+
                         EmbedBuilder builder = new EmbedBuilder() {
                             Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                             Title = title
@@ -226,6 +228,8 @@ namespace HeadNonSub.Clients.Discord {
             try {
                 if (Context.Guild.Id == WubbysFunHouse.ServerId) {
                     if (Context.Guild.GetChannel(WubbysFunHouse.ModLogsChannelId) is IMessageChannel channel) {
+
+                        await channel.TriggerTypingAsync();
 
                         // Max length per-message is 2,000 characters
                         List<string> chunks = info.SplitIntoChunksPreserveNewLines(1998 - title.Length);
