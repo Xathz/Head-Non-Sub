@@ -40,10 +40,18 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     string reason = infraction.Reason;
 
                     foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.Channel)) {
-                        SocketGuildChannel channel = Context.Guild.GetChannel(tag.Id);
+                        SocketGuildChannel tagChannel = Context.Guild.GetChannel(tag.Id);
 
-                        if (channel is SocketGuildChannel) {
-                            reason = reason.Replace(tag.ToString(), $"#{channel.Name}");
+                        if (tagChannel is SocketGuildChannel) {
+                            reason = reason.Replace(tag.ToString(), $"#{tagChannel.Name}");
+                        }
+                    }
+
+                    foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.Role)) {
+                        SocketRole tagRole = Context.Guild.GetRole(tag.Id);
+
+                        if (tagRole is SocketRole) {
+                            reason = reason.Replace(tag.ToString(), $"@{tagRole.Name}");
                         }
                     }
 
@@ -57,7 +65,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
                 List<string> chunks = builder.ToString().SplitIntoChunksPreserveNewLines(1930);
 
-                await Task.Delay(500);
+                await Task.Delay(1000);
 
                 foreach (string chunk in chunks) {
                     await BetterReplyAsync($"● Infractions for {BetterUserFormat(user)} ```{chunk}```", user.Id.ToString());
@@ -89,12 +97,38 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                             string content = "";
                             if (!string.IsNullOrWhiteSpace(message.Content)) {
                                 content = message.Content;
+
+                                List<MessageTag> tags = content.ParseDiscordMessageTags();
+
+                                foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.Channel)) {
+                                    SocketGuildChannel tagChannel = Context.Guild.GetChannel(tag.Id);
+
+                                    if (tagChannel is SocketGuildChannel) {
+                                        content = content.Replace(tag.ToString(), $"#{channel.Name}");
+                                    }
+                                }
+
+                                foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.User)) {
+                                    SocketGuildUser tagUser = Context.Guild.GetUser(tag.Id);
+
+                                    if (tagUser is SocketGuildUser) {
+                                        content = content.Replace(tag.ToString(), $"@{BetterUserFormat(tagUser, true)}");
+                                    }
+                                }
+
+                                foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.Role)) {
+                                    SocketRole tagRole = Context.Guild.GetRole(tag.Id);
+
+                                    if (tagRole is SocketRole) {
+                                        content = content.Replace(tag.ToString(), $"@{tagRole.Name}");
+                                    }
+                                }
                             }
 
                             builder.AppendLine($"{message.CreatedAt.ToString(Constants.DateTimeFormatMedium).ToLower()} utc: {header}{content}");
                         }
 
-                        await Task.Delay(750);
+                        await Task.Delay(1000);
 
                         await LogMessageAsync($"● Recent messages from {BetterUserFormat(user)}", builder.ToString());
 
