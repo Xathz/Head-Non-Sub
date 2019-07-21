@@ -10,7 +10,7 @@ namespace HeadNonSub.Clients.Discord.Services {
 
     public class MemberMap {
 
-        private SocketCommandContext _Context;
+        private readonly SocketCommandContext _Context;
 
         public MemberMap(SocketCommandContext context) => _Context = context;
 

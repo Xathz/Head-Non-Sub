@@ -12,7 +12,7 @@ namespace HeadNonSub {
 
     public static class Cache {
 
-        private static MemoryCache _Cache = MemoryCache.Default;
+        private static readonly MemoryCache _Cache = MemoryCache.Default;
 
         public static IReadOnlyCollection<string> TLDs { get; private set; }
 

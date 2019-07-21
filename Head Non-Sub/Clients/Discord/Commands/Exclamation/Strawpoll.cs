@@ -20,7 +20,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             string[] messages = input.Split('|');
 
             CreatedPoll newPoll = null;
-            newPoll = Create.CreatePoll(messages[0], messages.Skip(1).ToList(), false, StrawPollNET.Enums.DupCheck.Normal, false);
+            try {
+                newPoll = Create.CreatePoll(messages[0], messages.Skip(1).ToList(), false, StrawPollNET.Enums.DupCheck.Normal, false);
+            } catch { }
 
             if (newPoll == null || string.IsNullOrEmpty(newPoll.PollUrl)) {
                 return BetterReplyAsync("Failed to create the strawpoll. Example: `!strawpoll Poll Title | Option 1 | Option 2 | Option 3`");

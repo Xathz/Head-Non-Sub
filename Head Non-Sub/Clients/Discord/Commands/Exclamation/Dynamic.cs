@@ -41,7 +41,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 return;
             }
 
-            (bool successful, string reason) = await _DynamicCommands.AddCommand(Context.User.Id, cleanCommand, cleanText);
+            (_, string reason) = await _DynamicCommands.AddCommand(Context.User.Id, cleanCommand, cleanText);
 
             await BetterReplyAsync($"{Context.User.Mention} {reason}");
         }

@@ -87,8 +87,7 @@ namespace HeadNonSub.Clients.Twitch {
         /// Get 100 most recent clips from the stream.
         /// </summary>
         /// <param name="name">Broadcaster's username or display name</param>
-        /// <param name="count">Clips to return. Maximum: 100</param>
-        public static async Task<List<TwitchEntities.Clip>> GetClipsAsync(string name, int count = 100) {
+        public static async Task<List<TwitchEntities.Clip>> GetClipsAsync(string name) {
             string userId = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == name.ToLower()).Select(x => x.UserId).FirstOrDefault();
 
             if (!string.IsNullOrEmpty(userId)) {
@@ -146,9 +145,9 @@ namespace HeadNonSub.Clients.Twitch {
             if (DatabaseManager.ActiveStreams.Insert(stream.UsernameLowercase)) {
                 if (stream.UsernameLowercase == "paymoneywubby") {
                     _ = Discord.DiscordClient.SetStatus($"Watching PaymoneyWubby!", $"https://twitch.tv/paymoneywubby");
-                    _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, streamOnline.Stream.ThumbnailUrl, $"{stream.DisplayName} is now live!", streamOnline.Stream.Title, true);
+                    _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, streamOnline.Stream.ThumbnailUrl, $"{stream.DisplayName} is now live!", streamOnline.Stream.Title, true);
                 } else {
-                    _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, streamOnline.Stream.ThumbnailUrl, $"{stream.DisplayName} is now live!", streamOnline.Stream.Title);
+                    _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, streamOnline.Stream.ThumbnailUrl, $"{stream.DisplayName} is now live!", streamOnline.Stream.Title);
                 }
 
                 LoggingManager.Log.Info($"{stream.DisplayName} just went live");
@@ -171,7 +170,7 @@ namespace HeadNonSub.Clients.Twitch {
             }
 
             string duration = (startedAt.HasValue ? $"They were live for {(DateTime.UtcNow - startedAt.Value).TotalMilliseconds.Milliseconds().Humanize(3)}{Environment.NewLine}" : "");
-            _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, stream.DisplayName, null, $"{stream.DisplayName} is now offline", $"{duration}Thanks for watching");
+            _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, null, $"{stream.DisplayName} is now offline", $"{duration}Thanks for watching");
 
             LoggingManager.Log.Info($"{stream.DisplayName} is now offline");
         }

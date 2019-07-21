@@ -13,7 +13,7 @@ namespace HeadNonSub {
 
         private readonly DateTime _Started = DateTime.Now;
 
-        static void Main(string[] args) => new Program().StartAsync().GetAwaiter().GetResult();
+        static void Main() => new Program().StartAsync().GetAwaiter().GetResult();
 
         public Program() {
             try {

@@ -6,7 +6,6 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
-using HeadNonSub.Extensions;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -143,37 +142,34 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             return Task.CompletedTask;
         }
 
-        [Command("clap")]
-        [Cooldown(180, true)]
-        [SubscriberOnly]
-        public async Task TestCommand([Remainder] string input = "") {
-            await BetterReplyAsync("No :clap::skin-tone-3:");
-            return;
+        //[Command("clap")]
+        //[Cooldown(180, true)]
+        //[SubscriberOnly]
+        //public async Task Clap([Remainder] string input = "") {
+        //    if (string.IsNullOrWhiteSpace(input)) {
+        //        input = $"{BetterUserFormat(Context.User, true)} did not say anything and is dumb.";
+        //    }
 
-            if (string.IsNullOrWhiteSpace(input)) {
-                input = $"{BetterUserFormat(Context.User, true)} did not say anything and is dumb.";
-            }
+        //    IUserMessage message = await BetterReplyAsync(input, input);
+        //    await Task.Delay(500);
 
-            IUserMessage message = await BetterReplyAsync(input, input);
-            await Task.Delay(500);
+        //    List<int> spaceIndexes = new List<int>();
+        //    for (int i = input.IndexOf(' '); i > -1; i = input.IndexOf(' ', i + 1)) {
+        //        spaceIndexes.Add(i);
+        //    }
 
-            List<int> spaceIndexes = new List<int>();
-            for (int i = input.IndexOf(' '); i > -1; i = input.IndexOf(' ', i + 1)) {
-                spaceIndexes.Add(i);
-            }
+        //    foreach (int spaceIndex in spaceIndexes) {
+        //        string tempInput = input.Remove(spaceIndex, 1).Insert(spaceIndex, $":clap::skin-tone-{new Random().Next(1, 5)}:");
 
-            foreach (int spaceIndex in spaceIndexes) {
-                string tempInput = input.Remove(spaceIndex, 1).Insert(spaceIndex, $":clap::skin-tone-{new Random().Next(1, 5)}:");
+        //        await message.ModifyAsync(x => x.Content = tempInput).ConfigureAwait(false);
+        //        await Task.Delay(500);
+        //    }
 
-                await message.ModifyAsync(x => x.Content = tempInput).ConfigureAwait(false);
-                await Task.Delay(500);
-            }
+        //    await message.ModifyAsync(x => x.Content = $":clap::skin-tone-{new Random().Next(1, 5)}:");
+        //    await Task.Delay(500);
 
-            await message.ModifyAsync(x => x.Content = $":clap::skin-tone-{new Random().Next(1, 5)}:");
-            await Task.Delay(500);
-
-            await message.DeleteAsync();
-        }
+        //    await message.DeleteAsync();
+        //}
 
         [Command("night")]
         [Cooldown(20)]

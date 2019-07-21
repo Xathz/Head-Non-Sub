@@ -244,7 +244,7 @@ namespace HeadNonSub.Extensions {
                     tags.Add(new MessageTag(TagType.Channel, channelId, index, content.Length));
 
                 } else {
-                    index = index + 1;
+                    index += 1;
                     continue;
                 }
 
@@ -300,7 +300,7 @@ namespace HeadNonSub.Extensions {
                     emotes.Add(new EmoteOrEmoji(emote.Id, emote.Name, emote.Animated));
 
                 } else {
-                    index = index + 1;
+                    index += 1;
                     continue;
                 }
 

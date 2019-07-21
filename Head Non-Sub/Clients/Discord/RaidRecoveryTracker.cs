@@ -6,7 +6,7 @@ namespace HeadNonSub.Clients.Discord {
 
     public class RaidRecoveryTracker {
 
-        private static ConcurrentDictionary<ulong, ActiveRaid> _ActiveRaids = new ConcurrentDictionary<ulong, ActiveRaid>();
+        private static readonly ConcurrentDictionary<ulong, ActiveRaid> _ActiveRaids = new ConcurrentDictionary<ulong, ActiveRaid>();
 
         /// <summary>
         /// Track a new event.
