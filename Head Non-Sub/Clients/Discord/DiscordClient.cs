@@ -141,7 +141,7 @@ namespace HeadNonSub.Clients.Discord {
 
                     builder.Author = new EmbedAuthorBuilder {
                         Name = "Twitch",
-                        IconUrl = Constants.TwitchLogoTransparent,
+                        IconUrl = Constants.TwitchLogoTransparentUrl,
                         Url = streamUrl
                     };
 

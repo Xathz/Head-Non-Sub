@@ -7,17 +7,17 @@
     <StartupObject>HeadNonSub.Program</StartupObject>
     <Authors>Xathz</Authors>
     <Description>Non-subs are the worst, they come in here and act like they own the place. At least I am the head of them all.</Description>
-    <Version>1.5.0</Version>
-    <AssemblyVersion>1.5.0.0</AssemblyVersion>
-    <FileVersion>1.5.0.0</FileVersion>
+    <Version>2.1.0</Version>
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
+    <FileVersion>2.1.0.0</FileVersion>
     <AssemblyName>HeadNonSub</AssemblyName>
     <PackageProjectUrl>https://github.com/Xathz/Head-Non-Sub</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/Xathz/Head-Non-Sub/master/ProfilePicture128.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/Xathz/Head-Non-Sub</RepositoryUrl>
     <PackageTags>discord, bot, discord-bot, paymoneywubby</PackageTags>
     <RepositoryType>git</RepositoryType>
-    <PackageLicenseUrl>https://github.com/Xathz/Head-Non-Sub/blob/master/LICENSE</PackageLicenseUrl>
     <Copyright>Xathz</Copyright>
+    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -45,8 +45,8 @@
     <PackageReference Include="Humanizer.Core" Version="2.6.2" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.11.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-    <PackageReference Include="NLog" Version="4.6.4" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="1.5.1" />
+    <PackageReference Include="NLog" Version="4.6.6" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.5.2" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.0" />
     <PackageReference Include="StrawPollNET" Version="1.0.2" />
     <PackageReference Include="System.Runtime.Caching" Version="4.5.0" />

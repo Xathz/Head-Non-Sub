@@ -40,8 +40,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                 Title = $"PaymoneyWubby (PYMNY) Stock Value",
-                ThumbnailUrl = "https://cdn.discordapp.com/emojis/522586653114499072.png",
-                Description = "[More data on TwitchStocks](https://twitchstocks.com/stock/pymny)"
+                ThumbnailUrl = WubbysFunHouse.WubbyMoneyEmoteUrl,
+                Description = $"[More data on TwitchStocks]({WubbysFunHouse.TwitchStocksUrl})"
             };
 
             builder.AddField("Value", $"**${recent.Value.Value.ToString("N2")}** _${recent.Value.Value.ToString("N6")}_");

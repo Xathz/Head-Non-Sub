@@ -12,7 +12,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
             if (context.User is SocketGuildUser user) {
 
                 if (user.Roles.Count == 0 || user.Roles.Any(x => x.Id == WubbysFunHouse.NonSubRoleId)) {
-                    return Task.FromResult(PreconditionResult.FromError($"{context.User.Mention} you must be subscribed! Sub <https://wub.by/subttv> or link your Twitch <https://wub.by/linkttv>."));
+                    return Task.FromResult(PreconditionResult.FromError($"{context.User.Mention} you must be subscribed! Sub <{WubbysFunHouse.TwitchSubscribeUrl}> or link your Twitch <{WubbysFunHouse.LinkTwitchToDiscordUrl}>."));
                 } else {
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }

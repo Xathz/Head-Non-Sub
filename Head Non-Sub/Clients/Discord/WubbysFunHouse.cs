@@ -8,6 +8,38 @@ namespace HeadNonSub.Clients.Discord {
     /// </summary>
     public static class WubbysFunHouse {
 
+        #region Urls
+
+        public const string IconUrl = "https://cdn.discordapp.com/attachments/559869208976949278/602617867355160667/PaymoneyWubbyLogo.jpg";
+
+        public const string WubbyMoneyEmoteUrl = "https://cdn.discordapp.com/emojis/522586653114499072.png";
+
+        public const string TwitchStocksUrl = "https://twitchstocks.com/stock/pymny";
+
+        public const string TwitchSubscribeUrl = "https://wub.by/subttv";
+
+        public const string LinkTwitchToDiscordUrl = "https://wub.by/linkttv";
+
+        #endregion
+
+        #region Channel ids
+
+        public const ulong MainChannelId = 403341336129830918;
+
+        public const ulong LinksChannelId = 553407177654665216;
+
+        public const ulong MarketResearchChannelId = 526223101101604873;
+
+        public const ulong ActualFuckingSpamChannelId = 537727672747294738;
+
+        public const ulong ModLogsChannelId = 502940074036690954;
+
+        public const ulong UserLogsChannelId = 490766846761500683;
+
+        #endregion
+
+        #region Role ids
+
         public const ulong ServerId = 328300333010911242;
 
         public const ulong GingerBoyRoleId = 465872398772862976;
@@ -58,17 +90,7 @@ namespace HeadNonSub.Clients.Discord {
         /// </summary>
         public static readonly ReadOnlyCollection<ulong> AllStaffRoles = new ReadOnlyCollection<ulong>(new List<ulong> { AdminsRoleId, ModsRoleId, ModLiteRoleId, TwitchModRoleId, SubredditModRoleId });
 
-        public const ulong MainChannelId = 403341336129830918;
-
-        public const ulong LinksChannelId = 553407177654665216;
-
-        public const ulong MarketResearchChannelId = 526223101101604873;
-
-        public const ulong ActualFuckingSpamChannelId = 537727672747294738;
-
-        public const ulong ModLogsChannelId = 502940074036690954;
-
-        public const ulong UserLogsChannelId = 490766846761500683;
+        #endregion
 
     }
 

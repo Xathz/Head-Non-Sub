@@ -35,7 +35,7 @@ namespace HeadNonSub {
         /// <summary>
         /// Date and time format used in messages.
         /// </summary>
-        public const string DateTimeFormat = "MM/dd/yyyy hh:mm:ss.fff tt";
+        public const string DateTimeFormatShort = "MM/dd/yyyy hh:mm tt";
 
         /// <summary>
         /// Date and time format used in messages.
@@ -45,7 +45,7 @@ namespace HeadNonSub {
         /// <summary>
         /// Date and time format used in messages.
         /// </summary>
-        public const string DateTimeFormatShort = "MM/dd/yyyy hh:mm tt";
+        public const string DateTimeFormatFull = "MM/dd/yyyy hh:mm:ss.fff tt";
 
         /// <summary>
         /// Wubby's Fun House.
@@ -70,7 +70,7 @@ namespace HeadNonSub {
         /// <summary>
         /// Twitch logo.
         /// </summary>
-        public const string TwitchLogoTransparent = "https://cdn.discordapp.com/attachments/559869208976949278/566009004778848296/Twitch.png";
+        public const string TwitchLogoTransparentUrl = "https://cdn.discordapp.com/attachments/559869208976949278/566009004778848296/Twitch.png";
 
         /// <summary>
         /// Commands help file url.
