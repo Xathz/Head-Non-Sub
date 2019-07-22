@@ -230,9 +230,33 @@ namespace HeadNonSub.Clients.Discord {
             if (!(socketMessage is SocketUserMessage message)) { return; }
             if (socketMessage.Source != MessageSource.User) { return; }
 
-            if (socketMessage.Channel is IPrivateChannel) {
-                await message.Channel.SendMessageAsync($"No commands are available via direct message. Please @ the bot (`@{_DiscordClient.CurrentUser.Username}`) on the server.");
-                return;
+            if (message.Channel is IPrivateChannel) {
+                if (message.Author.Id == Constants.XathzUserId) {
+
+                    try {
+                        string channelId = message.Content.Split(' ')[0];
+                        string messageText = message.Content.Replace(channelId, "").Trim();
+
+                        if (!string.IsNullOrWhiteSpace(channelId) || !string.IsNullOrWhiteSpace(messageText)) {
+                            ulong? reply = await SendMessageAsync(ulong.Parse(channelId), messageText);
+
+                            if (reply.HasValue) {
+                                await message.Channel.SendMessageAsync($":white_check_mark: Message sent.");
+                            } else {
+                                await message.Channel.SendMessageAsync(":warning: Message was not set.");
+                            }
+                        } else {
+                            await message.Channel.SendMessageAsync(":information_source: Expected format: `<channelId> <message>`.");
+                        }
+                    } catch (Exception ex){
+                        await message.Channel.SendMessageAsync($":bangbang: Error: {ex.Message}");
+                    }
+
+                    return;
+                } else {
+                    await message.Channel.SendMessageAsync($"No commands are available via direct message. Please mention the bot (`@{_DiscordClient.CurrentUser.Username}`) on the server.");
+                    return;
+                }
             }
 
 #if DEBUG

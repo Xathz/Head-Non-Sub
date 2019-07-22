@@ -6,6 +6,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Extensions;
+using Humanizer;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -18,7 +19,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                 Title = $"Members of {Context.Guild.Name}",
-                ThumbnailUrl = Context.Guild.IconUrl
+                ThumbnailUrl = WubbysFunHouse.IconUrl
             };
 
             int total = Context.Guild.Users.Count;
@@ -108,6 +109,23 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             } else {
                 await BetterReplyAsync("Failed to select a random user.");
             }
+        }
+
+        [Command("timer")]
+        public async Task Timer(TimeSpan input, [Remainder]string message) {
+            if (string.IsNullOrWhiteSpace(message)) {
+                await BetterReplyAsync("You must set a message for the timer. e.g. `!timer 20s boo! too spoopy`");
+            }
+
+            if (input.TotalMinutes > 30) {
+                await BetterReplyAsync("The timer has a maximum duration of 30 minutes. Was too lazy to add data persistence for this.");
+            }
+
+            await BetterReplyAsync($"A timer has been set for {input.Humanize()}.");
+
+            await Task.Delay(Convert.ToInt32(input.TotalMilliseconds));
+
+            await BetterReplyAsync(message);
         }
 
     }

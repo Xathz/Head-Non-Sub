@@ -79,27 +79,9 @@ namespace HeadNonSub {
                 await Task.Delay(1000);
 
                 return;
-            } else if (input.StartsWith("message")) {
-                try {
-                    string[] args = input.Split(' ');
-                    string message = input.Replace(args[0], "").Replace(args[1], "").Trim();
-
-                    if (args.Length >= 2) {
-                        ulong? reply = await DiscordClient.SendMessageAsync(ulong.Parse(args[1]), message);
-
-                        if (reply.HasValue) {
-                            Console.WriteLine($"Message was sent: {reply.Value}");
-                        } else {
-                            Console.WriteLine("Message was not set, the reply message id was null.");
-                        }
-                    } else {
-                        Console.WriteLine("Check the command and try again. Example: message 0000000000000000 Some message!");
-                    }
-                } catch { }
-
             } else if (input == "help" || input == string.Empty) {
                 Console.WriteLine($"=== {Constants.ApplicationName} v{Constants.ApplicationVersion}; Running for: {DateTime.Now.Subtract(_Started).ToString("c")}");
-                Console.WriteLine($"=== Available commands: exit, message <channelId>");
+                Console.WriteLine($"=== Available commands: exit");
 
             }
 

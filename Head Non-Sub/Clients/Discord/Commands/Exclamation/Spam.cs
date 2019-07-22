@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -45,20 +44,12 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(20)]
         public Task TenTwentyFourNude() => BetterSendFileAsync(Cache.GetStream("1024_nude.png"), "1024_nude.png", $"● {BetterUserFormat()}");
 
-        [Command("star")]
-        [Cooldown(20)]
-        public Task Star() {
-            Context.Channel.TriggerTypingAsync();
-            return BetterSendFileAsync(Cache.GetStream("star.gif"), "star.gif", $"● {BetterUserFormat()}");
-        }
-
         [Command("gongboy")]
         [Cooldown(20)]
         public Task GongBoy() => BetterSendFileAsync(Cache.GetStream("gongboy.png"), "gongboy.png", $"● {BetterUserFormat()}");
 
         [Command("true"), Alias("thatstrue")]
         [Cooldown(20)]
-        [SubscriberOnly]
         public Task ThatsTrue() => BetterSendFileAsync(Cache.GetStream("true.png"), "true.png", $"● {BetterUserFormat()}");
 
         [Command("potato")]
@@ -70,9 +61,17 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [SubscriberOnly]
         public Task NonSub() => BetterSendFileAsync(Cache.GetStream("nonsub.png"), "nonsub.png", $"● {BetterUserFormat()}, created by MisterMonarchy");
 
+        [Command("radar")]
+        [Cooldown(20)]
+        public Task Radar() => BetterSendFileAsync(Cache.GetStream("radar.png"), "radar.png", $"● {BetterUserFormat()}, created by SimplyMoose");
+
         [Command("lucky")]
         [Cooldown(20)]
         public Task Lucky() => BetterSendFileAsync(Cache.GetStream("lucky.png"), "lucky.png", $"● {BetterUserFormat()}");
+
+        [Command("keyboard")]
+        [Cooldown(20)]
+        public Task WubbyKeyboard() => BetterSendFileAsync(Cache.GetStream("wubbykeyboard.png"), "wubbykeyboard.png", $"● {BetterUserFormat()}");
 
         [Command("wubbycheeto")]
         [Cooldown(20)]
@@ -86,6 +85,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(20)]
         public Task Relax() => BetterSendFileAsync(Cache.GetStream("relax.png"), "relax.png", $"● {BetterUserFormat()}");
 
+        [Command("weebshit")]
+        [Cooldown(20)]
+        public Task WeebShit() => BetterSendFileAsync(Cache.GetStream("weebshit.png"), "weebshit.png", $"● {BetterUserFormat()}");
+
         [Command("dab")]
         [Cooldown(20)]
         public Task Dab() {
@@ -93,9 +96,12 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             return BetterSendFileAsync(Cache.GetStream("dab.gif"), "dab.gif", $"● {BetterUserFormat()}");
         }
 
-        [Command("weebshit")]
+        [Command("star")]
         [Cooldown(20)]
-        public Task WeebShit() => BetterSendFileAsync(Cache.GetStream("weebshit.png"), "weebshit.png", $"● {BetterUserFormat()}");
+        public Task Star() {
+            Context.Channel.TriggerTypingAsync();
+            return BetterSendFileAsync(Cache.GetStream("star.gif"), "star.gif", $"● {BetterUserFormat()}");
+        }
 
         [Command("gottem"), Alias("gotem")]
         [Cooldown(20)]
