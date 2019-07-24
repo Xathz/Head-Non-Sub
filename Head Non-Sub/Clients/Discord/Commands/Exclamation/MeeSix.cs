@@ -47,6 +47,14 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                         }
                     }
 
+                    foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.User)) {
+                        SocketGuildUser tagUser = Context.Guild.GetUser(tag.Id);
+
+                        if (tagUser is SocketGuildUser) {
+                            reason = reason.Replace(tag.ToString(), $"@{BetterUserFormat(tagUser, true)} {tag.ToString()}");
+                        }
+                    }
+
                     foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.Role)) {
                         SocketRole tagRole = Context.Guild.GetRole(tag.Id);
 
@@ -84,7 +92,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
                     if (Context.Channel is SocketTextChannel channel) {
                         IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(200).Flatten();
-                        IEnumerable<IMessage> foundMessages = messages.Where(x => x.Author.Id == user.Id).OrderByDescending(x => x.CreatedAt).Take(10).ToEnumerable();
+                        IEnumerable<IMessage> foundMessages = messages.Where(x => x.Author.Id == user.Id).OrderByDescending(x => x.CreatedAt).Take(10).ToEnumerable().OrderBy(x => x.CreatedAt);
 
                         StringBuilder builder = new StringBuilder();
                         foreach (IMessage message in foundMessages) {
@@ -112,7 +120,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                                     SocketGuildUser tagUser = Context.Guild.GetUser(tag.Id);
 
                                     if (tagUser is SocketGuildUser) {
-                                        content = content.Replace(tag.ToString(), $"@{BetterUserFormat(tagUser, true)}");
+                                        content = content.Replace(tag.ToString(), $"@{BetterUserFormat(tagUser, true)} {tag.ToString()}");
                                     }
                                 }
 

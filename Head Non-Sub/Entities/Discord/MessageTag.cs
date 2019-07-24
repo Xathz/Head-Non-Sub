@@ -2,11 +2,12 @@
 
     public class MessageTag {
 
-        public MessageTag(TagType tagType, ulong id, int index, int length) {
+        public MessageTag(TagType tagType, ulong id, int index, int length, bool containsExclamation = false) {
             TagType = tagType;
             Id = id;
             Index = index;
             Length = length;
+            ContainsExclamation = containsExclamation;
         }
 
         public TagType TagType { get; private set; }
@@ -17,13 +18,15 @@
 
         public int Length { get; private set; }
 
+        public bool ContainsExclamation { get; private set; }
+
         /// <summary>
         /// Tag id formatted based on <see cref="TagType"/>.
         /// </summary>
         public override string ToString() {
             switch (TagType) {
                 case TagType.User:
-                    return $"<@{Id}>";
+                    return $"<@{(ContainsExclamation ? "!" : "")}{Id}>";
                 case TagType.Role:
                     return $"<@&{Id}>";
                 case TagType.Channel:
