@@ -40,6 +40,11 @@ namespace HeadNonSub.Settings {
         public string CBenniToken { get; set; } = string.Empty;
 
         /// <summary>
+        /// Key to upload files to 'upload.php'. Check project repository.
+        /// </summary>
+        public string UploadKey { get; set; } = string.Empty;
+
+        /// <summary>
         /// MariaDB host.
         /// </summary>
         public string MariaDBHost { get; set; } = string.Empty;

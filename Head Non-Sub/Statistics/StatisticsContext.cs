@@ -9,7 +9,7 @@ namespace HeadNonSub.Statistics {
 
         public DbSet<Command> Commands { get; set; }
 
-        public DbSet<UserChange> NameChanges { get; set; }
+        public DbSet<UserChange> UserChanges { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             try {

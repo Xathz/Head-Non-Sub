@@ -1,11 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Extensions;
+using HeadNonSub.Settings;
+using HeadNonSub.Statistics;
 using Humanizer;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
@@ -126,6 +133,65 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             await Task.Delay(Convert.ToInt32(input.TotalMilliseconds));
 
             await BetterReplyAsync(message);
+        }
+
+        [Command("names")]
+        public async Task NameChanges(SocketUser user = null) {
+            if (user == null) {
+                await BetterReplyAsync("You must mention a user to see their name changes.");
+                return;
+            }
+
+            await Context.Channel.TriggerTypingAsync();
+
+            string changes = StatisticsManager.GetUserChanges(user.Id);
+
+            if (string.IsNullOrWhiteSpace(changes)) {
+                await BetterReplyAsync($"There is no name change data for {BetterUserFormat(user)}. Maybe they just never changed their name. :shrug:");
+                return;
+            }
+
+            List<string> chunks = changes.SplitIntoChunksPreserveNewLines(1930);
+
+            if (chunks.Count > 2) {
+                try {
+                    string message = "";
+
+                    using (HttpClient client = new HttpClient())
+                    using (MultipartFormDataContent form = new MultipartFormDataContent()) {
+                        byte[] byteArray = Encoding.UTF8.GetBytes(changes);
+
+                        using (StreamContent streamContent = new StreamContent(new MemoryStream(byteArray)))
+                        using (ByteArrayContent fileContent = new ByteArrayContent(streamContent.ReadAsByteArrayAsync().Result)) {
+                            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+
+                            form.Add(new StringContent(SettingsManager.Configuration.UploadKey), "key");
+                            form.Add(fileContent, "file", $"{Guid.NewGuid()}.txt");
+
+                            HttpResponseMessage response = client.PostAsync("https://xathz.net/headnonsub/upload.php", form).Result;
+
+                            if (response.IsSuccessStatusCode) {
+                                using (HttpContent content = response.Content) {
+                                    string fileId = await content.ReadAsStringAsync();
+                                    message = $"https://xathz.net/headnonsub/uploads/{fileId}";
+                                }
+                            } else {
+                                message = $"There was an error uploading the file. ({response.StatusCode}) {response.ReasonPhrase}";
+                            }
+                        }
+                    }
+
+                    await BetterReplyAsync($"There are too many name changes to display here. {message}");
+                    return;
+                } catch (Exception ex) {
+                    LoggingManager.Log.Error(ex);
+                    return;
+                }
+            }
+
+            foreach (string chunk in chunks) {
+                await BetterReplyAsync($"● Name changes for {BetterUserFormat(user)} ```{chunk}```", user.Id.ToString());
+            }
         }
 
     }

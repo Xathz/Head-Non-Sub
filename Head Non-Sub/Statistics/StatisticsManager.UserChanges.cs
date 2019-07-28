@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using HeadNonSub.Statistics.Tables;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,11 +33,59 @@ namespace HeadNonSub.Statistics {
                         NewUserAvatar = newUserAvatar
                     };
 
-                    statistics.NameChanges.Add(item);
+                    statistics.UserChanges.Add(item);
                     statistics.SaveChanges();
                 }
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
+            }
+        }
+
+        public static string GetUserChanges(ulong userId) {
+            try {
+                using (StatisticsContext statistics = new StatisticsContext()) {
+                    IQueryable<UserChange> userChanges = statistics.UserChanges.AsNoTracking().Where(x => x.UserId == userId).OrderByDescending(x => x.DateTime);
+                    StringBuilder builder = new StringBuilder();
+
+                    foreach (UserChange userChange in userChanges) {
+                        if (userChange.ChangeType != NameChangeType.None) {
+                            builder.Append($"{userChange.DateTime.ToString(Constants.DateTimeFormatShort).ToLower()} utc");
+
+                            if ((userChange.ChangeType & (userChange.ChangeType - 1)) != 0) {
+                                builder.Append(Environment.NewLine);
+                            }
+
+                            List<string> changes = new List<string>();
+
+                            if (userChange.ChangeType.HasFlag(NameChangeType.Username)) {
+                                changes.Add($" ● [   user] {userChange.OldUsername} => {userChange.NewUsername}");
+                            }
+
+                            if (userChange.ChangeType.HasFlag(NameChangeType.Discriminator)) {
+                                changes.Add($" ● [discrim] #{userChange.OldUsernameDiscriminator} => #{userChange.NewUsernameDiscriminator}");
+                            }
+
+                            if (userChange.ChangeType.HasFlag(NameChangeType.Display)) {
+                                string oldUserDisplay = string.IsNullOrEmpty(userChange.OldUserDisplay) ? "<no nick>" : userChange.OldUserDisplay;
+                                string newUserDisplay = string.IsNullOrEmpty(userChange.NewUserDisplay) ? "<no nick>" : userChange.NewUserDisplay;
+
+                                changes.Add($" ● [   nick] {oldUserDisplay} => {newUserDisplay}");
+                            }
+
+                            if (userChange.ChangeType.HasFlag(NameChangeType.Avatar)) {
+                                changes.Add($" ● [ avatar] Changed.");
+                            }
+
+                            builder.Append(string.Join(Environment.NewLine, changes));
+                            builder.Append(Environment.NewLine);
+                        }
+                    }
+
+                    return builder.ToString().Trim();
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return string.Empty;
             }
         }
 
