@@ -9,6 +9,8 @@ namespace HeadNonSub.Statistics {
 
         public DbSet<Command> Commands { get; set; }
 
+        public DbSet<UserChange> NameChanges { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             try {
                 optionsBuilder.UseMySql($"Server={SettingsManager.Configuration.MariaDBHost};" +
@@ -26,7 +28,10 @@ namespace HeadNonSub.Statistics {
             try {
                 modelBuilder.Entity<Command>().ToTable("commands");
                 modelBuilder.Entity<Command>().HasKey(x => x.Id);
-                modelBuilder.Entity<Command>().HasIndex(x => x.CommandName);
+
+                modelBuilder.Entity<UserChange>().ToTable("user_changes");
+                modelBuilder.Entity<UserChange>().HasKey(x => x.Id);
+                modelBuilder.Entity<UserChange>().HasIndex(x => x.UserId);
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }

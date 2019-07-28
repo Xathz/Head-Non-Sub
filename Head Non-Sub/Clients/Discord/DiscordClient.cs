@@ -10,6 +10,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Extensions;
 using HeadNonSub.Settings;
+using HeadNonSub.Statistics;
 using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -67,6 +68,9 @@ namespace HeadNonSub.Clients.Discord {
             _DiscordClient.JoinedGuild += JoinedGuild;
             _DiscordClient.GuildAvailable += GuildAvailable;
             _DiscordClient.GuildMembersDownloaded += GuildMembersDownloaded;
+
+            _DiscordClient.UserUpdated += UserUpdated;
+            _DiscordClient.GuildMemberUpdated += GuildMemberUpdated;
 
             _DiscordClient.MessageReceived += MessageReceived;
             //_DiscordClient.MessageDeleted += MessageDeleted;
@@ -226,6 +230,65 @@ namespace HeadNonSub.Clients.Discord {
             return Task.CompletedTask;
         }
 
+        private static Task UserUpdated(SocketUser oldUser, SocketUser newUser) => ProcessUserUpdated(oldUser, newUser);
+
+        private static Task GuildMemberUpdated(SocketGuildUser oldUser, SocketGuildUser newUser) => ProcessUserUpdated(oldUser, newUser);
+
+        private static Task ProcessUserUpdated(IUser oldUser, IUser newUser) {
+            try {
+                StatisticsManager.NameChangeType changeType = StatisticsManager.NameChangeType.None;
+
+                ulong? guildId = null;
+                string oldUsername = null, newUsername = null;
+                string oldDiscriminator = null, newDiscriminator = null;
+                string oldNickname = null, newNickname = null;
+                string oldAvatar = null, newAvatar = null;
+
+                if (oldUser is SocketGuildUser & newUser is SocketGuildUser) {
+                    SocketGuildUser oldSocketUser = oldUser as SocketGuildUser;
+                    SocketGuildUser newSocketUser = newUser as SocketGuildUser;
+
+                    guildId = newSocketUser.Guild.Id;
+
+                    if (oldSocketUser.Nickname != newSocketUser.Nickname) {
+                        changeType |= StatisticsManager.NameChangeType.Display;
+
+                        oldNickname = oldSocketUser.Nickname;
+                        newNickname = newSocketUser.Nickname;
+                    }
+                }
+
+                if (oldUser.Username != newUser.Username) {
+                    changeType |= StatisticsManager.NameChangeType.Username;
+
+                    oldUsername = oldUser.Username;
+                    newUsername = newUser.Username;
+                }
+
+                if (oldUser.Discriminator != newUser.Discriminator) {
+                    changeType |= StatisticsManager.NameChangeType.Discriminator;
+
+                    oldDiscriminator = oldUser.Discriminator;
+                    newDiscriminator = newUser.Discriminator;
+                }
+
+                if (oldUser.GetAvatarUrl() != newUser.GetAvatarUrl()) {
+                    changeType |= StatisticsManager.NameChangeType.Avatar;
+
+                    oldAvatar = oldUser.GetAvatarUrl(size: 1024);
+                    newAvatar = newUser.GetAvatarUrl(size: 1024);
+                }
+
+                if (changeType != StatisticsManager.NameChangeType.None) {
+                    StatisticsManager.InsertUserChange(DateTime.UtcNow, guildId, newUser.Id, changeType, oldUsername, newUsername, oldDiscriminator, newDiscriminator, oldNickname, newNickname, oldAvatar, newAvatar);
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+            }
+
+            return Task.CompletedTask;
+        }
+
         private static async Task MessageReceived(SocketMessage socketMessage) {
             if (!(socketMessage is SocketUserMessage message)) { return; }
             if (socketMessage.Source != MessageSource.User) { return; }
@@ -248,7 +311,7 @@ namespace HeadNonSub.Clients.Discord {
                         } else {
                             await message.Channel.SendMessageAsync(":information_source: Expected format: `<channelId> <message>`.");
                         }
-                    } catch (Exception ex){
+                    } catch (Exception ex) {
                         await message.Channel.SendMessageAsync($":bangbang: Error: {ex.Message}");
                     }
 
