@@ -135,6 +135,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             await BetterReplyAsync(message);
         }
 
+        // TODO Move commands below to somewhere else...
+
         [Command("names")]
         public async Task NameChanges(SocketUser user = null) {
             if (user == null) {
@@ -192,6 +194,16 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             foreach (string chunk in chunks) {
                 await BetterReplyAsync($"● Name changes for {BetterUserFormat(user)} ```{chunk}```", user.Id.ToString());
             }
+        }
+
+        [Command("avatar"), Alias("pfp")]
+        public async Task Avatar(SocketUser user = null) {
+            if (user == null) {
+                await BetterReplyAsync("You must mention a user to see their avatar.");
+                return;
+            }
+
+            await BetterReplyAsync($"● Avatar for {BetterUserFormat(user)}{Environment.NewLine}{user.GetAvatarUrl(size: 1024)}");
         }
 
     }
