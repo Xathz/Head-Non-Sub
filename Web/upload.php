@@ -28,7 +28,7 @@ Text files need to be UTF-8.
 // The key is required to be able to upload files.
 $key = "";
 
-if(!empty($_POST["key"])) {
+if (!empty($_POST["key"])) {
     $uploadedKey = $_POST["key"];
 
     if ($uploadedKey != $key) {
@@ -36,12 +36,12 @@ if(!empty($_POST["key"])) {
         exit();
     }
 
-    if(!empty($_FILES["file"])) {
+    if (!empty($_FILES["file"])) {
         $allowed =  array("txt", "png", "gif");
         $uploadedName = $_FILES["file"]["name"];
         $uploadedExtension = pathinfo($uploadedName, PATHINFO_EXTENSION);
 
-        if(!in_array($uploadedExtension, $allowed) ) {
+        if (!in_array($uploadedExtension, $allowed)) {
             http_response_code(415);
             exit();
         }
@@ -49,7 +49,14 @@ if(!empty($_POST["key"])) {
         $fileId = bin2hex(random_bytes(16));
         $path = "uploads/" . $fileId . "." . $uploadedExtension;
 
-        if(move_uploaded_file($_FILES["file"]["tmp_name"], $path)) {
+        while (true) {
+            if (!file_exists($path)) { break; }
+
+            $fileId = bin2hex(random_bytes(16));
+            $path = "uploads/" . $fileId . "." . $uploadedExtension;
+        }
+
+        if (move_uploaded_file($_FILES["file"]["tmp_name"], $path)) {
             echo $fileId . "." . $uploadedExtension;
             http_response_code(200);
         } else {

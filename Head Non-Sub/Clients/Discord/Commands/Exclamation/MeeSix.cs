@@ -51,7 +51,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                         SocketGuildUser tagUser = Context.Guild.GetUser(tag.Id);
 
                         if (tagUser is SocketGuildUser) {
-                            reason = reason.Replace(tag.ToString(), $"@{BetterUserFormat(tagUser, true)} {tag.ToString()}");
+                            reason = reason.Replace(tag.ToString(), $"@{BetterUserFormat(tagUser, true)} ({tag.Id})");
                         }
                     }
 
@@ -120,7 +120,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                                     SocketGuildUser tagUser = Context.Guild.GetUser(tag.Id);
 
                                     if (tagUser is SocketGuildUser) {
-                                        content = content.Replace(tag.ToString(), $"@{BetterUserFormat(tagUser, true)} {tag.ToString()}");
+                                        content = content.Replace(tag.ToString(), $"@{BetterUserFormat(tagUser, true)} ({tag.Id})");
                                     }
                                 }
 
