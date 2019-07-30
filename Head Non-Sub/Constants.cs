@@ -138,6 +138,11 @@ namespace HeadNonSub {
         public static string TemplatesDirectory => Path.Combine(ContentDirectory, "Templates");
 
         /// <summary>
+        /// Twemoji for the application.
+        /// </summary>
+        public static string TwemojiDirectory => Path.Combine(ContentDirectory, @"Twemoji\v12.0.4");
+
+        /// <summary>
         /// Audio content files for the application.
         /// </summary>
         public static string AudioDirectory => Path.Combine(ContentDirectory, "Audio");

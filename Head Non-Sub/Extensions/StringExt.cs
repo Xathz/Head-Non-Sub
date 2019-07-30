@@ -11,7 +11,7 @@ namespace HeadNonSub.Extensions {
 
         private static readonly Regex _UrlRegex = new Regex("https?://", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        private static readonly Regex _EmojiRegex = new Regex(@"(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])", RegexOptions.Compiled);
+        private static readonly Regex _EmojiRegex = new Regex(@"(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+", RegexOptions.Compiled);
 
         /// <summary>
         /// Split a string into chunks based on max length.
@@ -136,6 +136,21 @@ namespace HeadNonSub.Extensions {
             }
 
             return urls;
+        }
+
+        /// <summary>
+        /// Get all unicode code points from a string.
+        /// </summary>
+        /// <remarks>https://stackoverflow.com/a/32141891</remarks>
+        public static IEnumerable<int> GetUnicodeCodePoints(this string input) {
+            for (int i = 0; i < input.Length; i++) {
+                int unicodeCodePoint = char.ConvertToUtf32(input, i);
+                if (unicodeCodePoint > 0xffff) {
+                    i++;
+                }
+
+                yield return unicodeCodePoint;
+            }
         }
 
         /// <summary>

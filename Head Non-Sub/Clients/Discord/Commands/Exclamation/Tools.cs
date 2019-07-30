@@ -10,6 +10,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
+using HeadNonSub.Entities.Discord;
 using HeadNonSub.Extensions;
 using HeadNonSub.Settings;
 using HeadNonSub.Statistics;
@@ -196,7 +197,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
         }
 
-        [Command("avatar"), Alias("pfp")]
+        [Command("avatar")]
         public async Task Avatar(SocketUser user = null) {
             if (user == null) {
                 await BetterReplyAsync("You must mention a user to see their avatar.");
@@ -204,6 +205,41 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
 
             await BetterReplyAsync($"● Avatar for {BetterUserFormat(user)}{Environment.NewLine}{user.GetAvatarUrl(size: 1024)}");
+        }
+
+        [Command("emoji"), Alias("e")]
+        public async Task EnlargeEmoji([Remainder]string emoji) {
+            if (string.IsNullOrWhiteSpace(emoji)) {
+                await BetterReplyAsync("You must provide an emote or emoji to enlarge.");
+                return;
+            }
+
+            await Context.Channel.TriggerTypingAsync();
+
+            List<EmoteOrEmoji> items = Context.Message.Content.ParseDiscordMessageEmotes();
+
+            foreach (EmoteOrEmoji item in items) {
+                if (item.IsEmote) {
+                    await BetterReplyAsync($"https://cdn.discordapp.com/emojis/{item.Id}.{(item.Animated ? "gif" : "png")}");
+                } else {
+                    List<string> hex = new List<string>();
+                    foreach (int character in item.Emoji.GetUnicodeCodePoints()) {
+                        hex.Add(character.ToString("x4"));
+                    }
+
+                    string fullHex = string.Join("-", hex);
+
+                    if (!string.IsNullOrEmpty(fullHex)) {
+                        using (MemoryStream stream = Cache.GetStream($"twemoji_{fullHex}.png")) {
+                            if (stream is MemoryStream) {
+                                await BetterSendFileAsync(stream, $"{fullHex}_emoji.png", "");
+                            }
+                        }
+                    } else {
+                        await BetterReplyAsync("There was an error processing an emoji.");
+                    }
+                }
+            }
         }
 
     }

@@ -77,14 +77,23 @@ namespace HeadNonSub {
         }
 
         /// <summary>
+        /// Get a comma separated list of all keys in the cache.
+        /// </summary>
+        public static string ListKeys() => string.Join(", ", _Cache.Select(x => x.Key).ToList());
+
+        /// <summary>
         /// Get a entry from the cache as a <see cref="MemoryStream"/>.
         /// </summary>
         /// <param name="key">A unique identifier for the cache entry to get.</param>
         public static MemoryStream GetStream(string key) {
+            if (!_Cache.Contains(key)) {
+                return null;
+            }
+
             MemoryStream memoryStream = new MemoryStream();
 
             // Copy to a new stream becuase Discord will close this when used
-            MemoryStream fromCache = (_Cache.Get(key) as MemoryStream);
+            MemoryStream fromCache = _Cache.Get(key) as MemoryStream;
             fromCache.CopyTo(memoryStream);
             memoryStream.Seek(0, SeekOrigin.Begin);
 
@@ -102,9 +111,15 @@ namespace HeadNonSub {
             List<string> files = new List<string>();
             files.AddRange(Directory.GetFiles(Constants.ContentDirectory, "*.*", SearchOption.TopDirectoryOnly));
             files.AddRange(Directory.GetFiles(Constants.TemplatesDirectory, "*.*", SearchOption.TopDirectoryOnly));
+            files.AddRange(Directory.GetFiles(Constants.TwemojiDirectory, "*.png", SearchOption.TopDirectoryOnly));
 
             foreach (string file in files) {
                 FileInfo fileInfo = new FileInfo(file);
+                string key = fileInfo.Name;
+
+                if (fileInfo.FullName.Contains(Constants.TwemojiDirectory)) {
+                    key = $"twemoji_{fileInfo.Name}";
+                }
 
                 MemoryStream memoryStream = new MemoryStream();
                 using (FileStream fileStream = File.OpenRead(fileInfo.FullName)) {
@@ -112,7 +127,7 @@ namespace HeadNonSub {
                 }
 
                 memoryStream.Seek(0, SeekOrigin.Begin);
-                _Cache.Add(fileInfo.Name, memoryStream, ObjectCache.InfiniteAbsoluteExpiration);
+                _Cache.Add(key, memoryStream, ObjectCache.InfiniteAbsoluteExpiration);
             }
 
             // Download and parse top level domains

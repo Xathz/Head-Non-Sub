@@ -79,10 +79,12 @@ namespace HeadNonSub {
                 await Task.Delay(1000);
 
                 return;
+            } else if (input == "cache") {
+                LoggingManager.Log.Info($"Keys in the cache: {Cache.ListKeys()}");
+
             } else if (input == "help" || input == string.Empty) {
                 Console.WriteLine($"=== {Constants.ApplicationName} v{Constants.ApplicationVersion}; Running for: {DateTime.Now.Subtract(_Started).ToString("c")}");
-                Console.WriteLine($"=== Available commands: exit");
-
+                Console.WriteLine($"=== Available commands: exit, cache");
             }
 
             goto WaitForInput;
