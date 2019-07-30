@@ -412,7 +412,7 @@ namespace HeadNonSub.Clients.Discord {
 
                                                 LoggingManager.Log.Info($"Attachment in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id}); {attachment.Filename}; api: {attachment.Size.Bytes().Humanize("#.##")}; downloaded: {stream.Length.Bytes().Humanize("#.##")}");
 
-                                                if (stream.Length > 8388119) {
+                                                if (stream.Length > Constants.DiscordMaximumFileSize) {
                                                     await channel.SendMessageAsync($"An attachment was uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}> and can not be re-uploaded, the attachment is too large for a bot to upload (`{attachment.Size.Bytes().Humanize("#.##")} / {stream.Length.Bytes().Humanize("#.##")}`). They probably have Nitro.");
                                                 } else {
                                                     stream.Seek(0, SeekOrigin.Begin);

@@ -78,6 +78,11 @@ namespace HeadNonSub {
         public const string CommandsHelpUrl = "https://github.com/Xathz/Head-Non-Sub/tree/master/Head%20Non-Sub/Clients/Discord/Commands/Commands.md";
 
         /// <summary>
+        /// Discord maximum file size is 8MB.
+        /// </summary>
+        public const long DiscordMaximumFileSize = 8388119;
+
+        /// <summary>
         /// The general color of the bot, used for Discord embeds.
         /// </summary>
         public static (int R, int G, int B) GeneralColor => (200, 40, 150);

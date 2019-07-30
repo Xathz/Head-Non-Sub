@@ -220,7 +220,23 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             foreach (EmoteOrEmoji item in items) {
                 if (item.IsEmote) {
-                    await BetterReplyAsync($"https://cdn.discordapp.com/emojis/{item.Id}.{(item.Animated ? "gif" : "png")}");
+                    using (HttpClient client = new HttpClient())
+                    using (HttpResponseMessage response = await client.GetAsync($"https://cdn.discordapp.com/emojis/{item.Id}.{(item.Animated ? "gif" : "png")}")) {
+                        if (response.IsSuccessStatusCode) {
+                            using (HttpContent content = response.Content) {
+                                Stream stream = await content.ReadAsStreamAsync();
+
+                                if (stream.Length > Constants.DiscordMaximumFileSize) {
+                                    await BetterReplyAsync("There was an error processing an emoji. Re-upload was too large.");
+                                } else {
+                                    stream.Seek(0, SeekOrigin.Begin);
+                                    await BetterSendFileAsync(stream, $"{item.Id}_emote.{(item.Animated ? "gif" : "png")}", "");
+                                }
+                            }
+                        } else {
+                            await BetterReplyAsync("There was an error processing an emoji. Emote download failed.");
+                        }
+                    }
                 } else {
                     List<string> hex = new List<string>();
                     foreach (int character in item.Emoji.GetUnicodeCodePoints()) {
@@ -236,7 +252,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                             }
                         }
                     } else {
-                        await BetterReplyAsync("There was an error processing an emoji.");
+                        await BetterReplyAsync("There was an error processing an emoji. Parse failed.");
                     }
                 }
             }
