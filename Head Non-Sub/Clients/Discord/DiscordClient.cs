@@ -380,6 +380,11 @@ namespace HeadNonSub.Clients.Discord {
                 return;
             }
 
+            // If twitch mod, exit
+            if (user.Roles.Any(x => WubbysFunHouse.TwitchStaffRoles.Contains(x.Id))) {
+                return;
+            }
+
             try {
 
                 // Main channel
