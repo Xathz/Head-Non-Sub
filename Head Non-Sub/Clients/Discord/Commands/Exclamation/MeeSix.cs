@@ -13,6 +13,7 @@ using HeadNonSub.Entities.Discord;
 using HeadNonSub.Entities.MeeSix.Moderator;
 using HeadNonSub.Extensions;
 using HeadNonSub.Settings;
+using Humanizer;
 using Newtonsoft.Json;
 using TagType = HeadNonSub.Entities.Discord.TagType;
 
@@ -190,6 +191,43 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             await BetterReplyAsync($"● **{deleteCount}** infractions for {BetterUserFormat(user)} were deleted.", user.Id.ToString());
             await LogMessageEmbedAsync("All MEE6 infractions deleted", user: user);
+        }
+
+        [Command("user-info")]
+        public async Task UserInfo(SocketGuildUser user = null) {
+            if (user == null) { return; }
+
+            await Task.Delay(4000);
+
+            int mee6MessageCount = await Context.Channel.GetMessagesAsync(30).Flatten()
+                .OrderByDescending(x => x.CreatedAt)
+                .Where(x => x.CreatedAt > DateTime.UtcNow.AddMilliseconds(4500))
+                .Where(x => x.Author.Id == 159985870458322944) // MEE6
+                .Where(x => x.Embeds.ToList().Any(e => e.Fields.ToList().Any(f => f.Value.Contains(user.Id.ToString()))))
+                .Count();
+
+            if (mee6MessageCount == 0) {
+                EmbedBuilder builder = new EmbedBuilder() {
+                    Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
+                    ThumbnailUrl = user.GetAvatarUrl(size: 1024)
+                };
+
+                builder.AddField($"Failover userinfo Command for {user.ToString()}", $"UserID | {user.Id}");
+
+                builder.AddField("Main role", $"{user.Roles.OrderByDescending(x => x.Position).First().Name}");
+
+                builder.AddField("Account created", $"{user.CreatedAt.ToString(Constants.DateTimeFormatMedium)}{Environment.NewLine}_{user.CreatedAt.Humanize()}_", true);
+
+                if (user.JoinedAt.HasValue) {
+                    builder.AddField("Joined server", $"{user.CreatedAt.ToString(Constants.DateTimeFormatMedium)}{Environment.NewLine}_{user.JoinedAt.Value.Humanize()}_", true);
+                }
+
+                builder.Footer = new EmbedFooterBuilder() {
+                    Text = $"Requested by {Context.User.ToString()} | {Context.User.Id}"
+                };
+
+                await BetterReplyAsync("MEE6 failed to fulfill request.", builder.Build());
+            }
         }
 
         private async Task<Moderator> GetUserInfractionsAsync(ulong serverId, ulong userId) {

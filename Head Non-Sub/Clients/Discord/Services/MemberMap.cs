@@ -22,7 +22,7 @@ namespace HeadNonSub.Clients.Discord.Services {
             MapEntities.MemberMap map = new MapEntities.MemberMap();
 
             foreach (SocketGuildUser user in _Context.Guild.Users) {
-                MapEntities.Member memeber = new MapEntities.Member {
+                MapEntities.Member member = new MapEntities.Member {
                     Id = user.Id,
                     Username = user.ToString(),
                     Nickname = user.Nickname,
@@ -34,14 +34,14 @@ namespace HeadNonSub.Clients.Discord.Services {
                 // Roles
                 foreach (SocketRole role in user.Roles) {
                     if (role.Name != "@everyone") {
-                        memeber.Roles.Add(new MapEntities.Role {
+                        member.Roles.Add(new MapEntities.Role {
                             Id = role.Id,
                             Name = role.Name
                         });
                     }
                 }
 
-                map.Members.Add(memeber);
+                map.Members.Add(member);
             }
 
             // Serialize

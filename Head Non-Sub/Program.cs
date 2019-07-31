@@ -6,6 +6,8 @@ using HeadNonSub.Clients.Twitch;
 using HeadNonSub.Database;
 using HeadNonSub.Settings;
 using HeadNonSub.Statistics;
+using Humanizer.Configuration;
+using Humanizer.DateTimeHumanizeStrategy;
 using ImageMagick;
 
 namespace HeadNonSub {
@@ -52,6 +54,10 @@ namespace HeadNonSub {
             StatisticsManager.Load();
 
             MagickNET.SetTempDirectory(Constants.MagickNETDirectory);
+
+            // Increase humanizer's precision 
+            Configurator.DateTimeHumanizeStrategy = new PrecisionDateTimeHumanizeStrategy(precision: .95);
+            Configurator.DateTimeOffsetHumanizeStrategy = new PrecisionDateTimeOffsetHumanizeStrategy(precision: .95);
         }
 
         private async Task StartAsync() {
