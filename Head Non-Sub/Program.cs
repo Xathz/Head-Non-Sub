@@ -6,6 +6,7 @@ using HeadNonSub.Clients.Twitch;
 using HeadNonSub.Database;
 using HeadNonSub.Settings;
 using HeadNonSub.Statistics;
+using ImageMagick;
 
 namespace HeadNonSub {
 
@@ -39,7 +40,9 @@ namespace HeadNonSub {
 
             Directory.CreateDirectory(Constants.WorkingDirectory);
             Directory.CreateDirectory(Constants.LogDirectory);
+            Directory.CreateDirectory(Constants.RuntimesDirectory);
             Directory.CreateDirectory(Constants.TemporaryDirectory);
+            Directory.CreateDirectory(Constants.MagickNETDirectory);
             Directory.CreateDirectory(Constants.ContentDirectory);
 
             LoggingManager.Initialize();
@@ -47,6 +50,8 @@ namespace HeadNonSub {
 
             DatabaseManager.Load();
             StatisticsManager.Load();
+
+            MagickNET.SetTempDirectory(Constants.MagickNETDirectory);
         }
 
         private async Task StartAsync() {

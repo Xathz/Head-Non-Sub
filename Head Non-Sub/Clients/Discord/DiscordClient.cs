@@ -365,12 +365,12 @@ namespace HeadNonSub.Clients.Discord {
 
         private static async Task ProcessMessageAsync(SocketUserMessage message, SocketGuildUser user) {
 
-            // Xathz
+            // If Xathz, exit
             if (user.Id == Constants.XathzUserId) {
                 return;
             }
 
-            // Administrator
+            // If administrator, exit
             if (user.Roles.Any(x => x.Permissions.Administrator)) {
                 return;
             }
