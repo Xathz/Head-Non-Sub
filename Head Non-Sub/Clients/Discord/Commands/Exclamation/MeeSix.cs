@@ -88,65 +88,59 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         public async Task Warn(SocketUser user = null, [Remainder]string reason = "") {
             if (user == null) { return; }
 
-            if (Context.User is SocketGuildUser contextUser) {
-                if (contextUser.Roles.Any(x => x.Permissions.Administrator) || contextUser.Roles.Any(x => WubbysFunHouse.DiscordStaffRoles.Contains(x.Id))) {
+            if (WubbysFunHouse.IsDiscordStaff(Context.User)) {
+                if (Context.Channel is SocketTextChannel channel) {
+                    IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(200).Flatten();
+                    IEnumerable<IMessage> foundMessages = messages.Where(x => x.Author.Id == user.Id).OrderByDescending(x => x.CreatedAt).Take(10).ToEnumerable().OrderBy(x => x.CreatedAt);
 
-                    if (Context.Channel is SocketTextChannel channel) {
-                        IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(200).Flatten();
-                        IEnumerable<IMessage> foundMessages = messages.Where(x => x.Author.Id == user.Id).OrderByDescending(x => x.CreatedAt).Take(10).ToEnumerable().OrderBy(x => x.CreatedAt);
+                    StringBuilder builder = new StringBuilder();
+                    foreach (IMessage message in foundMessages) {
 
-                        StringBuilder builder = new StringBuilder();
-                        foreach (IMessage message in foundMessages) {
-
-                            string header = "";
-                            if (message.Attachments.Count > 0) {
-                                header = "<There is a file attachment with this message> ";
-                            }
-
-                            string content = "";
-                            if (!string.IsNullOrWhiteSpace(message.Content)) {
-                                content = message.Content;
-
-                                List<MessageTag> tags = content.ParseDiscordMessageTags();
-
-                                foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.Channel)) {
-                                    SocketGuildChannel tagChannel = Context.Guild.GetChannel(tag.Id);
-
-                                    if (tagChannel is SocketGuildChannel) {
-                                        content = content.Replace(tag.ToString(), $"#{channel.Name}");
-                                    }
-                                }
-
-                                foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.User)) {
-                                    SocketGuildUser tagUser = Context.Guild.GetUser(tag.Id);
-
-                                    if (tagUser is SocketGuildUser) {
-                                        content = content.Replace(tag.ToString(), $"@{BetterUserFormat(tagUser, true)} ({tag.Id})");
-                                    }
-                                }
-
-                                foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.Role)) {
-                                    SocketRole tagRole = Context.Guild.GetRole(tag.Id);
-
-                                    if (tagRole is SocketRole) {
-                                        content = content.Replace(tag.ToString(), $"@{tagRole.Name}");
-                                    }
-                                }
-                            }
-
-                            builder.AppendLine($"{message.CreatedAt.ToString(Constants.DateTimeFormatMedium).ToLower()} utc: {header}{content}");
+                        string header = "";
+                        if (message.Attachments.Count > 0) {
+                            header = "<There is a file attachment with this message> ";
                         }
 
-                        await Task.Delay(1000);
+                        string content = "";
+                        if (!string.IsNullOrWhiteSpace(message.Content)) {
+                            content = message.Content;
 
-                        await LogMessageAsync($"● Recent messages from {BetterUserFormat(user)}", builder.ToString());
+                            List<MessageTag> tags = content.ParseDiscordMessageTags();
 
-                    } else {
-                        await BetterReplyAsync($"Failed to retrieve context around the warn for {BetterUserFormat(user)}.");
+                            foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.Channel)) {
+                                SocketGuildChannel tagChannel = Context.Guild.GetChannel(tag.Id);
+
+                                if (tagChannel is SocketGuildChannel) {
+                                    content = content.Replace(tag.ToString(), $"#{channel.Name}");
+                                }
+                            }
+
+                            foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.User)) {
+                                SocketGuildUser tagUser = Context.Guild.GetUser(tag.Id);
+
+                                if (tagUser is SocketGuildUser) {
+                                    content = content.Replace(tag.ToString(), $"@{BetterUserFormat(tagUser, true)} ({tag.Id})");
+                                }
+                            }
+
+                            foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.Role)) {
+                                SocketRole tagRole = Context.Guild.GetRole(tag.Id);
+
+                                if (tagRole is SocketRole) {
+                                    content = content.Replace(tag.ToString(), $"@{tagRole.Name}");
+                                }
+                            }
+                        }
+
+                        builder.AppendLine($"{message.CreatedAt.ToString(Constants.DateTimeFormatMedium).ToLower()} utc: {header}{content}");
                     }
+
+                    await Task.Delay(1000);
+
+                    await LogMessageAsync($"● Recent messages from {BetterUserFormat(user)}", builder.ToString());
+                } else {
+                    await BetterReplyAsync($"Failed to retrieve context around the warn for {BetterUserFormat(user)}.");
                 }
-            } else {
-                await BetterReplyAsync($"Failed to retrieve context around the warn for {BetterUserFormat(user)}.");
             }
         }
 
@@ -194,40 +188,44 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("user-info")]
+        [DiscordStaffOnly]
         public async Task UserInfo(SocketGuildUser user = null) {
             if (user == null) { return; }
 
-            await Task.Delay(4000);
+            if (WubbysFunHouse.IsDiscordStaff(Context.User)) {
+                await Task.Delay(4000);
 
-            int mee6MessageCount = await Context.Channel.GetMessagesAsync(30).Flatten()
-                .OrderByDescending(x => x.CreatedAt)
-                .Where(x => x.CreatedAt > DateTime.UtcNow.AddMilliseconds(4500))
-                .Where(x => x.Author.Id == 159985870458322944) // MEE6
-                .Where(x => x.Embeds.ToList().Any(e => e.Fields.ToList().Any(f => f.Value.Contains(user.Id.ToString()))))
-                .Count();
+                int mee6MessageCount = await Context.Channel.GetMessagesAsync(30).Flatten()
+                    .OrderByDescending(x => x.CreatedAt)
+                    .Where(x => x.CreatedAt > DateTime.UtcNow.AddMilliseconds(4500))
+                    .Where(x => x.Author.Id == 159985870458322944) // MEE6
+                    .Where(x => x.Embeds.ToList().Any(e => e.Fields.ToList().Any(f => f.Value.Contains(user.Id.ToString()))))
+                    .Count();
 
-            if (mee6MessageCount == 0) {
-                EmbedBuilder builder = new EmbedBuilder() {
-                    Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
-                    ThumbnailUrl = user.GetAvatarUrl(size: 1024)
-                };
+                if (mee6MessageCount == 0) {
+                    EmbedBuilder builder = new EmbedBuilder() {
+                        Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
+                        ThumbnailUrl = user.GetAvatarUrl(size: 1024)
+                    };
 
-                builder.AddField($"Failover userinfo Command for {user.ToString()}", $"UserID | {user.Id}");
+                    builder.AddField($"Failover userinfo Command for {user.ToString()}", $"UserID | {user.Id}");
 
-                builder.AddField("Main role", $"{user.Roles.OrderByDescending(x => x.Position).First().Name}");
+                    builder.AddField("Main role", $"{user.Roles.OrderByDescending(x => x.Position).First().Name}");
 
-                builder.AddField("Account created", $"{user.CreatedAt.ToString(Constants.DateTimeFormatMedium)}{Environment.NewLine}_{user.CreatedAt.Humanize()}_", true);
+                    builder.AddField("Account created", $"{user.CreatedAt.ToString(Constants.DateTimeFormatMedium)}{Environment.NewLine}_{user.CreatedAt.Humanize()}_", true);
 
-                if (user.JoinedAt.HasValue) {
-                    builder.AddField("Joined server", $"{user.CreatedAt.ToString(Constants.DateTimeFormatMedium)}{Environment.NewLine}_{user.JoinedAt.Value.Humanize()}_", true);
+                    if (user.JoinedAt.HasValue) {
+                        builder.AddField("Joined server", $"{user.CreatedAt.ToString(Constants.DateTimeFormatMedium)}{Environment.NewLine}_{user.JoinedAt.Value.Humanize()}_", true);
+                    }
+
+                    builder.Footer = new EmbedFooterBuilder() {
+                        Text = $"Requested by {Context.User.ToString()} | {Context.User.Id}"
+                    };
+
+                    await BetterReplyAsync("MEE6 failed to fulfill request.", builder.Build());
                 }
-
-                builder.Footer = new EmbedFooterBuilder() {
-                    Text = $"Requested by {Context.User.ToString()} | {Context.User.Id}"
-                };
-
-                await BetterReplyAsync("MEE6 failed to fulfill request.", builder.Build());
             }
+
         }
 
         private async Task<Moderator> GetUserInfractionsAsync(ulong serverId, ulong userId) {

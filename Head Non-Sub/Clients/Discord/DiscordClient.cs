@@ -213,7 +213,7 @@ namespace HeadNonSub.Clients.Discord {
             LoggingManager.Log.Warn($"Joined guild {guild.Name} ({guild.Id}).");
 
             // Leave if an invalid guild
-            if (guild.Id != Constants.XathzDiscordGuild || guild.Id != Constants.WubbyDiscordGuild) {
+            if (guild.Id != Constants.XathzDiscordGuild || guild.Id != WubbysFunHouse.ServerId) {
                 guild.LeaveAsync(new RequestOptions { AuditLogReason = $"This bot is private. This guild needs to be whitelisted. Contact: {Constants.Creator}" });
             }
 
@@ -365,23 +365,7 @@ namespace HeadNonSub.Clients.Discord {
 
         private static async Task ProcessMessageAsync(SocketUserMessage message, SocketGuildUser user) {
 
-            // If Xathz, exit
-            if (user.Id == Constants.XathzUserId) {
-                return;
-            }
-
-            // If administrator, exit
-            if (user.Roles.Any(x => x.Permissions.Administrator)) {
-                return;
-            }
-
-            // If discord staff, exit
-            if (user.Roles.Any(x => WubbysFunHouse.DiscordStaffRoles.Contains(x.Id))) {
-                return;
-            }
-
-            // If twitch mod, exit
-            if (user.Roles.Any(x => WubbysFunHouse.TwitchStaffRoles.Contains(x.Id))) {
+            if (WubbysFunHouse.IsTwitchStaff(user)) {
                 return;
             }
 

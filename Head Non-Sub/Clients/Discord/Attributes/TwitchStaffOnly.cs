@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -11,18 +10,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services) {
             if (context.User is SocketGuildUser user) {
 
-                // Xathz
-                if (user.Id == Constants.XathzUserId) {
-                    return Task.FromResult(PreconditionResult.FromSuccess());
-                }
-
-                // Administrator
-                if (user.Roles.Any(x => x.Permissions.Administrator)) {
-                    return Task.FromResult(PreconditionResult.FromSuccess());
-                }
-
-                // Discord and Twitch staff
-                if (user.Roles.Any(x => WubbysFunHouse.TwitchStaffRoles.Contains(x.Id))) {
+                if (WubbysFunHouse.IsTwitchStaff(user)) {
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
 

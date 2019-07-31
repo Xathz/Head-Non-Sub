@@ -48,11 +48,6 @@ namespace HeadNonSub {
         public const string DateTimeFormatFull = "MM/dd/yyyy hh:mm:ss.fff tt";
 
         /// <summary>
-        /// Wubby's Fun House.
-        /// </summary>
-        public const ulong WubbyDiscordGuild = 328300333010911242;
-
-        /// <summary>
         /// Xathz's Dev Emporium.
         /// </summary>
         public const ulong XathzDiscordGuild = 337715715668705291;

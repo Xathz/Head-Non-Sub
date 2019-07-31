@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using Discord;
+using Discord.WebSocket;
 
 namespace HeadNonSub.Clients.Discord {
 
@@ -7,6 +10,8 @@ namespace HeadNonSub.Clients.Discord {
     /// Wubby's Fun House
     /// </summary>
     public static class WubbysFunHouse {
+
+        public const ulong ServerId = 328300333010911242;
 
         #region Urls
 
@@ -38,9 +43,13 @@ namespace HeadNonSub.Clients.Discord {
 
         #endregion
 
-        #region Role ids
+        #region User ids
 
-        public const ulong ServerId = 328300333010911242;
+        public const ulong PaymoneyWubbyUserId = 177657233025400832;
+
+        #endregion
+
+        #region Role ids
 
         public const ulong GingerBoyRoleId = 465872398772862976;
 
@@ -78,19 +87,73 @@ namespace HeadNonSub.Clients.Discord {
         /// <summary>
         /// Admins, mods, and mod-lites.
         /// </summary>
-        public static readonly ReadOnlyCollection<ulong> DiscordStaffRoles = new ReadOnlyCollection<ulong>(new List<ulong> { AdminsRoleId, ModsRoleId, ModLiteRoleId });
+        public static readonly ReadOnlyCollection<ulong> DiscordStaffRoles = new ReadOnlyCollection<ulong>(new List<ulong> { GingerBoyRoleId, AdminsRoleId, ModsRoleId, ModLiteRoleId });
 
         /// <summary>
         /// Admins, mods, mod-lites, and twitch mods.
         /// </summary>
-        public static readonly ReadOnlyCollection<ulong> TwitchStaffRoles = new ReadOnlyCollection<ulong>(new List<ulong> { AdminsRoleId, ModsRoleId, ModLiteRoleId, TwitchModRoleId });
+        public static readonly ReadOnlyCollection<ulong> TwitchStaffRoles = new ReadOnlyCollection<ulong>(new List<ulong> { GingerBoyRoleId, AdminsRoleId, ModsRoleId, ModLiteRoleId, TwitchModRoleId });
 
         /// <summary>
         /// Admins, mods, mod-lites, twitch mods, and subreddit mods.
         /// </summary>
-        public static readonly ReadOnlyCollection<ulong> AllStaffRoles = new ReadOnlyCollection<ulong>(new List<ulong> { AdminsRoleId, ModsRoleId, ModLiteRoleId, TwitchModRoleId, SubredditModRoleId });
+        public static readonly ReadOnlyCollection<ulong> AllStaffRoles = new ReadOnlyCollection<ulong>(new List<ulong> { GingerBoyRoleId, AdminsRoleId, ModsRoleId, ModLiteRoleId, TwitchModRoleId, SubredditModRoleId });
 
         #endregion
+
+        /// <summary>
+        /// Get if the user is a discord staff member.
+        /// </summary>
+        public static bool IsDiscordStaff(IUser user) {
+            if (user is SocketGuildUser socketUser) {
+
+                // PaymoneyWubby
+                if (socketUser.Id == PaymoneyWubbyUserId) {
+                    return true;
+                }
+
+                // Xathz
+                if (socketUser.Id == Constants.XathzUserId) {
+                    return true;
+                }
+
+                // Administrator
+                if (socketUser.Roles.Any(x => x.Permissions.Administrator)) {
+                    return true;
+                }
+
+                // Discord staff
+                if (socketUser.Roles.Any(x => DiscordStaffRoles.Contains(x.Id))) {
+                    return true;
+                }
+
+                return false;
+            } else {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Get if the user is a twitch staff member.
+        /// </summary>
+        public static bool IsTwitchStaff(IUser user) {
+            if (user is SocketGuildUser socketUser) {
+
+                // Discord staff
+                if (IsDiscordStaff(user)) {
+                    return true;
+                }
+
+                // Twitch staff
+                if (socketUser.Roles.Any(x => TwitchStaffRoles.Contains(x.Id))) {
+                    return true;
+                }
+
+                return false;
+            } else {
+                return false;
+            }
+        }
 
     }
 
