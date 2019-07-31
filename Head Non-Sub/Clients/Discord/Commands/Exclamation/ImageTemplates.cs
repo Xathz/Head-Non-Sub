@@ -186,9 +186,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                   .TextAntialias(true)
                   .TextEncoding(Encoding.UTF8)
                   .Text(290, 190, text)
-                  .Composite(new MagickGeometry(0, 0), overlay)
                   .Draw(image);
 
+                image.Composite(overlay, CompositeOperator.Atop);
+         
                 image.Write(stream, MagickFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
 

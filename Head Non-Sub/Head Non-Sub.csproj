@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+	<Platforms>x64</Platforms>
     <RootNamespace>HeadNonSub</RootNamespace>
     <StartupObject>HeadNonSub.Program</StartupObject>
     <Authors>Xathz</Authors>
@@ -20,9 +21,13 @@
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DocumentationFile></DocumentationFile>
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -43,7 +48,7 @@
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.1.1" />
     <PackageReference Include="Humanizer.Core" Version="2.6.2" />
-    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.11.0" />
+    <PackageReference Include="Magick.NET-Q16-HDRI-x64" Version="7.14.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="NLog" Version="4.6.6" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.5.2" />
