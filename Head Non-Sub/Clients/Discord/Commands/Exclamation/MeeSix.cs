@@ -188,18 +188,17 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("user-info")]
-        [DiscordStaffOnly]
         public async Task UserInfo(SocketGuildUser user = null) {
             if (user == null) { return; }
 
             if (WubbysFunHouse.IsDiscordStaff(Context.User)) {
-                await Task.Delay(4000);
+                await Task.Delay(4500);
 
                 int mee6MessageCount = await Context.Channel.GetMessagesAsync(30).Flatten()
                     .OrderByDescending(x => x.CreatedAt)
-                    .Where(x => x.CreatedAt > DateTime.UtcNow.AddMilliseconds(4500))
+                    .Where(x => x.CreatedAt > DateTime.UtcNow.AddMilliseconds(-4500))
                     .Where(x => x.Author.Id == 159985870458322944) // MEE6
-                    .Where(x => x.Embeds.ToList().Any(e => e.Fields.ToList().Any(f => f.Value.Contains(user.Id.ToString()))))
+                    .Where(x => x.Embeds.Any(e => e.Fields.Any(f => f.Value.Contains(user.Id.ToString()))))
                     .Count();
 
                 if (mee6MessageCount == 0) {
