@@ -194,14 +194,12 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             if (WubbysFunHouse.IsDiscordStaff(Context.User)) {
                 await Task.Delay(4500);
 
-                int mee6MessageCount = await Context.Channel.GetMessagesAsync(30).Flatten()
-                    .OrderByDescending(x => x.CreatedAt)
-                    .Where(x => x.CreatedAt > DateTime.UtcNow.AddMilliseconds(-4500))
+                bool mee6Responded = await Context.Channel.GetMessagesAsync(Context.Message, Direction.After).Flatten()
                     .Where(x => x.Author.Id == 159985870458322944) // MEE6
                     .Where(x => x.Embeds.Any(e => e.Fields.Any(f => f.Value.Contains(user.Id.ToString()))))
-                    .Count();
+                    .Count() > 0;
 
-                if (mee6MessageCount == 0) {
+                if (!mee6Responded) {
                     EmbedBuilder builder = new EmbedBuilder() {
                         Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                         ThumbnailUrl = user.GetAvatarUrl(size: 1024)
