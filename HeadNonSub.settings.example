@@ -1,0 +1,17 @@
+{
+  "botNickname": "Head Non-Sub",
+  "botPlaying": "pls gift me a sub",
+  "discordToken": "",
+  "twitchUsername": "",
+  "twitchToken": "",
+  "meeSixToken": "",
+  "cBenniToken": "",
+  "uploadKey": "",
+  "mariaDBHost": "",
+  "mariaDBDatabase": "",
+  "mariaDBUsername": "",
+  "mariaDBPassword": "",
+  "twitchStreams": [],
+  "discordWhitelist": {},
+  "discordBlacklist": {}
+}

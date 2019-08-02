@@ -208,7 +208,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             try {
                 using (HttpClient client = new HttpClient())
-                using (HttpResponseMessage response = await client.GetAsync(user.GetAvatarUrl(ImageFormat.Png))) {
+                using (HttpResponseMessage response = await client.GetAsync(user.GetAvatarUrl(ImageFormat.Png, 256))) {
 
                     if (response.IsSuccessStatusCode) {
                         using (HttpContent content = response.Content) {
@@ -223,11 +223,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                                 avatar.Resize(225, 225);
                                 avatar.Rotate(-5.5);
 
-                                new Drawables()
-                                 .Composite(160, 138, avatar)
-                                 .Draw(image);
+                                image.Composite(avatar, 160, 132, CompositeOperator.Atop);
 
-                                image.Resize(200, 200);
+                                image.Resize(256, 256);
                                 image.Write(stream, MagickFormat.Png);
 
                                 stream.Seek(0, SeekOrigin.Begin);

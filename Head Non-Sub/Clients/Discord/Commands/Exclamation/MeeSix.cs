@@ -205,7 +205,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                         ThumbnailUrl = user.GetAvatarUrl(size: 1024)
                     };
 
-                    builder.AddField($"Failover userinfo Command for {user.ToString()}", $"UserID | {user.Id}");
+                    builder.AddField($"Failover userinfo command for {user.ToString()}", $"UserID | {user.Id}");
 
                     builder.AddField("Main role", $"{user.Roles.OrderByDescending(x => x.Position).First().Name}");
 
@@ -222,7 +222,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     await BetterReplyAsync("MEE6 failed to fulfill request.", builder.Build());
                 }
             }
-
         }
 
         private async Task<Moderator> GetUserInfractionsAsync(ulong serverId, ulong userId) {
