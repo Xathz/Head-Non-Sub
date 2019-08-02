@@ -160,7 +160,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 try {
                     string message = "";
 
-                    using (HttpClient client = new HttpClient())
                     using (MultipartFormDataContent form = new MultipartFormDataContent()) {
                         byte[] byteArray = Encoding.UTF8.GetBytes(changes);
 
@@ -171,7 +170,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                             form.Add(new StringContent(SettingsManager.Configuration.UploadKey), "key");
                             form.Add(fileContent, "file", $"{Guid.NewGuid()}.txt");
 
-                            HttpResponseMessage response = client.PostAsync("https://xathz.net/headnonsub/upload.php", form).Result;
+                            HttpResponseMessage response = Http.Client.PostAsync("https://xathz.net/headnonsub/upload.php", form).Result;
 
                             if (response.IsSuccessStatusCode) {
                                 using (HttpContent content = response.Content) {
@@ -220,8 +219,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             foreach (EmoteOrEmoji item in items) {
                 if (item.IsEmote) {
-                    using (HttpClient client = new HttpClient())
-                    using (HttpResponseMessage response = await client.GetAsync($"https://cdn.discordapp.com/emojis/{item.Id}.{(item.Animated ? "gif" : "png")}")) {
+                    using (HttpResponseMessage response = await Http.Client.GetAsync($"https://cdn.discordapp.com/emojis/{item.Id}.{(item.Animated ? "gif" : "png")}")) {
                         if (response.IsSuccessStatusCode) {
                             using (HttpContent content = response.Content) {
                                 Stream stream = await content.ReadAsStreamAsync();

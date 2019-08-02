@@ -138,35 +138,33 @@ namespace HeadNonSub {
 
         private static async Task DownloadTLDsAsync() {
             try {
-                using (HttpClient client = new HttpClient()) {
-                    using (HttpResponseMessage response = await client.GetAsync("https://data.iana.org/TLD/tlds-alpha-by-domain.txt")) {
-                        using (HttpContent content = response.Content) {
-                            string list = await content.ReadAsStringAsync();
+                using (HttpResponseMessage response = await Http.Client.GetAsync("https://data.iana.org/TLD/tlds-alpha-by-domain.txt")) {
+                    using (HttpContent content = response.Content) {
+                        string list = await content.ReadAsStringAsync();
 
-                            if (!response.IsSuccessStatusCode) {
-                                throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
-                            }
-
-                            if (string.IsNullOrWhiteSpace(list)) {
-                                throw new ArgumentNullException(nameof(list));
-                            }
-
-                            List<string> lines = list.SplitByNewLines();
-                            HashSet<string> domains = new HashSet<string>();
-                            foreach (string line in lines) {
-                                if (!line.StartsWith("#")) {
-                                    domains.Add(line.ToLower());
-                                }
-                            }
-
-                            if (domains.Count == 0) {
-                                throw new ArgumentException("Collection is empty", nameof(domains));
-                            }
-
-                            TLDs = domains.ToList().AsReadOnly();
-
-                            LoggingManager.Log.Info($"Downloaded and parsed {TLDs.Count} top level domains");
+                        if (!response.IsSuccessStatusCode) {
+                            throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
                         }
+
+                        if (string.IsNullOrWhiteSpace(list)) {
+                            throw new ArgumentNullException(nameof(list));
+                        }
+
+                        List<string> lines = list.SplitByNewLines();
+                        HashSet<string> domains = new HashSet<string>();
+                        foreach (string line in lines) {
+                            if (!line.StartsWith("#")) {
+                                domains.Add(line.ToLower());
+                            }
+                        }
+
+                        if (domains.Count == 0) {
+                            throw new ArgumentException("Collection is empty", nameof(domains));
+                        }
+
+                        TLDs = domains.ToList().AsReadOnly();
+
+                        LoggingManager.Log.Info($"Downloaded and parsed {TLDs.Count} top level domains");
                     }
                 }
             } catch (Exception ex) {

@@ -207,8 +207,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             await Context.Channel.TriggerTypingAsync();
 
             try {
-                using (HttpClient client = new HttpClient())
-                using (HttpResponseMessage response = await client.GetAsync(user.GetAvatarUrl(ImageFormat.Png, 256))) {
+                using (HttpResponseMessage response = await Http.Client.GetAsync(user.GetAvatarUrl(ImageFormat.Png, 256))) {
 
                     if (response.IsSuccessStatusCode) {
                         using (HttpContent content = response.Content) {

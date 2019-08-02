@@ -50,15 +50,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         private async Task<string> GetCBenniUserAsync(string user, int count) {
             try {
-                using (HttpClient client = new HttpClient()) {
-                    using (HttpResponseMessage response = await client.GetAsync($"https://cbenni.com/api/slack/?default_channel=paymoneywubby&text={user} {count}&lvtoken={SettingsManager.Configuration.CBenniToken}")) {
-                        if (response.IsSuccessStatusCode) {
-                            using (HttpContent content = response.Content) {
-                                return await content.ReadAsStringAsync();
-                            }
-                        } else {
-                            throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
+                using (HttpResponseMessage response = await Http.Client.GetAsync($"https://cbenni.com/api/slack/?default_channel=paymoneywubby&text={user} {count}&lvtoken={SettingsManager.Configuration.CBenniToken}")) {
+                    if (response.IsSuccessStatusCode) {
+                        using (HttpContent content = response.Content) {
+                            return await content.ReadAsStringAsync();
                         }
+                    } else {
+                        throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
                     }
                 }
             } catch (Exception ex) {

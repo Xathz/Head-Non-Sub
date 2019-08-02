@@ -67,47 +67,45 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             Dictionary<long, double> returnValues = new Dictionary<long, double>();
 
             try {
-                using (HttpClient client = new HttpClient()) {
-                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "https://api.twitchstocks.com/api/v1/stocks/38251312/history/1hr");
-                    request.Headers.TryAddWithoutValidation("Referer", "https://twitchstocks.com");
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "https://api.twitchstocks.com/api/v1/stocks/38251312/history/1hr");
+                request.Headers.TryAddWithoutValidation("Referer", "https://twitchstocks.com");
 
-                    using (HttpResponseMessage response = await client.SendAsync(request)) {
-                        if (response.IsSuccessStatusCode) {
-                            using (HttpContent content = response.Content) {
-                                string json = await content.ReadAsStringAsync();
-                                Values values = new Values();
+                using (HttpResponseMessage response = await Http.Client.SendAsync(request)) {
+                    if (response.IsSuccessStatusCode) {
+                        using (HttpContent content = response.Content) {
+                            string json = await content.ReadAsStringAsync();
+                            Values values = new Values();
 
-                                using (StringReader jsonReader = new StringReader(json)) {
-                                    JsonSerializer jsonSerializer = new JsonSerializer {
-                                        DateTimeZoneHandling = DateTimeZoneHandling.Utc
-                                    };
+                            using (StringReader jsonReader = new StringReader(json)) {
+                                JsonSerializer jsonSerializer = new JsonSerializer {
+                                    DateTimeZoneHandling = DateTimeZoneHandling.Utc
+                                };
 
-                                    values = jsonSerializer.Deserialize(jsonReader, typeof(Values)) as Values;
-                                }
+                                values = jsonSerializer.Deserialize(jsonReader, typeof(Values)) as Values;
+                            }
 
-                                foreach (List<double> pair in values.Data) {
-                                    double? value = null;
-                                    long? timestamp = null;
+                            foreach (List<double> pair in values.Data) {
+                                double? value = null;
+                                long? timestamp = null;
 
-                                    foreach (double item in pair) {
-                                        if (!value.HasValue) {
-                                            value = item;
-                                            continue;
-                                        }
-
-                                        if (!timestamp.HasValue) {
-                                            timestamp = Convert.ToInt64(item);
-                                        }
+                                foreach (double item in pair) {
+                                    if (!value.HasValue) {
+                                        value = item;
+                                        continue;
                                     }
 
-                                    returnValues.Add(timestamp.Value, value.Value);
+                                    if (!timestamp.HasValue) {
+                                        timestamp = Convert.ToInt64(item);
+                                    }
                                 }
 
-                                return returnValues;
+                                returnValues.Add(timestamp.Value, value.Value);
                             }
-                        } else {
-                            throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
+
+                            return returnValues;
                         }
+                    } else {
+                        throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
                     }
                 }
             } catch (Exception ex) {

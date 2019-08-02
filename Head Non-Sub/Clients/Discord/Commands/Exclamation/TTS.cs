@@ -65,29 +65,28 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         private Stream Generate(string text, string voice) {
-            Dictionary<string, string> values = new Dictionary<string, string> { { "text", text }, { "voice", voice } };
-            Polly polly = new Polly();
+            try {
+                Dictionary<string, string> values = new Dictionary<string, string> { { "text", text }, { "voice", voice } };
+                Polly polly = new Polly();
 
-            HttpClient client = new HttpClient();
-            FormUrlEncodedContent post = new FormUrlEncodedContent(values);
-            HttpResponseMessage jsonResponse = client.PostAsync("https://streamlabs.com/polly/speak", post).Result;
+                FormUrlEncodedContent formContent = new FormUrlEncodedContent(values);
+                HttpResponseMessage jsonResponse = Http.Client.PostAsync("https://streamlabs.com/polly/speak", formContent).Result;
 
-            string json = jsonResponse.Content.ReadAsStringAsync().Result;
+                string json = jsonResponse.Content.ReadAsStringAsync().Result;
 
-            using (StringReader jsonReader = new StringReader(json)) {
-                JsonSerializer jsonSerializer = new JsonSerializer {
-                    DateTimeZoneHandling = DateTimeZoneHandling.Local
-                };
+                using (StringReader jsonReader = new StringReader(json)) {
+                    polly = new JsonSerializer().Deserialize(jsonReader, typeof(Polly)) as Polly;
+                }
 
-                polly = jsonSerializer.Deserialize(jsonReader, typeof(Polly)) as Polly;
+                if (polly is Polly & polly.Success) {
+                    HttpResponseMessage speakResponse = Http.Client.GetAsync(polly.SpeakUrl).Result;
+                    return speakResponse.Content.ReadAsStreamAsync().Result;
+                }
+
+                return null;
+            } catch {
+                return null;
             }
-
-            if (polly is Polly & polly.Success) {
-                HttpResponseMessage speakResponse = client.GetAsync(polly.SpeakUrl).Result;
-                return speakResponse.Content.ReadAsStreamAsync().Result;
-            }
-
-            return null;
         }
 
     }

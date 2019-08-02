@@ -393,8 +393,7 @@ namespace HeadNonSub.Clients.Discord {
                         } else if (message.Attachments.Count > 0) {
                             if (_DiscordClient.GetChannel(WubbysFunHouse.ActualFuckingSpamChannelId) is IMessageChannel channel) {
                                 foreach (Attachment attachment in message.Attachments) {
-                                    using (HttpClient client = new HttpClient())
-                                    using (HttpResponseMessage response = await client.GetAsync(attachment.Url)) {
+                                    using (HttpResponseMessage response = await Http.Client.GetAsync(attachment.Url)) {
                                         if (response.IsSuccessStatusCode) {
                                             using (HttpContent content = response.Content) {
                                                 Stream stream = await content.ReadAsStreamAsync();

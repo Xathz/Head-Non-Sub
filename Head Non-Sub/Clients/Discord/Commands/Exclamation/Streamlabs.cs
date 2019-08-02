@@ -75,23 +75,21 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         private async Task<StreamlabsEntities.Tip> GetTipDataAsync() {
             try {
-                using (HttpClient client = new HttpClient()) {
-                    using (HttpResponseMessage response = await client.GetAsync("https://streamlabs.com/api/v6/1f510f07ca2978f/tip")) {
-                        if (response.IsSuccessStatusCode) {
-                            using (HttpContent content = response.Content) {
-                                string json = await content.ReadAsStringAsync();
+                using (HttpResponseMessage response = await Http.Client.GetAsync("https://streamlabs.com/api/v6/1f510f07ca2978f/tip")) {
+                    if (response.IsSuccessStatusCode) {
+                        using (HttpContent content = response.Content) {
+                            string json = await content.ReadAsStringAsync();
 
-                                using (StringReader jsonReader = new StringReader(json)) {
-                                    JsonSerializer jsonSerializer = new JsonSerializer {
-                                        DateTimeZoneHandling = DateTimeZoneHandling.Utc
-                                    };
+                            using (StringReader jsonReader = new StringReader(json)) {
+                                JsonSerializer jsonSerializer = new JsonSerializer {
+                                    DateTimeZoneHandling = DateTimeZoneHandling.Utc
+                                };
 
-                                    return jsonSerializer.Deserialize(jsonReader, typeof(StreamlabsEntities.Tip)) as StreamlabsEntities.Tip;
-                                }
+                                return jsonSerializer.Deserialize(jsonReader, typeof(StreamlabsEntities.Tip)) as StreamlabsEntities.Tip;
                             }
-                        } else {
-                            throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
                         }
+                    } else {
+                        throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
                     }
                 }
             } catch (Exception ex) {

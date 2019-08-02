@@ -226,27 +226,24 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         private async Task<Moderator> GetUserInfractionsAsync(ulong serverId, ulong userId) {
             try {
-                using (HttpClient client = new HttpClient()) {
-                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"https://mee6.xyz/api/plugins/moderator/guilds/{serverId}/infractions?page=0&limit=1000&user_id={userId}");
-                    request.Headers.TryAddWithoutValidation("Authorization", SettingsManager.Configuration.MeeSixToken);
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"https://mee6.xyz/api/plugins/moderator/guilds/{serverId}/infractions?page=0&limit=1000&user_id={userId}");
+                request.Headers.TryAddWithoutValidation("Authorization", SettingsManager.Configuration.MeeSixToken);
 
-                    using (HttpResponseMessage response = await client.SendAsync(request)) {
+                using (HttpResponseMessage response = await Http.Client.SendAsync(request)) {
+                    if (response.IsSuccessStatusCode) {
+                        using (HttpContent content = response.Content) {
+                            string json = await content.ReadAsStringAsync();
 
-                        if (response.IsSuccessStatusCode) {
-                            using (HttpContent content = response.Content) {
-                                string json = await content.ReadAsStringAsync();
+                            using (StringReader jsonReader = new StringReader(json)) {
+                                JsonSerializer jsonSerializer = new JsonSerializer {
+                                    DateTimeZoneHandling = DateTimeZoneHandling.Utc
+                                };
 
-                                using (StringReader jsonReader = new StringReader(json)) {
-                                    JsonSerializer jsonSerializer = new JsonSerializer {
-                                        DateTimeZoneHandling = DateTimeZoneHandling.Utc
-                                    };
-
-                                    return jsonSerializer.Deserialize(jsonReader, typeof(Moderator)) as Moderator;
-                                }
+                                return jsonSerializer.Deserialize(jsonReader, typeof(Moderator)) as Moderator;
                             }
-                        } else {
-                            throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
                         }
+                    } else {
+                        throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
                     }
                 }
             } catch (Exception ex) {
@@ -257,13 +254,11 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         private async Task<bool> DeleteInfractionAsync(ulong serverId, string infractionId) {
             try {
-                using (HttpClient client = new HttpClient()) {
-                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, $"https://mee6.xyz/api/plugins/moderator/guilds/{serverId}/infractions/{infractionId}");
-                    request.Headers.TryAddWithoutValidation("Authorization", SettingsManager.Configuration.MeeSixToken);
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, $"https://mee6.xyz/api/plugins/moderator/guilds/{serverId}/infractions/{infractionId}");
+                request.Headers.TryAddWithoutValidation("Authorization", SettingsManager.Configuration.MeeSixToken);
 
-                    using (HttpResponseMessage response = await client.SendAsync(request)) {
-                        return response.IsSuccessStatusCode;
-                    }
+                using (HttpResponseMessage response = await Http.Client.SendAsync(request)) {
+                    return response.IsSuccessStatusCode;
                 }
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
