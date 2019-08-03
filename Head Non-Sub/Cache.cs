@@ -90,7 +90,7 @@ namespace HeadNonSub {
                 return null;
             }
 
-            MemoryStream memoryStream = new MemoryStream();
+            MemoryStream memoryStream = new MemoryStream(256);
 
             // Copy to a new stream becuase Discord will close this when used
             MemoryStream fromCache = _Cache.Get(key) as MemoryStream;

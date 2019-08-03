@@ -238,7 +238,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 } else {
                     List<string> hex = new List<string>();
                     foreach (int character in item.Emoji.GetUnicodeCodePoints()) {
-                        hex.Add(character.ToString("x4"));
+                        hex.Add(character.ToString("x4").TrimStart(new char[] { '0' }));
                     }
 
                     string fullHex = string.Join("-", hex);
