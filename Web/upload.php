@@ -1,6 +1,6 @@
 <?php
 /*
-Nginx or other webservers need to be configured to serve certian files.
+Nginx or other webservers need to be configured to serve certain files.
 Text files need to be UTF-8.
 
     rewrite "^/(.*).(txt|png|jpe?g|gif)" /uploads/$1.$2;
@@ -36,10 +36,10 @@ define("UPLOAD_DIRECTORY", "uploads/");
 setlocale(LC_ALL, "en_US.UTF-8");
 
  /**
-  * Generate a file path.
+  * Generate a file path and name.
   *
-  * @param string $extension Extension of the file.
-  * @return string File path.
+  * @param string $fileName Name of the original file to get the extension from.
+  * @return array (File path, File name).
   */
 function generateFilePath($fileName) {
     $uploadedExtension = pathinfo($fileName, PATHINFO_EXTENSION);
@@ -79,10 +79,10 @@ if (!empty($_POST["key"])) {
     if (!empty($_FILES["file"])) {
         validateFiletype($_FILES["file"]["name"]);
 
-        list($path, $fileId) = generateFilePath($_FILES["file"]["name"]);
+        list($filePath, $fileName) = generateFilePath($_FILES["file"]["name"]);
 
-        if (move_uploaded_file($_FILES["file"]["tmp_name"], $path)) {
-            echo $fileId;
+        if (move_uploaded_file($_FILES["file"]["tmp_name"], $filePath)) {
+            echo $fileName;
             http_response_code(200);
         } else {
             http_response_code(404);
@@ -91,15 +91,30 @@ if (!empty($_POST["key"])) {
         exit();
     }
 
+    if (!empty($_POST["string"])) {
+        list($filePath, $fileName) = generateFilePath("uploaded_string.txt");
+
+        file_put_contents($filePath, $_POST["string"]);
+
+        if (file_exists($filePath)) { 
+            echo $fileName;
+            http_response_code(200);
+         } else {
+            http_response_code(404);
+         }
+
+         exit();
+    }
+
     if (!empty($_POST["url"])) {
         validateFiletype(parse_url($_POST["url"], PHP_URL_PATH));
 
-        list($path, $fileId) = generateFilePath(parse_url($_POST["url"], PHP_URL_PATH));
+        list($filePath, $fileName) = generateFilePath(parse_url($_POST["url"], PHP_URL_PATH));
 
-        file_put_contents($path, fopen($_POST["url"], 'r'));
+        file_put_contents($filePath, fopen($_POST["url"], 'r'));
 
-        if (file_exists($path)) { 
-            echo $fileId;
+        if (file_exists($filePath)) { 
+            echo $fileName;
             http_response_code(200);
          } else {
             http_response_code(404);

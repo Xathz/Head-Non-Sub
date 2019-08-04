@@ -16,35 +16,61 @@ namespace HeadNonSub {
         public static readonly HttpClient Client = new HttpClient();
 
         /// <summary>
-        /// Send text to be stored on the CDN.
+        /// Send a file to be stored on the CDN.
         /// </summary>
-        /// <param name="input">String to upload.</param>
+        /// <param name="input">File to upload.</param>
+        /// <param name="fileExtension">Extension of the file to upload.</param>
         /// <returns>Url of the file.</returns>
-        public static async Task<string> UploadStringToCDN(string input) {
-            using (MultipartFormDataContent form = new MultipartFormDataContent()) {
-                byte[] byteArray = Encoding.UTF8.GetBytes(input);
+        public static async Task<string> UploadFileToCDN(byte[] byteArray, string fileExtension) {
+            using (MultipartFormDataContent form = new MultipartFormDataContent())
+            using (StreamContent streamContent = new StreamContent(new MemoryStream(byteArray)))
+            using (ByteArrayContent fileContent = new ByteArrayContent(await streamContent.ReadAsByteArrayAsync())) {
+                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
 
-                using (StreamContent streamContent = new StreamContent(new MemoryStream(byteArray)))
-                using (ByteArrayContent fileContent = new ByteArrayContent(await streamContent.ReadAsByteArrayAsync())) {
-                    fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                form.Add(new StringContent(SettingsManager.Configuration.UploadKey), "key");
+                form.Add(fileContent, "file", $"{Guid.NewGuid()}.{fileExtension}");
 
-                    form.Add(new StringContent(SettingsManager.Configuration.UploadKey), "key");
-                    form.Add(fileContent, "file", $"{Guid.NewGuid()}.txt");
+                using (HttpResponseMessage response = await Client.PostAsync(Constants.CDNAPI, form)) {
+                    if (response.IsSuccessStatusCode) {
+                        using (HttpContent content = response.Content) {
+                            string fileName = await content.ReadAsStringAsync();
 
-                    using (HttpResponseMessage response = await Client.PostAsync(Constants.XathzCDNAPI, form)) {
-                        if (response.IsSuccessStatusCode) {
-                            using (HttpContent content = response.Content) {
-                                string fileName = await content.ReadAsStringAsync();
-
-                                if (!string.IsNullOrWhiteSpace(fileName)) {
-                                    return $"{Constants.XathzCDNUploads}{fileName}";
-                                } else {
-                                    throw new ArgumentException("File name is empty", nameof(fileName));
-                                }
+                            if (!string.IsNullOrWhiteSpace(fileName)) {
+                                return $"{Constants.CDNUploads}{fileName}";
+                            } else {
+                                throw new ArgumentException("File name is empty", nameof(fileName));
                             }
-                        } else {
-                            throw new HttpRequestException($"There was an error uploading the file. {(int)response.StatusCode}; {response.ReasonPhrase}");
                         }
+                    } else {
+                        throw new HttpRequestException($"There was an error uploading the file. {(int)response.StatusCode}; {response.ReasonPhrase}");
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Send a string to be stored on the CDN.
+        /// </summary>
+        /// <param name="data">String to upload.</param>
+        /// <returns>Url of the file.</returns>
+        public static async Task<string> UploadStringToCDN(string data) {
+            using (MultipartFormDataContent form = new MultipartFormDataContent()) {
+                form.Add(new StringContent(SettingsManager.Configuration.UploadKey), "key");
+                form.Add(new StringContent(data, Encoding.UTF8), "string");
+
+                using (HttpResponseMessage response = await Client.PostAsync(Constants.CDNAPI, form)) {
+                    if (response.IsSuccessStatusCode) {
+                        using (HttpContent content = response.Content) {
+                            string fileName = await content.ReadAsStringAsync();
+
+                            if (!string.IsNullOrWhiteSpace(fileName)) {
+                                return $"{Constants.CDNUploads}{fileName}";
+                            } else {
+                                throw new ArgumentException("File name is empty", nameof(fileName));
+                            }
+                        }
+                    } else {
+                        throw new HttpRequestException($"There was an error uploading the string. {(int)response.StatusCode}; {response.ReasonPhrase}");
                     }
                 }
             }
@@ -60,13 +86,13 @@ namespace HeadNonSub {
                 form.Add(new StringContent(SettingsManager.Configuration.UploadKey), "key");
                 form.Add(new StringContent(url), "url");
 
-                using (HttpResponseMessage response = await Client.PostAsync(Constants.XathzCDNAPI, form)) {
+                using (HttpResponseMessage response = await Client.PostAsync(Constants.CDNAPI, form)) {
                     if (response.IsSuccessStatusCode) {
                         using (HttpContent content = response.Content) {
                             string fileName = await content.ReadAsStringAsync();
 
                             if (!string.IsNullOrWhiteSpace(fileName)) {
-                                return $"{Constants.XathzCDNUploads}{fileName}";
+                                return $"{Constants.CDNUploads}{fileName}";
                             } else {
                                 throw new ArgumentException("File name is empty", nameof(fileName));
                             }
@@ -81,3 +107,4 @@ namespace HeadNonSub {
     }
 
 }
+

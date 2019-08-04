@@ -73,7 +73,13 @@ namespace HeadNonSub.Statistics {
                             }
 
                             if (userChange.ChangeType.HasFlag(NameChangeType.Avatar)) {
-                                changes.Add($" ● [ avatar] {userChange.NewUserAvatar}");
+
+                                // Some avatar changes use the old system and the image links no longer work
+                                if (userChange.NewUserAvatar.Contains(Constants.CDNUploads)) {
+                                    changes.Add($" ● [ avatar] {userChange.NewUserAvatar}");
+                                } else {
+                                    changes.Add($" ● [ avatar] Changed.");
+                                }
                             }
 
                             builder.Append(string.Join(Environment.NewLine, changes));
