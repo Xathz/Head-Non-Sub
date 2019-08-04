@@ -156,43 +156,22 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             List<string> chunks = changes.SplitIntoChunksPreserveNewLines(1930);
 
-            if (chunks.Count > 2) {
-                try {
-                    string message = "";
-
-                    using (MultipartFormDataContent form = new MultipartFormDataContent()) {
-                        byte[] byteArray = Encoding.UTF8.GetBytes(changes);
-
-                        using (StreamContent streamContent = new StreamContent(new MemoryStream(byteArray)))
-                        using (ByteArrayContent fileContent = new ByteArrayContent(streamContent.ReadAsByteArrayAsync().Result)) {
-                            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-
-                            form.Add(new StringContent(SettingsManager.Configuration.UploadKey), "key");
-                            form.Add(fileContent, "file", $"{Guid.NewGuid()}.txt");
-
-                            HttpResponseMessage response = Http.Client.PostAsync("https://xathz.net/headnonsub/upload.php", form).Result;
-
-                            if (response.IsSuccessStatusCode) {
-                                using (HttpContent content = response.Content) {
-                                    string fileId = await content.ReadAsStringAsync();
-                                    message = $"https://xathz.net/headnonsub/uploads/{fileId}";
-                                }
-                            } else {
-                                message = $"There was an error uploading the file. ({response.StatusCode}) {response.ReasonPhrase}";
-                            }
-                        }
-                    }
-
-                    await BetterReplyAsync($"There are too many name changes to display here. {message}");
-                    return;
-                } catch (Exception ex) {
-                    LoggingManager.Log.Error(ex);
-                    return;
+            if (chunks.Count <= 2) {
+                foreach (string chunk in chunks) {
+                    await BetterReplyAsync($"● Name changes for {BetterUserFormat(user)} ```{chunk}```", user.Id.ToString());
                 }
-            }
+            } else {
+                Task<string> upload = Http.UploadStringToCDN(changes);
+                string url = await upload;
 
-            foreach (string chunk in chunks) {
-                await BetterReplyAsync($"● Name changes for {BetterUserFormat(user)} ```{chunk}```", user.Id.ToString());
+                string message;
+                if (upload.IsCompletedSuccessfully) {
+                    message = url;
+                } else {
+                    message = upload.Exception.Message;
+                }
+
+                await BetterReplyAsync($"There are too many name changes to display here. {message}");
             }
         }
 
@@ -203,7 +182,24 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 return;
             }
 
-            await BetterReplyAsync($"● Avatar for {BetterUserFormat(user)}{Environment.NewLine}{user.GetAvatarUrl(size: 1024)}");
+            await Context.Channel.TriggerTypingAsync();
+
+            using (HttpResponseMessage response = await Http.Client.GetAsync(user.GetAvatarUrl(size: 1024))) {
+                if (response.IsSuccessStatusCode) {
+                    using (HttpContent content = response.Content) {
+                        Stream stream = await content.ReadAsStreamAsync();
+
+                        if (stream.Length > Constants.DiscordMaximumFileSize) {
+                            await BetterReplyAsync("There was an error processing the avatar. Re-upload was too large.");
+                        } else {
+                            stream.Seek(0, SeekOrigin.Begin);
+                            await BetterSendFileAsync(stream, $"{user.Id}_avatar.{(user.AvatarId.StartsWith("a_") ? "gif" : "png")}", $"● Avatar of {BetterUserFormat(user)}");
+                        }
+                    }
+                } else {
+                    await BetterReplyAsync("There was an error processing the avatar. Avatar download failed.");
+                }
+            }
         }
 
         [Command("emoji"), Alias("e")]

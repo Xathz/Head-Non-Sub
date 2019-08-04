@@ -74,7 +74,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
                 List<string> chunks = builder.ToString().SplitIntoChunksPreserveNewLines(1930);
 
-                await Task.Delay(1000);
+                await Task.Delay(2000);
 
                 foreach (string chunk in chunks) {
                     await BetterReplyAsync($"● Infractions for {BetterUserFormat(user)} ```{chunk}```", user.Id.ToString());
@@ -135,7 +135,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                         builder.AppendLine($"{message.CreatedAt.ToString(Constants.DateTimeFormatMedium).ToLower()} utc: {header}{content}");
                     }
 
-                    await Task.Delay(1000);
+                    await Task.Delay(2000);
 
                     await LogMessageAsync($"● Recent messages from {BetterUserFormat(user)}", builder.ToString());
                 } else {
@@ -243,7 +243,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                             }
                         }
                     } else {
-                        throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
+                        throw new HttpRequestException($"{(int)response.StatusCode}; {response.ReasonPhrase}");
                     }
                 }
             } catch (Exception ex) {

@@ -56,7 +56,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                             return await content.ReadAsStringAsync();
                         }
                     } else {
-                        throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
+                        throw new HttpRequestException($"{(int)response.StatusCode}; {response.ReasonPhrase}");
                     }
                 }
             } catch (Exception ex) {

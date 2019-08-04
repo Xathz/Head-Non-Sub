@@ -143,7 +143,7 @@ namespace HeadNonSub {
                         string list = await content.ReadAsStringAsync();
 
                         if (!response.IsSuccessStatusCode) {
-                            throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
+                            throw new HttpRequestException($"{(int)response.StatusCode}; {response.ReasonPhrase}");
                         }
 
                         if (string.IsNullOrWhiteSpace(list)) {

@@ -58,6 +58,16 @@ namespace HeadNonSub {
         public const ulong XathzUserId = 227088829079617536;
 
         /// <summary>
+        /// Xathz CDN api entry point.
+        /// </summary>
+        public const string XathzCDNAPI = "https://hns.xathz.net/upload.php";
+
+        /// <summary>
+        /// Xathz CDN uploads and content.
+        /// </summary>
+        public const string XathzCDNUploads = "https://hns.xathz.net/";
+
+        /// <summary>
         /// Loading gif url.
         /// </summary>
         public const string LoadingGifUrl = "https://cdn.discordapp.com/attachments/559869208976949278/559869759257051136/Loading.gif";

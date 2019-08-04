@@ -105,7 +105,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                             return returnValues;
                         }
                     } else {
-                        throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
+                        throw new HttpRequestException($"{(int)response.StatusCode}; {response.ReasonPhrase}");
                     }
                 }
             } catch (Exception ex) {

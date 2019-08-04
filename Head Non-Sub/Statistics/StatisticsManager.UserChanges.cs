@@ -73,7 +73,7 @@ namespace HeadNonSub.Statistics {
                             }
 
                             if (userChange.ChangeType.HasFlag(NameChangeType.Avatar)) {
-                                changes.Add($" ● [ avatar] Changed.");
+                                changes.Add($" ● [ avatar] {userChange.NewUserAvatar}");
                             }
 
                             builder.Append(string.Join(Environment.NewLine, changes));

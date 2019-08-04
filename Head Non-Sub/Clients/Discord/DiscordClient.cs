@@ -234,7 +234,7 @@ namespace HeadNonSub.Clients.Discord {
 
         private static Task GuildMemberUpdated(SocketGuildUser oldUser, SocketGuildUser newUser) => ProcessUserUpdated(oldUser, newUser);
 
-        private static Task ProcessUserUpdated(IUser oldUser, IUser newUser) {
+        private static async Task ProcessUserUpdated(IUser oldUser, IUser newUser) {
             try {
                 StatisticsManager.NameChangeType changeType = StatisticsManager.NameChangeType.None;
 
@@ -275,8 +275,19 @@ namespace HeadNonSub.Clients.Discord {
                 if (oldUser.GetAvatarUrl() != newUser.GetAvatarUrl()) {
                     changeType |= StatisticsManager.NameChangeType.Avatar;
 
-                    oldAvatar = oldUser.GetAvatarUrl(size: 1024);
-                    newAvatar = newUser.GetAvatarUrl(size: 1024);
+                    oldAvatar = oldUser.GetAvatarUrl(oldUser.AvatarId.StartsWith("a_") ? ImageFormat.Gif : ImageFormat.Png, 1024);
+                    newAvatar = newUser.GetAvatarUrl(newUser.AvatarId.StartsWith("a_") ? ImageFormat.Gif : ImageFormat.Png, 1024);
+
+                    try {
+                        Task<string> upload = Http.UploadUrlToCDN(newAvatar);
+                        string url = await upload;
+
+                        if (upload.IsCompletedSuccessfully) {
+                            newAvatar = url;
+                        }
+                    } catch (Exception ex) {
+                        LoggingManager.Log.Error(ex);
+                    }
                 }
 
                 if (changeType != StatisticsManager.NameChangeType.None) {
@@ -285,8 +296,6 @@ namespace HeadNonSub.Clients.Discord {
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
-
-            return Task.CompletedTask;
         }
 
         private static async Task MessageReceived(SocketMessage socketMessage) {
@@ -408,7 +417,7 @@ namespace HeadNonSub.Clients.Discord {
                                                 }
                                             }
                                         } else {
-                                            throw new HttpRequestException($"{response.StatusCode}; {response.ReasonPhrase}");
+                                            throw new HttpRequestException($"{(int)response.StatusCode}; {response.ReasonPhrase}");
                                         }
                                     }
                                 }
