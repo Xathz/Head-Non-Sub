@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="TLDs" xml:space="preserve">
-    <value># Version 2019051000, Last Updated Fri May 10 07:07:01 2019 UTC
+    <value># Version 2019080501, Last Updated Mon Aug  5 07:07:01 2019 UTC
 AAA
 AARP
 ABARTH
@@ -272,7 +272,6 @@ BM
 BMS
 BMW
 BN
-BNL
 BNPPARIBAS
 BO
 BOATS
@@ -695,7 +694,6 @@ HOMEGOODS
 HOMES
 HOMESENSE
 HONDA
-HONEYWELL
 HORSE
 HOSPITAL
 HOST
@@ -1278,7 +1276,6 @@ ST
 STADA
 STAPLES
 STAR
-STARHUB
 STATEBANK
 STATEFARM
 STC
@@ -1650,7 +1647,7 @@ ZM
 ZONE
 ZUERICH
 ZW</value>
-    <comment>Version 2019051000, Last Updated Fri May 10 07:07:01 2019 UTC
+    <comment>Version 2019080501, Last Updated Mon Aug  5 07:07:01 2019 UTC
 https://data.iana.org/TLD/tlds-alpha-by-domain.txt</comment>
   </data>
 </root>

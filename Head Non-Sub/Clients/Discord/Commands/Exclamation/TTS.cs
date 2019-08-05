@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
@@ -55,38 +54,44 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             string filename = clean.Truncate(40).ToLower();
             if (filename.EndsWith("_")) { filename = filename.Remove(filename.Length - 1, 1); }
-            Stream oggFile = Generate(clean, voice);
 
-            if (oggFile is Stream) {
-                await BetterSendFileAsync(oggFile, $"{filename}.ogg", $"● {BetterUserFormat()}{Environment.NewLine}```{clean}```", clean, $"{command}_{voice}");
-            } else {
-                await BetterReplyAsync("Failed to generate the text to speech.");
+            using (MemoryStream oggFile = await GenerateAsync(clean, voice)) {
+                if (oggFile is MemoryStream) {
+                    await BetterSendFileAsync(oggFile, $"{filename}.ogg", $"● {BetterUserFormat()}{Environment.NewLine}```{clean}```", clean, $"{command}_{voice}");
+                } else {
+                    await BetterReplyAsync("Failed to generate the text to speech.");
+                }
             }
         }
 
-        private Stream Generate(string text, string voice) {
-            try {
-                Dictionary<string, string> values = new Dictionary<string, string> { { "text", text }, { "voice", voice } };
-                Polly polly = new Polly();
+        private async Task<MemoryStream> GenerateAsync(string text, string voice) {
+            Task<string> pollyRequest = Http.SendRequestAsync("https://streamlabs.com/polly/speak",
+                parameters: new Dictionary<string, string> { { "text", text }, { "voice", voice } }, method: Http.Method.Post);
 
-                FormUrlEncodedContent formContent = new FormUrlEncodedContent(values);
-                HttpResponseMessage jsonResponse = Http.Client.PostAsync("https://streamlabs.com/polly/speak", formContent).Result;
+            string pollyRequestData = await pollyRequest;
 
-                string json = jsonResponse.Content.ReadAsStringAsync().Result;
+            if (pollyRequest.IsCompletedSuccessfully) {
+                Polly polly;
 
-                using (StringReader jsonReader = new StringReader(json)) {
+                using (StringReader jsonReader = new StringReader(pollyRequestData)) {
                     polly = new JsonSerializer().Deserialize(jsonReader, typeof(Polly)) as Polly;
                 }
 
                 if (polly is Polly & polly.Success) {
-                    HttpResponseMessage speakResponse = Http.Client.GetAsync(polly.SpeakUrl).Result;
-                    return speakResponse.Content.ReadAsStreamAsync().Result;
-                }
+                    Task<MemoryStream> pollyStream = Http.GetStreamAsync(polly.SpeakUrl);
+                    MemoryStream pollyStreamData = await pollyStream;
 
-                return null;
-            } catch {
-                return null;
+                    if (pollyStream.IsCompletedSuccessfully) {
+                        return pollyStreamData;
+                    } else {
+                        LoggingManager.Log.Error(pollyStream.Exception);
+                    }
+                }
+            } else {
+                LoggingManager.Log.Error(pollyRequest.Exception);
             }
+
+            return null;
         }
 
     }

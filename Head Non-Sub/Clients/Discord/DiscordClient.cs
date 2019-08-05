@@ -278,15 +278,13 @@ namespace HeadNonSub.Clients.Discord {
                     oldAvatar = oldUser.GetAvatarUrl(oldUser.AvatarId.StartsWith("a_") ? ImageFormat.Gif : ImageFormat.Png, 1024);
                     newAvatar = newUser.GetAvatarUrl(newUser.AvatarId.StartsWith("a_") ? ImageFormat.Gif : ImageFormat.Png, 1024);
 
-                    try {
-                        Task<string> upload = Http.UploadUrlToCDN(newAvatar);
-                        string url = await upload;
+                    Task<string> upload = Http.PostToCDNAsync(newAvatar, Http.PostType.Url);
+                    string url = await upload;
 
-                        if (upload.IsCompletedSuccessfully) {
-                            newAvatar = url;
-                        }
-                    } catch (Exception ex) {
-                        LoggingManager.Log.Error(ex);
+                    if (upload.IsCompletedSuccessfully) {
+                        newAvatar = url;
+                    } else {
+                        LoggingManager.Log.Error(upload.Exception);
                     }
                 }
 
@@ -417,7 +415,7 @@ namespace HeadNonSub.Clients.Discord {
                                                 }
                                             }
                                         } else {
-                                            throw new HttpRequestException($"{(int)response.StatusCode}; {response.ReasonPhrase}");
+                                            throw new HttpRequestException($"There was an error; ({(int)response.StatusCode}) {response.ReasonPhrase}");
                                         }
                                     }
                                 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
@@ -225,43 +224,36 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         private async Task<Moderator> GetUserInfractionsAsync(ulong serverId, ulong userId) {
-            try {
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"https://mee6.xyz/api/plugins/moderator/guilds/{serverId}/infractions?page=0&limit=1000&user_id={userId}");
-                request.Headers.TryAddWithoutValidation("Authorization", SettingsManager.Configuration.MeeSixToken);
+            Task<string> download = Http.SendRequestAsync($"https://mee6.xyz/api/plugins/moderator/guilds/{serverId}/infractions?page=0&limit=1000&user_id={userId}",
+                  new Dictionary<string, string> { { "Authorization", SettingsManager.Configuration.MeeSixToken } });
 
-                using (HttpResponseMessage response = await Http.Client.SendAsync(request)) {
-                    if (response.IsSuccessStatusCode) {
-                        using (HttpContent content = response.Content) {
-                            string json = await content.ReadAsStringAsync();
+            string data = await download;
 
-                            using (StringReader jsonReader = new StringReader(json)) {
-                                JsonSerializer jsonSerializer = new JsonSerializer {
-                                    DateTimeZoneHandling = DateTimeZoneHandling.Utc
-                                };
+            if (download.IsCompletedSuccessfully) {
+                using (StringReader jsonReader = new StringReader(data)) {
+                    JsonSerializer jsonSerializer = new JsonSerializer {
+                        DateTimeZoneHandling = DateTimeZoneHandling.Utc
+                    };
 
-                                return jsonSerializer.Deserialize(jsonReader, typeof(Moderator)) as Moderator;
-                            }
-                        }
-                    } else {
-                        throw new HttpRequestException($"{(int)response.StatusCode}; {response.ReasonPhrase}");
-                    }
+                    return jsonSerializer.Deserialize(jsonReader, typeof(Moderator)) as Moderator;
                 }
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
+            } else {
+                LoggingManager.Log.Error(download.Exception);
                 return null;
             }
         }
 
         private async Task<bool> DeleteInfractionAsync(ulong serverId, string infractionId) {
-            try {
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, $"https://mee6.xyz/api/plugins/moderator/guilds/{serverId}/infractions/{infractionId}");
-                request.Headers.TryAddWithoutValidation("Authorization", SettingsManager.Configuration.MeeSixToken);
 
-                using (HttpResponseMessage response = await Http.Client.SendAsync(request)) {
-                    return response.IsSuccessStatusCode;
-                }
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
+            Task<string> download = Http.SendRequestAsync($"https://mee6.xyz/api/plugins/moderator/guilds/{serverId}/infractions/{infractionId}",
+                  new Dictionary<string, string> { { "Authorization", SettingsManager.Configuration.MeeSixToken } }, method: Http.Method.Delete);
+
+            _ = await download;
+
+            if (download.IsCompletedSuccessfully) {
+                return true;
+            } else {
+                LoggingManager.Log.Error(download.Exception);
                 return false;
             }
         }

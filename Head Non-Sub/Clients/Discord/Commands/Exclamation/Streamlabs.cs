@@ -74,26 +74,17 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         private async Task<StreamlabsEntities.Tip> GetTipDataAsync() {
-            try {
-                using (HttpResponseMessage response = await Http.Client.GetAsync("https://streamlabs.com/api/v6/1f510f07ca2978f/tip")) {
-                    if (response.IsSuccessStatusCode) {
-                        using (HttpContent content = response.Content) {
-                            string json = await content.ReadAsStringAsync();
+            Task<string> download = Http.SendRequestAsync($"https://streamlabs.com/api/v6/1f510f07ca2978f/tip");
+            string data = await download;
 
-                            using (StringReader jsonReader = new StringReader(json)) {
-                                JsonSerializer jsonSerializer = new JsonSerializer {
-                                    DateTimeZoneHandling = DateTimeZoneHandling.Utc
-                                };
+            if (download.IsCompletedSuccessfully) {
+                using (StringReader jsonReader = new StringReader(data)) {
+                    JsonSerializer jsonSerializer = new JsonSerializer();
 
-                                return jsonSerializer.Deserialize(jsonReader, typeof(StreamlabsEntities.Tip)) as StreamlabsEntities.Tip;
-                            }
-                        }
-                    } else {
-                        throw new HttpRequestException($"{(int)response.StatusCode}; {response.ReasonPhrase}");
-                    }
+                    return jsonSerializer.Deserialize(jsonReader, typeof(StreamlabsEntities.Tip)) as StreamlabsEntities.Tip;
                 }
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
+            } else {
+                LoggingManager.Log.Error(download.Exception);
                 return null;
             }
         }

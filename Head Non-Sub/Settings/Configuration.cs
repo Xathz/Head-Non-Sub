@@ -42,7 +42,7 @@ namespace HeadNonSub.Settings {
         /// <summary>
         /// Key to upload files to 'upload.php'. Check project repository.
         /// </summary>
-        public string UploadKey { get; set; } = string.Empty;
+        public string CDNKey { get; set; } = string.Empty;
 
         /// <summary>
         /// MariaDB host.

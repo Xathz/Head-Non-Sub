@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
@@ -49,18 +48,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         private async Task<string> GetCBenniUserAsync(string user, int count) {
-            try {
-                using (HttpResponseMessage response = await Http.Client.GetAsync($"https://cbenni.com/api/slack/?default_channel=paymoneywubby&text={user} {count}&lvtoken={SettingsManager.Configuration.CBenniToken}")) {
-                    if (response.IsSuccessStatusCode) {
-                        using (HttpContent content = response.Content) {
-                            return await content.ReadAsStringAsync();
-                        }
-                    } else {
-                        throw new HttpRequestException($"{(int)response.StatusCode}; {response.ReasonPhrase}");
-                    }
-                }
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
+            Task<string> download = Http.SendRequestAsync($"https://cbenni.com/api/slack/?default_channel=paymoneywubby&text={user} {count}&lvtoken={SettingsManager.Configuration.CBenniToken}");
+            string data = await download;
+
+            if (download.IsCompletedSuccessfully) {
+                return data;
+            } else {
+                LoggingManager.Log.Error(download.Exception);
                 return string.Empty;
             }
         }

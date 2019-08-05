@@ -80,7 +80,7 @@ namespace HeadNonSub {
         /// <summary>
         /// Commands help file url.
         /// </summary>
-        public const string CommandsHelpUrl = "https://github.com/Xathz/Head-Non-Sub/tree/master/Head%20Non-Sub/Clients/Discord/Commands/Commands.md";
+        public const string CommandsHelpUrl = "https://git.io/fjH1r"; // https://github.com/Xathz/Head-Non-Sub/tree/master/Head%20Non-Sub/Clients/Discord/Commands/Commands.md
 
         /// <summary>
         /// Discord maximum file size is 8MB.

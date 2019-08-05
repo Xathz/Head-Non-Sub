@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -66,52 +65,44 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         private async Task<Dictionary<long, double>> GetStocksAsync() {
             Dictionary<long, double> returnValues = new Dictionary<long, double>();
 
-            try {
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "https://api.twitchstocks.com/api/v1/stocks/38251312/history/1hr");
-                request.Headers.TryAddWithoutValidation("Referer", "https://twitchstocks.com");
+            Task<string> download = Http.SendRequestAsync($"https://api.twitchstocks.com/api/v1/stocks/38251312/history/1hr",
+                new Dictionary<string, string> { { "Referer", "https://twitchstocks.com" } });
 
-                using (HttpResponseMessage response = await Http.Client.SendAsync(request)) {
-                    if (response.IsSuccessStatusCode) {
-                        using (HttpContent content = response.Content) {
-                            string json = await content.ReadAsStringAsync();
-                            Values values = new Values();
+            string data = await download;
 
-                            using (StringReader jsonReader = new StringReader(json)) {
-                                JsonSerializer jsonSerializer = new JsonSerializer {
-                                    DateTimeZoneHandling = DateTimeZoneHandling.Utc
-                                };
+            if (download.IsCompletedSuccessfully) {
+                Values values = new Values();
 
-                                values = jsonSerializer.Deserialize(jsonReader, typeof(Values)) as Values;
-                            }
+                using (StringReader jsonReader = new StringReader(data)) {
+                    JsonSerializer jsonSerializer = new JsonSerializer {
+                        DateTimeZoneHandling = DateTimeZoneHandling.Utc
+                    };
 
-                            foreach (List<double> pair in values.Data) {
-                                double? value = null;
-                                long? timestamp = null;
-
-                                foreach (double item in pair) {
-                                    if (!value.HasValue) {
-                                        value = item;
-                                        continue;
-                                    }
-
-                                    if (!timestamp.HasValue) {
-                                        timestamp = Convert.ToInt64(item);
-                                    }
-                                }
-
-                                returnValues.Add(timestamp.Value, value.Value);
-                            }
-
-                            return returnValues;
-                        }
-                    } else {
-                        throw new HttpRequestException($"{(int)response.StatusCode}; {response.ReasonPhrase}");
-                    }
+                    values = jsonSerializer.Deserialize(jsonReader, typeof(Values)) as Values;
                 }
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-                return returnValues;
+
+                foreach (List<double> pair in values.Data) {
+                    double? value = null;
+                    long? timestamp = null;
+
+                    foreach (double item in pair) {
+                        if (!value.HasValue) {
+                            value = item;
+                            continue;
+                        }
+
+                        if (!timestamp.HasValue) {
+                            timestamp = Convert.ToInt64(item);
+                        }
+                    }
+
+                    returnValues.Add(timestamp.Value, value.Value);
+                }
+            } else {
+                LoggingManager.Log.Error(download.Exception);
             }
+
+            return returnValues;
         }
 
         private DateTime FromUnixTime(long unixTime) => _Epoch.AddMilliseconds(unixTime);

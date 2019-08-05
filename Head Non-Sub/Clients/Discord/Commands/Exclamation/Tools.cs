@@ -161,13 +161,14 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     await BetterReplyAsync($"● Name changes for {BetterUserFormat(user)} ```{chunk}```", user.Id.ToString());
                 }
             } else {
-                Task<string> upload = Http.UploadStringToCDN(changes);
+                Task<string> upload = Http.PostToCDNAsync(changes, Http.PostType.String);
                 string url = await upload;
 
                 string message;
                 if (upload.IsCompletedSuccessfully) {
                     message = url;
                 } else {
+                    LoggingManager.Log.Error(upload.Exception);
                     message = upload.Exception.Message;
                 }
 
