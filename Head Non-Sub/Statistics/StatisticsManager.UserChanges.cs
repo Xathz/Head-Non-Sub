@@ -41,7 +41,7 @@ namespace HeadNonSub.Statistics {
             }
         }
 
-        public static string GetUserChanges(ulong userId) {
+        public static string GetUserChanges(ulong serverId, ulong userId) {
             try {
                 using (StatisticsContext statistics = new StatisticsContext()) {
                     IQueryable<UserChange> userChanges = statistics.UserChanges.AsNoTracking().Where(x => x.UserId == userId).OrderByDescending(x => x.DateTime);
@@ -49,12 +49,6 @@ namespace HeadNonSub.Statistics {
 
                     foreach (UserChange userChange in userChanges) {
                         if (userChange.ChangeType != NameChangeType.None) {
-                            builder.Append($"{userChange.DateTime.ToString(Constants.DateTimeFormatShort).ToLower()} utc");
-
-                            if ((userChange.ChangeType & (userChange.ChangeType - 1)) != 0) {
-                                builder.Append(Environment.NewLine);
-                            }
-
                             List<string> changes = new List<string>();
 
                             if (userChange.ChangeType.HasFlag(NameChangeType.Username)) {
@@ -66,10 +60,12 @@ namespace HeadNonSub.Statistics {
                             }
 
                             if (userChange.ChangeType.HasFlag(NameChangeType.Display)) {
-                                string oldUserDisplay = string.IsNullOrEmpty(userChange.OldUserDisplay) ? "<no nick>" : userChange.OldUserDisplay;
-                                string newUserDisplay = string.IsNullOrEmpty(userChange.NewUserDisplay) ? "<no nick>" : userChange.NewUserDisplay;
+                                if (userChange.ServerId.HasValue && userChange.ServerId.Value == serverId) {
+                                    string oldUserDisplay = string.IsNullOrEmpty(userChange.OldUserDisplay) ? "<no nick>" : userChange.OldUserDisplay;
+                                    string newUserDisplay = string.IsNullOrEmpty(userChange.NewUserDisplay) ? "<no nick>" : userChange.NewUserDisplay;
 
-                                changes.Add($" ● [   nick] {oldUserDisplay} => {newUserDisplay}");
+                                    changes.Add($" ● [   nick] {oldUserDisplay} => {newUserDisplay}");
+                                }
                             }
 
                             if (userChange.ChangeType.HasFlag(NameChangeType.Avatar)) {
@@ -82,8 +78,16 @@ namespace HeadNonSub.Statistics {
                                 }
                             }
 
-                            builder.Append(string.Join(Environment.NewLine, changes));
-                            builder.Append(Environment.NewLine);
+                            if (changes.Count > 0) {
+                                builder.Append($"{userChange.DateTime.ToString(Constants.DateTimeFormatShort).ToLower()} utc");
+
+                                if ((userChange.ChangeType & (userChange.ChangeType - 1)) != 0) {
+                                    builder.Append(Environment.NewLine);
+                                }
+
+                                builder.Append(string.Join(Environment.NewLine, changes));
+                                builder.Append(Environment.NewLine);
+                            }
                         }
                     }
 

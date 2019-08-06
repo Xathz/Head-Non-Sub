@@ -147,7 +147,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             await Context.Channel.TriggerTypingAsync();
 
-            string changes = StatisticsManager.GetUserChanges(user.Id);
+            string changes = StatisticsManager.GetUserChanges(Context.Guild.Id, user.Id);
 
             if (string.IsNullOrWhiteSpace(changes)) {
                 await BetterReplyAsync($"There is no name change data for {BetterUserFormat(user)}. Maybe they just never changed their name. :shrug:");
@@ -156,7 +156,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             List<string> chunks = changes.SplitIntoChunksPreserveNewLines(1930);
 
-            if (chunks.Count <= 2) {
+            if (chunks.Count == 1) {
                 foreach (string chunk in chunks) {
                     await BetterReplyAsync($"● Name changes for {BetterUserFormat(user)} ```{chunk}```", user.Id.ToString());
                 }

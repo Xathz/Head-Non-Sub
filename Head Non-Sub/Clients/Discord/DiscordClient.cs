@@ -272,7 +272,7 @@ namespace HeadNonSub.Clients.Discord {
                     newDiscriminator = newUser.Discriminator;
                 }
 
-                if (oldUser.GetAvatarUrl() != newUser.GetAvatarUrl()) {
+                if (oldUser.AvatarId != newUser.AvatarId) {
                     changeType |= StatisticsManager.NameChangeType.Avatar;
 
                     oldAvatar = oldUser.GetAvatarUrl(oldUser.AvatarId.StartsWith("a_") ? ImageFormat.Gif : ImageFormat.Png, 1024);
