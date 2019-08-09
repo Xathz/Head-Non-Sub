@@ -114,10 +114,10 @@ namespace HeadNonSub.Clients.Discord.Commands {
                             string content = x.Content;
 
                             foreach (EmoteOrEmoji emote in emotes) {
-                                content = content.Replace(emote.ToString(), "");
+                                content = content.Replace(emote.ToString(), "").Trim();
                             }
 
-                            return string.IsNullOrWhiteSpace(content);
+                            return content.Length <= 2;
                         } else {
                             return false;
                         }
@@ -131,6 +131,47 @@ namespace HeadNonSub.Clients.Discord.Commands {
             } catch { }
 
             await noticeMessage.DeleteAsync();
+        }
+
+        [Command("emotemode")]
+        [DiscordStaffOnly]
+        public async Task EmoteMode([Remainder]string mode = "") {
+            if (mode == "off") {
+                EmoteModeTracker.RemoveMode(Context.Channel.Id);
+
+                EmbedBuilder builder = new EmbedBuilder() {
+                    Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
+                    Title = "Emote Mode ● None",
+                    Description = "This channel has returned to normal."
+                };
+
+                await BetterReplyAsync(builder.Build(), parameters: mode);
+
+            } else if (mode == "textonly") {
+                EmoteModeTracker.SetMode(Context.Channel.Id, EmoteModeTracker.Mode.TextOnly);
+
+                EmbedBuilder builder = new EmbedBuilder() {
+                    Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
+                    Title = "Emote Mode ● Text Only",
+                    Description = "All messages with emotes/emoji will be deleted."
+                };
+
+                await BetterReplyAsync(builder.Build(), parameters: mode);
+
+            } else if (mode == "emoteonly") {
+                EmoteModeTracker.SetMode(Context.Channel.Id, EmoteModeTracker.Mode.EmoteOnly);
+
+                EmbedBuilder builder = new EmbedBuilder() {
+                    Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
+                    Title = "Emote Mode ● Emote Only",
+                    Description = "All messages with text will be deleted."
+                };
+
+                await BetterReplyAsync(builder.Build(), parameters: mode);
+
+            } else {
+                await BetterReplyAsync("**Valid modes are:** off, textonly, emoteonly", parameters: mode);
+            }
         }
 
         [Command("servermap")]

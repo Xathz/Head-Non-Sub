@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using HeadNonSub.Entities.Discord;
 using HeadNonSub.Extensions;
 using HeadNonSub.Settings;
 using HeadNonSub.Statistics;
@@ -423,6 +424,28 @@ namespace HeadNonSub.Clients.Discord {
                                 await message.DeleteAsync();
                                 await message.Channel.SendMessageAsync($"{user.Mention} You need to be <@&{WubbysFunHouse.ForkliftDriversRoleId}> or higher to upload files here. Attachment was moved to <#{WubbysFunHouse.ActualFuckingSpamChannelId}>.");
                             }
+                        }
+                    }
+                }
+
+                // Emote mode
+                EmoteModeTracker.Mode emoteMode = EmoteModeTracker.GetMode(message.Channel.Id);
+                if (emoteMode != EmoteModeTracker.Mode.Off) {
+                    List<EmoteOrEmoji> emotes = message.Content.ParseDiscordMessageEmotes();
+
+                    if (emoteMode == EmoteModeTracker.Mode.TextOnly) {
+                        if (emotes.Count > 0) {
+                            await message.DeleteAsync();
+                        }
+                    } else if (emoteMode == EmoteModeTracker.Mode.EmoteOnly) {
+                        string content = message.Content;
+
+                        foreach (EmoteOrEmoji emote in emotes) {
+                            content = content.Replace(emote.ToString(), "");
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(content)) {
+                            await message.DeleteAsync();
                         }
                     }
                 }

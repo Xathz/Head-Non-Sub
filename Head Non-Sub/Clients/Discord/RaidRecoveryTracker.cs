@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace HeadNonSub.Clients.Discord {
 
-    public class RaidRecoveryTracker {
+    public static class RaidRecoveryTracker {
 
         private static readonly ConcurrentDictionary<ulong, ActiveRaid> _ActiveRaids = new ConcurrentDictionary<ulong, ActiveRaid>();
 
