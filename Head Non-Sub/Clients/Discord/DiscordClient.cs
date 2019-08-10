@@ -32,9 +32,6 @@ namespace HeadNonSub.Clients.Discord {
         private static IServiceProvider _ExclamationProvider;
         private static readonly CommandService _ExclamationService = new CommandService(_ServiceConfig);
 
-        private static IServiceProvider _DynamicProvider;
-        private static readonly CommandService _DynamicService = new CommandService(_ServiceConfig);
-
         private static readonly List<string> _ValidPolls = new List<string>() { "poll:", "!strawpoll", "!strawpollresults", "!strawpollr", "!trashpoll" };
 
         public static async Task ConnectAsync() {
@@ -58,11 +55,6 @@ namespace HeadNonSub.Clients.Discord {
                 .AddSingleton<ExclamationCommands>()
                 .BuildServiceProvider();
 
-            _DynamicProvider = new ServiceCollection().AddSingleton(_DiscordClient)
-                .AddSingleton(_DynamicService)
-                .AddSingleton<DynamicCommands>()
-                .BuildServiceProvider();
-
             _DiscordClient.Log += Log;
             _DiscordClient.Connected += Connected;
 
@@ -77,17 +69,16 @@ namespace HeadNonSub.Clients.Discord {
             _DiscordClient.MessageUpdated += MessageUpdated;
             //_DiscordClient.MessageDeleted += MessageDeleted;
 
+            _DiscordClient.ReactionAdded += ReactionAdded;
+
             _MentionProvider.GetRequiredService<CommandService>().Log += Log;
             _ExclamationProvider.GetRequiredService<CommandService>().Log += Log;
-            _DynamicProvider.GetRequiredService<CommandService>().Log += Log;
 
             await _MentionProvider.GetRequiredService<MentionCommands>().InitializeAsync();
             MentionCommandList = _MentionProvider.GetRequiredService<MentionCommands>().CommandList;
 
             await _ExclamationProvider.GetRequiredService<ExclamationCommands>().InitializeAsync();
             ExclamationCommandList = _ExclamationProvider.GetRequiredService<ExclamationCommands>().CommandList;
-
-            await _DynamicProvider.GetRequiredService<DynamicCommands>().InitializeAsync();
 
             await _DiscordClient.LoginAsync(TokenType.Bot, SettingsManager.Configuration.DiscordToken);
             await _DiscordClient.StartAsync();
@@ -294,6 +285,21 @@ namespace HeadNonSub.Clients.Discord {
                 }
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
+            }
+        }
+
+        private static async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction) {
+            EmoteModeTracker.Mode emoteMode = EmoteModeTracker.GetMode(channel.Id);
+
+            if (emoteMode == EmoteModeTracker.Mode.TextOnly) {
+                if (message.HasValue & reaction.User.IsSpecified) {
+
+                    if (WubbysFunHouse.IsDiscordOrTwitchStaff(reaction.User.Value)) {
+                        return;
+                    }
+
+                    await message.Value.RemoveReactionAsync(reaction.Emote, reaction.User.Value);
+                }
             }
         }
 

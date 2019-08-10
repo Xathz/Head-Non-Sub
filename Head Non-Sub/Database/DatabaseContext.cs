@@ -11,8 +11,6 @@ namespace HeadNonSub.Database {
 
         public DbSet<Cooldown> Cooldowns { get; set; }
 
-        public DbSet<DynamicCommand> DynamicCommands { get; set; }
-
         public DbSet<UserNote> UserNotes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
@@ -39,10 +37,6 @@ namespace HeadNonSub.Database {
                 modelBuilder.Entity<Cooldown>().HasKey(x => new { x.ServerId, x.UserId, x.Command });
                 modelBuilder.Entity<Cooldown>().HasIndex(x => x.ServerId);
                 modelBuilder.Entity<Cooldown>().HasIndex(x => x.UserId);
-
-                // Dynamic commands
-                modelBuilder.Entity<DynamicCommand>().ToTable("dynamic_commands");
-                modelBuilder.Entity<DynamicCommand>().HasKey(x => x.OwnerId);
 
                 // User notes
                 modelBuilder.Entity<UserNote>().ToTable("user_notes");
