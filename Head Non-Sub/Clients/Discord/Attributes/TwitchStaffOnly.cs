@@ -10,7 +10,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services) {
             if (context.User is SocketGuildUser user) {
 
-                if (WubbysFunHouse.IsTwitchStaff(user)) {
+                if (WubbysFunHouse.IsDiscordOrTwitchStaff(user)) {
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
 

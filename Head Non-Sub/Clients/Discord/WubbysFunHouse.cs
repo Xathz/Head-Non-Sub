@@ -136,7 +136,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <summary>
         /// Get if the user is a twitch staff member.
         /// </summary>
-        public static bool IsTwitchStaff(IUser user) {
+        public static bool IsDiscordOrTwitchStaff(IUser user) {
             if (user is SocketGuildUser socketUser) {
 
                 // Discord staff

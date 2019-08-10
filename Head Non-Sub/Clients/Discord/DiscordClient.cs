@@ -74,8 +74,8 @@ namespace HeadNonSub.Clients.Discord {
             _DiscordClient.GuildMemberUpdated += GuildMemberUpdated;
 
             _DiscordClient.MessageReceived += MessageReceived;
+            _DiscordClient.MessageUpdated += MessageUpdated;
             //_DiscordClient.MessageDeleted += MessageDeleted;
-            //_DiscordClient.MessageUpdated += MessageUpdated;
 
             _MentionProvider.GetRequiredService<CommandService>().Log += Log;
             _ExclamationProvider.GetRequiredService<CommandService>().Log += Log;
@@ -343,6 +343,25 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
+        private static async Task MessageUpdated(Cacheable<IMessage, ulong> originalMessage, SocketMessage updatedMessage, ISocketMessageChannel channel) {
+            if (!(updatedMessage is SocketUserMessage message)) { return; }
+            if (updatedMessage.Source != MessageSource.User) { return; }
+
+            await ProcessMessageEmotesAsync(message);
+
+            //string logMessage;
+
+            //if (originalMessage.HasValue) {
+            //    logMessage = $"`[{originalMessage.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :pencil: {originalMessage.Value.Author.ToString()} (`{originalMessage.Value.Author.Id}`) message edited in **#{channel.Name}**:{Environment.NewLine}**B:** {originalMessage.Value.Content}{Environment.NewLine}**A:** {updatedMessage.Content}";
+            //} else {
+            //    logMessage = $":warning: An unknown message was edited in **#{channel.Name}**: {Environment.NewLine}Old id was: {originalMessage.Id}{Environment.NewLine}New id is: {updatedMessage.Id}";
+            //}
+
+            //if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
+            //    await logChannel.SendMessageAsync(logMessage);
+            //}
+        }
+
         //private static async Task MessageDeleted(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel) {
         //    string logMessage;
 
@@ -357,27 +376,23 @@ namespace HeadNonSub.Clients.Discord {
         //    }
         //}
 
-        //private static async Task MessageUpdated(Cacheable<IMessage, ulong> originalMessage, SocketMessage updatedMessage, ISocketMessageChannel channel) {
-        //    string logMessage;
-
-        //    if (originalMessage.HasValue) {
-        //        logMessage = $"`[{originalMessage.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :pencil: {originalMessage.Value.Author.ToString()} (`{originalMessage.Value.Author.Id}`) message edited in **#{channel.Name}**:{Environment.NewLine}**B:** {originalMessage.Value.Content}{Environment.NewLine}**A:** {updatedMessage.Content}";
-        //    } else {
-        //        logMessage = $":warning: An unknown message was edited in **#{channel.Name}**: {Environment.NewLine}Old id was: {originalMessage.Id}{Environment.NewLine}New id is: {updatedMessage.Id}";
-        //    }
-
-        //    if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
-        //        await logChannel.SendMessageAsync(logMessage);
-        //    }
-        //}
-
+        /// <summary>
+        /// Process additional actions for a message.
+        /// </summary>
+        /// <param name="message">Message to process.</param>
+        /// <param name="user">User who sent the message.</param>
         private static async Task ProcessMessageAsync(SocketUserMessage message, SocketGuildUser user) {
 
-            if (WubbysFunHouse.IsTwitchStaff(user)) {
+            if (WubbysFunHouse.IsDiscordOrTwitchStaff(user)) {
                 return;
             }
 
             try {
+
+                // Emote mode
+                if (await ProcessMessageEmotesAsync(message)) {
+                    return;
+                }
 
                 // Main channel
                 if (message.Channel.Id == WubbysFunHouse.MainChannelId) {
@@ -428,28 +443,6 @@ namespace HeadNonSub.Clients.Discord {
                     }
                 }
 
-                // Emote mode
-                EmoteModeTracker.Mode emoteMode = EmoteModeTracker.GetMode(message.Channel.Id);
-                if (emoteMode != EmoteModeTracker.Mode.Off) {
-                    List<EmoteOrEmoji> emotes = message.Content.ParseDiscordMessageEmotes();
-
-                    if (emoteMode == EmoteModeTracker.Mode.TextOnly) {
-                        if (emotes.Count > 0) {
-                            await message.DeleteAsync();
-                        }
-                    } else if (emoteMode == EmoteModeTracker.Mode.EmoteOnly) {
-                        string content = message.Content;
-
-                        foreach (EmoteOrEmoji emote in emotes) {
-                            content = content.Replace(emote.ToString(), "");
-                        }
-
-                        if (!string.IsNullOrWhiteSpace(content)) {
-                            await message.DeleteAsync();
-                        }
-                    }
-                }
-
                 // Invalid poll in market research
                 if (message.Channel.Id == WubbysFunHouse.MarketResearchChannelId) {
                     string channelName = _DiscordClient.GetGuild(WubbysFunHouse.ServerId).GetChannel(WubbysFunHouse.MarketResearchChannelId).Name;
@@ -474,6 +467,52 @@ namespace HeadNonSub.Clients.Discord {
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
+        }
+
+        /// <summary>
+        /// Process emote mode for a message.
+        /// </summary>
+        /// <param name="message">Message to process.</param>
+        /// <returns>True if message was deleted.</returns>
+        private static async Task<bool> ProcessMessageEmotesAsync(SocketUserMessage message) {
+            EmoteModeTracker.Mode emoteMode = EmoteModeTracker.GetMode(message.Channel.Id);
+
+            if (emoteMode != EmoteModeTracker.Mode.Off) {
+
+                if (message.Attachments.Count > 0) {
+                    return await DeleteMessageAsync();
+                }
+
+                List<EmoteOrEmoji> emotes = message.Content.ParseDiscordMessageEmotes();
+
+                if (emoteMode == EmoteModeTracker.Mode.TextOnly) {
+                    if (emotes.Count > 0) {
+                        return await DeleteMessageAsync();
+                    }
+                } else if (emoteMode == EmoteModeTracker.Mode.EmoteOnly) {
+                    string content = message.Content;
+
+                    foreach (EmoteOrEmoji emote in emotes) {
+                        content = content.Replace(emote.ToString(), "");
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(content)) {
+                        return await DeleteMessageAsync();
+                    }
+                }
+
+                async Task<bool> DeleteMessageAsync() {
+                    await message.DeleteAsync();
+
+                    if (EmoteModeTracker.ShouldSendNotification(message.Channel.Id)) {
+                        await message.Channel.SendMessageAsync($"The channel is currently in **{emoteMode.Humanize().ToLower()}** mode.");
+                    }
+
+                    return true;
+                }
+            }
+
+            return false;
         }
 
     }
