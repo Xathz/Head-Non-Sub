@@ -40,9 +40,9 @@ namespace HeadNonSub.Settings {
         public string CBenniToken { get; set; } = string.Empty;
 
         /// <summary>
-        /// Key to upload files to 'upload.php'. Check project repository.
+        /// Url shortener api key.
         /// </summary>
-        public string CDNKey { get; set; } = string.Empty;
+        public string UrlShortenerKey { get; set; } = string.Empty;
 
         /// <summary>
         /// MariaDB host.
@@ -63,6 +63,16 @@ namespace HeadNonSub.Settings {
         /// MariaDB password.
         /// </summary>
         public string MariaDBPassword { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Backblaze temporary files bucket.
+        /// </summary>
+        public BackblazeBucket BackblazeTempBucket { get; set; } = new BackblazeBucket();
+
+        /// <summary>
+        /// Backblaze avatar files bucket.
+        /// </summary>
+        public BackblazeBucket BackblazeAvatarBucket { get; set; } = new BackblazeBucket();
 
         /// <summary>
         /// List of Twitch streams to monitor and report online/offline status.

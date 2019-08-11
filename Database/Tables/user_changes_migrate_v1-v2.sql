@@ -3,8 +3,9 @@
 ALTER TABLE `user_changes`
     DROP COLUMN `old_user_avatar`,
     DROP COLUMN `new_user_avatar`,
-    ADD COLUMN `b2_avatar_bucket` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci' AFTER `new_user_display`,
-    ADD COLUMN `b2_avatar_filename` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci' AFTER `b2_avatar_bucket`;
+    ADD COLUMN `backblaze_avatar_bucket` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci' AFTER `new_user_display`,
+    ADD COLUMN `backblaze_avatar_filename` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci' AFTER `backblaze_avatar_bucket`,
+    ADD COLUMN `backblaze_avatar_url` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci' AFTER `backblaze_avatar_filename`;
 
 -- Delete rows that are only an avatar change
 -- This will lose data but the accompanying files are gone

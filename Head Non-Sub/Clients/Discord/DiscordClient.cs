@@ -222,9 +222,21 @@ namespace HeadNonSub.Clients.Discord {
             return Task.CompletedTask;
         }
 
-        private static Task UserUpdated(SocketUser oldUser, SocketUser newUser) => ProcessUserUpdated(oldUser, newUser);
+        private static Task UserUpdated(SocketUser oldUser, SocketUser newUser) {
+            Task runner = Task.Run(async () => {
+                await ProcessUserUpdated(oldUser, newUser);
+            });
 
-        private static Task GuildMemberUpdated(SocketGuildUser oldUser, SocketGuildUser newUser) => ProcessUserUpdated(oldUser, newUser);
+            return Task.CompletedTask;
+        }
+
+        private static Task GuildMemberUpdated(SocketGuildUser oldUser, SocketGuildUser newUser) {
+            Task runner = Task.Run(async () => {
+                await ProcessUserUpdated(oldUser, newUser);
+            });
+
+            return Task.CompletedTask;
+        }
 
         private static async Task ProcessUserUpdated(IUser oldUser, IUser newUser) {
             try {
@@ -234,7 +246,7 @@ namespace HeadNonSub.Clients.Discord {
                 string oldUsername = null, newUsername = null;
                 string oldDiscriminator = null, newDiscriminator = null;
                 string oldNickname = null, newNickname = null;
-                string oldAvatar = null, newAvatar = null;
+                string backblazeAvatarBucket = null, backblazeAvatarFilename = null, backblazeAvatarUrl = null;
 
                 if (oldUser is SocketGuildUser & newUser is SocketGuildUser) {
                     SocketGuildUser oldSocketUser = oldUser as SocketGuildUser;
@@ -265,23 +277,29 @@ namespace HeadNonSub.Clients.Discord {
                 }
 
                 if (oldUser.AvatarId != newUser.AvatarId) {
-                    changeType |= StatisticsManager.NameChangeType.Avatar;
+                    try {
+                        ImageFormat imageFormat = newUser.AvatarId.StartsWith("a_") ? ImageFormat.Gif : ImageFormat.Png;
+                        Task<MemoryStream> download = Http.GetStreamAsync(newUser.GetAvatarUrl(imageFormat, 1024));
 
-                    oldAvatar = oldUser.GetAvatarUrl(oldUser.AvatarId.StartsWith("a_") ? ImageFormat.Gif : ImageFormat.Png, 1024);
-                    newAvatar = newUser.GetAvatarUrl(newUser.AvatarId.StartsWith("a_") ? ImageFormat.Gif : ImageFormat.Png, 1024);
+                        using (MemoryStream data = await download) {
+                            if (download.IsCompletedSuccessfully) {
+                                Backblaze.File avatarUpload = await Backblaze.UploadAvatarAsync(data, $"{newUser.Id}/{Backblaze.ISOFileNameDate(imageFormat.ToString().ToLower())}");
 
-                    Task<string> upload = Http.PostToCDNAsync(newAvatar, Http.PostType.Url);
-                    string url = await upload;
+                                backblazeAvatarBucket = avatarUpload.BucketName;
+                                backblazeAvatarFilename = avatarUpload.FileName;
+                                backblazeAvatarUrl = avatarUpload.ShortUrl;
 
-                    if (upload.IsCompletedSuccessfully) {
-                        newAvatar = url;
-                    } else {
-                        LoggingManager.Log.Error(upload.Exception);
-                    }
+                                changeType |= StatisticsManager.NameChangeType.Avatar;
+                            } else {
+                                LoggingManager.Log.Error(download.Exception);
+                            }
+                        }
+                    } catch { }
                 }
 
                 if (changeType != StatisticsManager.NameChangeType.None) {
-                    StatisticsManager.InsertUserChange(DateTime.UtcNow, guildId, newUser.Id, changeType, oldUsername, newUsername, oldDiscriminator, newDiscriminator, oldNickname, newNickname, oldAvatar, newAvatar);
+                    StatisticsManager.InsertUserChange(DateTime.UtcNow, guildId, newUser.Id, changeType, oldUsername, newUsername, oldDiscriminator, newDiscriminator,
+                        oldNickname, newNickname, backblazeAvatarBucket, backblazeAvatarFilename, backblazeAvatarUrl);
                 }
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
@@ -352,6 +370,10 @@ namespace HeadNonSub.Clients.Discord {
         private static async Task MessageUpdated(Cacheable<IMessage, ulong> originalMessage, SocketMessage updatedMessage, ISocketMessageChannel channel) {
             if (!(updatedMessage is SocketUserMessage message)) { return; }
             if (updatedMessage.Source != MessageSource.User) { return; }
+
+            if (WubbysFunHouse.IsDiscordOrTwitchStaff(updatedMessage.Author)) {
+                return;
+            }
 
             await ProcessMessageEmotesAsync(message);
 

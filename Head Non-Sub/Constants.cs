@@ -58,14 +58,14 @@ namespace HeadNonSub {
         public const ulong XathzUserId = 227088829079617536;
 
         /// <summary>
-        /// CDN api entry point.
+        /// Backblaze CDN domain.
         /// </summary>
-        public const string CDNAPI = "https://hns.xathz.net/upload.php";
+        public const string BackblazeCDN = "https://hnscdn.xathz.net";
 
         /// <summary>
-        /// CDN uploads and content.
+        /// Url shortener service url.
         /// </summary>
-        public const string CDNUploads = "https://hns.xathz.net/";
+        public const string UrlShortener = "https://hns.xathz.net/index.php";
 
         /// <summary>
         /// Loading gif url.

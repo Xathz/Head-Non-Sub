@@ -161,15 +161,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     await BetterReplyAsync($"● Name changes for {BetterUserFormat(user)} ```{chunk}```", user.Id.ToString());
                 }
             } else {
-                Task<string> upload = Http.PostToCDNAsync(changes, Http.PostType.String);
-                string url = await upload;
+                Backblaze.File uploadedFile = await Backblaze.UploadTemporaryFileAsync(changes, $"{user.Id}/{Backblaze.ISOFileNameDate("txt")}");
 
                 string message;
-                if (upload.IsCompletedSuccessfully) {
-                    message = url;
+                if (uploadedFile is Backblaze.File) {
+                    message = uploadedFile.ShortUrl;
                 } else {
-                    LoggingManager.Log.Error(upload.Exception);
-                    message = upload.Exception.Message;
+                    message = "There was an error uploading the temporary file.";
                 }
 
                 await BetterReplyAsync($"There are too many name changes to display here. {message}");

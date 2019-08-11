@@ -6,11 +6,23 @@
   "twitchToken": "",
   "meeSixToken": "",
   "cBenniToken": "",
-  "cDNKey": "",
+  "urlShortenerKey": "",
   "mariaDBHost": "",
   "mariaDBDatabase": "",
   "mariaDBUsername": "",
   "mariaDBPassword": "",
+  "backblazeTempBucket": {
+    "bucketId": "",
+	"bucketName": "",
+    "keyId": "",
+    "applicationKey": ""
+  },
+  "backblazeAvatarBucket": {
+    "bucketId": "",
+	"bucketName": "",
+    "keyId": "",
+    "applicationKey": ""
+  },
   "twitchStreams": [],
   "discordWhitelist": {},
   "discordBlacklist": {}

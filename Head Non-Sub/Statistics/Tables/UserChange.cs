@@ -39,11 +39,14 @@ namespace HeadNonSub.Statistics.Tables {
         [Column("new_user_display")]
         public string NewUserDisplay { get; set; }
 
-        [Column("old_user_avatar")]
-        public string OldUserAvatar { get; set; }
+        [Column("backblaze_avatar_bucket")]
+        public string BackblazeAvatarBucket { get; set; }
 
-        [Column("new_user_avatar")]
-        public string NewUserAvatar { get; set; }
+        [Column("backblaze_avatar_filename")]
+        public string BackblazeAvatarFilename { get; set; }
+
+        [Column("backblaze_avatar_url")]
+        public string BackblazeAvatarUrl { get; set; }
 
     }
 

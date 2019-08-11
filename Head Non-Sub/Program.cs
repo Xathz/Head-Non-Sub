@@ -66,6 +66,9 @@ namespace HeadNonSub {
             // Load content into cache
             await Cache.LoadContentAsync();
 
+            // Authorize with the Backblaze api
+            await Backblaze.Authorize();
+
             // Connect to discord
             await DiscordClient.ConnectAsync();
 

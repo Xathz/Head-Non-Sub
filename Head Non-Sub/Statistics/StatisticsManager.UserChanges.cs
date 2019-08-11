@@ -13,8 +13,8 @@ namespace HeadNonSub.Statistics {
         /// Insert a user change event into the database.
         /// </summary>
         public static void InsertUserChange(DateTime dateTime, ulong? serverId, ulong userId, NameChangeType changeType,
-            string oldUsername, string newUsername, string oldUsernameDiscriminator, string newUsernameDiscriminator,
-            string oldUserDisplay, string newUserDisplay, string oldUserAvatar, string newUserAvatar) {
+            string oldUsername, string newUsername, string oldUsernameDiscriminator, string newUsernameDiscriminator, string oldUserDisplay, string newUserDisplay,
+            string backblazeAvatarBucket, string backblazeAvatarFilename, string backblazeAvatarUrl) {
 
             try {
                 using (StatisticsContext statistics = new StatisticsContext()) {
@@ -24,13 +24,14 @@ namespace HeadNonSub.Statistics {
                         UserId = userId,
                         ChangeType = changeType,
                         OldUsername = oldUsername,
-                        OldUsernameDiscriminator = oldUsernameDiscriminator,
-                        OldUserDisplay = oldUserDisplay,
-                        OldUserAvatar = oldUserAvatar,
                         NewUsername = newUsername,
+                        OldUsernameDiscriminator = oldUsernameDiscriminator,
                         NewUsernameDiscriminator = newUsernameDiscriminator,
+                        OldUserDisplay = oldUserDisplay,
                         NewUserDisplay = newUserDisplay,
-                        NewUserAvatar = newUserAvatar
+                        BackblazeAvatarBucket = backblazeAvatarBucket,
+                        BackblazeAvatarFilename = backblazeAvatarFilename,
+                        BackblazeAvatarUrl = backblazeAvatarUrl
                     };
 
                     statistics.UserChanges.Add(item);
@@ -69,13 +70,7 @@ namespace HeadNonSub.Statistics {
                             }
 
                             if (userChange.ChangeType.HasFlag(NameChangeType.Avatar)) {
-
-                                // Some avatar changes use the old system and the image links no longer work
-                                if (userChange.NewUserAvatar.Contains(Constants.CDNUploads)) {
-                                    changes.Add($" ● [ avatar] {userChange.NewUserAvatar}");
-                                } else {
-                                    changes.Add($" ● [ avatar] Changed.");
-                                }
+                                changes.Add($" ● [ avatar] {userChange.BackblazeAvatarUrl}");
                             }
 
                             if (changes.Count > 0) {

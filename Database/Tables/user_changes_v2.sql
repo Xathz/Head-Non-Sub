@@ -10,8 +10,9 @@ CREATE TABLE `user_changes` (
     `new_user_name_discriminator` VARCHAR(4) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
     `old_user_display` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
     `new_user_display` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
-    `b2_avatar_bucket` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
-    `b2_avatar_filename` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+    `backblaze_avatar_bucket` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+    `backblaze_avatar_filename` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+    `backblaze_avatar_url` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
     PRIMARY KEY (`id`),
     INDEX `user_id` (`user_id`)
 )
