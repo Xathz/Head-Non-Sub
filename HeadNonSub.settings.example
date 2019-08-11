@@ -13,13 +13,13 @@
   "mariaDBPassword": "",
   "backblazeTempBucket": {
     "bucketId": "",
-	"bucketName": "",
+    "bucketName": "",
     "keyId": "",
     "applicationKey": ""
   },
   "backblazeAvatarBucket": {
     "bucketId": "",
-	"bucketName": "",
+    "bucketName": "",
     "keyId": "",
     "applicationKey": ""
   },
