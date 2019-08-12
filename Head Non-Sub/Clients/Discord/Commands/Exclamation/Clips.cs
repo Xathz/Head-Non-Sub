@@ -31,14 +31,14 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 Clip clip = clips.PickRandom();
 
                 if (!string.IsNullOrEmpty(clip.Url)) {
-                    await BetterReplyAsync(clip.Url);
+                    await BetterReplyAsync(clip.Url, parameters: channel);
                 } else {
-                    await BetterReplyAsync("Failed to pick a random clip.");
+                    await BetterReplyAsync("Failed to pick a random clip.", parameters: channel);
                 }
             } catch (UnsupportedTwitchChannelException ex) {
-                await BetterReplyAsync(ex.Message);
+                await BetterReplyAsync(ex.Message, parameters: channel);
             } catch {
-                await BetterReplyAsync("Failed to pick a random clip.");
+                await BetterReplyAsync("Failed to pick a random clip.", parameters: channel);
             }
         }
 

@@ -25,7 +25,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             } catch { }
 
             if (newPoll == null || string.IsNullOrEmpty(newPoll.PollUrl)) {
-                return BetterReplyAsync("Failed to create the strawpoll. Example: `!strawpoll Poll Title | Option 1 | Option 2 | Option 3`");
+                return BetterReplyAsync("Failed to create the strawpoll. Example: `!strawpoll Poll Title | Option 1 | Option 2 | Option 3`", parameters: input);
             } else {
                return BetterReplyAsync($"{Context.User.Mention} <{newPoll.PollUrl}>", parameters: input);
             }
@@ -62,10 +62,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     return BetterReplyAsync(builder.Build(), parameters: input);
 
                 } else {
-                    return BetterReplyAsync($"Failed to retrieve the strawpoll.");
+                    return BetterReplyAsync($"Failed to retrieve the strawpoll.", parameters: input);
                 }
             } catch {
-                return BetterReplyAsync($"Failed to retrieve the strawpoll.");
+                return BetterReplyAsync($"Failed to retrieve the strawpoll.", parameters: input);
             }
         }
 

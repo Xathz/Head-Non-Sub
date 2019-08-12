@@ -39,25 +39,19 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     string reason = infraction.Reason;
 
                     foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.Channel)) {
-                        SocketGuildChannel tagChannel = Context.Guild.GetChannel(tag.Id);
-
-                        if (tagChannel is SocketGuildChannel) {
+                        if (Context.Guild.GetChannel(tag.Id) is SocketGuildChannel tagChannel) {
                             reason = reason.Replace(tag.ToString(), $"#{tagChannel.Name}");
                         }
                     }
 
                     foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.User)) {
-                        SocketGuildUser tagUser = Context.Guild.GetUser(tag.Id);
-
-                        if (tagUser is SocketGuildUser) {
+                        if (Context.Guild.GetUser(tag.Id) is SocketGuildUser tagUser) {
                             reason = reason.Replace(tag.ToString(), $"@{BetterUserFormat(tagUser, true)} ({tag.Id})");
                         }
                     }
 
                     foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.Role)) {
-                        SocketRole tagRole = Context.Guild.GetRole(tag.Id);
-
-                        if (tagRole is SocketRole) {
+                        if (Context.Guild.GetRole(tag.Id) is SocketRole tagRole) {
                             reason = reason.Replace(tag.ToString(), $"@{tagRole.Name}");
                         }
                     }
@@ -75,10 +69,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 await Task.Delay(2000);
 
                 foreach (string chunk in chunks) {
-                    await BetterReplyAsync($"● Infractions for {BetterUserFormat(user)} ```{chunk}```", user.Id.ToString());
+                    await BetterReplyAsync($"● Infractions for {BetterUserFormat(user)} ```{chunk}```", parameters: $"{user.ToString()} ({user.Id})");
                 }
             } else {
-                await BetterReplyAsync($"Failed to retrieve infractions for {BetterUserFormat(user)}.");
+                await BetterReplyAsync($"Failed to retrieve infractions for {BetterUserFormat(user)}.", parameters: $"{user.ToString()} ({user.Id})");
             }
         }
 
@@ -106,25 +100,19 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                             List<MessageTag> tags = content.ParseDiscordMessageTags();
 
                             foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.Channel)) {
-                                SocketGuildChannel tagChannel = Context.Guild.GetChannel(tag.Id);
-
-                                if (tagChannel is SocketGuildChannel) {
+                                if (Context.Guild.GetChannel(tag.Id) is SocketGuildChannel tagChannel) {
                                     content = content.Replace(tag.ToString(), $"#{channel.Name}");
                                 }
                             }
 
                             foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.User)) {
-                                SocketGuildUser tagUser = Context.Guild.GetUser(tag.Id);
-
-                                if (tagUser is SocketGuildUser) {
+                                if (Context.Guild.GetUser(tag.Id) is SocketGuildUser tagUser) {
                                     content = content.Replace(tag.ToString(), $"@{BetterUserFormat(tagUser, true)} ({tag.Id})");
                                 }
                             }
 
                             foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.Role)) {
-                                SocketRole tagRole = Context.Guild.GetRole(tag.Id);
-
-                                if (tagRole is SocketRole) {
+                                if (Context.Guild.GetRole(tag.Id) is SocketRole tagRole) {
                                     content = content.Replace(tag.ToString(), $"@{tagRole.Name}");
                                 }
                             }
@@ -137,7 +125,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
                     await LogMessageAsync($"● Recent messages from {BetterUserFormat(user)}", builder.ToString());
                 } else {
-                    await BetterReplyAsync($"Failed to retrieve context around the warn for {BetterUserFormat(user)}.");
+                    await BetterReplyAsync($"Failed to retrieve context around the warn for {BetterUserFormat(user)}.", parameters: $"{user.ToString()} ({user.Id}); {reason}");
                 }
             }
         }
@@ -175,13 +163,12 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             int deleteCount = 0;
             foreach (Infraction infraction in result.Infractions) {
-
                 if (await DeleteInfractionAsync(Context.Guild.Id, infraction.Id)) {
                     deleteCount++;
                 }
             }
 
-            await BetterReplyAsync($"● **{deleteCount}** infractions for {BetterUserFormat(user)} were deleted.", user.Id.ToString());
+            await BetterReplyAsync($"● **{deleteCount}** infractions for {BetterUserFormat(user)} were deleted.", parameters: $"{user.ToString()} ({user.Id})");
             await LogMessageEmbedAsync("All MEE6 infractions deleted", user: user);
         }
 
@@ -217,7 +204,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                         Text = $"Requested by {Context.User.ToString()} | {Context.User.Id}"
                     };
 
-                    await BetterReplyAsync("MEE6 failed to fulfill request.", builder.Build());
+                    await BetterReplyAsync("MEE6 failed to fulfill request.", builder.Build(), parameters: $"{user.ToString()} ({user.Id})");
                 }
             }
         }

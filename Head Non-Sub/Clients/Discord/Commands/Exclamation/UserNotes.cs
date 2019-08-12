@@ -37,18 +37,18 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 builder.Title = $"There are no notes about {BetterUserFormat(user)}";
             }
 
-            await BetterReplyAsync(builder.Build(), $"{user.ToString()} ({user.Id})");
+            await BetterReplyAsync(builder.Build(), parameters: $"{user.ToString()} ({user.Id})");
         }
 
         [Command("addnote")]
         public async Task AddNote(SocketUser user = null, [Remainder]string note = "") {
             if (user == null) {
-                await BetterReplyAsync("You must mention a user to add a note.");
+                await BetterReplyAsync("You must mention a user to add a note.", parameters: $"user null; {note}");
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(note)) {
-                await BetterReplyAsync($"You did not enter a note to add to {user.ToString()}");
+                await BetterReplyAsync($"You did not enter a note to add to {user.ToString()}", parameters: $"{user.ToString()} ({user.Id}); note null");
                 return;
             }
 
@@ -66,7 +66,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("deletenote")]
         public async Task DeleteNote(SocketUser user = null, [Remainder]string noteId = "") {
             if (user == null) {
-                await BetterReplyAsync("You must mention a user to delete a note about them.");
+                await BetterReplyAsync("You must mention a user to delete a note about them.", parameters: $"user null; {noteId}");
                 return;
             }
 
@@ -84,7 +84,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("deleteallnotes")]
         public async Task DeleteAllNotes(SocketUser user = null) {
             if (user == null) {
-                await BetterReplyAsync("You must mention a user to delete all notes about them.");
+                await BetterReplyAsync("You must mention a user to delete all notes about them.", parameters: $"user null");
                 return;
             }
 

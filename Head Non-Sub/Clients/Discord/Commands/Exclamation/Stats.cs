@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
-using Discord;
 using Discord.Commands;
 using HeadNonSub.Clients.Discord.Attributes;
+using HeadNonSub.Extensions;
 using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
@@ -13,30 +12,37 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     [RequireContext(ContextType.Guild)]
     public class Stats : BetterModuleBase {
 
-        private readonly Dictionary<string, string> _CommandNames = new Dictionary<string, string>() {
-            { "TTSays", "tt2468 Says" }, { "TenTwentyFourSays", "1024x768 Says" }, { "AmandaSays", "Amanda Says" },
-            { "SataSays", "Satazero Says" }, { "JiberSays", "jiberjiber Says" }
-        };
-
         [Command("truecount")]
-        public Task TrueCount() {
+        public async Task TrueCount() {
+            await Context.Channel.TriggerTypingAsync();
+
             long count = StatisticsManager.GetTrueCount(Context.Guild.Id);
 
-            return BetterReplyAsync($"There are {count.ToString("N0")} truths here.");
+            await BetterReplyAsync($"There are {count.ToString("N0")} truths here.");
         }
 
         [Command("sayscount")]
-        public Task SaysCount() {
-            List<KeyValuePair<string, long>> says = StatisticsManager.GetSaysCount(Context.Guild.Id, _CommandNames);
+        public async Task SaysCount() {
+            await Context.Channel.TriggerTypingAsync();
 
-            EmbedBuilder builder = new EmbedBuilder() {
-                Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
-                Title = $"Top Used 'says' Commands {string.Concat(Enumerable.Repeat(Constants.DoubleSpace, 20))}"
-            };
+            List<KeyValuePair<string, long>> saysCommands = StatisticsManager.GetSaysCount(Context.Guild.Id);
 
-            builder.AddField("Command . . . Times Used", $"```{string.Join(Environment.NewLine, says.Select(x => $"{x.Key.PadRight(20, '.')} {x.Value}"))}```");
+            StringBuilder builder = new StringBuilder();
 
-            return BetterReplyAsync(builder.Build());
+            foreach (KeyValuePair<string, long> command in saysCommands) {
+                    builder.AppendLine($"{Constants.ZeroWidthSpace}{command.Value.ToString("N0").PadLeft(4)}: {command.Key}");
+            }
+
+            List<string> chunks = builder.ToString().SplitIntoChunksPreserveNewLines(1930);
+
+            if (chunks.Count == 0) {
+                await BetterReplyAsync("There is no top `!says` command data.");
+                return;
+            }
+
+            foreach (string chunk in chunks) {
+                await BetterReplyAsync($"● Top `!says` commands ```{chunk}```");
+            }
         }
 
     }

@@ -54,6 +54,18 @@ namespace HeadNonSub.Clients.Discord.Commands {
             return BetterReplyAsync(responses.PickRandom());
         }
 
+        [Command("bad bot")]
+        [Alias("trash bot")]
+        public Task BadBot() {
+
+            List<string> responses = new List<string> {
+                "No u.",
+                $"I'm telling <@{Constants.XathzUserId}>!"
+            };
+
+            return BetterReplyAsync(responses.PickRandom());
+        }
+
         [Command("good bot")]
         [XathzOnly]
         public Task GoodBot() {
@@ -61,7 +73,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             List<string> responses = new List<string> {
                 "Damn right.",
                 "Yea, fuck them.",
-                "<@227088829079617536> thanks for making me!",
+                $"<@{Constants.XathzUserId}> thanks for making me!",
                 "Yea everyone else sucks."
             };
 

@@ -8,6 +8,11 @@ namespace HeadNonSub.Statistics {
 
     public static partial class StatisticsManager {
 
+        private static readonly Dictionary<string, string> _CommandNameMap = new Dictionary<string, string>() {
+            { "TTSays", "tt2468 Says" }, { "TenTwentyFourSays", "1024x768 Says" }, { "AmandaSays", "Amanda Says" },
+            { "SataSays", "Satazero Says" }, { "JiberSays", "jiberjiber Says" }
+        };
+
         /// <summary>
         /// Insert a command that was ran into the database.
         /// </summary>
@@ -54,10 +59,10 @@ namespace HeadNonSub.Statistics {
         /// <summary>
         /// Get the number of times each says command was executed order by count.
         /// </summary>
-        public static List<KeyValuePair<string, long>> GetSaysCount(ulong serverId, Dictionary<string, string> commandNames) {
+        public static List<KeyValuePair<string, long>> GetSaysCount(ulong serverId) {
             try {
                 using (StatisticsContext statistics = new StatisticsContext()) {
-                    return statistics.Commands.AsNoTracking().Where(x => x.ServerId == serverId & commandNames.Any(c => c.Key == x.CommandName))
+                    return statistics.Commands.AsNoTracking().Where(x => x.ServerId == serverId & _CommandNameMap.Any(c => c.Key == x.CommandName))
                             .GroupBy(x => x.CommandName).Select(g => new {
                                 CommandName = g.Key,
                                 Count = g.LongCount()

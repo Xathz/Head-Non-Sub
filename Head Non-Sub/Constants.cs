@@ -30,7 +30,7 @@ namespace HeadNonSub {
         /// <summary>
         /// Zero width space.
         /// </summary>
-        public const char ZeroWwidthSpace = '\u200B';
+        public const char ZeroWidthSpace = '\u200B';
 
         /// <summary>
         /// Date and time format used in messages.

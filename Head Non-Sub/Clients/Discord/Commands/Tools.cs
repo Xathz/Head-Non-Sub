@@ -55,32 +55,32 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("undobot"), Alias("botundo")]
         [DiscordStaffOnly]
-        public async Task UndoBot(int messageCount = 100) {
-            if (messageCount == 0 || messageCount > 500) {
-                await BetterReplyAsync("Must be between 1 and 500.", messageCount.ToString());
+        public async Task UndoBot(int count = 100) {
+            if (count == 0 || count > 500) {
+                await BetterReplyAsync("Must be between 1 and 500.", parameters: count.ToString());
             }
 
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                 Title = $"Undoing {Context.Client.CurrentUser.Username} Messages",
-                Description = $"Deleting up to {messageCount} bot messages",
+                Description = $"Deleting up to {count} bot messages",
                 ThumbnailUrl = Constants.LoadingGifUrl
             };
 
-            IUserMessage noticeMessage = await BetterReplyAsync(builder.Build(), messageCount.ToString());
+            IUserMessage noticeMessage = await BetterReplyAsync(builder.Build(), parameters: count.ToString());
 
             try {
                 List<IMessage> toDelete = new List<IMessage> { Context.Message };
 
                 if (Context.Channel is SocketTextChannel channel) {
                     IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(500).Flatten();
-                    IEnumerable<IMessage> foundToDelete = messages.Where(x => (x.Author.Id == Context.Client.CurrentUser.Id)).OrderByDescending(x => x.CreatedAt).Take(messageCount).ToEnumerable();
+                    IEnumerable<IMessage> foundToDelete = messages.Where(x => (x.Author.Id == Context.Client.CurrentUser.Id)).OrderByDescending(x => x.CreatedAt).Take(count).ToEnumerable();
                     toDelete.AddRange(foundToDelete);
 
                     await channel.DeleteMessagesAsync(toDelete);
                 }
 
-                await LogMessageEmbedAsync($"Undo bot executed `{Context.Guild.CurrentUser.ToString()} undobot`", $"{messageCount} messages were requested to be deleted, {toDelete.Count} were deleted.");
+                await LogMessageEmbedAsync($"Undo bot executed `@{Context.Guild.CurrentUser.ToString()} undobot`", $"{count} messages were requested to be deleted, {toDelete.Count} were deleted.");
             } catch { }
 
             await noticeMessage.DeleteAsync();
@@ -88,19 +88,19 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("undoemotes"), Alias("undoemoji")]
         [DiscordStaffOnly]
-        public async Task UndoEmotes(int messageCount = 100) {
-            if (messageCount == 0 || messageCount > 500) {
-                await BetterReplyAsync("Must be between 1 and 500.", messageCount.ToString());
+        public async Task UndoEmotes(int count = 100) {
+            if (count == 0 || count > 500) {
+                await BetterReplyAsync("Must be between 1 and 500.", parameters: count.ToString());
             }
 
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                 Title = $"Undoing Emote/Emoji Only Messages",
-                Description = $"Deleting up to {messageCount} messages",
+                Description = $"Deleting up to {count} messages",
                 ThumbnailUrl = Constants.LoadingGifUrl
             };
 
-            IUserMessage noticeMessage = await BetterReplyAsync(builder.Build(), messageCount.ToString());
+            IUserMessage noticeMessage = await BetterReplyAsync(builder.Build(), count.ToString());
 
             try {
                 List<IMessage> toDelete = new List<IMessage> { Context.Message };
@@ -121,12 +121,12 @@ namespace HeadNonSub.Clients.Discord.Commands {
                         } else {
                             return false;
                         }
-                    }).OrderByDescending(x => x.CreatedAt).Take(messageCount).ToEnumerable();
+                    }).OrderByDescending(x => x.CreatedAt).Take(count).ToEnumerable();
                     toDelete.AddRange(foundToDelete);
 
                     await channel.DeleteMessagesAsync(toDelete);
 
-                    await LogMessageEmbedAsync($"Undo emotes executed `{Context.Guild.CurrentUser.ToString()} undoemotes`", $"{messageCount} emotes were requested to be deleted, {toDelete.Count} were deleted.");
+                    await LogMessageEmbedAsync($"Undo emotes executed `@{Context.Guild.CurrentUser.ToString()} undoemotes`", $"{count} emotes were requested to be deleted, {toDelete.Count} were deleted.");
                 }
             } catch { }
 
@@ -145,6 +145,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     Description = "This channel has returned to normal."
                 };
 
+                await LogMessageEmbedAsync($"Emote mode executed `@{Context.Guild.CurrentUser.ToString()} emotemode off`", "**Mode:** Off");
                 await BetterReplyAsync(builder.Build(), parameters: mode);
 
             } else if (mode == "textonly") {
@@ -156,6 +157,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     Description = "All messages with emotes/emoji will be deleted."
                 };
 
+                await LogMessageEmbedAsync($"Emote mode executed `@{Context.Guild.CurrentUser.ToString()} emotemode textonly`", "**Mode:** Text Only");
                 await BetterReplyAsync(builder.Build(), parameters: mode);
 
             } else if (mode == "emoteonly") {
@@ -167,6 +169,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     Description = "All messages with text will be deleted."
                 };
 
+                await LogMessageEmbedAsync($"Emote mode executed `@{Context.Guild.CurrentUser.ToString()} emotemode emoteonly`", "**Mode:** Emote Only");
                 await BetterReplyAsync(builder.Build(), parameters: mode);
 
             } else {
@@ -189,7 +192,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 await BetterReplyAsync("Failed to generate the server map.");
             }
 
-            await LogMessageEmbedAsync($"Server map executed `{Context.Guild.CurrentUser.ToString()} servermap`");
+            await LogMessageEmbedAsync($"Server map executed `@{Context.Guild.CurrentUser.ToString()} servermap`");
         }
 
         [Command("membermap")]
@@ -207,7 +210,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 await BetterReplyAsync("Failed to generate the member map.");
             }
 
-            await LogMessageEmbedAsync($"Member map executed `{Context.Guild.CurrentUser.ToString()} membermap`");
+            await LogMessageEmbedAsync($"Member map executed `@{Context.Guild.CurrentUser.ToString()} membermap`");
         }
 
         [Command("emotes")]

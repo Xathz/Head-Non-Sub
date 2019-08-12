@@ -17,12 +17,17 @@ namespace HeadNonSub.Clients.Discord.Commands {
         [Command("add")]
         public async Task BlacklistAdd(SocketUser user = null) {
             if (user == null) {
-                await BetterReplyAsync("You must mention a user to add them to the blacklist.");
+                await BetterReplyAsync("You must mention a user to add them to the blacklist.", parameters: "user null");
+                return;
+            }
+
+            if (WubbysFunHouse.IsDiscordStaff(user)) {
+                await BetterReplyAsync("You can not blacklist a discord staff member.", parameters: "user null");
                 return;
             }
 
             if (SettingsManager.Configuration.DiscordBlacklist.Any(x => x.Key == Context.Guild.Id && x.Value.Contains(user.Id))) {
-                await BetterReplyAsync($"{BetterUserFormat(user)} is already blacklisted.", parameters: user.ToString());
+                await BetterReplyAsync($"{BetterUserFormat(user)} is already blacklisted.", parameters: $"{user.ToString()} ({user.Id})");
             } else {
                 if (SettingsManager.Configuration.DiscordBlacklist.ContainsKey(Context.Guild.Id)) {
                     SettingsManager.Configuration.DiscordBlacklist[Context.Guild.Id].Add(user.Id);
@@ -33,7 +38,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 SettingsManager.Save();
                 LoggingManager.Log.Info($"{user.ToString()} ({user.Id}) was added to the blacklist by {Context.User.ToString()} ({Context.User.Id})");
 
-                await BetterReplyAsync($"{BetterUserFormat(user)} was added to the blacklist.", parameters: user.ToString());
+                await BetterReplyAsync($"{BetterUserFormat(user)} was added to the blacklist.", parameters: $"{user.ToString()} ({user.Id})");
                 await LogMessageEmbedAsync($"User blacklisted from using {Constants.ApplicationName}", user: user);
             }
         }
@@ -41,7 +46,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         [Command("remove")]
         public async Task BlacklistRemove(SocketUser user = null) {
             if (user == null) {
-                await BetterReplyAsync("You must mention a user to remove them from the blacklist.");
+                await BetterReplyAsync("You must mention a user to remove them from the blacklist.", parameters: "user null");
                 return;
             }
 
@@ -51,10 +56,10 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 SettingsManager.Save();
                 LoggingManager.Log.Info($"{user.ToString()} ({user.Id}) was removed from the blacklist by {Context.User.ToString()} ({Context.User.Id})");
 
-                await BetterReplyAsync($"{BetterUserFormat(user)} was removed from the blacklist.", parameters: user.ToString());
+                await BetterReplyAsync($"{BetterUserFormat(user)} was removed from the blacklist.", parameters: $"{user.ToString()} ({user.Id})");
                 await LogMessageEmbedAsync($"User removed from the {Constants.ApplicationName} blacklist", user: user);
             } else {
-                await BetterReplyAsync($"{BetterUserFormat(user)} is not on the blacklist.", parameters: user.ToString());
+                await BetterReplyAsync($"{BetterUserFormat(user)} is not on the blacklist.", parameters: $"{user.ToString()} ({user.Id})");
             }
         }
 

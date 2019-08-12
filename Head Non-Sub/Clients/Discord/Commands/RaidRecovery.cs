@@ -171,12 +171,13 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
                     try {
                         foreach (ulong user in usersIdsToBan) {
-                            await Context.Guild.AddBanAsync(user, 1, $"Banned by '{Context.User.ToString()}' using the bot '{Context.Guild.CurrentUser.Username}' raid recovery system on {DateTime.UtcNow.ToString("o")}");
+                            await Context.Guild.AddBanAsync(user, 1, $"Banned by '{Context.User.ToString()}' using the bot '{Context.Guild.CurrentUser.Username}' raid recovery system at {DateTime.UtcNow.ToString("o")}");
                         }
                     } catch { }
 
                     await banningMessage.ModifyAsync(x => { x.Embed = null; x.Content = $"Banned {usersIdsToBan.Count} users."; });
                     await LogMessageEmbedAsync("Raid recovery system", $"Banned {usersIdsToBan.Count} users.{Environment.NewLine}{Environment.NewLine}{string.Join(", ", usersIdsToBan)}");
+                    TrackStatistics(banningMessage.Id, parameters: $"token: {banToken}; banned: {string.Join(", ", usersIdsToBan)}");
                     return;
                 } else {
                     await BetterReplyAsync("Invalid ban token.");
@@ -226,16 +227,16 @@ namespace HeadNonSub.Clients.Discord.Commands {
             }
 
             if (user == null) {
-                await BetterReplyAsync("You must provide a user to skip them from being banned.");
+                await BetterReplyAsync("You must provide a user to skip them from being banned.", parameters: "user null");
                 return;
             }
 
             if (RaidRecoveryTracker.SkipUserToBan(Context.Channel.Id, user.Id)) {
-                await BetterReplyAsync($"{BetterUserFormat(user)} will be skipped and **not** banned.");
+                await BetterReplyAsync($"{BetterUserFormat(user)} will be skipped and **not** banned.", parameters: $"{user.ToString()} ({user.Id})");
                 await LogMessageEmbedAsync("Raid recovery system", $"{BetterUserFormat(user)} will be skipped and **not** banned.");
 
             } else {
-                await BetterReplyAsync($"{BetterUserFormat(user)} was not suspected and will **not** be banned.");
+                await BetterReplyAsync($"{BetterUserFormat(user)} was not suspected and will **not** be banned.", parameters: $"{user.ToString()} ({user.Id})");
             }
         }
 

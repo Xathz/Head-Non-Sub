@@ -199,7 +199,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("warm")]
         public async Task Warm(SocketUser user = null, [Remainder]string input = "") {
             if (user == null) {
-                await BetterReplyAsync("You must provide a user to warm.");
+                await BetterReplyAsync("You must provide a user to warm.", parameters: $"user null; {input}");
                 return;
             }
 
@@ -225,7 +225,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
                             stream.Seek(0, SeekOrigin.Begin);
 
-                            await BetterSendFileAsync(stream, "warm.png", $"{BetterUserFormat(user)} has been warmed{(string.IsNullOrWhiteSpace(input) ? "" : $" for `{input}`")}.", parameters: user.ToString());
+                            await BetterSendFileAsync(stream, "warm.png", $"{BetterUserFormat(user)} has been warmed{(string.IsNullOrWhiteSpace(input) ? "" : $" for `{input}`")}.", parameters: $"{user.ToString()} ({user.Id}); {input}");
                         }
                     } else {
                         throw download.Exception;

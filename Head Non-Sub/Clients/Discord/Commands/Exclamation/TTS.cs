@@ -41,12 +41,12 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             string clean = text.RemoveNewLines();
 
             if (string.IsNullOrWhiteSpace(clean)) {
-                await BetterReplyAsync("You need to enter text... for _text_ to speech to work you idiot.");
+                await BetterReplyAsync("You need to enter text... for _text_ to speech to work you idiot.", parameters: clean, command: $"{command}_{voice}");
                 return;
             }
 
             if (clean.Length > 550) {
-                await BetterReplyAsync("The text must be 550 or less characters including spaces.");
+                await BetterReplyAsync("The text must be 550 or less characters including spaces.", parameters: clean, command: $"{command}_{voice}");
                 return;
             }
 
@@ -57,9 +57,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             using (MemoryStream oggFile = await GenerateAsync(clean, voice)) {
                 if (oggFile is MemoryStream) {
-                    await BetterSendFileAsync(oggFile, $"{filename}.ogg", $"● {BetterUserFormat()}{Environment.NewLine}```{clean}```", clean, $"{command}_{voice}");
+                    await BetterSendFileAsync(oggFile, $"{filename}.ogg", $"● {BetterUserFormat()}{Environment.NewLine}```{clean}```", parameters: clean, command: $"{command}_{voice}");
                 } else {
-                    await BetterReplyAsync("Failed to generate the text to speech.");
+                    await BetterReplyAsync("Failed to generate the text to speech.", parameters: clean, command: $"{command}_{voice}");
                 }
             }
         }

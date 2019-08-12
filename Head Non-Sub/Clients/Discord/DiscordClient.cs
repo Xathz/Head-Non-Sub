@@ -292,6 +292,10 @@ namespace HeadNonSub.Clients.Discord {
                                 changeType |= StatisticsManager.NameChangeType.Avatar;
                             } else {
                                 LoggingManager.Log.Error(download.Exception);
+
+                                backblazeAvatarBucket = null;
+                                backblazeAvatarFilename = null;
+                                backblazeAvatarUrl = null;
                             }
                         }
                     } catch { }
