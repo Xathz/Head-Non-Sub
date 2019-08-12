@@ -45,7 +45,7 @@ namespace HeadNonSub.Statistics {
         public static string GetUserChanges(ulong serverId, ulong userId) {
             try {
                 using (StatisticsContext statistics = new StatisticsContext()) {
-                    IQueryable<UserChange> userChanges = statistics.UserChanges.AsNoTracking().Where(x => x.UserId == userId).OrderByDescending(x => x.DateTime);
+                    IQueryable<UserChange> userChanges = statistics.UserChanges.AsNoTracking().OrderByDescending(x => x.DateTime).Where(x => x.UserId == userId);
                     StringBuilder builder = new StringBuilder();
 
                     foreach (UserChange userChange in userChanges) {
@@ -70,7 +70,9 @@ namespace HeadNonSub.Statistics {
                             }
 
                             if (userChange.ChangeType.HasFlag(NameChangeType.Avatar)) {
-                                changes.Add($" ● [ avatar] {userChange.BackblazeAvatarUrl}");
+                                if (!string.IsNullOrWhiteSpace(userChange.BackblazeAvatarUrl)) {
+                                    changes.Add($" ● [ avatar] {userChange.BackblazeAvatarUrl}");
+                                }
                             }
 
                             if (changes.Count > 0) {
@@ -91,6 +93,26 @@ namespace HeadNonSub.Statistics {
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
                 return string.Empty;
+            }
+        }
+
+        public static List<KeyValuePair<ulong, long>> GetTopChangers(int count) {
+            try {
+                using (StatisticsContext statistics = new StatisticsContext()) {
+                    return statistics.UserChanges.AsNoTracking().OrderByDescending(x => x.DateTime)
+                        .Where(x => x.ChangeType != NameChangeType.None)
+                        .GroupBy(x => x.UserId)
+                        .Select(g => new {
+                            UserId = g.Key,
+                            Count = g.LongCount()
+                        }).OrderByDescending(x => x.Count)
+                        .ToDictionary(x => x.UserId, x => x.Count)
+                        .Take(count)
+                        .ToList();
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return new List<KeyValuePair<ulong, long>>();
             }
         }
 

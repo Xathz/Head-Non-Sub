@@ -174,6 +174,37 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
         }
 
+        [Command("topnamechangers")]
+        public async Task TopNameChangers(int count = 20) {
+            if (count < 5 || count > 50) {
+                await BetterReplyAsync("Count must be between 5 and 50.", parameters: count.ToString());
+                return;
+            }
+
+            await Context.Channel.TriggerTypingAsync();
+
+            List<KeyValuePair<ulong, long>> changers = StatisticsManager.GetTopChangers(count);
+
+            StringBuilder builder = new StringBuilder();
+
+            foreach (KeyValuePair<ulong, long> changer in changers) {
+                if (Context.Guild.GetUser(changer.Key) is SocketGuildUser user) {
+                    builder.AppendLine($"{Constants.ZeroWidthSpace}{changer.Value.ToString("N0").PadLeft(4)}: {BetterUserFormat(user, true)}");
+                }
+            }
+
+            List<string> chunks = builder.ToString().SplitIntoChunksPreserveNewLines(1930);
+
+            if (changers.Count == 0 || chunks.Count == 0) {
+                await BetterReplyAsync("There is no top name/profile changers data. Maybe no one changed their name or profile. :shrug:", parameters: count.ToString());
+                return;
+            }
+
+            foreach (string chunk in chunks) {
+                await BetterReplyAsync($"● Top name/profile changers ```{chunk}```", parameters: count.ToString());
+            }
+        }
+
         [Command("avatar")]
         public async Task Avatar(SocketUser user = null) {
             if (user == null) {
