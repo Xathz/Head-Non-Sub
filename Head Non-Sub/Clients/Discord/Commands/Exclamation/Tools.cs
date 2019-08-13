@@ -187,7 +187,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             foreach (KeyValuePair<ulong, long> changer in changers) {
                 if (Context.Guild.GetUser(changer.Key) is SocketGuildUser user) {
-                    builder.AppendLine($"{Constants.ZeroWidthSpace}{changer.Value.ToString("N0").PadLeft(4)}: {BetterUserFormat(user, true)}");
+                    builder.AppendLine($"{Constants.ZeroWidthSpace}{changer.Value.ToString("N0").PadLeft(5)}: {user.ToString()}{(!string.IsNullOrEmpty(user.Nickname) ? $" ({user.Nickname})" : "")}");
                 }
             }
 

@@ -64,7 +64,7 @@ namespace HeadNonSub.Statistics {
                 using (StatisticsContext statistics = new StatisticsContext()) {
                     return statistics.Commands.AsNoTracking().Where(x => x.ServerId == serverId & _CommandNameMap.Any(c => c.Key == x.CommandName))
                             .GroupBy(x => x.CommandName).Select(g => new {
-                                CommandName = g.Key,
+                                CommandName = _CommandNameMap[g.Key],
                                 Count = g.LongCount()
                             }).OrderByDescending(x => x.Count).ToDictionary(x => x.CommandName, x => x.Count).ToList();
                 }

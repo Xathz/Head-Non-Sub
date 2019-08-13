@@ -30,7 +30,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             StringBuilder builder = new StringBuilder();
 
             foreach (KeyValuePair<string, long> command in saysCommands) {
-                    builder.AppendLine($"{Constants.ZeroWidthSpace}{command.Value.ToString("N0").PadLeft(4)}: {command.Key}");
+                    builder.AppendLine($"{Constants.ZeroWidthSpace}{command.Value.ToString("N0").PadLeft(5)}: {command.Key}");
             }
 
             List<string> chunks = builder.ToString().SplitIntoChunksPreserveNewLines(1930);
