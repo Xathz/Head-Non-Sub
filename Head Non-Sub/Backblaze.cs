@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,7 +41,7 @@ namespace HeadNonSub {
 
             if (sha1Hash == uploadedFile.ContentSHA1) {
                 string fullUrl = $"{Constants.BackblazeCDN}/file/{SettingsManager.Configuration.BackblazeTempBucket.BucketName}/{uploadedFile.FileName}";
-                string shortUrl = await ShortenUrl(fullUrl);
+                string shortUrl = await Http.ShortenUrl(fullUrl);
 
                 return new File(SettingsManager.Configuration.BackblazeTempBucket.BucketName, uploadedFile.FileName, fullUrl, shortUrl);
             }
@@ -62,7 +61,7 @@ namespace HeadNonSub {
 
             if (sha1Hash == uploadedFile.ContentSHA1) {
                 string fullUrl = $"{Constants.BackblazeCDN}/file/{SettingsManager.Configuration.BackblazeTempBucket.BucketName}/{uploadedFile.FileName}";
-                string shortUrl = await ShortenUrl(fullUrl);
+                string shortUrl = await Http.ShortenUrl(fullUrl);
 
                 return new File(SettingsManager.Configuration.BackblazeTempBucket.BucketName, uploadedFile.FileName, fullUrl, shortUrl);
             }
@@ -82,24 +81,12 @@ namespace HeadNonSub {
 
             if (sha1Hash == uploadedFile.ContentSHA1) {
                 string fullUrl = $"{Constants.BackblazeCDN}/file/{SettingsManager.Configuration.BackblazeAvatarBucket.BucketName}/{uploadedFile.FileName}";
-                string shortUrl = await ShortenUrl(fullUrl);
+                string shortUrl = await Http.ShortenUrl(fullUrl);
 
                 return new File(SettingsManager.Configuration.BackblazeAvatarBucket.BucketName, uploadedFile.FileName, fullUrl, shortUrl);
             }
 
             return null;
-        }
-
-        private static async Task<string> ShortenUrl(string url) {
-            Task<string> shortenRequest = Http.SendRequestAsync(Constants.UrlShortener, parameters: new Dictionary<string, string> { { "key", SettingsManager.Configuration.UrlShortenerKey }, { "url", url } }, method: Http.Method.Post);
-            string shortenedUrl = await shortenRequest;
-
-            if (shortenRequest.IsCompletedSuccessfully) {
-                return shortenedUrl;
-            } else {
-                LoggingManager.Log.Error(shortenRequest.Exception);
-                return string.Empty;
-            }
         }
 
         public static string ISOFileNameDate(string extension) => $"{DateTime.UtcNow.ToString("yyyyMMddTHHmmss")}Z.{extension}";

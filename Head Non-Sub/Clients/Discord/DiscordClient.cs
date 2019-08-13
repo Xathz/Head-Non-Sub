@@ -224,7 +224,7 @@ namespace HeadNonSub.Clients.Discord {
 
         private static Task UserUpdated(SocketUser oldUser, SocketUser newUser) {
             Task runner = Task.Run(async () => {
-                await ProcessUserUpdated(oldUser, newUser);
+                await ProcessUserUpdated(oldUser, newUser).ConfigureAwait(false);
             });
 
             return Task.CompletedTask;
@@ -232,7 +232,7 @@ namespace HeadNonSub.Clients.Discord {
 
         private static Task GuildMemberUpdated(SocketGuildUser oldUser, SocketGuildUser newUser) {
             Task runner = Task.Run(async () => {
-                await ProcessUserUpdated(oldUser, newUser);
+                await ProcessUserUpdated(oldUser, newUser).ConfigureAwait(false);
             });
 
             return Task.CompletedTask;
@@ -437,6 +437,11 @@ namespace HeadNonSub.Clients.Discord {
                         // Move links
                         if (message.Content.ContainsUrls()) {
                             if (_DiscordClient.GetChannel(WubbysFunHouse.LinksChannelId) is IMessageChannel channel) {
+
+                                if (message.Content.GetUrls().Any(x => x.Contains("https://discord.gift/"))) {
+                                    return;
+                                }
+
                                 LoggingManager.Log.Info($"Link in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id})");
 
                                 await message.DeleteAsync();

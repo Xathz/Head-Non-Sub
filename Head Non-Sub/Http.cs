@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using HeadNonSub.Settings;
 
 namespace HeadNonSub {
 
@@ -78,11 +79,19 @@ namespace HeadNonSub {
         }
 
         /// <summary>
-        /// CDN post type.
+        /// Shorten a url.
         /// </summary>
-        public enum PostType {
-            String,
-            Url
+        /// <param name="url">Url to shorten.</param>
+        public static async Task<string> ShortenUrl(string url) {
+            Task<string> shortenRequest = SendRequestAsync(Constants.UrlShortener, parameters: new Dictionary<string, string> { { "key", SettingsManager.Configuration.UrlShortenerKey }, { "url", url } }, method: Method.Post);
+            string shortenedUrl = await shortenRequest;
+
+            if (shortenRequest.IsCompletedSuccessfully) {
+                return shortenedUrl;
+            } else {
+                LoggingManager.Log.Error(shortenRequest.Exception);
+                return string.Empty;
+            }
         }
 
         /// <summary>
