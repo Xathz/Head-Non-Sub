@@ -42,6 +42,11 @@ namespace HeadNonSub.Statistics {
             }
         }
 
+        /// <summary>
+        /// Get all changes from a user.
+        /// </summary>
+        /// <param name="serverId">Server id.</param>
+        /// <param name="userId">User id.</param>
         public static string GetUserChanges(ulong serverId, ulong userId) {
             try {
                 using (StatisticsContext statistics = new StatisticsContext()) {
@@ -96,6 +101,11 @@ namespace HeadNonSub.Statistics {
             }
         }
 
+        /// <summary>
+        /// Get the top users who have changes by count.
+        /// </summary>
+        /// <param name="count">How many users are in the 'top'.</param>
+        /// <returns>List of (user id, count)</returns>
         public static List<KeyValuePair<ulong, long>> GetTopChangers(int count) {
             try {
                 using (StatisticsContext statistics = new StatisticsContext()) {

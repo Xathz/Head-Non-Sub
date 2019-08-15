@@ -8,9 +8,9 @@
     <StartupObject>HeadNonSub.Program</StartupObject>
     <Authors>Xathz</Authors>
     <Description>Non-subs are the worst, they come in here and act like they own the place. At least I am the head of them all.</Description>
-    <Version>2.1.0</Version>
-    <AssemblyVersion>2.1.0.0</AssemblyVersion>
-    <FileVersion>2.1.0.0</FileVersion>
+    <Version>2.5.0</Version>
+    <AssemblyVersion>2.5.0.0</AssemblyVersion>
+    <FileVersion>2.5.0.0</FileVersion>
     <AssemblyName>HeadNonSub</AssemblyName>
     <PackageProjectUrl>https://github.com/Xathz/Head-Non-Sub</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/Xathz/Head-Non-Sub/master/ProfilePicture128.png</PackageIconUrl>

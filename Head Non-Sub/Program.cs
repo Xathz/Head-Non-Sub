@@ -69,10 +69,10 @@ namespace HeadNonSub {
             // Authorize with the Backblaze api
             await Backblaze.Authorize();
 
-            // Connect to discord
+            // Connect to Discord
             await DiscordClient.ConnectAsync();
 
-            // Connect to twitch
+            // Connect to Twitch
             await TwitchClient.ConnectApiAsync();
 
             // Block and wait
