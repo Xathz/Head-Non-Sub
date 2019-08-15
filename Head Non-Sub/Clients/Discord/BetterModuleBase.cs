@@ -17,7 +17,7 @@ namespace HeadNonSub.Clients.Discord {
 
         private string DisplayName() {
             if (Context.User is SocketGuildUser contextUser) {
-                return (!string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Nickname : "");
+                return !string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Nickname : "";
             } else {
                 return string.Empty;
             }
@@ -27,7 +27,7 @@ namespace HeadNonSub.Clients.Discord {
         /// Get a socket user from a user id.
         /// </summary>
         /// <param name="userId">User id to convert to a socket user.</param>
-        public SocketUser UserFromUserId(ulong userId) {
+        public SocketGuildUser UserFromUserId(ulong userId) {
             try {
                 return Context.Guild.GetUser(userId);
             } catch (Exception ex) {
@@ -55,10 +55,7 @@ namespace HeadNonSub.Clients.Discord {
         /// Formats a user's display name and username.
         /// </summary>
         /// <param name="user">Optional user, if <see langword="null" /> use <see cref="CommandContext.User"/>.</param>
-        public string BetterUserFormat(SocketUser user = null, bool nicknameOnly = false, bool useGrave = true) {
-            string formatChar = "`";
-            if (!useGrave) { formatChar = ""; }
-
+        public string BetterUserFormat(SocketUser user = null, bool nicknameOnly = false, string formatChar = "`") {
             if (user is null) {
                 if (Context.User is SocketGuildUser contextUser) {
                     if (nicknameOnly) {

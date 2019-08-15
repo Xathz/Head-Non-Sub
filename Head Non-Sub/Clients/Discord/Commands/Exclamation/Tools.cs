@@ -93,7 +93,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 };
 
                 builder.Footer = new EmbedFooterBuilder() {
-                    Text = $"Random user requested by {BetterUserFormat(useGrave: false)}"
+                    Text = $"Random user requested by {BetterUserFormat(formatChar: "")}"
                 };
 
                 IUserMessage message = await BetterReplyAsync(builder.Build(), parameters: type);
@@ -139,7 +139,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("names")]
         public async Task NameChanges(SocketUser user = null) {
             if (user == null) {
-                await BetterReplyAsync("You must mention a user to see their name changes.");
+                await BetterReplyAsync("You must mention a user to see their name changes.", parameters: "user null");
                 return;
             }
 
@@ -186,7 +186,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             StringBuilder builder = new StringBuilder();
 
             foreach (KeyValuePair<ulong, long> changer in changers) {
-                if (Context.Guild.GetUser(changer.Key) is SocketGuildUser user) {
+                if (UserFromUserId(changer.Key) is SocketGuildUser user) {
                     builder.AppendLine($"{Constants.ZeroWidthSpace}{changer.Value.ToString("N0").PadLeft(5)}: {user.ToString()}{(!string.IsNullOrEmpty(user.Nickname) ? $" ({user.Nickname})" : "")}");
                 }
             }
@@ -206,7 +206,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("avatar")]
         public async Task Avatar(SocketUser user = null) {
             if (user == null) {
-                await BetterReplyAsync("You must mention a user to see their avatar.");
+                await BetterReplyAsync("You must mention a user to see their avatar.", parameters: "user null");
                 return;
             }
 
@@ -278,6 +278,30 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     }
                 }
             }
+        }
+
+        [Command("nick")]
+        [DiscordStaffOnly]
+        [RequireBotPermission(GuildPermission.ManageNicknames, ErrorMessage = "I do not have the `Manage Nicknames` permission, `!nick` can not be used.")]
+        public async Task SetNickname(SocketGuildUser user = null, [Remainder]string nickname = "") {
+            if (user == null) {
+                await BetterReplyAsync("You must mention a user to set their nickname.", parameters: $"user null; {nickname}");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(nickname)) {
+                await BetterReplyAsync($"You did not specify a nickname to set for `{user.ToString()}`.", parameters: $"{user.ToString()} ({user.Id}); {nickname}");
+                return;
+            }
+
+            if (WubbysFunHouse.IsDiscordStaff(user)) {
+                await BetterReplyAsync("You can not set the nickname of another staff member.", parameters: $"{user.ToString()} ({user.Id}); {nickname}");
+                return;
+            }
+
+            await user.ModifyAsync(x => { x.Nickname = nickname; }, new RequestOptions { AuditLogReason = $"Changed by {Context.User.ToString()} ({Context.User.Id})" });
+
+            await BetterReplyAsync($"Changed nickname for {BetterUserFormat(user)} to `{nickname}`.", parameters: $"{user.ToString()} ({user.Id}); {nickname}");
         }
 
     }

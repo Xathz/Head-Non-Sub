@@ -45,7 +45,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     }
 
                     foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.User)) {
-                        if (Context.Guild.GetUser(tag.Id) is SocketGuildUser tagUser) {
+                        if (UserFromUserId(tag.Id) is SocketGuildUser tagUser) {
                             reason = reason.Replace(tag.ToString(), $"@{BetterUserFormat(tagUser, true)} ({tag.Id})");
                         }
                     }
@@ -106,7 +106,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                             }
 
                             foreach (MessageTag tag in tags.Where(x => x.TagType == TagType.User)) {
-                                if (Context.Guild.GetUser(tag.Id) is SocketGuildUser tagUser) {
+                                if (UserFromUserId(tag.Id) is SocketGuildUser tagUser) {
                                     content = content.Replace(tag.ToString(), $"@{BetterUserFormat(tagUser, true)} ({tag.Id})");
                                 }
                             }

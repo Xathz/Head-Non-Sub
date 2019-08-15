@@ -32,8 +32,8 @@ namespace HeadNonSub.Clients.Discord.Commands {
         public async Task FailFast() {
             LoggingManager.Log.Fatal($"Forcibly disconnected from Discord. Server: {Context.Guild.Name} ({Context.Guild.Id}); Channel: {Context.Channel.Name} ({Context.Channel.Id}); User: {Context.User.Username} ({Context.User.Id})");
 
-            await BetterReplyAsync($"Forcibly disconnecting from Discord, please tell <@!{Constants.XathzUserId}> as soon as possible. Good bye.");
-            await LogMessageEmbedAsync($"Fail fast executed `{Context.Guild.CurrentUser.ToString()} failfast`", $"Forcibly disconnecting from Discord, please tell <@!{Constants.XathzUserId}> as soon as possible. Good bye.");
+            await BetterReplyAsync($"Forcibly disconnecting from Discord, please tell <@{Constants.XathzUserId}> as soon as possible. Good bye.");
+            await LogMessageEmbedAsync($"Fail fast executed `@{Context.Guild.CurrentUser.ToString()} failfast`", $"Forcibly disconnecting from Discord, please tell <@!{Constants.XathzUserId}> as soon as possible. Good bye.");
 
             DiscordClient.FailFast();
         }

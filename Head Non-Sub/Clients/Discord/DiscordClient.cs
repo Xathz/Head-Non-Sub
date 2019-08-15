@@ -436,17 +436,14 @@ namespace HeadNonSub.Clients.Discord {
 
                         // Move links
                         if (message.Content.ContainsUrls()) {
-                            if (_DiscordClient.GetChannel(WubbysFunHouse.LinksChannelId) is IMessageChannel channel) {
+                            if (!message.Content.GetUrls().Any(x => x.Contains("https://discord.gift/"))) {
+                                if (_DiscordClient.GetChannel(WubbysFunHouse.LinksChannelId) is IMessageChannel channel) {
+                                    LoggingManager.Log.Info($"Link in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id})");
 
-                                if (message.Content.GetUrls().Any(x => x.Contains("https://discord.gift/"))) {
-                                    return;
+                                    await message.DeleteAsync();
+                                    await channel.SendMessageAsync($"● Posted by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
+                                    await message.Channel.SendMessageAsync($"{user.Mention} You need to be <@&{WubbysFunHouse.ForkliftDriversRoleId}> or higher to post links here. Link was moved to <#{WubbysFunHouse.LinksChannelId}>.");
                                 }
-
-                                LoggingManager.Log.Info($"Link in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id})");
-
-                                await message.DeleteAsync();
-                                await channel.SendMessageAsync($"● Posted by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
-                                await message.Channel.SendMessageAsync($"{user.Mention} You need to be <@&{WubbysFunHouse.ForkliftDriversRoleId}> or higher to post links here. Link was moved to <#{WubbysFunHouse.LinksChannelId}>.");
                             }
 
                             // Move attachments
