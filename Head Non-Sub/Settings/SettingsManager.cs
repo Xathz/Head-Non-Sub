@@ -36,14 +36,10 @@ namespace HeadNonSub.Settings {
         }
 
         private static void LoadJSON(string settingsFile) {
-            using (StreamReader jsonFile = File.OpenText(settingsFile)) {
-                JsonSerializer jsonSerializer = new JsonSerializer {
-                    DateTimeZoneHandling = DateTimeZoneHandling.Local
-                };
+            Configuration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(settingsFile));
 
-                Configuration = jsonSerializer.Deserialize(jsonFile, typeof(Configuration)) as Configuration;
-
-                if (Configuration == null) { throw new ArgumentNullException("The configuration was null after deserialization"); }
+            if (Configuration == null) {
+                throw new ArgumentNullException("The configuration was null after deserialization");
             }
         }
 
@@ -54,25 +50,18 @@ namespace HeadNonSub.Settings {
             string tempFile = $"{Constants.SettingsFile}.temp";
 
             try {
-                using (StreamWriter streamWriter = new StreamWriter(tempFile))
-                using (JsonWriter jsonWriter = new JsonTextWriter(streamWriter)) {
-                    DefaultContractResolver contractResolver = new DefaultContractResolver {
+                JsonConvert.SerializeObject(Configuration, new JsonSerializerSettings() {
+                    ContractResolver = new DefaultContractResolver {
                         NamingStrategy = new CamelCaseNamingStrategy()
-                    };
-
-                    JsonSerializer jsonSerializer = new JsonSerializer() {
-                        ContractResolver = contractResolver,
-                        DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-                        NullValueHandling = NullValueHandling.Include,
-                        Formatting = Formatting.Indented
-                    };
-
-                    jsonSerializer.Serialize(jsonWriter, Configuration, typeof(Configuration));
-                }
+                    },
+                    NullValueHandling = NullValueHandling.Include,
+                    Formatting = Formatting.Indented
+                });
 
                 if (File.Exists(Constants.SettingsFile)) {
                     File.Copy(Constants.SettingsFile, Path.ChangeExtension(tempFile, "previous"), true);
-                }   
+                }
+
                 File.Copy(tempFile, Constants.SettingsFile, true);
                 File.Delete(tempFile);
 

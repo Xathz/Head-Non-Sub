@@ -54,20 +54,13 @@ namespace HeadNonSub.Clients.Discord.Services {
                     File.Delete(jsonFile);
                 }
 
-                using (StreamWriter streamWriter = new StreamWriter(jsonFile))
-                using (JsonWriter jsonWriter = new JsonTextWriter(streamWriter)) {
-                    DefaultContractResolver contractResolver = new DefaultContractResolver {
+                JsonConvert.SerializeObject(map, new JsonSerializerSettings() {
+                    ContractResolver = new DefaultContractResolver {
                         NamingStrategy = new CamelCaseNamingStrategy()
-                    };
-
-                    JsonSerializer jsonSerializer = new JsonSerializer() {
-                        ContractResolver = contractResolver,
-                        NullValueHandling = NullValueHandling.Ignore,
-                        Formatting = Formatting.Indented
-                    };
-
-                    jsonSerializer.Serialize(jsonWriter, map, typeof(MapEntities.MemberMap));
-                }
+                    },
+                    NullValueHandling = NullValueHandling.Ignore,
+                    Formatting = Formatting.Indented
+                });
 
                 if (File.Exists(jsonFile)) {
                     return jsonFile;

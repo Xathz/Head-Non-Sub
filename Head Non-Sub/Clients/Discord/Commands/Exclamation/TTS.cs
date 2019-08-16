@@ -7,7 +7,6 @@ using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Entities.Streamlabs;
 using HeadNonSub.Extensions;
 using Humanizer;
-using Newtonsoft.Json;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -71,13 +70,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             string pollyRequestData = await pollyRequest;
 
             if (pollyRequest.IsCompletedSuccessfully) {
-                Polly polly;
+                Polly polly = Http.DeserializeJson<Polly>(pollyRequestData);
 
-                using (StringReader jsonReader = new StringReader(pollyRequestData)) {
-                    polly = new JsonSerializer().Deserialize(jsonReader, typeof(Polly)) as Polly;
-                }
-
-                if (polly is Polly & polly.Success) {
+                if (polly is Polly && polly.Success) {
                     Task<MemoryStream> pollyStream = Http.GetStreamAsync(polly.SpeakUrl);
                     MemoryStream pollyStreamData = await pollyStream;
 

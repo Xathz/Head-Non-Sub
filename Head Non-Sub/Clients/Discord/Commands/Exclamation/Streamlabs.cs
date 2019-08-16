@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Globalization;
-using System.IO;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Humanizer;
-using Newtonsoft.Json;
 using StreamlabsEntities = HeadNonSub.Entities.Streamlabs.v6.Tip;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
@@ -77,11 +75,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             string data = await download;
 
             if (download.IsCompletedSuccessfully) {
-                using (StringReader jsonReader = new StringReader(data)) {
-                    JsonSerializer jsonSerializer = new JsonSerializer();
-
-                    return jsonSerializer.Deserialize(jsonReader, typeof(StreamlabsEntities.Tip)) as StreamlabsEntities.Tip;
-                }
+                return Http.DeserializeJson<StreamlabsEntities.Tip>(data);
             } else {
                 LoggingManager.Log.Error(download.Exception);
                 return null;

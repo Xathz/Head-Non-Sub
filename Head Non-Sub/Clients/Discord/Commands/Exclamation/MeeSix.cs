@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +12,6 @@ using HeadNonSub.Entities.MeeSix.Moderator;
 using HeadNonSub.Extensions;
 using HeadNonSub.Settings;
 using Humanizer;
-using Newtonsoft.Json;
 using TagType = HeadNonSub.Entities.Discord.TagType;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
@@ -216,13 +214,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             string data = await download;
 
             if (download.IsCompletedSuccessfully) {
-                using (StringReader jsonReader = new StringReader(data)) {
-                    JsonSerializer jsonSerializer = new JsonSerializer {
-                        DateTimeZoneHandling = DateTimeZoneHandling.Utc
-                    };
-
-                    return jsonSerializer.Deserialize(jsonReader, typeof(Moderator)) as Moderator;
-                }
+                return Http.DeserializeJson<Moderator>(data);
             } else {
                 LoggingManager.Log.Error(download.Exception);
                 return null;
@@ -230,7 +222,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         private async Task<bool> DeleteInfractionAsync(ulong serverId, string infractionId) {
-
             Task<string> download = Http.SendRequestAsync($"https://mee6.xyz/api/plugins/moderator/guilds/{serverId}/infractions/{infractionId}",
                   new Dictionary<string, string> { { "Authorization", SettingsManager.Configuration.MeeSixToken } }, method: Http.Method.Delete);
 

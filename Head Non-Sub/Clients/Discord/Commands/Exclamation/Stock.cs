@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using HeadNonSub.Entities.TwitchStocks;
-using Newtonsoft.Json;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -71,15 +69,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             string data = await download;
 
             if (download.IsCompletedSuccessfully) {
-                Values values = new Values();
-
-                using (StringReader jsonReader = new StringReader(data)) {
-                    JsonSerializer jsonSerializer = new JsonSerializer {
-                        DateTimeZoneHandling = DateTimeZoneHandling.Utc
-                    };
-
-                    values = jsonSerializer.Deserialize(jsonReader, typeof(Values)) as Values;
-                }
+                Values values = Http.DeserializeJson<Values>(data);
 
                 foreach (List<double> pair in values.Data) {
                     double? value = null;

@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using HeadNonSub.Settings;
+using Newtonsoft.Json;
 
 namespace HeadNonSub {
 
@@ -91,6 +93,20 @@ namespace HeadNonSub {
             } else {
                 LoggingManager.Log.Error(shortenRequest.Exception);
                 return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Deserializes a json string to a type.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="json">Json to deserialize.</param>
+        public static T DeserializeJson<T>(string json) {
+            try {
+                return JsonConvert.DeserializeObject<T>(json);
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return default;
             }
         }
 
