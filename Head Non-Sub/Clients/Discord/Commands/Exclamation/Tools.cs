@@ -220,8 +220,26 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                         if (stream.Length > Constants.DiscordMaximumFileSize) {
                             await BetterReplyAsync("There was an error processing the avatar. Re-upload was too large.");
                         } else {
+                            string changes = StatisticsManager.GetUserAvatarChanges(user.Id);
+                            List<string> chunks = changes.SplitIntoChunksPreserveNewLines(1930);
+                            string message = null;
+
+                            if (chunks.Count == 0) {
+                                message = $"● Avatar of {BetterUserFormat(user)}";
+                            } else if (chunks.Count == 1) {
+                                foreach (string chunk in chunks) {
+                                    message = $"● Previous avatars of {BetterUserFormat(user)} ```{chunk}```{Environment.NewLine}Current avatar:";
+                                }
+                            } else {
+                                Backblaze.File uploadedFile = await Backblaze.UploadTemporaryFileAsync(changes, $"{user.Id}/{Backblaze.ISOFileNameDate("txt")}");
+
+                                if (uploadedFile is Backblaze.File) {
+                                    message = $"● There are too many previous avatars to list here for {BetterUserFormat(user)} <{uploadedFile.ShortUrl}>{Environment.NewLine}{Environment.NewLine}Current avatar:";
+                                }
+                            }
+
                             stream.Seek(0, SeekOrigin.Begin);
-                            await BetterSendFileAsync(stream, $"{user.Id}_avatar.{(user.AvatarId.StartsWith("a_") ? "gif" : "png")}", $"● Avatar of {BetterUserFormat(user)}", parameters: $"{user.ToString()} ({user.Id})");
+                            await BetterSendFileAsync(stream, $"{user.Id}_avatar.{(user.AvatarId.StartsWith("a_") ? "gif" : "png")}", message, parameters: $"{user.ToString()} ({user.Id})");
                         }
                     }
                 } else {

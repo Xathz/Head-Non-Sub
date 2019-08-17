@@ -101,6 +101,48 @@ namespace HeadNonSub.Statistics {
             }
         }
 
+
+        /// <summary>
+        /// Get avatar changes from a user.
+        /// </summary>
+        /// <param name="userId">User id.</param>
+        public static string GetUserAvatarChanges(ulong userId) {
+            try {
+                using (StatisticsContext statistics = new StatisticsContext()) {
+                    IQueryable<UserChange> userChanges = statistics.UserChanges.AsNoTracking().OrderByDescending(x => x.DateTime).Where(x => x.UserId == userId).Where(x => x.ChangeType.HasFlag(NameChangeType.Avatar));
+                    StringBuilder builder = new StringBuilder();
+
+                    foreach (UserChange userChange in userChanges) {
+                        if (userChange.ChangeType != NameChangeType.None) {
+                            List<string> changes = new List<string>();
+
+                            if (userChange.ChangeType.HasFlag(NameChangeType.Avatar)) {
+                                if (!string.IsNullOrWhiteSpace(userChange.BackblazeAvatarUrl)) {
+                                    changes.Add($" ● {userChange.BackblazeAvatarUrl}");
+                                }
+                            }
+
+                            if (changes.Count > 0) {
+                                builder.Append($"{userChange.DateTime.ToString(Constants.DateTimeFormatShort).ToLower()} utc");
+
+                                if ((userChange.ChangeType & (userChange.ChangeType - 1)) != 0) {
+                                    builder.Append(Environment.NewLine);
+                                }
+
+                                builder.Append(string.Join(Environment.NewLine, changes));
+                                builder.Append(Environment.NewLine);
+                            }
+                        }
+                    }
+
+                    return builder.ToString().Trim();
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return string.Empty;
+            }
+        }
+
         /// <summary>
         /// Get the top users who have changes by count.
         /// </summary>
