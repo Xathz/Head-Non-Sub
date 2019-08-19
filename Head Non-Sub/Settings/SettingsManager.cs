@@ -50,13 +50,15 @@ namespace HeadNonSub.Settings {
             string tempFile = $"{Constants.SettingsFile}.temp";
 
             try {
-                JsonConvert.SerializeObject(Configuration, new JsonSerializerSettings() {
+                string json = JsonConvert.SerializeObject(Configuration, new JsonSerializerSettings() {
                     ContractResolver = new DefaultContractResolver {
                         NamingStrategy = new CamelCaseNamingStrategy()
                     },
                     NullValueHandling = NullValueHandling.Include,
                     Formatting = Formatting.Indented
                 });
+
+                File.WriteAllText(tempFile, json);
 
                 if (File.Exists(Constants.SettingsFile)) {
                     File.Copy(Constants.SettingsFile, Path.ChangeExtension(tempFile, "previous"), true);

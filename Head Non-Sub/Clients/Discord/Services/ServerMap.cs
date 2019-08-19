@@ -166,13 +166,15 @@ namespace HeadNonSub.Clients.Discord.Services {
                     File.Delete(jsonFile);
                 }
 
-                JsonConvert.SerializeObject(map, new JsonSerializerSettings() {
+                string json = JsonConvert.SerializeObject(map, new JsonSerializerSettings() {
                     ContractResolver = new DefaultContractResolver {
                         NamingStrategy = new CamelCaseNamingStrategy()
                     },
                     NullValueHandling = NullValueHandling.Ignore,
                     Formatting = Formatting.Indented
                 });
+
+                File.WriteAllText(jsonFile, json);
 
                 if (File.Exists(jsonFile)) {
                     return jsonFile;
