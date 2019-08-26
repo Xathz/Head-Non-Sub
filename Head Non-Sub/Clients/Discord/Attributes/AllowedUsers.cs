@@ -5,13 +5,13 @@ using Discord.Commands;
 
 namespace HeadNonSub.Clients.Discord.Attributes {
 
+    /// <summary>
+    /// Restrict command to only these users.
+    /// </summary>
     public class AllowedUsers : PreconditionAttribute {
 
         private readonly List<ulong> _AllowedUsers = new List<ulong>();
 
-        /// <summary>
-        /// Restrict command to only these users.
-        /// </summary>
         public AllowedUsers(params ulong[] allowedUsers) => _AllowedUsers.AddRange(allowedUsers);
 
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services) {

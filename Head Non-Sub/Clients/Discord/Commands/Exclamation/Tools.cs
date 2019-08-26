@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Entities.Discord;
@@ -125,6 +126,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             if (input.TotalMinutes > 30) {
                 await BetterReplyAsync("The timer has a maximum duration of 30 minutes. Was too lazy to add data persistence for this.", parameters: $"{input.Humanize()}; {message}");
+                return;
             }
 
             await BetterReplyAsync($"A timer has been set for {input.Humanize()}.", parameters: $"{input.Humanize()}; {message}");
@@ -317,9 +319,113 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 return;
             }
 
+            string orginalUserName = BetterUserFormat(user);
+
             await user.ModifyAsync(x => { x.Nickname = nickname; }, new RequestOptions { AuditLogReason = $"Changed by {Context.User.ToString()} ({Context.User.Id})" });
 
-            await BetterReplyAsync($"Changed nickname for {BetterUserFormat(user)} to `{nickname}`.", parameters: $"{user.ToString()} ({user.Id}); {nickname}");
+            await BetterReplyAsync($"Changed nickname for {orginalUserName} to `{nickname}`.", parameters: $"{user.ToString()} ({user.Id}); {nickname}");
+        }
+
+        [Command("altsniff")]
+        [DiscordStaffOnly]
+        [AllowedCategories(WubbysFunHouse.ModDaddiesCategoryId)]
+        public async Task AltSniff(SocketGuildUser user = null) {
+            if (user == null) {
+                await BetterReplyAsync("You must mention a user to check.", parameters: "user null");
+                return;
+            }
+
+            await Context.Channel.TriggerTypingAsync();
+
+            StringBuilder builder = new StringBuilder();
+
+            // Account creation to join
+            if (user.JoinedAt.HasValue) {
+                TimeSpan timeFromCreateToJoin = user.JoinedAt.Value - user.CreatedAt;
+
+                if (timeFromCreateToJoin.TotalHours <= 12) {
+                    builder.AppendLine($":small_blue_diamond: **Time from account creation to join:** {timeFromCreateToJoin.Humanize(3, minUnit: Humanizer.Localisation.TimeUnit.Second)}");
+                }
+            }
+
+            // Username matching
+            {
+                HashSet<string> matchingUsernames = new HashSet<string>();
+
+                IEnumerable<SocketGuildUser> matchingUsernames_Inner = Context.Guild.Users.Where(x => x.Id != user.Id && x.Username.Contains(user.Username, StringComparison.OrdinalIgnoreCase));
+                if (matchingUsernames_Inner.Count() > 0) {
+                    foreach (SocketGuildUser matchedUser in matchingUsernames_Inner) {
+                        matchingUsernames.Add($"{matchedUser.Username} (`{matchedUser.Id}`)");
+                    }
+                }
+
+                //IEnumerable<SocketGuildUser> matchingUsernames_Outer = Context.Guild.Users.Where(x => x.Id != user.Id && user.Username.Contains(x.Username, StringComparison.OrdinalIgnoreCase));
+                //if (matchingUsernames_Outer.Count() > 0) {
+                //    foreach (SocketGuildUser matchedUser in matchingUsernames_Outer) {
+                //        matchingUsernames.Add($"{matchedUser.Username} (`{matchedUser.Id}`)");
+                //    }
+                //}
+
+                if (matchingUsernames.Count > 0) {
+                    builder.AppendLine($":small_orange_diamond: **Matching usernames:** {string.Join(", ", matchingUsernames)}");
+                }
+            }
+
+            // Banned username matching
+            {
+                IReadOnlyCollection<RestBan> bannedUsers = await Context.Guild.GetBansAsync();
+                HashSet<string> matchingUsernames = new HashSet<string>();
+
+                IEnumerable<RestBan> matchingUsernames_Inner = bannedUsers.Where(x => x.User.Id != user.Id && x.User.Username.Contains(user.Username, StringComparison.OrdinalIgnoreCase));
+                if (matchingUsernames_Inner.Count() > 0) {
+                    foreach (RestBan matchedUser in matchingUsernames_Inner) {
+                        matchingUsernames.Add($"{matchedUser.User.Username} (`{matchedUser.User.Id}`)");
+                    }
+                }
+
+                //IEnumerable<RestBan> matchingUsernames_Outer = bannedUsers.Where(x => x.User.Id != user.Id && user.Username.Contains(x.User.Username, StringComparison.OrdinalIgnoreCase));
+                //if (matchingUsernames_Outer.Count() > 0) {
+                //    foreach (RestBan matchedUser in matchingUsernames_Outer) {
+                //        matchingUsernames.Add($"{matchedUser.User.Username} (`{matchedUser.User.Id}`)");
+                //    }
+                //}
+
+                if (matchingUsernames.Count > 0) {
+                    builder.AppendLine($":small_orange_diamond: **Matching banned usernames:** {string.Join(", ", matchingUsernames)}");
+                }
+            }
+
+
+            // Nickname matching
+            {
+                if (!string.IsNullOrEmpty(user.Nickname)) {
+                    HashSet<string> matchingNicknames = new HashSet<string>();
+
+                    IEnumerable<SocketGuildUser> matchingNicknames_Inner = Context.Guild.Users.Where(x => x.Id != user.Id && !string.IsNullOrEmpty(x.Nickname) && x.Nickname.Contains(user.Nickname, StringComparison.OrdinalIgnoreCase));
+                    if (matchingNicknames_Inner.Count() > 0) {
+                        foreach (SocketGuildUser matchedUser in matchingNicknames_Inner) {
+                            matchingNicknames.Add($"{matchedUser.Username} (`{matchedUser.Id}`)");
+                        }
+                    }
+
+                    //IEnumerable<SocketGuildUser> matchingNicknames_Outer = Context.Guild.Users.Where(x => x.Id != user.Id && !string.IsNullOrEmpty(x.Nickname) && user.Nickname.Contains(x.Nickname, StringComparison.OrdinalIgnoreCase));
+                    //if (matchingNicknames_Outer.Count() > 0) {
+                    //    foreach (SocketGuildUser matchedUser in matchingNicknames_Outer) {
+                    //        matchingNicknames.Add($"{matchedUser.Username} (`{matchedUser.Id}`)");
+                    //    }
+                    //}
+
+                    if (matchingNicknames.Count > 0) {
+                        builder.AppendLine($":small_orange_diamond: **Matching nicknames:** {string.Join(", ", matchingNicknames)}");
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(builder.ToString())) {
+                await BetterReplyAsync($"● Possible alts and suspicious events about {BetterUserFormat(user)}{Environment.NewLine}{builder.ToString()}", parameters: $"{user.ToString()} ({user.Id})");
+            } else {
+                await BetterReplyAsync($"No possible alts or suspicious events were found about {BetterUserFormat(user)}.", parameters: $"{user.ToString()} ({user.Id})");
+            }
         }
 
     }

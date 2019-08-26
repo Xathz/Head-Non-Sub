@@ -43,6 +43,12 @@ namespace HeadNonSub.Clients.Discord {
 
         #endregion
 
+        #region Channel category ids
+
+        public const ulong ModDaddiesCategoryId = 490764927448121345;
+
+        #endregion
+
         #region User ids
 
         public const ulong PaymoneyWubbyUserId = 177657233025400832;

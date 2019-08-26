@@ -195,7 +195,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     builder.AddField("Account created", $"{user.CreatedAt.ToString(Constants.DateTimeFormatMedium)}{Environment.NewLine}_{user.CreatedAt.Humanize()}_", true);
 
                     if (user.JoinedAt.HasValue) {
-                        builder.AddField("Joined server", $"{user.CreatedAt.ToString(Constants.DateTimeFormatMedium)}{Environment.NewLine}_{user.JoinedAt.Value.Humanize()}_", true);
+                        builder.AddField("Joined server", $"{user.JoinedAt.Value.ToString(Constants.DateTimeFormatMedium)}{Environment.NewLine}_{user.JoinedAt.Value.Humanize()}_", true);
                     }
 
                     builder.Footer = new EmbedFooterBuilder() {

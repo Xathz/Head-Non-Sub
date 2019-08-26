@@ -5,13 +5,13 @@ using Discord.Commands;
 
 namespace HeadNonSub.Clients.Discord.Attributes {
 
+    /// <summary>
+    /// Restrict command to only these guilds (servers).
+    /// </summary>
     public class AllowedGuilds : PreconditionAttribute {
 
         private readonly List<ulong> _AllowedGuilds = new List<ulong>();
 
-        /// <summary>
-        /// Restrict command to only these guilds (servers).
-        /// </summary>
         public AllowedGuilds(params ulong[] allowedGuilds) => _AllowedGuilds.AddRange(allowedGuilds);
 
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services) {

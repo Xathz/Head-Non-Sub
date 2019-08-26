@@ -7,14 +7,14 @@ using Humanizer;
 
 namespace HeadNonSub.Clients.Discord.Attributes {
 
+    /// <summary>
+    /// Restrict how often a command can be used.
+    /// </summary>
     public class Cooldown : PreconditionAttribute {
 
         private readonly int _Seconds;
         private readonly bool _PerUser;
 
-        /// <summary>
-        /// Restrict how often a command can be used.
-        /// </summary>
         public Cooldown(int seconds, bool perUser = false) {
             _Seconds = seconds;
             _PerUser = perUser;

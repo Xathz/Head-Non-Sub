@@ -52,33 +52,35 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("1024says")]
-        public async Task TenTwentyFourSays([Remainder]string input) {
+        public async Task TenTwentyFourSays([Remainder]string input = "") {
             await Context.Channel.TriggerTypingAsync();
 
-            using (MemoryStream stream = new MemoryStream(256))
-            using (MagickImage image = new MagickImage(Cache.GetStream("1024says.png"))) {
+            await BetterSendFileAsync(Cache.GetStream("1024notfound.gif"), "1024notfound.gif", $"● {BetterUserFormat()}", parameters: input);
 
-                string text = string.Join(Environment.NewLine, input.SplitIntoChunks(25));
-                int max = (text.Length <= 200 ? text.Length : 200);
-                text = text.Substring(0, max);
+            //using (MemoryStream stream = new MemoryStream(256))
+            //using (MagickImage image = new MagickImage(Cache.GetStream("1024says.png"))) {
 
-                new Drawables()
-                  .FontPointSize(124)
-                  .Font(Path.Combine(Constants.FontsDirectory, "VT323-Regular.ttf"))
-                  .Rotation(3.5)
-                  .SkewX(5.0)
-                  .FillColor(new MagickColor("#FFFFFF"))
-                  .TextAlignment(TextAlignment.Left)
-                  .TextAntialias(true)
-                  .TextEncoding(Encoding.UTF8)
-                  .Text(765, 400, text)
-                  .Draw(image);
+            //    string text = string.Join(Environment.NewLine, input.SplitIntoChunks(25));
+            //    int max = (text.Length <= 200 ? text.Length : 200);
+            //    text = text.Substring(0, max);
 
-                image.Write(stream, MagickFormat.Png);
-                stream.Seek(0, SeekOrigin.Begin);
+            //    new Drawables()
+            //      .FontPointSize(124)
+            //      .Font(Path.Combine(Constants.FontsDirectory, "VT323-Regular.ttf"))
+            //      .Rotation(3.5)
+            //      .SkewX(5.0)
+            //      .FillColor(new MagickColor("#FFFFFF"))
+            //      .TextAlignment(TextAlignment.Left)
+            //      .TextAntialias(true)
+            //      .TextEncoding(Encoding.UTF8)
+            //      .Text(765, 400, text)
+            //      .Draw(image);
 
-                await BetterSendFileAsync(stream, "1024Says.png", $"● {BetterUserFormat()}", parameters: input);
-            }
+            //    image.Write(stream, MagickFormat.Png);
+            //    stream.Seek(0, SeekOrigin.Begin);
+
+            //    await BetterSendFileAsync(stream, "1024Says.png", $"● {BetterUserFormat()}", parameters: input);
+            //}
         }
 
         [Command("amandasays")]
