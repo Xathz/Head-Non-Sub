@@ -251,6 +251,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("emoji"), Alias("e")]
+        [DisallowedChannels(WubbysFunHouse.MainChannelId)]
         public async Task EnlargeEmoji([Remainder]string emoji) {
             if (string.IsNullOrWhiteSpace(emoji)) {
                 await BetterReplyAsync("You must provide an emote or emoji to enlarge.");

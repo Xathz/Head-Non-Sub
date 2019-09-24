@@ -415,6 +415,23 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="user">User who sent the message.</param>
         private static async Task ProcessMessageAsync(SocketUserMessage message, SocketGuildUser user) {
 
+            { // Responses
+
+                if (message.Content.Replace(" ", "").Contains("water", StringComparison.OrdinalIgnoreCase)) {
+                    if (new Random().Next(0, 100) >= 95) {
+                        await message.Channel.SendMessageAsync("To a true hydrohomie, we cherish all water. I remember back when I was a small hydrling," +
+                            "I asked my hydrodad, \"father, what is the best water?\" He responded with a sentence that changed my life." +
+                            "\"All water is precious son. I remember when the Soda tribe took your mother, I almost turned away from the hydration, but then, I saw him. " +
+                            "The true hydrohomie. He came down from the clouds and handed me a bottle of water unlike any I have seen before. He told me to take it with me wherever I go." +
+                            "That bottle has the power to turn into any water possible.\" 10 months later, he died in a Soda tribe attack. As I held him in my arms, he handed me the bottle and said" +
+                            "\"son, take this to remember me\". And then he died. So I say again, all water is precious.");
+                    } else {
+                        await message.Channel.SendMessageAsync(":potable_water: _H y d r a t i o n_");
+                    }
+                }
+
+            }
+
             if (WubbysFunHouse.IsDiscordOrTwitchStaff(user)) {
                 return;
             }
@@ -436,14 +453,12 @@ namespace HeadNonSub.Clients.Discord {
 
                         // Move links
                         if (message.Content.ContainsUrls()) {
-                            if (!message.Content.GetUrls().Any(x => x.Contains("https://discord.gift/"))) {
-                                if (_DiscordClient.GetChannel(WubbysFunHouse.LinksChannelId) is IMessageChannel channel) {
-                                    LoggingManager.Log.Info($"Link in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id})");
+                            if (_DiscordClient.GetChannel(WubbysFunHouse.LinksChannelId) is IMessageChannel channel) {
+                                LoggingManager.Log.Info($"Link in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id})");
 
-                                    await message.DeleteAsync();
-                                    await channel.SendMessageAsync($"● Posted by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
-                                    await message.Channel.SendMessageAsync($"{user.Mention} You need to be <@&{WubbysFunHouse.ForkliftDriversRoleId}> or higher to post links here. Link was moved to <#{WubbysFunHouse.LinksChannelId}>.");
-                                }
+                                await message.DeleteAsync();
+                                await channel.SendMessageAsync($"● Posted by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
+                                await message.Channel.SendMessageAsync($"{user.Mention} You need to be <@&{WubbysFunHouse.ForkliftDriversRoleId}> or higher to post links here. Link was moved to <#{WubbysFunHouse.LinksChannelId}>.");
                             }
 
                             // Move attachments
