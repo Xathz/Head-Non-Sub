@@ -23,6 +23,8 @@ setlocale(LC_ALL, "en_US.UTF-8");
   * @param string $responseCode HTTP response status code.
   */
 function exitWithStatusCode($responseCode) {
+    global $dbConnection;
+
     mysqli_close($dbConnection);
     http_response_code($responseCode);
     exit();
@@ -34,6 +36,8 @@ function exitWithStatusCode($responseCode) {
   * @return string Shortened url.
   */
 function generateShortUrl() {
+    global $dbConnection;
+
     $shortUrl = "https://hns.xathz.net/" . bin2hex(random_bytes(4));
 
     while (true) {
@@ -100,7 +104,7 @@ if (!empty($_POST["key"])) {
         } else {
             exitWithStatusCode(404);
         }
-    
+
     } else {
         exitWithStatusCode(404);
     }

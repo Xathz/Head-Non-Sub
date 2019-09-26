@@ -417,17 +417,21 @@ namespace HeadNonSub.Clients.Discord {
 
             { // Responses
 
-                if (message.Content.Replace(" ", "").Contains("water", StringComparison.OrdinalIgnoreCase)) {
-                    if (new Random().Next(0, 100) >= 95) {
-                        await message.Channel.SendMessageAsync("To a true hydrohomie, we cherish all water. I remember back when I was a small hydrling," +
-                            "I asked my hydrodad, \"father, what is the best water?\" He responded with a sentence that changed my life." +
-                            "\"All water is precious son. I remember when the Soda tribe took your mother, I almost turned away from the hydration, but then, I saw him. " +
-                            "The true hydrohomie. He came down from the clouds and handed me a bottle of water unlike any I have seen before. He told me to take it with me wherever I go." +
-                            "That bottle has the power to turn into any water possible.\" 10 months later, he died in a Soda tribe attack. As I held him in my arms, he handed me the bottle and said" +
-                            "\"son, take this to remember me\". And then he died. So I say again, all water is precious.");
-                    } else {
-                        await message.Channel.SendMessageAsync(":potable_water: _H y d r a t i o n_");
-                    }
+                //if (message.Content.Replace(" ", "").Contains("water", StringComparison.OrdinalIgnoreCase)) {
+                //    if (new Random().Next(0, 100) >= 95) {
+                //        await message.Channel.SendMessageAsync("To a true hydrohomie, we cherish all water. I remember back when I was a small hydrling," +
+                //            "I asked my hydrodad, \"father, what is the best water?\" He responded with a sentence that changed my life." +
+                //            "\"All water is precious son. I remember when the Soda tribe took your mother, I almost turned away from the hydration, but then, I saw him. " +
+                //            "The true hydrohomie. He came down from the clouds and handed me a bottle of water unlike any I have seen before. He told me to take it with me wherever I go." +
+                //            "That bottle has the power to turn into any water possible.\" 10 months later, he died in a Soda tribe attack. As I held him in my arms, he handed me the bottle and said" +
+                //            "\"son, take this to remember me\". And then he died. So I say again, all water is precious.");
+                //    } else {
+                //        await message.Channel.SendMessageAsync(":potable_water: _H y d r a t i o n_");
+                //    }
+                //}
+
+                if (message.Content.Replace(" ", "").Contains("sure", StringComparison.OrdinalIgnoreCase)) {
+                    await message.Channel.SendMessageAsync("<:ninjabread:606638518780952691> _o k a y_");
                 }
 
             }
