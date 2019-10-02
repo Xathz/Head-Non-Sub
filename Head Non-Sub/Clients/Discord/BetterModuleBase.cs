@@ -229,7 +229,7 @@ namespace HeadNonSub.Clients.Discord {
                         await channel.TriggerTypingAsync();
 
                         // Max length per-message is 2,000 characters
-                        List<string> chunks = info.SplitIntoChunksPreserveNewLines(1998 - title.Length);
+                        List<string> chunks = info.SanitizeForMarkdown().SplitIntoChunksPreserveNewLines(1998 - title.Length);
 
                         List<IUserMessage> sentMessages = new List<IUserMessage>();
 

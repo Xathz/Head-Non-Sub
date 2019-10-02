@@ -13,6 +13,8 @@ namespace HeadNonSub.Extensions {
 
         private static readonly Regex _EmojiRegex = new Regex(@"[0-9]?\#?\*?(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+", RegexOptions.Compiled);
 
+        private static readonly string[] _MarkdownSensitiveCharacters = { "\\", "*", "_", "~", "`", "|", ">" };
+
         /// <summary>
         /// Split a string into chunks based on max length.
         /// </summary>
@@ -328,6 +330,20 @@ namespace HeadNonSub.Extensions {
             }
 
             return emotes;
+        }
+
+        /// <summary>
+        /// Sanitizes the string, safely escaping any markdown sequences.
+        /// </summary>
+        /// <remarks>https://git.io/JeY0Y</remarks>
+        public static string SanitizeForMarkdown(this string input) {
+            if (string.IsNullOrWhiteSpace(input)) { return input; }
+
+            foreach (string unsafeChar in _MarkdownSensitiveCharacters) {
+                input = input.Replace(unsafeChar, $"\\{unsafeChar}");
+            }
+
+            return input.Trim();
         }
 
         private static int? FindIndex(List<MessageTag> tags, int index) {

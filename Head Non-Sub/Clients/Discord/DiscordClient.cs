@@ -417,6 +417,7 @@ namespace HeadNonSub.Clients.Discord {
 
             { // Responses
 
+                // Waterbot
                 //if (message.Content.Replace(" ", "").Contains("water", StringComparison.OrdinalIgnoreCase)) {
                 //    if (new Random().Next(0, 100) >= 95) {
                 //        await message.Channel.SendMessageAsync("To a true hydrohomie, we cherish all water. I remember back when I was a small hydrling," +
@@ -430,8 +431,21 @@ namespace HeadNonSub.Clients.Discord {
                 //    }
                 //}
 
-                if (message.Content.Replace(" ", "").Contains("sure", StringComparison.OrdinalIgnoreCase)) {
-                    await message.Channel.SendMessageAsync("<:ninjabread:606638518780952691> _o k a y_");
+                // Harass sureokay lul
+                //if (message.Author.Id == 271351283015876618) { // sureokay
+                //    await message.Channel.SendMessageAsync("<:ninjabread:606638518780952691> _o k a y_");
+                //}
+
+                string srippedMessage = message.Content.Replace(" ", "");
+                if (srippedMessage.Contains("spoo", StringComparison.OrdinalIgnoreCase) || srippedMessage.Contains("sp00", StringComparison.OrdinalIgnoreCase)) {
+                    int random = new Random().Next(0, 100);
+                    if (random <= 33) {
+                        await message.Channel.SendMessageAsync(":jack_o_lantern: _2 s p o o k y_");
+                    } else if (random >= 34 & random <= 80) {
+                        await message.Channel.SendMessageAsync(":ghost: _2 s p o o p y_");
+                    } else {
+                        await message.Channel.SendMessageAsync(":bat: _2 s p o o p y 4 m e_");
+                    }
                 }
 
             }
