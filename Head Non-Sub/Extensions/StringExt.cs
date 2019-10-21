@@ -358,6 +358,18 @@ namespace HeadNonSub.Extensions {
             return i > 0 && index < tags[i - 1].Index + tags[i - 1].Length ? null : (int?)i;
         }
 
+        // ==================
+
+        private static readonly Regex _SpookyRegex = new Regex("spo+k?p?y", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        /// <summary>
+        /// Check is it's a spooky message.
+        /// </summary>
+        public static bool IsSpooky(this string input) {
+            MatchCollection matches = _SpookyRegex.Matches(input.Replace(" ", ""));
+            return (matches.Count > 0) ? true : false;
+        }
+
     }
 
 }

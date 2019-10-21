@@ -436,8 +436,7 @@ namespace HeadNonSub.Clients.Discord {
                 //    await message.Channel.SendMessageAsync("<:ninjabread:606638518780952691> _o k a y_");
                 //}
 
-                string srippedMessage = message.Content.Replace(" ", "");
-                if (srippedMessage.Contains("spoo", StringComparison.OrdinalIgnoreCase) || srippedMessage.Contains("sp00", StringComparison.OrdinalIgnoreCase)) {
+                if (message.Content.IsSpooky()) {
                     int random = new Random().Next(0, 100);
                     if (random <= 33) {
                         await message.Channel.SendMessageAsync(":jack_o_lantern: _2 s p o o k y_");
