@@ -8,7 +8,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
     /// <summary>
     /// Disallow a command in a channel or list of channels.
     /// </summary>
-    public class DisallowedChannels : PreconditionAttribute {
+    public sealed class DisallowedChannels : PreconditionAttribute {
 
         private readonly List<ulong> _DisallowedChannels = new List<ulong>();
 

@@ -10,7 +10,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
     /// <summary>
     /// Restrict how often a command can be used.
     /// </summary>
-    public class Cooldown : PreconditionAttribute {
+    public sealed class Cooldown : PreconditionAttribute {
 
         private readonly int _Seconds;
         private readonly bool _PerUser;
@@ -45,7 +45,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
                         return Task.FromResult(PreconditionResult.FromSuccess());
                     }
                 } else {
-                    LoggingManager.Log.Debug($"Command \"{command.Name}\" ({_Seconds}sec) {(_PerUser ? "per-user" : "server wide")} cooldown started {(_PerUser ? $"for {context.User.ToString()}"  : "")} in {context.Guild.Name}");
+                    LoggingManager.Log.Debug($"Command \"{command.Name}\" ({_Seconds}sec) {(_PerUser ? "per-user" : "server wide")} cooldown started {(_PerUser ? $"for {context.User.ToString()}" : "")} in {context.Guild.Name}");
 
                     DatabaseManager.Cooldowns.Insert(context.Guild.Id, context.User.Id, command.Name);
                     return Task.FromResult(PreconditionResult.FromSuccess());

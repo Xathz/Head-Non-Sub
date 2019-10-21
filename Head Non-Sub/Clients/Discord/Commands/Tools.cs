@@ -29,16 +29,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("failfast")]
         [DiscordStaffOnly]
-        public async Task FailFast() {
-            await BetterReplyAsync($"The failfast command has been disabled. Contact <@{Constants.XathzUserId}> for help.");
-
-            //LoggingManager.Log.Fatal($"Forcibly disconnected from Discord. Server: {Context.Guild.Name} ({Context.Guild.Id}); Channel: {Context.Channel.Name} ({Context.Channel.Id}); User: {Context.User.Username} ({Context.User.Id})");
-
-            //await BetterReplyAsync($"Forcibly disconnecting from Discord, please tell <@{Constants.XathzUserId}> as soon as possible. Good bye.");
-            //await LogMessageEmbedAsync($"Fail fast executed `@{Context.Guild.CurrentUser.ToString()} failfast`", $"Forcibly disconnecting from Discord, please tell <@!{Constants.XathzUserId}> as soon as possible. Good bye.");
-
-            //DiscordClient.FailFast();
-        }
+        public Task FailFast() => BetterReplyAsync($"The failfast command has been disabled. Contact <@{Constants.XathzUserId}> for help.");
 
         [Command("undo")]
         public async Task Undo(int count = 1) {

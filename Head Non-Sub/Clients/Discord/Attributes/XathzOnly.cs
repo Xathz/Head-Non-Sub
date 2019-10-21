@@ -5,7 +5,7 @@ using Discord.WebSocket;
 
 namespace HeadNonSub.Clients.Discord.Attributes {
 
-    public class XathzOnly : PreconditionAttribute {
+    public sealed class XathzOnly : PreconditionAttribute {
 
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services) {
             if (context.User is SocketGuildUser user) {

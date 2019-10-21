@@ -23,7 +23,8 @@ namespace HeadNonSub.Clients.Discord {
         private static DiscordSocketClient _DiscordClient;
 
         private static readonly CommandServiceConfig _ServiceConfig = new CommandServiceConfig() {
-            DefaultRunMode = RunMode.Async, LogLevel = LogSeverity.Verbose
+            DefaultRunMode = RunMode.Async,
+            LogLevel = LogSeverity.Verbose
         };
 
         private static IServiceProvider _MentionProvider;

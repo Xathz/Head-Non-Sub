@@ -147,7 +147,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
             await channel.DeleteMessagesAsync(messagesToDelete);
 
-            await message.ModifyAsync(x => { x.Embed = null; x.Content = $"Deleted {messagesToDelete.Count()} messages from the past {minutes.Minutes().Humanize(3)}."; });   
+            await message.ModifyAsync(x => { x.Embed = null; x.Content = $"Deleted {messagesToDelete.Count()} messages from the past {minutes.Minutes().Humanize(3)}."; });
             await LogMessageEmbedAsync("Raid recovery system", $"Deleted {messagesToDelete.Count()} messages from the past {minutes.Minutes().Humanize(3)}.");
         }
 

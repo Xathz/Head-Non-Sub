@@ -27,7 +27,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             if (newPoll == null || string.IsNullOrEmpty(newPoll.PollUrl)) {
                 return BetterReplyAsync("Failed to create the strawpoll. Example: `!strawpoll Poll Title | Option 1 | Option 2 | Option 3`", parameters: input);
             } else {
-               return BetterReplyAsync($"{Context.User.Mention} <{newPoll.PollUrl}>", parameters: input);
+                return BetterReplyAsync($"{Context.User.Mention} <{newPoll.PollUrl}>", parameters: input);
             }
         }
 

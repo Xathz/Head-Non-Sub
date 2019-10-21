@@ -8,7 +8,7 @@ using HeadNonSub.Settings;
 
 namespace HeadNonSub {
 
-    public static class Backblaze {
+    public static partial class Backblaze {
 
         /// <summary>
         /// Temporary files bucket. Files will be hidden after 7 days and deleted after 10.
@@ -123,36 +123,6 @@ namespace HeadNonSub {
         /// </summary>
         /// <param name="extension">Extension of the file.</param>
         public static string ISOFileNameDate(string extension) => $"{DateTime.UtcNow.ToString("yyyyMMddTHHmmss")}Z.{extension}";
-
-        public class File {
-
-            private string _ShortUrl;
-
-            public File(string bucketName, string fileName, string fullUrl, string shortUrl) {
-                BucketName = bucketName;
-                FileName = fileName;
-                FullUrl = fullUrl;
-                ShortUrl = shortUrl;
-            }
-
-            public string BucketName { get; private set; }
-
-            public string FileName { get; private set; }
-
-            public string FullUrl { get; private set; }
-
-            public string ShortUrl {
-                get {
-                    if (string.IsNullOrWhiteSpace(_ShortUrl)) {
-                        return FullUrl;
-                    } else {
-                        return _ShortUrl;
-                    }
-                }
-                set => _ShortUrl = value;
-            }
-
-        }
 
     }
 

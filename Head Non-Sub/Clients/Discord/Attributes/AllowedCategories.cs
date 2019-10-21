@@ -9,7 +9,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
     /// <summary>
     /// Restrict command to only these categories.
     /// </summary>
-    public class AllowedCategories : PreconditionAttribute {
+    public sealed class AllowedCategories : PreconditionAttribute {
 
         private readonly List<ulong> _AllowedCategories = new List<ulong>();
 

@@ -96,7 +96,7 @@ namespace HeadNonSub {
             } else if (input == "cache") {
                 LoggingManager.Log.Info($"Keys in the cache: {Cache.ListKeys()}");
 
-            } else if (input == "help" || input == string.Empty) {
+            } else if (input == "help" || string.IsNullOrWhiteSpace(input)) {
                 Console.WriteLine($"=== {Constants.ApplicationName} v{Constants.ApplicationVersion}; Running for: {DateTime.Now.Subtract(_Started).ToString("c")}");
                 Console.WriteLine($"=== Available commands: exit, cache");
             }

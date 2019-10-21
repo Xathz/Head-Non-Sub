@@ -8,7 +8,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
     /// <summary>
     /// Restrict command to only these users.
     /// </summary>
-    public class AllowedUsers : PreconditionAttribute {
+    public sealed class AllowedUsers : PreconditionAttribute {
 
         private readonly List<ulong> _AllowedUsers = new List<ulong>();
 

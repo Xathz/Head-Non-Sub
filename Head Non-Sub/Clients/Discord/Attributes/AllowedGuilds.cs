@@ -8,7 +8,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
     /// <summary>
     /// Restrict command to only these guilds (servers).
     /// </summary>
-    public class AllowedGuilds : PreconditionAttribute {
+    public sealed class AllowedGuilds : PreconditionAttribute {
 
         private readonly List<ulong> _AllowedGuilds = new List<ulong>();
 

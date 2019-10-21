@@ -13,7 +13,7 @@ namespace HeadNonSub.Clients.Discord {
 
     public abstract class BetterModuleBase : ModuleBase<SocketCommandContext> {
 
-        public BetterModuleBase() { }
+        protected BetterModuleBase() { }
 
         private string DisplayName() {
             if (Context.User is SocketGuildUser contextUser) {

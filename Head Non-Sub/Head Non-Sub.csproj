@@ -24,10 +24,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <OutputPath>bin\Debug\</OutputPath>
+    <CodeAnalysisRuleSet />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutputPath>bin\Release\</OutputPath>
+    <CodeAnalysisRuleSet />
   </PropertyGroup>
 
   <ItemGroup>

@@ -8,7 +8,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
     /// <summary>
     /// Restrict command to only these channels.
     /// </summary>
-    public class AllowedChannels : PreconditionAttribute {
+    public sealed class AllowedChannels : PreconditionAttribute {
 
         private readonly List<ulong> _AllowedChannels = new List<ulong>();
 
