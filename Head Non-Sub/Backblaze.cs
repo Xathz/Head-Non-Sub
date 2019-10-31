@@ -53,6 +53,8 @@ namespace HeadNonSub {
         /// <param name="fileData">The file data.</param>
         /// <param name="fileName">Name of the file.</param>
         public static async Task<File> UploadTemporaryFileAsync(byte[] fileData, string fileName) {
+            await Authorize();
+
             B2UploadUrl uploadUrl = await _TempBucketClient.Files.GetUploadUrl();
             string sha1Hash = Utilities.GetSHA1Hash(fileData);
 
@@ -74,6 +76,8 @@ namespace HeadNonSub {
         /// <param name="memoryStream">The memory stream.</param>
         /// <param name="fileName">Name of the file.</param>
         public static async Task<File> UploadTemporaryFileAsync(MemoryStream memoryStream, string fileName) {
+            await Authorize();
+
             B2UploadUrl uploadUrl = await _TempBucketClient.Files.GetUploadUrl();
 
             byte[] fileData = memoryStream.ToArray();
@@ -99,6 +103,8 @@ namespace HeadNonSub {
         /// <param name="memoryStream">The memory stream.</param>
         /// <param name="fileName">Name of the file.</param>
         public static async Task<File> UploadAvatarAsync(MemoryStream memoryStream, string fileName) {
+            await Authorize();
+
             B2UploadUrl uploadUrl = await _AvatarBucketClient.Files.GetUploadUrl();
 
             byte[] fileData = memoryStream.ToArray();
