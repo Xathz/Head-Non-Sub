@@ -58,8 +58,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("nonsub")]
         [Cooldown(20)]
-        [SubscriberOnly]
-        public Task NonSub() => BetterSendFileAsync(Cache.GetStream("nonsub.png"), "nonsub.png", $"● {BetterUserFormat()}, created by MisterMonarchy");
+        public Task NonSub() => BetterReplyAsync($"Sub <{WubbysFunHouse.TwitchSubscribeUrl}> or link your Twitch <{WubbysFunHouse.LinkTwitchToDiscordUrl}>.");
 
         [Command("radar")]
         [Cooldown(20)]

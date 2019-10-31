@@ -409,6 +409,8 @@ namespace HeadNonSub.Clients.Discord {
         //    }
         //}
 
+        private static bool _EnableAntiAntiWater = true;
+
         /// <summary>
         /// Process additional actions for a message.
         /// </summary>
@@ -431,6 +433,30 @@ namespace HeadNonSub.Clients.Discord {
                 //        await message.Channel.SendMessageAsync(":potable_water: _H y d r a t i o n_");
                 //    }
                 //}
+
+                // Anti-anti-water
+                if (message.Content.Replace("!", "").ToLowerInvariant() == "mohydro") {
+                    _EnableAntiAntiWater = true;
+                    await message.Channel.SendMessageAsync("Hydro bot active.");
+                    return;
+                } else if (message.Content.Replace("!", "").ToLowerInvariant() == "nohydro") {
+                    _EnableAntiAntiWater = false;
+                    await message.Channel.SendMessageAsync("Hydro bot is going to sleep.");
+                    return;
+                }
+
+                if (_EnableAntiAntiWater) {
+                    if (message.Content.Replace(" ", "").Contains("dehy", StringComparison.OrdinalIgnoreCase)) {
+                        await message.Channel.SendMessageAsync("The authorities have been alerted about your anti-hydro thoughts. This message brought to you by _H y d r a t i o n_");
+
+                    } else if (message.Content.Replace(" ", "").Contains("notdrinkwat", StringComparison.OrdinalIgnoreCase)) {
+                        await message.Channel.SendMessageAsync("The authorities have been alerted about your anti-hydro thoughts. This message brought to you by _H y d r a t i o n_");
+
+                    } else if (message.Content.Replace(" ", "").Contains("nodrinkwat", StringComparison.OrdinalIgnoreCase)) {
+                        await message.Channel.SendMessageAsync("The authorities have been alerted about your anti-hydro thoughts. This message brought to you by _H y d r a t i o n_");
+
+                    }
+                }
 
                 // Harass sureokay lul
                 //if (message.Author.Id == 271351283015876618) { // sureokay

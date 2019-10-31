@@ -248,6 +248,36 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
+        /// <summary>
+        /// Log a message to <see cref="WubbysFunHouse.UserLogsChannelId"/>.
+        /// </summary>
+        public async Task<List<IUserMessage>> LogUserMessageAsync(string title, string info) {
+            try {
+                if (Context.Guild.Id == WubbysFunHouse.ServerId) {
+                    if (Context.Guild.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel channel) {
+
+                        await channel.TriggerTypingAsync();
+
+                        // Max length per-message is 2,000 characters
+                        List<string> chunks = info.SanitizeForMarkdown().SplitIntoChunksPreserveNewLines(1998 - title.Length);
+
+                        List<IUserMessage> sentMessages = new List<IUserMessage>();
+
+                        foreach (string chunk in chunks) {
+                            sentMessages.Add(await channel.SendMessageAsync($"{title} ```{chunk}```").ConfigureAwait(false));
+                        }
+
+                        return sentMessages;
+                    }
+                }
+
+                return new List<IUserMessage>();
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+                return new List<IUserMessage>();
+            }
+        }
+
     }
 
 }
