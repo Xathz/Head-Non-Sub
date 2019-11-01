@@ -420,8 +420,10 @@ namespace HeadNonSub.Clients.Discord {
 
             { // Responses
 
+                string messageNoSpace = message.Content.Replace(" ", "");
+
                 // Waterbot
-                //if (message.Content.Replace(" ", "").Contains("water", StringComparison.OrdinalIgnoreCase)) {
+                //if (messageNoSpace.Contains("water", StringComparison.OrdinalIgnoreCase)) {
                 //    if (new Random().Next(0, 100) >= 95) {
                 //        await message.Channel.SendMessageAsync("To a true hydrohomie, we cherish all water. I remember back when I was a small hydrling," +
                 //            "I asked my hydrodad, \"father, what is the best water?\" He responded with a sentence that changed my life." +
@@ -433,6 +435,21 @@ namespace HeadNonSub.Clients.Discord {
                 //        await message.Channel.SendMessageAsync(":potable_water: _H y d r a t i o n_");
                 //    }
                 //}
+
+                //Trick or treat
+                if (string.Equals(messageNoSpace, "trickortreat", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(messageNoSpace, "trickrtreat", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(messageNoSpace, "trickertreat", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(messageNoSpace, "trick-or-treat", StringComparison.OrdinalIgnoreCase)) {
+
+                    if (new Random().Next(0, 100) >= 75) { // Trick
+                        await message.Channel.SendFileAsync(Cache.GetStream("trick.png"), "trick.png");
+                    } else { // Treat
+                        await message.Channel.SendFileAsync(Cache.GetStream("treat.png"), "treat.png");
+                    }
+
+                    return;
+                }
 
                 // Anti-anti-water
                 if (message.Content.Replace("!", "").ToLowerInvariant() == "mohydro") {
@@ -446,13 +463,13 @@ namespace HeadNonSub.Clients.Discord {
                 }
 
                 if (_EnableAntiAntiWater) {
-                    if (message.Content.Replace(" ", "").Contains("dehy", StringComparison.OrdinalIgnoreCase)) {
+                    if (messageNoSpace.Contains("dehy", StringComparison.OrdinalIgnoreCase)) {
                         await message.Channel.SendMessageAsync("The authorities have been alerted about your anti-hydro thoughts. This message brought to you by _H y d r a t i o n_");
 
-                    } else if (message.Content.Replace(" ", "").Contains("notdrinkwat", StringComparison.OrdinalIgnoreCase)) {
+                    } else if (messageNoSpace.Replace(" ", "").Contains("notdrinkwat", StringComparison.OrdinalIgnoreCase)) {
                         await message.Channel.SendMessageAsync("The authorities have been alerted about your anti-hydro thoughts. This message brought to you by _H y d r a t i o n_");
 
-                    } else if (message.Content.Replace(" ", "").Contains("nodrinkwat", StringComparison.OrdinalIgnoreCase)) {
+                    } else if (messageNoSpace.Replace(" ", "").Contains("nodrinkwat", StringComparison.OrdinalIgnoreCase)) {
                         await message.Channel.SendMessageAsync("The authorities have been alerted about your anti-hydro thoughts. This message brought to you by _H y d r a t i o n_");
 
                     }
