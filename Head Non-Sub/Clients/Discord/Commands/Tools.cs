@@ -27,10 +27,6 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 $"```Ping: {Context.Message.CreatedAt.DateTime.ToString(Constants.DateTimeFormatFull)}{Environment.NewLine}Pong: {now.ToString(Constants.DateTimeFormatFull)}```");
         }
 
-        [Command("failfast")]
-        [DiscordStaffOnly]
-        public Task FailFast() => BetterReplyAsync($"The failfast command has been disabled. Contact <@{Constants.XathzUserId}> for help.");
-
         [Command("undo")]
         public async Task Undo(int count = 1) {
             List<ulong> toDelete = new List<ulong> { Context.Message.Id };

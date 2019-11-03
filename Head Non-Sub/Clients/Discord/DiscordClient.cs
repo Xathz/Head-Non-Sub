@@ -63,12 +63,13 @@ namespace HeadNonSub.Clients.Discord {
             _DiscordClient.GuildAvailable += GuildAvailable;
             _DiscordClient.GuildMembersDownloaded += GuildMembersDownloaded;
 
+            _DiscordClient.UserJoined += UserJoined;
             _DiscordClient.UserUpdated += UserUpdated;
             _DiscordClient.GuildMemberUpdated += GuildMemberUpdated;
 
             _DiscordClient.MessageReceived += MessageReceived;
             _DiscordClient.MessageUpdated += MessageUpdated;
-            //_DiscordClient.MessageDeleted += MessageDeleted;
+            _DiscordClient.MessageDeleted += MessageDeleted;
 
             _DiscordClient.ReactionAdded += ReactionAdded;
 
@@ -90,19 +91,6 @@ namespace HeadNonSub.Clients.Discord {
         public static ReadOnlyCollection<CommandInfo> ExclamationCommandList { get; private set; }
 
         public static async Task StopAsync() => await _DiscordClient.StopAsync();
-
-        public static async void FailFast() {
-            try {
-                File.WriteAllText(Constants.FailFastFile, $"{DateTime.UtcNow.ToString("o")} This file was generated becuase the fail fast command was executed." +
-                     " The watchdog script (Watchdog.ps1) will not start/restart the bot if this file is here.");
-
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-            }
-
-            await _DiscordClient.LogoutAsync();
-            Environment.Exit(13);
-        }
 
         public static async Task<ulong?> SendMessageAsync(ulong id, string message) {
             try {
@@ -220,6 +208,50 @@ namespace HeadNonSub.Clients.Discord {
 
         private static Task GuildMembersDownloaded(SocketGuild guild) {
             LoggingManager.Log.Info($"Full memberlist was downloaded for {guild.Name} ({guild.Id}); {guild.Users.Count.ToString("N0")} total members ({guild.Users.Where(x => x.Status == UserStatus.Online).Count().ToString("N0")} online)");
+            return Task.CompletedTask;
+        }
+
+        private static Task UserJoined(SocketGuildUser user) {
+            Task runner = Task.Run(async () => {
+                try {
+                    StatisticsManager.NameChangeType changeType =
+                        StatisticsManager.NameChangeType.Username |
+                        StatisticsManager.NameChangeType.Discriminator |
+                        StatisticsManager.NameChangeType.Display;
+
+                    string backblazeAvatarBucket = null, backblazeAvatarFilename = null, backblazeAvatarUrl = null;
+
+                    try {
+                        ImageFormat imageFormat = user.AvatarId.StartsWith("a_") ? ImageFormat.Gif : ImageFormat.Png;
+                        Task<MemoryStream> download = Http.GetStreamAsync(user.GetAvatarUrl(imageFormat, 1024));
+
+                        using (MemoryStream data = await download) {
+                            if (download.IsCompletedSuccessfully) {
+                                Backblaze.File avatarUpload = await Backblaze.UploadAvatarAsync(data, $"{user.Id}/{Backblaze.ISOFileNameDate(imageFormat.ToString().ToLower())}");
+
+                                backblazeAvatarBucket = avatarUpload.BucketName;
+                                backblazeAvatarFilename = avatarUpload.FileName;
+                                backblazeAvatarUrl = avatarUpload.ShortUrl;
+
+                                changeType |= StatisticsManager.NameChangeType.Avatar;
+                            } else {
+                                LoggingManager.Log.Error(download.Exception);
+
+                                backblazeAvatarBucket = null;
+                                backblazeAvatarFilename = null;
+                                backblazeAvatarUrl = null;
+                            }
+                        }
+                    } catch { }
+
+                    StatisticsManager.InsertUserChange(DateTime.UtcNow, user.Guild.Id, user.Id, changeType, null, user.Username, null, user.Discriminator,
+                        null, user.Nickname, backblazeAvatarBucket, backblazeAvatarFilename, backblazeAvatarUrl);
+
+                } catch (Exception ex) {
+                    LoggingManager.Log.Error(ex);
+                }
+            });
+
             return Task.CompletedTask;
         }
 
@@ -373,43 +405,41 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static async Task MessageUpdated(Cacheable<IMessage, ulong> originalMessage, SocketMessage updatedMessage, ISocketMessageChannel channel) {
+            string logMessage;
+
+            if (originalMessage.HasValue) {
+                logMessage = $"`[{originalMessage.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :pencil: {originalMessage.Value.Author.ToString()} (`{originalMessage.Value.Author.Id}`) message edited in **#{channel.Name}**:{Environment.NewLine}**B:** {originalMessage.Value.Content}{Environment.NewLine}**A:** {updatedMessage.Content}";
+            } else {
+                logMessage = $":warning: An unknown message was edited in **#{channel.Name}**: {Environment.NewLine}Old id was: {originalMessage.Id}{Environment.NewLine}New id is: {updatedMessage.Id}";
+            }
+
+            if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
+                await logChannel.SendMessageAsync(logMessage);
+            }
+
+            // ========
+
             if (!(updatedMessage is SocketUserMessage message)) { return; }
             if (updatedMessage.Source != MessageSource.User) { return; }
 
-            if (WubbysFunHouse.IsDiscordOrTwitchStaff(updatedMessage.Author)) {
-                return;
+            if (!WubbysFunHouse.IsDiscordOrTwitchStaff(updatedMessage.Author)) {
+                await ProcessMessageEmotesAsync(message);
             }
-
-            await ProcessMessageEmotesAsync(message);
-
-            //string logMessage;
-
-            //if (originalMessage.HasValue) {
-            //    logMessage = $"`[{originalMessage.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :pencil: {originalMessage.Value.Author.ToString()} (`{originalMessage.Value.Author.Id}`) message edited in **#{channel.Name}**:{Environment.NewLine}**B:** {originalMessage.Value.Content}{Environment.NewLine}**A:** {updatedMessage.Content}";
-            //} else {
-            //    logMessage = $":warning: An unknown message was edited in **#{channel.Name}**: {Environment.NewLine}Old id was: {originalMessage.Id}{Environment.NewLine}New id is: {updatedMessage.Id}";
-            //}
-
-            //if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
-            //    await logChannel.SendMessageAsync(logMessage);
-            //}
         }
 
-        //private static async Task MessageDeleted(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel) {
-        //    string logMessage;
+        private static async Task MessageDeleted(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel) {
+            string logMessage;
 
-        //    if (message.HasValue) {
-        //        logMessage = $"`[{message.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :wastebasket: {message.Value.Author.ToString()} (`{message.Value.Author.Id}`) message deleted in **#{channel.Name}**:{Environment.NewLine}{message.Value.Content}";
-        //    } else {
-        //        logMessage = $":warning: An unknown message was deleted in **#{channel.Name}**: {Environment.NewLine}Message id was: {message.Id}";
-        //    }
+            if (message.HasValue) {
+                logMessage = $"`[{message.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :wastebasket: {message.Value.Author.ToString()} (`{message.Value.Author.Id}`) message deleted in **#{channel.Name}**:{Environment.NewLine}{message.Value.Content}";
+            } else {
+                logMessage = $":warning: An unknown message was deleted in **#{channel.Name}**: {Environment.NewLine}Message id was: {message.Id}";
+            }
 
-        //    if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
-        //        await logChannel.SendMessageAsync(logMessage);
-        //    }
-        //}
-
-        private static bool _EnableAntiAntiWater = true;
+            if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
+                await logChannel.SendMessageAsync(logMessage);
+            }
+        }
 
         /// <summary>
         /// Process additional actions for a message.
@@ -419,77 +449,6 @@ namespace HeadNonSub.Clients.Discord {
         private static async Task ProcessMessageAsync(SocketUserMessage message, SocketGuildUser user) {
 
             { // Responses
-
-                string messageNoSpace = message.Content.Replace(" ", "");
-
-                // Waterbot
-                //if (messageNoSpace.Contains("water", StringComparison.OrdinalIgnoreCase)) {
-                //    if (new Random().Next(0, 100) >= 95) {
-                //        await message.Channel.SendMessageAsync("To a true hydrohomie, we cherish all water. I remember back when I was a small hydrling," +
-                //            "I asked my hydrodad, \"father, what is the best water?\" He responded with a sentence that changed my life." +
-                //            "\"All water is precious son. I remember when the Soda tribe took your mother, I almost turned away from the hydration, but then, I saw him. " +
-                //            "The true hydrohomie. He came down from the clouds and handed me a bottle of water unlike any I have seen before. He told me to take it with me wherever I go." +
-                //            "That bottle has the power to turn into any water possible.\" 10 months later, he died in a Soda tribe attack. As I held him in my arms, he handed me the bottle and said" +
-                //            "\"son, take this to remember me\". And then he died. So I say again, all water is precious.");
-                //    } else {
-                //        await message.Channel.SendMessageAsync(":potable_water: _H y d r a t i o n_");
-                //    }
-                //}
-
-                //Trick or treat
-                if (string.Equals(messageNoSpace, "trickortreat", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(messageNoSpace, "trickrtreat", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(messageNoSpace, "trickertreat", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(messageNoSpace, "trick-or-treat", StringComparison.OrdinalIgnoreCase)) {
-
-                    if (new Random().Next(0, 100) >= 75) { // Trick
-                        await message.Channel.SendFileAsync(Cache.GetStream("trick.png"), "trick.png");
-                    } else { // Treat
-                        await message.Channel.SendFileAsync(Cache.GetStream("treat.png"), "treat.png");
-                    }
-
-                    return;
-                }
-
-                // Anti-anti-water
-                if (message.Content.Replace("!", "").ToLowerInvariant() == "mohydro") {
-                    _EnableAntiAntiWater = true;
-                    await message.Channel.SendMessageAsync("Hydro bot active.");
-                    return;
-                } else if (message.Content.Replace("!", "").ToLowerInvariant() == "nohydro") {
-                    _EnableAntiAntiWater = false;
-                    await message.Channel.SendMessageAsync("Hydro bot is going to sleep.");
-                    return;
-                }
-
-                if (_EnableAntiAntiWater) {
-                    if (messageNoSpace.Contains("dehy", StringComparison.OrdinalIgnoreCase)) {
-                        await message.Channel.SendMessageAsync("The authorities have been alerted about your anti-hydro thoughts. This message brought to you by _H y d r a t i o n_");
-
-                    } else if (messageNoSpace.Replace(" ", "").Contains("notdrinkwat", StringComparison.OrdinalIgnoreCase)) {
-                        await message.Channel.SendMessageAsync("The authorities have been alerted about your anti-hydro thoughts. This message brought to you by _H y d r a t i o n_");
-
-                    } else if (messageNoSpace.Replace(" ", "").Contains("nodrinkwat", StringComparison.OrdinalIgnoreCase)) {
-                        await message.Channel.SendMessageAsync("The authorities have been alerted about your anti-hydro thoughts. This message brought to you by _H y d r a t i o n_");
-
-                    }
-                }
-
-                // Harass sureokay lul
-                //if (message.Author.Id == 271351283015876618) { // sureokay
-                //    await message.Channel.SendMessageAsync("<:ninjabread:606638518780952691> _o k a y_");
-                //}
-
-                if (message.Content.IsSpooky()) {
-                    int random = new Random().Next(0, 100);
-                    if (random <= 33) {
-                        await message.Channel.SendMessageAsync(":jack_o_lantern: _2 s p o o k y_");
-                    } else if (random >= 34 & random <= 80) {
-                        await message.Channel.SendMessageAsync(":ghost: _2 s p o o p y_");
-                    } else {
-                        await message.Channel.SendMessageAsync(":bat: _2 s p o o p y 4 m e_");
-                    }
-                }
 
             }
 

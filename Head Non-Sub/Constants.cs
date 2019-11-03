@@ -178,11 +178,6 @@ namespace HeadNonSub {
         public static string ProcessIdFile => Path.Combine(WorkingDirectory, $"{ExecutableName}.pid");
 
         /// <summary>
-        /// Fail fast file.
-        /// </summary>
-        public static string FailFastFile => Path.Combine(WorkingDirectory, $"{ExecutableName}.failfast");
-
-        /// <summary>
         /// Common words
         /// </summary>
         public static List<string> CommonWords => new List<string>() { "a", "able", "about", "after", "all", "an", "and", "as", "ask", "at", "bad", "be", "big", "but",

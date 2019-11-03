@@ -101,7 +101,6 @@ Command  | Parameters | Description | Access
 `blacklist add` | `<user>` | Blacklist a user from using any bot commands | Staff
 `blacklist list` | | List all blacklisted users | Staff
 `blacklist remove` | `<user>` | Removes a user from the blacklist | Staff
-`failfast` | | Force disconnect the bot and kill the process, the bot needs to be restarted manually by Xathz | Staff
 `help` | | A link to this document | All
 `ping` | | Check the delay from the bot to Discord | All
 `emotemode` | `<mode>` | Enable/disable current channel mode. **Modes:** `off`, `textonly`, `emoteonly` | Staff
