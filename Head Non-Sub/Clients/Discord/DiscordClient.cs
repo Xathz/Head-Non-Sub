@@ -405,16 +405,20 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static async Task MessageUpdated(Cacheable<IMessage, ulong> originalMessage, SocketMessage updatedMessage, ISocketMessageChannel channel) {
-            string logMessage;
+            if (originalMessage.HasValue && !string.IsNullOrWhiteSpace(originalMessage.Value.Content) && !string.IsNullOrWhiteSpace(updatedMessage.Content)) {
+                string logMessage;
 
-            if (originalMessage.HasValue) {
-                logMessage = $"`[{originalMessage.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :pencil: {originalMessage.Value.Author.ToString()} (`{originalMessage.Value.Author.Id}`) message edited in **#{channel.Name}**:{Environment.NewLine}**B:** {originalMessage.Value.Content}{Environment.NewLine}**A:** {updatedMessage.Content}";
-            } else {
-                logMessage = $":warning: An unknown message was edited in **#{channel.Name}**: {Environment.NewLine}Old id was: {originalMessage.Id}{Environment.NewLine}New id is: {updatedMessage.Id}";
-            }
+                if (originalMessage.HasValue) {
+                    logMessage = $"`[{originalMessage.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :pencil: {originalMessage.Value.Author.ToString()} (`{originalMessage.Value.Author.Id}`) message edited in **#{channel.Name}**:{Environment.NewLine}**B:** {originalMessage.Value.Content.SanitizeEveryoneAndHere()}{Environment.NewLine}**A:** {updatedMessage.Content.SanitizeEveryoneAndHere()}";
+                } else {
+                    logMessage = $":warning: An unknown message was edited in **#{channel.Name}**: {Environment.NewLine}Old id was: {originalMessage.Id}{Environment.NewLine}New id is: {updatedMessage.Id}";
+                }
 
-            if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
-                await logChannel.SendMessageAsync(logMessage);
+                if (!string.IsNullOrEmpty(logMessage)) {
+                    if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
+                        await logChannel.SendMessageAsync(logMessage);
+                    }
+                }
             }
 
             // ========
@@ -428,16 +432,18 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static async Task MessageDeleted(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel) {
-            string logMessage;
+            if (message.HasValue && !string.IsNullOrWhiteSpace(message.Value.Content)) {
+                string logMessage;
 
-            if (message.HasValue) {
-                logMessage = $"`[{message.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :wastebasket: {message.Value.Author.ToString()} (`{message.Value.Author.Id}`) message deleted in **#{channel.Name}**:{Environment.NewLine}{message.Value.Content}";
-            } else {
-                logMessage = $":warning: An unknown message was deleted in **#{channel.Name}**: {Environment.NewLine}Message id was: {message.Id}";
-            }
+                if (message.HasValue) {
+                    logMessage = $"`[{message.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :wastebasket: {message.Value.Author.ToString()} (`{message.Value.Author.Id}`) message deleted in **#{channel.Name}**:{Environment.NewLine}{message.Value.Content.SanitizeEveryoneAndHere()}";
+                } else {
+                    logMessage = $":warning: An unknown message was deleted in **#{channel.Name}**: {Environment.NewLine}Message id was: {message.Id}";
+                }
 
-            if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
-                await logChannel.SendMessageAsync(logMessage);
+                if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
+                    await logChannel.SendMessageAsync(logMessage);
+                }
             }
         }
 
