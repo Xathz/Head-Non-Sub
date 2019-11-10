@@ -464,6 +464,27 @@ namespace HeadNonSub.Clients.Discord {
 
             try {
 
+                // Emoji only channel
+                if (message.Channel.Id == WubbysFunHouse.EmojiOnlyChannelId) {
+                    if (message.Attachments.Count > 0) {
+                        await message.DeleteAsync();
+                        return;
+                    }
+
+                    List<EmoteOrEmoji> emotes = message.Content.ParseDiscordMessageEmotes();
+                    string content = message.Content;
+
+                    foreach (EmoteOrEmoji emote in emotes) {
+                        content = content.Replace(emote.ToString(), "");
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(content)) {
+                        await message.DeleteAsync();
+                    }
+
+                    return;
+                }
+
                 // Emote mode
                 if (await ProcessMessageEmotesAsync(message)) {
                     return;
