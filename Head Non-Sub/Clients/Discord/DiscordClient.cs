@@ -539,18 +539,6 @@ namespace HeadNonSub.Clients.Discord {
                     }
                 }
 
-                // Invalid poll in market research
-                if (message.Channel.Id == WubbysFunHouse.MarketResearchChannelId) {
-                    string channelName = _DiscordClient.GetGuild(WubbysFunHouse.ServerId).GetChannel(WubbysFunHouse.MarketResearchChannelId).Name;
-
-                    if (!_ValidPolls.Any(x => message.Content.Contains(x, StringComparison.OrdinalIgnoreCase))) {
-                        LoggingManager.Log.Info($"Invalid poll in #{channelName} by {message.Author.ToString()} ({message.Author.Id})");
-
-                        await message.DeleteAsync();
-                        await message.Author.SendMessageAsync($"You can only post polls in #{channelName} on {_DiscordClient.GetGuild(WubbysFunHouse.ServerId).Name}.");
-                    }
-                }
-
                 // Too many animated emotes in actual fucking spam
                 if (message.Channel.Id == WubbysFunHouse.ActualFuckingSpamChannelId) {
                     int count = message.Content.CountStringOccurrences("<a:");

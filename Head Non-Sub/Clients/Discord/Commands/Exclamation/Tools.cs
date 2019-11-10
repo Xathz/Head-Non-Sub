@@ -43,7 +43,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             string subsAndPatronsPercent = ((double)subsAndPatrons / total).ToString("0%");
             builder.AddField("Subs / Patrons", $"{subsAndPatrons.ToString("N0")} (_{subsAndPatronsPercent}_)", true);
 
-            int nonSubs = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == WubbysFunHouse.NonSubRoleId)).Count();
+            int nonSubs = Context.Guild.Users.Where(x => !x.Roles.Any(r => r.Id == WubbysFunHouse.TwitchSubscriberRoleId || r.Id == WubbysFunHouse.PatronRoleId)).Distinct().Count();
             string nonSubsPercent = ((double)nonSubs / total).ToString("0.00%");
             builder.AddField("Non-subs", $"{nonSubs.ToString("N0")} (_{nonSubsPercent}_)", true);
 
@@ -58,7 +58,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 randomUser = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == WubbysFunHouse.TwitchSubscriberRoleId || r.Id == WubbysFunHouse.PatronRoleId)).PickRandom();
 
             } else if (type == "non-sub" || type == "nonsub") {
-                randomUser = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == WubbysFunHouse.NonSubRoleId)).PickRandom();
+                randomUser = Context.Guild.Users.Where(x => !x.Roles.Any(r => r.Id == WubbysFunHouse.TwitchSubscriberRoleId || r.Id == WubbysFunHouse.PatronRoleId)).PickRandom();
 
             } else if (type == "tier3" || type == "t3") {
                 randomUser = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == WubbysFunHouse.Tier3RoleId)).PickRandom();

@@ -34,7 +34,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 if (guildUser.Roles.Count == 0) {
                     await BetterReplyAsync("You can not executie a non-sub. Executie is for someone you like and no one likes a non-sub.", parameters: $"{user.ToString()} ({user.Id}); {reason}");
                     return;
-                } else if (guildUser.Roles.Any(x => x.Id == WubbysFunHouse.NonSubRoleId)) {
+                } else if (!guildUser.Roles.Any(x => x.Id == WubbysFunHouse.TwitchSubscriberRoleId || x.Id == WubbysFunHouse.PatronRoleId)) {
                     await BetterReplyAsync("You can not executie a non-sub. Executie is for someone you like and no one likes a non-sub.", parameters: $"{user.ToString()} ({user.Id}); {reason}");
                     return;
                 } else if (guildUser.Roles.Any(x => x.Id == WubbysFunHouse.MutedRoleId)) {

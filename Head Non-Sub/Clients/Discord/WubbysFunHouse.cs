@@ -33,8 +33,6 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong LinksChannelId = 553407177654665216;
 
-        public const ulong MarketResearchChannelId = 526223101101604873;
-
         public const ulong ActualFuckingSpamChannelId = 537727672747294738;
 
         public const ulong ModLogsChannelId = 502940074036690954;
@@ -76,8 +74,6 @@ namespace HeadNonSub.Clients.Discord {
         public const ulong TwitchSubscriberRoleId = 428052879371272192;
 
         public const ulong PatronRoleId = 328732005024137217;
-
-        public const ulong NonSubRoleId = 508752510216044547;
 
         public const ulong MutedRoleId = 445807715655221259;
 
