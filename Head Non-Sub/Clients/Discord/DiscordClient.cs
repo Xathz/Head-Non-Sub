@@ -455,6 +455,16 @@ namespace HeadNonSub.Clients.Discord {
         private static async Task ProcessMessageAsync(SocketUserMessage message, SocketGuildUser user) {
 
             { // Responses
+                string messageNoSpace = message.Content.Replace(" ", "");
+
+                // Turkey
+                if (messageNoSpace.Contains("turke", StringComparison.OrdinalIgnoreCase) || messageNoSpace.Contains("thanks", StringComparison.OrdinalIgnoreCase)) {
+                    if (new Random().Next(0, 100) >= 97) {
+                        await message.Channel.SendMessageAsync(":turkey: eat me daddy");
+                    } else {
+                        await message.Channel.SendMessageAsync(":turkey: gobble gobble");
+                    }
+                }
 
             }
 
@@ -463,27 +473,6 @@ namespace HeadNonSub.Clients.Discord {
             }
 
             try {
-
-                // Emoji only channel
-                if (message.Channel.Id == WubbysFunHouse.EmojiOnlyChannelId) {
-                    if (message.Attachments.Count > 0) {
-                        await message.DeleteAsync();
-                        return;
-                    }
-
-                    List<EmoteOrEmoji> emotes = message.Content.ParseDiscordMessageEmotes();
-                    string content = message.Content;
-
-                    foreach (EmoteOrEmoji emote in emotes) {
-                        content = content.Replace(emote.ToString(), "");
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(content)) {
-                        await message.DeleteAsync();
-                    }
-
-                    return;
-                }
 
                 // Emote mode
                 if (await ProcessMessageEmotesAsync(message)) {

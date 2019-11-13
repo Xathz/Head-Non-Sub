@@ -125,11 +125,6 @@ namespace HeadNonSub.Clients.Discord.Commands {
         [Command("emotemode")]
         [DiscordStaffOnly]
         public async Task EmoteMode([Remainder]string mode = "") {
-            if (Context.Channel.Id == WubbysFunHouse.EmojiOnlyChannelId) {
-                await BetterReplyAsync("You can not change the emote mode in this channel!");
-                return;
-            }
-
             if (mode == "off") {
                 EmoteModeTracker.RemoveMode(Context.Channel.Id);
 

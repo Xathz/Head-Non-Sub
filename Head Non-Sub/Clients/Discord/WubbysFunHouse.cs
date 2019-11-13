@@ -39,8 +39,6 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong UserLogsChannelId = 490766846761500683;
 
-        public const ulong EmojiOnlyChannelId = 642142561624129556;
-
         #endregion
 
         #region Channel category ids

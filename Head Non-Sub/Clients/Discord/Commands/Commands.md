@@ -23,7 +23,7 @@ If using `<username#delimiter>` and the username contains a space, it must be en
 Access | Scope / Description
 --- | ---
 All | Everyone
-Sub | Users that have at `Twitch Subscriber` or `Patron` role.
+Sub | Users that have `Twitch Subscriber` or `Patron` role.
 Staff | **Built-in roles:** `Administrator`<br>**Guild (server) roles:** `Admins`, `Mods`, `Mod-Lite`<br>**Users:** `Xathz#6861`
 Xathz | `Xathz#6861` only
 
