@@ -73,6 +73,8 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong PatronRoleId = 328732005024137217;
 
+        public const ulong NonSubRoleId = 644457029406162964;
+
         public const ulong MutedRoleId = 445807715655221259;
 
         public const ulong Tier3RoleId = 493641643765792768;

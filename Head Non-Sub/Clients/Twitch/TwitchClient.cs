@@ -128,15 +128,19 @@ namespace HeadNonSub.Clients.Twitch {
         }
 
         private static void StartMonitor() {
-            _StreamMonitor = new LiveStreamMonitorService(_TwitchApi, 30);
-            _StreamMonitor.SetChannelsByName(SettingsManager.Configuration.TwitchStreams.Select(x => x.UsernameLowercase).ToList());
+            try {
+                _StreamMonitor = new LiveStreamMonitorService(_TwitchApi, 30);
+                _StreamMonitor.SetChannelsByName(SettingsManager.Configuration.TwitchStreams.Select(x => x.UsernameLowercase).ToList());
 
-            _StreamMonitor.Start();
+                _StreamMonitor.Start();
 
-            _StreamMonitor.OnStreamOnline += OnStreamOnline;
-            _StreamMonitor.OnStreamOffline += OnStreamOffline;
+                _StreamMonitor.OnStreamOnline += OnStreamOnline;
+                _StreamMonitor.OnStreamOffline += OnStreamOffline;
 
-            LoggingManager.Log.Info($"Stream monitoring is running for: {string.Join(", ", SettingsManager.Configuration.TwitchStreams.Select(x => $"{x.DisplayName} ({x.UserId})").ToList())}");
+                LoggingManager.Log.Info($"Stream monitoring is running for: {string.Join(", ", SettingsManager.Configuration.TwitchStreams.Select(x => $"{x.DisplayName} ({x.UserId})").ToList())}");
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+            }
         }
 
         private static void OnStreamOnline(object sender, OnStreamOnlineArgs streamOnline) {
