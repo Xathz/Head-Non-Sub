@@ -164,7 +164,7 @@ namespace HeadNonSub.Clients.Twitch {
             }
         }
 
-        private static void OnStreamOffline(object sender, OnStreamOfflineArgs streamOffline) {
+        private static async void OnStreamOffline(object sender, OnStreamOfflineArgs streamOffline) {
             TwitchStream stream = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == streamOffline.Channel.ToLower()).FirstOrDefault();
 
             DateTime? startedAt = DatabaseManager.ActiveStreams.Delete(stream.UsernameLowercase);
@@ -173,8 +173,23 @@ namespace HeadNonSub.Clients.Twitch {
                 _ = Discord.DiscordClient.SetStatus();
             }
 
-            string duration = (startedAt.HasValue ? $"They were live for {(DateTime.UtcNow - startedAt.Value).TotalMilliseconds.Milliseconds().Humanize(3)}{Environment.NewLine}" : "");
-            _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, null, $"{stream.DisplayName} is now offline", $"{duration}Thanks for watching");
+            string hostingDisplayName = "";
+            try {
+                // Do not use '_TwitchApi.Undocumented.GetChannelHostsAsync' it is outdated.
+                string hostsJson = await Http.SendRequestAsync($"https://tmi.twitch.tv/hosts?include_logins=1&host={stream.UserId}");
+                TwitchEntities.HostsResponse hostsResponse = Http.DeserializeJson<TwitchEntities.HostsResponse>(hostsJson);
+
+                if (hostsResponse.Hosts.Count > 0) {
+                    hostingDisplayName = hostsResponse.Hosts[0].TargetDisplayName;
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+            }
+
+            string duration = startedAt.HasValue ? $"They were live for {(DateTime.UtcNow - startedAt.Value).TotalMilliseconds.Milliseconds().Humanize(3)}{Environment.NewLine}" : "";
+            string hosting = !string.IsNullOrEmpty(hostingDisplayName) ? $"{Environment.NewLine}{Environment.NewLine}Raided [{hostingDisplayName}](https://www.twitch.tv/{hostingDisplayName} \"Clicking this link will take you to: https://www.twitch.tv/{hostingDisplayName}\")" : "";
+
+            _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, null, $"{stream.DisplayName} is now offline", $"{duration}Thanks for watching{hosting}");
 
             LoggingManager.Log.Info($"{stream.DisplayName} is now offline");
         }

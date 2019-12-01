@@ -39,6 +39,8 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong UserLogsChannelId = 490766846761500683;
 
+        public const ulong ModsChannelId = 490766924201066516;
+
         #endregion
 
         #region Channel category ids
@@ -50,6 +52,41 @@ namespace HeadNonSub.Clients.Discord {
         #region User ids
 
         public const ulong PaymoneyWubbyUserId = 177657233025400832;
+
+        #endregion
+
+        #region Bot ids
+
+        public const ulong HeadNonSubBotUserId = 545778771517636638;
+
+        public const ulong MediaShareBotUserId = 511449458819596289;
+
+        public const ulong MEE6BotUserId = 159985870458322944;
+
+        public const ulong PollBotUserId = 266162291735658496;
+
+        public const ulong RythmBotUserId = 235088799074484224;
+
+        public const ulong Rythm2BotUserId = 252128902418268161;
+
+        public const ulong StatbotBotUserId = 491769129318088714;
+
+        public const ulong WubbyBotUserId = 489538588120449039;
+
+        public const ulong RawgoatBotUserId = 348350443031625738;
+
+        public const ulong WubbyIRLBotUserId = 529090224324608000;
+
+        // TODO Re-enable, bot is having issues currently 2019-11-24T20:37:40+0000
+        //public const ulong WubbyMailBotUserId = 523299238369820692;
+        //public static readonly ReadOnlyCollection<ulong> AllBotIds = new ReadOnlyCollection<ulong>(new List<ulong> { HeadNonSubBotUserId, MediaShareBotUserId, MEE6BotUserId, PollBotUserId, RythmBotUserId, Rythm2BotUserId, StatbotBotUserId, WubbyBotUserId, RawgoatBotUserId, WubbyIRLBotUserId, WubbyMailBotUserId, LogBotUserId });
+
+        public const ulong LogBotUserId = 555800636332179480;
+
+        /// <summary>
+        /// All bot user ids.
+        /// </summary>
+        public static readonly ReadOnlyCollection<ulong> AllBotIds = new ReadOnlyCollection<ulong>(new List<ulong> { HeadNonSubBotUserId, MediaShareBotUserId, MEE6BotUserId, PollBotUserId, RythmBotUserId, Rythm2BotUserId, StatbotBotUserId, WubbyBotUserId, RawgoatBotUserId, WubbyIRLBotUserId, LogBotUserId });
 
         #endregion
 
@@ -104,6 +141,11 @@ namespace HeadNonSub.Clients.Discord {
         public static readonly ReadOnlyCollection<ulong> AllStaffRoles = new ReadOnlyCollection<ulong>(new List<ulong> { GingerBoyRoleId, AdminsRoleId, ModsRoleId, ModLiteRoleId, TwitchModRoleId, SubredditModRoleId });
 
         #endregion
+
+        /// <summary>
+        /// Get if the user id is a server bot.
+        /// </summary>
+        public static bool IsServerBot(ulong id) => AllBotIds.Contains(id);
 
         /// <summary>
         /// Get if the user is a discord staff member.

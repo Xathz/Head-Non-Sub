@@ -62,7 +62,7 @@ namespace HeadNonSub {
             await DiscordClient.ConnectAsync();
 
             // Connect to Twitch
-            //await TwitchClient.ConnectApiAsync();
+            await TwitchClient.ConnectApiAsync();
 
             // Block and wait
             await UserInputAsync();
