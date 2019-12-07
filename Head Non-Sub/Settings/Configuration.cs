@@ -75,9 +75,9 @@ namespace HeadNonSub.Settings {
         public BackblazeBucket BackblazeAvatarBucket { get; set; } = new BackblazeBucket();
 
         /// <summary>
-        /// List of Twitch streams to monitor and report online/offline status.
+        /// Twitch stream to monitor and report online/offline status.
         /// </summary>
-        public List<TwitchStream> TwitchStreams { get; set; } = new List<TwitchStream>();
+        public TwitchStream TwitchStream { get; set; } = new TwitchStream();
 
         /// <summary>
         /// List of users (user id's) to act as admins with commands. Key = server id; Value = hashset of user ids.

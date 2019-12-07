@@ -115,9 +115,12 @@ namespace HeadNonSub.Clients.Discord {
                     EmbedBuilder builder = new EmbedBuilder() {
                         Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                         Url = streamUrl,
-                        Title = title,
-                        Description = description
+                        Title = title
                     };
+
+                    if (description is string) {
+                        builder.Description = description;
+                    }
 
                     if (imageUrl is string) {
                         builder.ImageUrl = $"{imageUrl.Replace("{width}", "1920").Replace("{height}", "1080")}?_={DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()}";
@@ -603,23 +606,33 @@ namespace HeadNonSub.Clients.Discord {
             return false;
         }
 
-        private static bool _JingleBellsInProgress = false;
+        private static DateTimeOffset _LastJingleBells = DateTimeOffset.UtcNow;
+        private static bool _SentJingleBellsCooldownMessage = false;
 
         /// <summary>
         /// Jingles the bells.
         /// </summary>
         private static async Task JingleBells(ulong channelId) {
-            if (_JingleBellsInProgress) { return; };
-            if (channelId == WubbysFunHouse.ActualFuckingSpamChannelId) { return; }
-
-            _JingleBellsInProgress = true;
-
-            int msDelay = 2000;
-            string dashing = $"{Environment.NewLine}Dashing";
-
             if (_DiscordClient.GetChannel(channelId) is IMessageChannel channel) {
+                if (channelId == WubbysFunHouse.ActualFuckingSpamChannelId) { return; }
 
-                IUserMessage sentMessage = await channel.SendMessageAsync($":wave_tone5: _I'm slow so bear with me..._");
+                if (_LastJingleBells.AddSeconds(240) >= DateTimeOffset.UtcNow) {
+                    if (!_SentJingleBellsCooldownMessage) {
+                        _SentJingleBellsCooldownMessage = true;
+
+                        string remaining = (_LastJingleBells.AddSeconds(240) - DateTimeOffset.UtcNow).TotalSeconds.Seconds().Humanize(2);
+                        await channel.SendMessageAsync($":mrs_claus::skin-tone-5: The elves are sleepy! Check back in {remaining} for some more cheer.");
+                    }
+                    return;
+                }
+
+                _LastJingleBells = DateTimeOffset.UtcNow;
+                _SentJingleBellsCooldownMessage = false;
+
+                int msDelay = 2000;
+                string dashing = $"{Environment.NewLine}Dashing";
+
+                IUserMessage sentMessage = await channel.SendMessageAsync($":wave::skin-tone-5: _I'm slow so bear with me..._");
                 await Task.Delay(2600);
 
                 await sentMessage.ModifyAsync(x => { x.Content = $":snowman2:{dashing}"; });
@@ -681,8 +694,6 @@ namespace HeadNonSub.Clients.Discord {
 
                 await sentMessage.ModifyAsync(x => { x.Content = $":christmas_tree: :candle: **Happy holidays** :menorah: :star2:"; });
             }
-
-            _JingleBellsInProgress = false;
         }
 
     }

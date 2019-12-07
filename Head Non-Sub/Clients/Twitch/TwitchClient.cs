@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using HeadNonSub.Database;
 using HeadNonSub.Exceptions;
@@ -43,9 +42,11 @@ namespace HeadNonSub.Clients.Twitch {
                 LoggingManager.Log.Info("Connected");
 
                 // Get user id's for streams that do not have it set
-                await GetUserIdsFromUsernamesAsync();
-
-                StartMonitor();
+                if (await CompleteTwitchStreamSettingsAsync()) {
+                    StartMonitor();
+                } else {
+                    LoggingManager.Log.Error("Failed to complete Twitch stream settings, skipping stream monitoring.");
+                }
 
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
@@ -62,7 +63,7 @@ namespace HeadNonSub.Clients.Twitch {
                     AutoReListenOnException = true
                 };
 
-                _TwitchClient.Initialize(_ConnectionCredentials, "paymoneywubby");
+                _TwitchClient.Initialize(_ConnectionCredentials, SettingsManager.Configuration.TwitchStream.Username);
 
                 _TwitchClient.Connect();
 
@@ -84,12 +85,11 @@ namespace HeadNonSub.Clients.Twitch {
         }
 
         /// <summary>
-        /// Get 100 most recent clips from the stream.
+        /// Get 100 most recent clips from a stream.
         /// </summary>
-        /// <param name="name">Broadcaster's username or display name</param>
-        public static async Task<List<TwitchEntities.Clip>> GetClipsAsync(string name) {
-            string userId = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == name.ToLower()).Select(x => x.UserId).FirstOrDefault();
-
+        /// <param name="userId">User id of the stream.</param>
+        /// <param name="displayName">Display name of the stream.</param>
+        public static async Task<List<TwitchEntities.Clip>> GetClipsAsync(string userId, string displayName) {
             if (!string.IsNullOrEmpty(userId)) {
                 List<TwitchEntities.Clip> returnClips = new List<TwitchEntities.Clip>();
 
@@ -100,98 +100,99 @@ namespace HeadNonSub.Clients.Twitch {
                     returnClips.Add(new TwitchEntities.Clip(DateTime.Parse(clip.CreatedAt), clip.Title, clip.ViewCount, clip.Url));
                 }
 
-                LoggingManager.Log.Info($"Retrieved {returnClips.Count} for {name}");
+                LoggingManager.Log.Info($"Retrieved {returnClips.Count} for {displayName} ({userId})");
 
                 return returnClips;
             } else {
-                throw new UnsupportedTwitchChannelException($"{name} is not a supported Twitch channel at this time.");
+                throw new UnsupportedTwitchChannelException($"{displayName} is not a supported Twitch channel at this time.");
             }
         }
 
-        private static async Task GetUserIdsFromUsernamesAsync() {
-            List<string> emptyUserIds = SettingsManager.Configuration.TwitchStreams.Where(x => string.IsNullOrWhiteSpace(x.UserId)).Select(x => x.UsernameLowercase).ToList();
+        private static async Task<bool> CompleteTwitchStreamSettingsAsync() {
+            if (string.IsNullOrWhiteSpace(SettingsManager.Configuration.TwitchStream.UserId) & string.IsNullOrWhiteSpace(SettingsManager.Configuration.TwitchStream.DisplayName)) {
+                LoggingManager.Log.Error("Both the Twitch stream user id and display name are empty.");
+                return false;
+            }
 
-            if (emptyUserIds.Count > 0) {
+            if (SettingsManager.Configuration.TwitchStream.DiscordChannel == 0) {
+                LoggingManager.Log.Error("The Discord channel is not set.");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(SettingsManager.Configuration.TwitchStream.UserId)) {
                 try {
-                    GetUsersResponse result = await _TwitchApi.Helix.Users.GetUsersAsync(logins: emptyUserIds);
-                    foreach (User user in result.Users) {
-                        SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == user.Login.ToLower()).ToList().ForEach(x => x.UserId = user.Id);
+                    GetUsersResponse result = await _TwitchApi.Helix.Users.GetUsersAsync(logins: SettingsManager.Configuration.TwitchStream.UsernameAsList);
+
+                    if (result.Users.Length > 0) {
+                        SettingsManager.Configuration.TwitchStream.UserId = result.Users[0].Id;
                     }
 
+                    LoggingManager.Log.Info($"Retrieved user id for username: {SettingsManager.Configuration.TwitchStream.Username}");
                     SettingsManager.Save();
 
-                    LoggingManager.Log.Info($"Retrieved {result.Users.Count()} new user ids");
+                } catch (Exception ex) {
+                    LoggingManager.Log.Error(ex);
+                }
+            } else if (string.IsNullOrWhiteSpace(SettingsManager.Configuration.TwitchStream.DisplayName)) {
+                try {
+                    GetUsersResponse result = await _TwitchApi.Helix.Users.GetUsersAsync(ids: SettingsManager.Configuration.TwitchStream.UserIdAsList);
+
+                    if (result.Users.Length > 0) {
+                        SettingsManager.Configuration.TwitchStream.DisplayName = result.Users[0].DisplayName;
+                    }
+
+                    LoggingManager.Log.Info($"Retrieved display name for user id: {SettingsManager.Configuration.TwitchStream.UserId}");
+                    SettingsManager.Save();
+
                 } catch (Exception ex) {
                     LoggingManager.Log.Error(ex);
                 }
             }
+
+            return true;
         }
 
         private static void StartMonitor() {
             try {
                 _StreamMonitor = new LiveStreamMonitorService(_TwitchApi, 30);
-                _StreamMonitor.SetChannelsByName(SettingsManager.Configuration.TwitchStreams.Select(x => x.UsernameLowercase).ToList());
+                _StreamMonitor.SetChannelsByName(SettingsManager.Configuration.TwitchStream.UsernameAsList);
 
                 _StreamMonitor.Start();
 
                 _StreamMonitor.OnStreamOnline += OnStreamOnline;
                 _StreamMonitor.OnStreamOffline += OnStreamOffline;
 
-                LoggingManager.Log.Info($"Stream monitoring is running for: {string.Join(", ", SettingsManager.Configuration.TwitchStreams.Select(x => $"{x.DisplayName} ({x.UserId})").ToList())}");
+                LoggingManager.Log.Info($"Stream monitoring is running for: {SettingsManager.Configuration.TwitchStream.DisplayName}");
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
         }
 
         private static void OnStreamOnline(object sender, OnStreamOnlineArgs streamOnline) {
-            TwitchStream stream = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == streamOnline.Channel.ToLower()).FirstOrDefault();
+            HostingMonitor.StopMonitor();
 
-            if (DatabaseManager.ActiveStreams.Insert(stream.UsernameLowercase)) {
-                if (stream.UsernameLowercase == "paymoneywubby") {
-                    _ = Discord.DiscordClient.SetStatus($"Watching PaymoneyWubby!", $"https://twitch.tv/paymoneywubby");
-                    _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, streamOnline.Stream.ThumbnailUrl, $"{stream.DisplayName} is now live!", streamOnline.Stream.Title, true);
-                } else {
-                    _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, streamOnline.Stream.ThumbnailUrl, $"{stream.DisplayName} is now live!", streamOnline.Stream.Title);
-                }
+            if (DatabaseManager.ActiveStreams.Insert(SettingsManager.Configuration.TwitchStream.Username)) {
+                _ = Discord.DiscordClient.SetStatus($"Watching {SettingsManager.Configuration.TwitchStream.DisplayName}!", SettingsManager.Configuration.TwitchStream.Url);
+                _ = Discord.DiscordClient.TwitchChannelChange(SettingsManager.Configuration.TwitchStream.DiscordChannel, SettingsManager.Configuration.TwitchStream.Url, streamOnline.Stream.ThumbnailUrl, $"{SettingsManager.Configuration.TwitchStream.DisplayName} is live!", streamOnline.Stream.Title, true);
 
-                LoggingManager.Log.Info($"{stream.DisplayName} just went live");
+                LoggingManager.Log.Info($"{SettingsManager.Configuration.TwitchStream.DisplayName} just went live");
             } else {
-                if (stream.UsernameLowercase == "paymoneywubby") {
-                    _ = Discord.DiscordClient.SetStatus($"Watching PaymoneyWubby!", $"https://twitch.tv/paymoneywubby");
-                }
+                _ = Discord.DiscordClient.SetStatus($"Watching {SettingsManager.Configuration.TwitchStream.DisplayName}!", SettingsManager.Configuration.TwitchStream.Url);
 
-                LoggingManager.Log.Info($"{stream.DisplayName} is still live");
+                LoggingManager.Log.Info($"{SettingsManager.Configuration.TwitchStream.DisplayName} is still live");
             }
         }
 
-        private static async void OnStreamOffline(object sender, OnStreamOfflineArgs streamOffline) {
-            TwitchStream stream = SettingsManager.Configuration.TwitchStreams.Where(x => x.UsernameLowercase == streamOffline.Channel.ToLower()).FirstOrDefault();
+        private static void OnStreamOffline(object sender, OnStreamOfflineArgs streamOffline) {
+            HostingMonitor.StartMonitor();
 
-            DateTime? startedAt = DatabaseManager.ActiveStreams.Delete(stream.UsernameLowercase);
-
-            if (stream.UsernameLowercase == "paymoneywubby") {
-                _ = Discord.DiscordClient.SetStatus();
-            }
-
-            string hostingDisplayName = "";
-            try {
-                // Do not use '_TwitchApi.Undocumented.GetChannelHostsAsync' it is outdated.
-                string hostsJson = await Http.SendRequestAsync($"https://tmi.twitch.tv/hosts?include_logins=1&host={stream.UserId}");
-                TwitchEntities.HostsResponse hostsResponse = Http.DeserializeJson<TwitchEntities.HostsResponse>(hostsJson);
-
-                if (hostsResponse.Hosts.Count > 0) {
-                    hostingDisplayName = hostsResponse.Hosts[0].TargetDisplayName;
-                }
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-            }
+            DateTime? startedAt = DatabaseManager.ActiveStreams.Delete(SettingsManager.Configuration.TwitchStream.Username);
+            _ = Discord.DiscordClient.SetStatus();
 
             string duration = startedAt.HasValue ? $"They were live for {(DateTime.UtcNow - startedAt.Value).TotalMilliseconds.Milliseconds().Humanize(3)}{Environment.NewLine}" : "";
-            string hosting = !string.IsNullOrEmpty(hostingDisplayName) ? $"{Environment.NewLine}{Environment.NewLine}Raided [{hostingDisplayName}](https://www.twitch.tv/{hostingDisplayName} \"Clicking this link will take you to: https://www.twitch.tv/{hostingDisplayName}\")" : "";
+            _ = Discord.DiscordClient.TwitchChannelChange(SettingsManager.Configuration.TwitchStream.DiscordChannel, SettingsManager.Configuration.TwitchStream.Url, null, $"{SettingsManager.Configuration.TwitchStream.DisplayName} is offline", $"{duration}Thanks for watching!");
 
-            _ = Discord.DiscordClient.TwitchChannelChange(stream.DiscordChannel, stream.StreamUrl, null, $"{stream.DisplayName} is now offline", $"{duration}Thanks for watching{hosting}");
-
-            LoggingManager.Log.Info($"{stream.DisplayName} is now offline");
+            LoggingManager.Log.Info($"{SettingsManager.Configuration.TwitchStream.DisplayName} is offline");
         }
 
         private static void OnConnected(object sender, Client.Events.OnConnectedArgs connected) => LoggingManager.Log.Info("Connected to Twitch");

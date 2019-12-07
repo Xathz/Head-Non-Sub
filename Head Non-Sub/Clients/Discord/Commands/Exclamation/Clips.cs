@@ -5,6 +5,7 @@ using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Entities.Twitch;
 using HeadNonSub.Exceptions;
 using HeadNonSub.Extensions;
+using HeadNonSub.Settings;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -13,32 +14,30 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     public class Clips : BetterModuleBase {
 
         [Command("randomclip")]
-        public async Task RandomClip([Remainder]string channel = "paymoneywubby") {
+        public async Task RandomClip() {
             await Context.Channel.TriggerTypingAsync();
-
-            string twitchChannel = channel.ToLower();
 
             try {
                 List<Clip> clips;
 
-                if (Cache.Get($"clips:{twitchChannel}") is List<Clip> validClips) {
+                if (Cache.Get($"clips:{SettingsManager.Configuration.TwitchStream.UserId}") is List<Clip> validClips) {
                     clips = validClips;
                 } else {
-                    clips = await Twitch.TwitchClient.GetClipsAsync(twitchChannel);
-                    Cache.Add($"clips:{twitchChannel}", clips, 30);
+                    clips = await Twitch.TwitchClient.GetClipsAsync(SettingsManager.Configuration.TwitchStream.UserId, SettingsManager.Configuration.TwitchStream.DisplayName);
+                    Cache.Add($"clips:{SettingsManager.Configuration.TwitchStream.UserId}", clips, 30);
                 }
 
                 Clip clip = clips.PickRandom();
 
                 if (!string.IsNullOrEmpty(clip.Url)) {
-                    await BetterReplyAsync(clip.Url, parameters: channel);
+                    await BetterReplyAsync(clip.Url);
                 } else {
-                    await BetterReplyAsync("Failed to pick a random clip.", parameters: channel);
+                    await BetterReplyAsync("Failed to pick a random clip.");
                 }
             } catch (UnsupportedTwitchChannelException ex) {
-                await BetterReplyAsync(ex.Message, parameters: channel);
+                await BetterReplyAsync(ex.Message);
             } catch {
-                await BetterReplyAsync("Failed to pick a random clip.", parameters: channel);
+                await BetterReplyAsync("Failed to pick a random clip.");
             }
         }
 
