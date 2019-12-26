@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.Rest;
 using Discord.WebSocket;
 using HeadNonSub.Entities.Discord;
 using HeadNonSub.Extensions;
@@ -63,6 +62,8 @@ namespace HeadNonSub.Clients.Discord {
             _DiscordClient.GuildMembersDownloaded += GuildMembersDownloaded;
 
             _DiscordClient.UserJoined += UserJoined;
+            _DiscordClient.UserLeft += UserLeft;
+            _DiscordClient.UserBanned += UserBanned;
             _DiscordClient.UserUpdated += UserUpdated;
             _DiscordClient.GuildMemberUpdated += GuildMemberUpdated;
 
@@ -213,7 +214,13 @@ namespace HeadNonSub.Clients.Discord {
             return Task.CompletedTask;
         }
 
-        private static Task UserJoined(SocketGuildUser user) {
+        private static async Task UserJoined(SocketGuildUser user) {
+            if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
+                await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :inbox_tray: {user.ToString()} (`{user.Id}`) has joined.");
+            }
+
+            // ========
+
             Task runner = Task.Run(async () => {
                 try {
                     StatisticsManager.NameChangeType changeType =
@@ -253,8 +260,18 @@ namespace HeadNonSub.Clients.Discord {
                     LoggingManager.Log.Error(ex);
                 }
             });
+        }
 
-            return Task.CompletedTask;
+        private static async Task UserLeft(SocketGuildUser user) {
+            if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
+                await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :outbox_tray: {user.ToString()} (`{user.Id}`) left the server.");
+            }
+        }
+
+        private static async Task UserBanned(SocketUser user, SocketGuild guild) {
+            if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
+                await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :no_entry: {user.ToString()} (`{user.Id}`) was banned.");
+            }
         }
 
         private static Task UserUpdated(SocketUser oldUser, SocketUser newUser) {
@@ -422,11 +439,11 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static async Task MessageUpdated(Cacheable<IMessage, ulong> originalMessage, SocketMessage updatedMessage, ISocketMessageChannel channel) {
-            if (originalMessage.HasValue && !string.IsNullOrWhiteSpace(originalMessage.Value.Content) && !string.IsNullOrWhiteSpace(updatedMessage.Content)) {
+            if (originalMessage.HasValue && !string.IsNullOrWhiteSpace(originalMessage.Value.Content) && !string.IsNullOrWhiteSpace(updatedMessage.Content) && !originalMessage.Value.Author.IsBot) {
                 string logMessage;
 
                 if (originalMessage.HasValue) {
-                    logMessage = $"`[{originalMessage.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :pencil: {originalMessage.Value.Author.ToString()} (`{originalMessage.Value.Author.Id}`) message edited in **#{channel.Name}**:{Environment.NewLine}**B:** {originalMessage.Value.Content.SanitizeEveryoneAndHere()}{Environment.NewLine}**A:** {updatedMessage.Content.SanitizeEveryoneAndHere()}";
+                    logMessage = $"`[{originalMessage.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :pencil: {originalMessage.Value.Author.ToString()} (`{originalMessage.Value.Author.Id}`) message edited in **#{channel.Name}**:{Environment.NewLine}**B:** {originalMessage.Value.ResolveTags()}{Environment.NewLine}**A:** {updatedMessage.ResolveTags()}";
                 } else {
                     logMessage = $":warning: An unknown message was edited in **#{channel.Name}**: {Environment.NewLine}Old id was: {originalMessage.Id}{Environment.NewLine}New id is: {updatedMessage.Id}";
                 }
@@ -449,11 +466,11 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static async Task MessageDeleted(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel) {
-            if (message.HasValue && !string.IsNullOrWhiteSpace(message.Value.Content)) {
+            if (message.HasValue && !string.IsNullOrWhiteSpace(message.Value.Content) && !message.Value.Author.IsBot) {
                 string logMessage;
 
                 if (message.HasValue) {
-                    logMessage = $"`[{message.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :wastebasket: {message.Value.Author.ToString()} (`{message.Value.Author.Id}`) message deleted in **#{channel.Name}**:{Environment.NewLine}{message.Value.Content.SanitizeEveryoneAndHere()}";
+                    logMessage = $"`[{message.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :wastebasket: {message.Value.Author.ToString()} (`{message.Value.Author.Id}`) message deleted in **#{channel.Name}**:{Environment.NewLine}{message.Value.ResolveTags()}";
                 } else {
                     logMessage = $":warning: An unknown message was deleted in **#{channel.Name}**: {Environment.NewLine}Message id was: {message.Id}";
                 }
@@ -472,19 +489,13 @@ namespace HeadNonSub.Clients.Discord {
         private static async Task ProcessMessageAsync(SocketUserMessage message, SocketGuildUser user) {
 
             // Responses
-            try {
-                string messageNoSpace = message.Content.Replace(" ", "");
+            //try {
+            //    string messageNoSpace = message.Content.Replace(" ", "");
 
-                // Jingle bells
-                if (messageNoSpace.Contains("jingle", StringComparison.OrdinalIgnoreCase)) {
-                    Task runner = Task.Run(async () => {
-                        await JingleBells(message.Channel.Id).ConfigureAwait(false);
-                    });
-                }
 
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-            }
+            //} catch (Exception ex) {
+            //    LoggingManager.Log.Error(ex);
+            //}
 
             if (WubbysFunHouse.IsDiscordOrTwitchStaff(user)) {
                 return;
@@ -604,97 +615,7 @@ namespace HeadNonSub.Clients.Discord {
             }
 
             return false;
-        }
-
-        private static DateTimeOffset _LastJingleBells = DateTimeOffset.UtcNow;
-        private static bool _SentJingleBellsCooldownMessage = false;
-
-        /// <summary>
-        /// Jingles the bells.
-        /// </summary>
-        private static async Task JingleBells(ulong channelId) {
-            if (_DiscordClient.GetChannel(channelId) is IMessageChannel channel) {
-                if (channelId == WubbysFunHouse.ActualFuckingSpamChannelId) { return; }
-
-                if (_LastJingleBells.AddSeconds(240) >= DateTimeOffset.UtcNow) {
-                    if (!_SentJingleBellsCooldownMessage) {
-                        _SentJingleBellsCooldownMessage = true;
-
-                        string remaining = (_LastJingleBells.AddSeconds(240) - DateTimeOffset.UtcNow).TotalSeconds.Seconds().Humanize(2);
-                        await channel.SendMessageAsync($":mrs_claus::skin-tone-5: The elves are sleepy! Check back in {remaining} for some more cheer.");
-                    }
-                    return;
-                }
-
-                _LastJingleBells = DateTimeOffset.UtcNow;
-                _SentJingleBellsCooldownMessage = false;
-
-                int msDelay = 2000;
-                string dashing = $"{Environment.NewLine}Dashing";
-
-                IUserMessage sentMessage = await channel.SendMessageAsync($":wave::skin-tone-5: _I'm slow so bear with me..._");
-                await Task.Delay(2600);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":snowman2:{dashing}"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":snowman:{dashing} through"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":snowman2:{dashing} through the"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":snowman:{dashing} through the snow"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":snowman2:{dashing} through the snow{Environment.NewLine}In"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":snowman:{dashing} through the snow{Environment.NewLine}In a"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":snowman2:{dashing} through the snow{Environment.NewLine}In a one"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":snowman:{dashing} through the snow{Environment.NewLine}In a one-horse"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":snowman2:{dashing} through the snow{Environment.NewLine}In a one-horse open"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":snowman:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":cloud_snow:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":snowflake:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er the"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":cloud_snow:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er the fields"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":snowflake:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er the fields we"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":cloud_snow:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er the fields we go"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":laughing:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er the fields we go{Environment.NewLine}Laughing"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":rofl:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er the fields we go{Environment.NewLine}Laughing all"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":laughing:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er the fields we go{Environment.NewLine}Laughing all the"; });
-                await Task.Delay(msDelay);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":rofl:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er the fields we go{Environment.NewLine}Laughing all the way"; });
-                await Task.Delay(4200);
-
-                await sentMessage.ModifyAsync(x => { x.Content = $":christmas_tree: :candle: **Happy holidays** :menorah: :star2:"; });
-            }
-        }
+        }      
 
     }
 

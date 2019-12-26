@@ -41,6 +41,10 @@ namespace HeadNonSub.Clients.Twitch {
 
                 LoggingManager.Log.Info("Connected");
 
+#if DEBUG
+                return;
+#endif
+
                 // Get user id's for streams that do not have it set
                 if (await CompleteTwitchStreamSettingsAsync()) {
                     StartMonitor();

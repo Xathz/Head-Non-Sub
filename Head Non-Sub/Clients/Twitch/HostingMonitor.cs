@@ -37,6 +37,7 @@ namespace HeadNonSub.Clients.Twitch {
             if (!_Stop) {
                 if (_Count >= _MaxCount) {
                     LoggingManager.Log.Info($"Check max count reached, stopping monitor for: {SettingsManager.Configuration.TwitchStream.DisplayName}");
+                    StopMonitor();
                     return;
                 }
 
@@ -44,10 +45,13 @@ namespace HeadNonSub.Clients.Twitch {
                     string hostsJson = await Http.SendRequestAsync($"https://tmi.twitch.tv/hosts?include_logins=1&host={SettingsManager.Configuration.TwitchStream.UserId}");
                     TwitchEntities.HostsResponse hostsResponse = Http.DeserializeJson<TwitchEntities.HostsResponse>(hostsJson);
 
-                    if (hostsResponse.Hosts.Count > 0 && !string.IsNullOrEmpty(hostsResponse.Hosts[0].HostDisplayName)) {
-                        string host = hostsResponse.Hosts[0].HostDisplayName;
+                    if (hostsResponse.Hosts.Count > 0 && !string.IsNullOrEmpty(hostsResponse.Hosts[0].TargetDisplayName)) {
+                        string host = hostsResponse.Hosts[0].TargetDisplayName;
 
                         await Discord.DiscordClient.TwitchChannelChange(SettingsManager.Configuration.TwitchStream.DiscordChannel, $"https://www.twitch.tv/{host}", null, $"{SettingsManager.Configuration.TwitchStream.DisplayName} is hosting {host}", null);
+
+                        LoggingManager.Log.Info($"Now hosting {host}, stopping monitor for: {SettingsManager.Configuration.TwitchStream.DisplayName}");
+                        StopMonitor();
                         return;
                     }
 

@@ -88,6 +88,17 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Cooldown(20)]
         public Task WeebShit() => BetterSendFileAsync(Cache.GetStream("weebshit.png"), "weebshit.png", $"● {BetterUserFormat()}");
 
+        [Command("juan")]
+        [Cooldown(20)]
+        public Task Juan() => BetterSendFileAsync(Cache.GetStream("juan.png"), "juan.png", $"● {BetterUserFormat()}");
+
+        [Command("weebmas")]
+        [Cooldown(20)]
+        public Task Weebmas() {
+            Context.Channel.TriggerTypingAsync();
+            return BetterSendFileAsync(Cache.GetStream("wubbypadoru_xmas.gif"), "wubbypadoru_xmas.gif", $"● {BetterUserFormat()}, created by Xaffiri");
+        }
+
         [Command("dab")]
         [Cooldown(20)]
         public Task Dab() {

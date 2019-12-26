@@ -346,18 +346,6 @@ namespace HeadNonSub.Extensions {
             return input.Trim();
         }
 
-        /// <summary>
-        /// Removes @everyone and @here.
-        /// </summary>
-        public static string SanitizeEveryoneAndHere(this string input) {
-            if (string.IsNullOrWhiteSpace(input)) { return input; }
-
-            input = Regex.Replace(input, "@everyone", "`@everyone`", RegexOptions.IgnoreCase);
-            input = Regex.Replace(input, "@here", "`@here`", RegexOptions.IgnoreCase);
-
-            return input.Trim();
-        }
-
         private static int? FindIndex(List<MessageTag> tags, int index) {
             int i = 0;
             for (; i < tags.Count; i++) {
