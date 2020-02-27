@@ -215,6 +215,17 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static async Task UserJoined(SocketGuildUser user) {
+            // Auto-mute accounts that have been created recently
+            if (user.CreatedAt.AddMinutes(10) > DateTimeOffset.Now) {
+                try {
+                    await WubbysFunHouse.AddRoleAsync(user, WubbysFunHouse.MutedRoleId, "Auto-muted on join due to account being younger than 10 minutes.");
+                    await SendMessageAsync(WubbysFunHouse.ModLogsChannelId, $":anger: {user.Mention} was auto-muted on join due to account being younger than 10 minutes.");
+
+                } catch (Exception ex) {
+                    LoggingManager.Log.Error(ex);
+                }
+            }
+
             if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
                 await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :inbox_tray: {user.ToString()} (`{user.Id}`) has joined.");
             }
@@ -492,7 +503,6 @@ namespace HeadNonSub.Clients.Discord {
             //try {
             //    string messageNoSpace = message.Content.Replace(" ", "");
 
-
             //} catch (Exception ex) {
             //    LoggingManager.Log.Error(ex);
             //}
@@ -507,6 +517,12 @@ namespace HeadNonSub.Clients.Discord {
                 if (await ProcessMessageEmotesAsync(message)) {
                     return;
                 }
+
+                // pp-b-gone
+                //if (message.Content.Replace(" ", "").Contains("pp", StringComparison.OrdinalIgnoreCase)) {
+                //    await message.DeleteAsync();
+                //    return;
+                //}
 
                 // Main channel
                 if (message.Channel.Id == WubbysFunHouse.MainChannelId) {
@@ -523,7 +539,7 @@ namespace HeadNonSub.Clients.Discord {
 
                                 await message.DeleteAsync();
                                 await channel.SendMessageAsync($"● Posted by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
-                                await message.Channel.SendMessageAsync($"{user.Mention} You need to be <@&{WubbysFunHouse.ForkliftDriversRoleId}> or higher to post links here. Link was moved to <#{WubbysFunHouse.LinksChannelId}>.");
+                                await message.Channel.SendMessageAsync($"{user.Mention} You need the `Forklift Drivers` role or higher to post links here. Link was moved to <#{WubbysFunHouse.LinksChannelId}>.");
                             }
 
                             // Move attachments
@@ -551,7 +567,7 @@ namespace HeadNonSub.Clients.Discord {
                                 }
 
                                 await message.DeleteAsync();
-                                await message.Channel.SendMessageAsync($"{user.Mention} You need to be <@&{WubbysFunHouse.ForkliftDriversRoleId}> or higher to upload files here. Attachment was moved to <#{WubbysFunHouse.ActualFuckingSpamChannelId}>.");
+                                await message.Channel.SendMessageAsync($"{user.Mention} You need to be `Forklift Drivers` or higher to upload files here. Attachment was moved to <#{WubbysFunHouse.ActualFuckingSpamChannelId}>.");
                             }
                         }
                     }
@@ -615,7 +631,7 @@ namespace HeadNonSub.Clients.Discord {
             }
 
             return false;
-        }      
+        }
 
     }
 

@@ -28,6 +28,8 @@ namespace HeadNonSub.Clients.Twitch {
 
         private static LiveStreamMonitorService _StreamMonitor;
 
+        public static bool IsLive { private set; get; } = false;
+
         public static async Task ConnectApiAsync() {
             try {
                 LoggingManager.Log.Info("Connecting");
@@ -176,6 +178,8 @@ namespace HeadNonSub.Clients.Twitch {
             HostingMonitor.StopMonitor();
 
             if (DatabaseManager.ActiveStreams.Insert(SettingsManager.Configuration.TwitchStream.Username)) {
+                IsLive = true;
+
                 _ = Discord.DiscordClient.SetStatus($"Watching {SettingsManager.Configuration.TwitchStream.DisplayName}!", SettingsManager.Configuration.TwitchStream.Url);
                 _ = Discord.DiscordClient.TwitchChannelChange(SettingsManager.Configuration.TwitchStream.DiscordChannel, SettingsManager.Configuration.TwitchStream.Url, streamOnline.Stream.ThumbnailUrl, $"{SettingsManager.Configuration.TwitchStream.DisplayName} is live!", streamOnline.Stream.Title, true);
 
@@ -189,6 +193,8 @@ namespace HeadNonSub.Clients.Twitch {
 
         private static void OnStreamOffline(object sender, OnStreamOfflineArgs streamOffline) {
             HostingMonitor.StartMonitor();
+
+            IsLive = false;
 
             DateTime? startedAt = DatabaseManager.ActiveStreams.Delete(SettingsManager.Configuration.TwitchStream.Username);
             _ = Discord.DiscordClient.SetStatus();

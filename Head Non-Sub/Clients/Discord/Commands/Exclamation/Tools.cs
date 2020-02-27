@@ -8,6 +8,7 @@ using Discord.Commands;
 using Discord.Rest;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
+using HeadNonSub.Clients.Twitch;
 using HeadNonSub.Extensions;
 using Humanizer;
 
@@ -131,6 +132,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             await BetterReplyAsync(message, parameters: $"{input.Humanize()}; {message}");
         }
+
+        [Command("iswubbylive")]
+        public Task IsWubbyLive() => BetterReplyAsync($"<@365156279099850755> {(TwitchClient.IsLive ? "**Yes**" : "**No**")}");
 
         [Command("altsniff")]
         [DiscordStaffOnly]

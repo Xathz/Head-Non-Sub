@@ -7,13 +7,14 @@ namespace HeadNonSub.Clients.Twitch {
 
     public static class HostingMonitor {
 
-        private static readonly Timer _Timer = new Timer();
+        private static Timer _Timer;
         private static volatile bool _Stop = false;
 
         private const int _MaxCount = 25;
         private static volatile int _Count = 0;
 
         public static void StartMonitor() {
+            _Timer = new Timer();
             _Stop = false;
             _Count = 0;
 
@@ -28,8 +29,10 @@ namespace HeadNonSub.Clients.Twitch {
 
         public static void StopMonitor() {
             _Stop = true;
-            _Timer.Stop();
-
+            if (_Timer is Timer) {
+                _Timer.Stop();
+            }
+            
             LoggingManager.Log.Info($"Stopped monitor for: {SettingsManager.Configuration.TwitchStream.DisplayName}");
         }
 
