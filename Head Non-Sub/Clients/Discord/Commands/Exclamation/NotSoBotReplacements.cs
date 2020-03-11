@@ -54,6 +54,42 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
         }
 
+        [Command("namesid")]
+        public async Task NameChangesById(string input = null) {
+            if (!ulong.TryParse(input, out ulong id)) {
+                await BetterReplyAsync("You must supply a valid user id.", parameters: "user null");
+                return;
+            }
+
+            await Context.Channel.TriggerTypingAsync();
+
+            string changes = StatisticsManager.GetUserChanges(Context.Guild.Id, id);
+
+            if (string.IsNullOrWhiteSpace(changes)) {
+                await BetterReplyAsync($"There is no name change data for {id}. Maybe they just never changed their name. :shrug:", parameters: $"({id})");
+                return;
+            }
+
+            List<string> chunks = changes.SplitIntoChunksPreserveNewLines(1930);
+
+            if (chunks.Count == 1) {
+                foreach (string chunk in chunks) {
+                    await BetterReplyAsync($"● Name changes for {id} ```{chunk}```", parameters: $"({id})");
+                }
+            } else {
+                Backblaze.File uploadedFile = await Backblaze.UploadTemporaryFileAsync(changes, $"{id}/{Backblaze.ISOFileNameDate("txt")}");
+
+                string message;
+                if (uploadedFile is Backblaze.File) {
+                    message = uploadedFile.ShortUrl;
+                } else {
+                    message = "There was an error uploading the temporary file.";
+                }
+
+                await BetterReplyAsync($"There are too many name changes to display here. {message}", parameters: $"({id})");
+            }
+        }
+
         [Command("topnamechangers")]
         public async Task TopNameChangers(int count = 20) {
             if (count < 5 || count > 50) {

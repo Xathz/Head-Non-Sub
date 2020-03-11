@@ -9,7 +9,7 @@ namespace HeadNonSub.Extensions {
 
     public static class StringExt {
 
-        private static readonly Regex _UrlRegex = new Regex("https?://", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex _UrlRegex = new Regex(@"https?://[^\s]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private static readonly Regex _EmojiRegex = new Regex(@"[0-9]?\#?\*?(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+", RegexOptions.Compiled);
 

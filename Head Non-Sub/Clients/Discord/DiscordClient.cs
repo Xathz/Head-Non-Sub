@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using HeadNonSub.Clients.Hangfire;
 using HeadNonSub.Entities.Discord;
 using HeadNonSub.Extensions;
 using HeadNonSub.Settings;
@@ -404,6 +405,23 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static async Task MessageReceived(SocketMessage socketMessage) {
+
+            #region Url in mod mail message
+
+            if (socketMessage.Author.Id == WubbysFunHouse.WubbyMailBotUserId &&
+                socketMessage.Channel is SocketTextChannel textChannel &&
+                textChannel.CategoryId.HasValue &&
+                textChannel.CategoryId.Value == WubbysFunHouse.ModMailCategoryId &&
+                socketMessage.Embeds.Any(x => x.Description.ContainsUrls())) {
+
+                List<string> urls = socketMessage.Embeds.FirstOrDefault().Description.GetUrls();
+                await socketMessage.Channel.SendMessageAsync($"Url detected in `WubbyMail` message, attempting to embed...{Environment.NewLine}{string.Join(Environment.NewLine, urls)}");
+
+                return;
+            }
+
+            #endregion
+
             if (!(socketMessage is SocketUserMessage message)) { return; }
             if (socketMessage.Source != MessageSource.User) { return; }
 
@@ -442,9 +460,9 @@ namespace HeadNonSub.Clients.Discord {
             }
 #endif
 
-            if (message.Author is SocketGuildUser user) {
+            if (message.Author is SocketGuildUser user && message.Channel is SocketTextChannel channel) {
                 Task runner = Task.Run(async () => {
-                    await ProcessMessageAsync(message, user).ConfigureAwait(false);
+                    await ProcessMessageAsync(channel, message, user).ConfigureAwait(false);
                 });
             }
         }
@@ -495,17 +513,10 @@ namespace HeadNonSub.Clients.Discord {
         /// <summary>
         /// Process additional actions for a message.
         /// </summary>
+        /// <param name="channel">Text channel message was sent in.</param>
         /// <param name="message">Message to process.</param>
         /// <param name="user">User who sent the message.</param>
-        private static async Task ProcessMessageAsync(SocketUserMessage message, SocketGuildUser user) {
-
-            // Responses
-            //try {
-            //    string messageNoSpace = message.Content.Replace(" ", "");
-
-            //} catch (Exception ex) {
-            //    LoggingManager.Log.Error(ex);
-            //}
+        private static async Task ProcessMessageAsync(SocketTextChannel channel, SocketUserMessage message, SocketGuildUser user) {
 
             if (WubbysFunHouse.IsDiscordOrTwitchStaff(user)) {
                 return;
@@ -518,14 +529,8 @@ namespace HeadNonSub.Clients.Discord {
                     return;
                 }
 
-                // pp-b-gone
-                //if (message.Content.Replace(" ", "").Contains("pp", StringComparison.OrdinalIgnoreCase)) {
-                //    await message.DeleteAsync();
-                //    return;
-                //}
-
                 // Main channel
-                if (message.Channel.Id == WubbysFunHouse.MainChannelId) {
+                if (channel.Id == WubbysFunHouse.MainChannelId) {
 
                     // If not rank 10 or higher
                     if (!user.Roles.Any(x => x.Id == WubbysFunHouse.ForkliftDriversRoleId)) {
@@ -534,30 +539,30 @@ namespace HeadNonSub.Clients.Discord {
 
                         // Move links
                         if (message.Content.ContainsUrls()) {
-                            if (_DiscordClient.GetChannel(WubbysFunHouse.LinksChannelId) is IMessageChannel channel) {
-                                LoggingManager.Log.Info($"Link in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id})");
+                            if (_DiscordClient.GetChannel(WubbysFunHouse.LinksChannelId) is IMessageChannel linksChannel) {
+                                LoggingManager.Log.Info($"Link in #{channel.Name} by {user.ToString()} ({user.Id})");
 
                                 await message.DeleteAsync();
-                                await channel.SendMessageAsync($"● Posted by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
-                                await message.Channel.SendMessageAsync($"{user.Mention} You need the `Forklift Drivers` role or higher to post links here. Link was moved to <#{WubbysFunHouse.LinksChannelId}>.");
+                                await linksChannel.SendMessageAsync($"● Posted by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
+                                await channel.SendMessageAsync($"{user.Mention} You need the `Forklift Drivers` role or higher to post links here. Link was moved to <#{WubbysFunHouse.LinksChannelId}>.");
                             }
 
                             // Move attachments
                         } else if (message.Attachments.Count > 0) {
-                            if (_DiscordClient.GetChannel(WubbysFunHouse.ActualFuckingSpamChannelId) is IMessageChannel channel) {
+                            if (_DiscordClient.GetChannel(WubbysFunHouse.ActualFuckingSpamChannelId) is IMessageChannel actualFuckingSpamChannel) {
                                 foreach (Attachment attachment in message.Attachments) {
                                     using (HttpResponseMessage response = await Http.Client.GetAsync(attachment.Url)) {
                                         if (response.IsSuccessStatusCode) {
                                             using (HttpContent content = response.Content) {
                                                 Stream stream = await content.ReadAsStreamAsync();
 
-                                                LoggingManager.Log.Info($"Attachment in #{message.Channel.Name} by {message.Author.ToString()} ({message.Author.Id}); {attachment.Filename}; api: {attachment.Size.Bytes().Humanize("#.##")}; downloaded: {stream.Length.Bytes().Humanize("#.##")}");
+                                                LoggingManager.Log.Info($"Attachment in #{channel.Name} by {user.ToString()} ({user.Id}); {attachment.Filename}; api: {attachment.Size.Bytes().Humanize("#.##")}; downloaded: {stream.Length.Bytes().Humanize("#.##")}");
 
                                                 if (stream.Length > Constants.DiscordMaximumFileSize) {
-                                                    await channel.SendMessageAsync($"An attachment was uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}> and can not be re-uploaded, the attachment is too large for a bot to upload (`{attachment.Size.Bytes().Humanize("#.##")} / {stream.Length.Bytes().Humanize("#.##")}`). They probably have Nitro.");
+                                                    await actualFuckingSpamChannel.SendMessageAsync($"An attachment was uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}> and can not be re-uploaded, the attachment is too large for a bot to upload (`{attachment.Size.Bytes().Humanize("#.##")} / {stream.Length.Bytes().Humanize("#.##")}`). They probably have Nitro.");
                                                 } else {
                                                     stream.Seek(0, SeekOrigin.Begin);
-                                                    await channel.SendFileAsync(stream, attachment.Filename, $"● Uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
+                                                    await actualFuckingSpamChannel.SendFileAsync(stream, attachment.Filename, $"● Uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
                                                 }
                                             }
                                         } else {
@@ -567,19 +572,19 @@ namespace HeadNonSub.Clients.Discord {
                                 }
 
                                 await message.DeleteAsync();
-                                await message.Channel.SendMessageAsync($"{user.Mention} You need to be `Forklift Drivers` or higher to upload files here. Attachment was moved to <#{WubbysFunHouse.ActualFuckingSpamChannelId}>.");
+                                await channel.SendMessageAsync($"{user.Mention} You need to be `Forklift Drivers` or higher to upload files here. Attachment was moved to <#{WubbysFunHouse.ActualFuckingSpamChannelId}>.");
                             }
                         }
                     }
                 }
 
                 // Too many animated emotes in actual fucking spam
-                if (message.Channel.Id == WubbysFunHouse.ActualFuckingSpamChannelId) {
+                if (channel.Id == WubbysFunHouse.ActualFuckingSpamChannelId) {
                     int count = message.Content.CountStringOccurrences("<a:");
 
                     if (count > 10) {
                         await message.DeleteAsync();
-                        await message.Channel.SendMessageAsync($"{user.Mention} Only 10 or less animated emotes/emoji per-message. Having many of them breaks the channel for some people.");
+                        await channel.SendMessageAsync($"{user.Mention} Only 10 or less animated emotes/emoji per-message. Having many of them breaks the channel for some people.");
                     }
                 }
             } catch (Exception ex) {

@@ -49,6 +49,8 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong ModDaddiesCategoryId = 490764927448121345;
 
+        public const ulong ModMailCategoryId = 675632145749770297;
+
         #endregion
 
         #region User ids
@@ -61,7 +63,7 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong HeadNonSubBotUserId = 545778771517636638;
 
-        public const ulong MediaShareBotUserId = 511449458819596289;
+        public const ulong MediaShareBotUserId = 683851337024274439;
 
         public const ulong MEE6BotUserId = 159985870458322944;
 
@@ -75,21 +77,17 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong WubbyBotUserId = 489538588120449039;
 
-        public const ulong RawgoatBotUserId = 348350443031625738;
-
         public const ulong WubbyIRLBotUserId = 529090224324608000;
 
-        // TODO Re-enable, bot is having issues currently 2019-11-24T20:37:40+0000
-        //public const ulong WubbyMailBotUserId = 523299238369820692;
-        //public static readonly ReadOnlyCollection<ulong> AllBotIds = new ReadOnlyCollection<ulong>(new List<ulong> { HeadNonSubBotUserId, MediaShareBotUserId, MEE6BotUserId, PollBotUserId, RythmBotUserId, Rythm2BotUserId, StatbotBotUserId, WubbyBotUserId, RawgoatBotUserId, WubbyIRLBotUserId, WubbyMailBotUserId, LogBotUserId });
+        public const ulong WubbyMailBotUserId = 523299238369820692;
 
         public const ulong LogBotUserId = 555800636332179480;
 
         /// <summary>
         /// All bot user ids.
         /// </summary>
-        public static readonly ReadOnlyCollection<ulong> AllBotIds = new ReadOnlyCollection<ulong>(new List<ulong> { HeadNonSubBotUserId, MediaShareBotUserId, MEE6BotUserId, PollBotUserId, RythmBotUserId, Rythm2BotUserId, StatbotBotUserId, WubbyBotUserId, RawgoatBotUserId, WubbyIRLBotUserId, LogBotUserId });
-
+        public static readonly ReadOnlyCollection<ulong> AllBotIds = new ReadOnlyCollection<ulong>(new List<ulong> { HeadNonSubBotUserId, MediaShareBotUserId, MEE6BotUserId, PollBotUserId, RythmBotUserId, Rythm2BotUserId, StatbotBotUserId, WubbyBotUserId, WubbyIRLBotUserId, WubbyMailBotUserId, LogBotUserId });
+        
         #endregion
 
         #region Role ids
