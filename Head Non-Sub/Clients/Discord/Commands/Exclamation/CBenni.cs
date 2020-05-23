@@ -47,7 +47,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
         }
 
-        private async Task<string> GetCBenniUserAsync(string user, int count) {
+        private static async Task<string> GetCBenniUserAsync(string user, int count) {
             Task<string> download = Http.SendRequestAsync($"https://cbenni.com/api/slack/?default_channel=paymoneywubby&text={user} {count}&lvtoken={SettingsManager.Configuration.CBenniToken}");
             string data = await download;
 

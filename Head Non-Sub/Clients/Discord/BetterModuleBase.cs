@@ -41,12 +41,12 @@ namespace HeadNonSub.Clients.Discord {
         /// </summary>
         public string BetterLogFormat() {
             if (Context.IsPrivate) {
-                return $"{Context.User.ToString()}/{Context.User.Id} in DM/{Context.Channel.Name} ({Context.Channel.Id})";
+                return $"{Context.User}/{Context.User.Id} in DM/{Context.Channel.Name} ({Context.Channel.Id})";
             } else {
                 if (Context.User is SocketGuildUser guildUser) {
-                    return $"{(!string.IsNullOrWhiteSpace(guildUser.Nickname) ? guildUser.Nickname : guildUser.Username)} ({guildUser.ToString()}/{guildUser.Id}) in {Context.Guild.Name}/{Context.Channel.Name} ({Context.Guild.Id}/{Context.Channel.Id})";
+                    return $"{(!string.IsNullOrWhiteSpace(guildUser.Nickname) ? guildUser.Nickname : guildUser.Username)} ({guildUser}/{guildUser.Id}) in {Context.Guild.Name}/{Context.Channel.Name} ({Context.Guild.Id}/{Context.Channel.Id})";
                 } else {
-                    return $"{Context.User.ToString()}/{Context.User.Id} in {Context.Guild.Name}/{Context.Channel.Name} ({Context.Guild.Id}/{Context.Channel.Id})";
+                    return $"{Context.User}/{Context.User.Id} in {Context.Guild.Name}/{Context.Channel.Name} ({Context.Guild.Id}/{Context.Channel.Id})";
                 }
             }
         }
@@ -61,7 +61,7 @@ namespace HeadNonSub.Clients.Discord {
                     if (nicknameOnly) {
                         return $"{(string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Username : contextUser.Nickname)}";
                     } else {
-                        return $"{(string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Username : contextUser.Nickname)} {formatChar}{contextUser.ToString()}{formatChar}";
+                        return $"{(string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Username : contextUser.Nickname)} {formatChar}{contextUser}{formatChar}";
                     }
                 }
             }
@@ -70,11 +70,11 @@ namespace HeadNonSub.Clients.Discord {
                 if (nicknameOnly) {
                     return $"{(string.IsNullOrWhiteSpace(guildUser.Nickname) ? guildUser.Username : guildUser.Nickname)}";
                 } else {
-                    return $"{(string.IsNullOrWhiteSpace(guildUser.Nickname) ? guildUser.Username : guildUser.Nickname)} {formatChar}{guildUser.ToString()}{formatChar}";
+                    return $"{(string.IsNullOrWhiteSpace(guildUser.Nickname) ? guildUser.Username : guildUser.Nickname)} {formatChar}{guildUser}{formatChar}";
                 }
             }
 
-            return $"{Context.User.Username} {formatChar}{Context.User.ToString()}{formatChar}";
+            return $"{Context.User.Username} {formatChar}{Context.User}{formatChar}";
         }
 
         /// <summary>

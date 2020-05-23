@@ -5,16 +5,16 @@ namespace HeadNonSub.Statistics {
     public static partial class StatisticsManager {
 
         public static void Load() {
-            using (StatisticsContext statistics = new StatisticsContext()) {
-                if (statistics.Database.CanConnect()) {
-                    if (statistics.Database.EnsureCreated()) {
-                        LoggingManager.Log.Info("Database created");
-                    } else {
-                        LoggingManager.Log.Info("Database already exists, connected");
-                    }
+            using StatisticsContext statistics = new StatisticsContext();
+
+            if (statistics.Database.CanConnect()) {
+                if (statistics.Database.EnsureCreated()) {
+                    LoggingManager.Log.Info("Database created");
                 } else {
-                    LoggingManager.Log.Error("Can connect check failed");
+                    LoggingManager.Log.Info("Database already exists, connected");
                 }
+            } else {
+                LoggingManager.Log.Error("Can connect check failed");
             }
         }
 

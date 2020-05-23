@@ -67,10 +67,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 await Task.Delay(2000);
 
                 foreach (string chunk in chunks) {
-                    await BetterReplyAsync($"● Infractions for {BetterUserFormat(user)} ```{chunk}```", parameters: $"{user.ToString()} ({user.Id})");
+                    await BetterReplyAsync($"● Infractions for {BetterUserFormat(user)} ```{chunk}```", parameters: $"{user} ({user.Id})");
                 }
             } else {
-                await BetterReplyAsync($"Failed to retrieve infractions for {BetterUserFormat(user)}.", parameters: $"{user.ToString()} ({user.Id})");
+                await BetterReplyAsync($"Failed to retrieve infractions for {BetterUserFormat(user)}.", parameters: $"{user} ({user.Id})");
             }
         }
 
@@ -123,7 +123,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
                     await LogMessageAsync($"● Recent messages from {BetterUserFormat(user)}", builder.ToString());
                 } else {
-                    await BetterReplyAsync($"Failed to retrieve context around the warn for {BetterUserFormat(user)}.", parameters: $"{user.ToString()} ({user.Id}); {reason}");
+                    await BetterReplyAsync($"Failed to retrieve context around the warn for {BetterUserFormat(user)}.", parameters: $"{user} ({user.Id}); {reason}");
                 }
             }
         }
@@ -131,8 +131,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("unmute")]
         public async Task Unmute(SocketUser user = null) {
             if (user is SocketGuildUser guildUser) {
-                await WubbysFunHouse.RemoveRoleAsync(guildUser, WubbysFunHouse.MutedRoleId, $"Mute removed by {Context.User.ToString()} ({Context.User.Id})");
-                await BetterReplyAsync($"Force removed the MEE6 `Mute` role from `{user.ToString()}`.");
+                await WubbysFunHouse.RemoveRoleAsync(guildUser, WubbysFunHouse.MutedRoleId, $"Mute removed by {Context.User} ({Context.User.Id})");
+                await BetterReplyAsync($"Force removed the MEE6 `Mute` role from `{user}`.");
             }
         }
 
@@ -174,7 +174,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 }
             }
 
-            await BetterReplyAsync($"● **{deleteCount}** infractions for {BetterUserFormat(user)} were deleted.", parameters: $"{user.ToString()} ({user.Id})");
+            await BetterReplyAsync($"● **{deleteCount}** infractions for {BetterUserFormat(user)} were deleted.", parameters: $"{user} ({user.Id})");
             await LogMessageEmbedAsync("All MEE6 infractions deleted", user: user);
         }
 
@@ -188,7 +188,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 bool mee6Responded = await Context.Channel.GetMessagesAsync(Context.Message, Direction.After).Flatten()
                     .Where(x => x.Author.Id == 159985870458322944) // MEE6
                     .Where(x => x.Embeds.Any(e => e.Fields.Any(f => f.Value.Contains(user.Id.ToString()))))
-                    .Count() > 0;
+                    .CountAsync() > 0;
 
                 if (!mee6Responded) {
                     EmbedBuilder builder = new EmbedBuilder() {
@@ -196,7 +196,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                         ThumbnailUrl = user.GetAvatarUrl(size: 1024)
                     };
 
-                    builder.AddField($"Failover userinfo command for {user.ToString()}", $"UserID | {user.Id}");
+                    builder.AddField($"Failover userinfo command for {user}", $"UserID | {user.Id}");
 
                     builder.AddField("Main role", $"{user.Roles.OrderByDescending(x => x.Position).First().Name}");
 
@@ -207,15 +207,15 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     }
 
                     builder.Footer = new EmbedFooterBuilder() {
-                        Text = $"Requested by {Context.User.ToString()} | {Context.User.Id}"
+                        Text = $"Requested by {Context.User} | {Context.User.Id}"
                     };
 
-                    await BetterReplyAsync("MEE6 failed to fulfill request.", builder.Build(), parameters: $"{user.ToString()} ({user.Id})");
+                    await BetterReplyAsync("MEE6 failed to fulfill request.", builder.Build(), parameters: $"{user} ({user.Id})");
                 }
             }
         }
 
-        private async Task<Moderator> GetUserInfractionsAsync(ulong serverId, ulong userId) {
+        private static async Task<Moderator> GetUserInfractionsAsync(ulong serverId, ulong userId) {
             Task<string> download = Http.SendRequestAsync($"https://mee6.xyz/api/plugins/moderator/guilds/{serverId}/infractions?page=0&limit=1000&user_id={userId}",
                   new Dictionary<string, string> { { "Authorization", SettingsManager.Configuration.MeeSixToken } });
 
@@ -229,7 +229,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
         }
 
-        private async Task<bool> DeleteInfractionAsync(ulong serverId, string infractionId) {
+        private static async Task<bool> DeleteInfractionAsync(ulong serverId, string infractionId) {
             Task<string> download = Http.SendRequestAsync($"https://mee6.xyz/api/plugins/moderator/guilds/{serverId}/infractions/{infractionId}",
                   new Dictionary<string, string> { { "Authorization", SettingsManager.Configuration.MeeSixToken } }, method: Http.Method.Delete);
 

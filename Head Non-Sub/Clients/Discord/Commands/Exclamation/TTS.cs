@@ -54,16 +54,15 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             string filename = clean.Truncate(40).ToLower();
             if (filename.EndsWith("_")) { filename = filename.Remove(filename.Length - 1, 1); }
 
-            using (MemoryStream oggFile = await GenerateAsync(clean, voice)) {
-                if (oggFile is MemoryStream) {
-                    await BetterSendFileAsync(oggFile, $"{filename}.ogg", $"● {BetterUserFormat()}{Environment.NewLine}```{clean}```", parameters: clean, command: $"{command}_{voice}");
-                } else {
-                    await BetterReplyAsync("Failed to generate the text to speech.", parameters: clean, command: $"{command}_{voice}");
-                }
+            using MemoryStream oggFile = await GenerateAsync(clean, voice);
+            if (oggFile is MemoryStream) {
+                await BetterSendFileAsync(oggFile, $"{filename}.ogg", $"● {BetterUserFormat()}{Environment.NewLine}```{clean}```", parameters: clean, command: $"{command}_{voice}");
+            } else {
+                await BetterReplyAsync("Failed to generate the text to speech.", parameters: clean, command: $"{command}_{voice}");
             }
         }
 
-        private async Task<MemoryStream> GenerateAsync(string text, string voice) {
+        private static async Task<MemoryStream> GenerateAsync(string text, string voice) {
             Task<string> pollyRequest = Http.SendRequestAsync("https://streamlabs.com/polly/speak",
                 parameters: new Dictionary<string, string> { { "text", text }, { "voice", voice } }, method: Http.Method.Post);
 

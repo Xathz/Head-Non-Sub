@@ -38,15 +38,15 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             int ruleReaders = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == WubbysFunHouse.RuleReaderRoleId)).Distinct().Count();
             string ruleReadersPercent = ((double)ruleReaders / total).ToString("0%");
-            builder.AddField("People who read the rules", $"{ruleReaders.ToString("N0")} (_{ruleReadersPercent}_)", true);
+            builder.AddField("People who read the rules", $"{ruleReaders:N0} (_{ruleReadersPercent}_)", true);
 
             int subsAndPatrons = Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == WubbysFunHouse.TwitchSubscriberRoleId || r.Id == WubbysFunHouse.PatronRoleId)).Distinct().Count();
             string subsAndPatronsPercent = ((double)subsAndPatrons / total).ToString("0%");
-            builder.AddField("Subs / Patrons", $"{subsAndPatrons.ToString("N0")} (_{subsAndPatronsPercent}_)", true);
+            builder.AddField("Subs / Patrons", $"{subsAndPatrons:N0} (_{subsAndPatronsPercent}_)", true);
 
             int nonSubs = Context.Guild.Users.Where(x => !x.Roles.Any(r => r.Id == WubbysFunHouse.TwitchSubscriberRoleId || r.Id == WubbysFunHouse.PatronRoleId)).Distinct().Count();
             string nonSubsPercent = ((double)nonSubs / total).ToString("0.00%");
-            builder.AddField("Non-subs", $"{nonSubs.ToString("N0")} (_{nonSubsPercent}_)", true);
+            builder.AddField("Non-subs", $"{nonSubs:N0} (_{nonSubsPercent}_)", true);
 
             return BetterReplyAsync(builder.Build());
         }
@@ -232,9 +232,40 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
 
             if (!string.IsNullOrEmpty(builder.ToString())) {
-                await BetterReplyAsync($"● Possible alts and suspicious events about {BetterUserFormat(user)}{Environment.NewLine}{builder.ToString()}", parameters: $"{user.ToString()} ({user.Id})");
+                await BetterReplyAsync($"● Possible alts and suspicious events about {BetterUserFormat(user)}{Environment.NewLine}{builder}", parameters: $"{user} ({user.Id})");
             } else {
-                await BetterReplyAsync($"No possible alts or suspicious events were found about {BetterUserFormat(user)}.", parameters: $"{user.ToString()} ({user.Id})");
+                await BetterReplyAsync($"No possible alts or suspicious events were found about {BetterUserFormat(user)}.", parameters: $"{user} ({user.Id})");
+            }
+        }
+
+        [Command("banreason")]
+        [TwitchStaffOnly]
+        [AllowedCategories(WubbysFunHouse.ModDaddiesCategoryId)]
+        public async Task BanReason(string username = null) {
+            if (string.IsNullOrWhiteSpace(username)) {
+                await BetterReplyAsync("You must enter a username to check.", parameters: "username null");
+                return;
+            }
+
+            IReadOnlyCollection<RestBan> bans = await Context.Guild.GetBansAsync();
+            IEnumerable<RestBan> matches = bans.Where(x => x.User.Username.IndexOf(username, StringComparison.OrdinalIgnoreCase) != -1);
+
+            StringBuilder builder = new StringBuilder();
+
+            foreach (RestBan match in matches) {
+                builder.AppendLine($"{match.User}: {match.Reason}");
+            }
+
+            List<string> chunks = builder.ToString().SplitIntoChunksPreserveNewLines(1930);
+
+            if (chunks.Count > 0) {
+                foreach (string chunk in chunks) {
+                    await BetterReplyAsync($"● Matching banned users ```{chunk}```", parameters: username);
+                }
+            } else {
+                foreach (string chunk in chunks) {
+                    await BetterReplyAsync("No banned users were found.", parameters: username);
+                }
             }
         }
 

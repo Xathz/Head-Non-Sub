@@ -114,7 +114,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
                 builder.AppendLine("```");
                 foreach (IGrouping<IUser, IMessage> user in messagesPerUser) {
-                    builder.Append($"{user.Key.ToString()}: {user.Count()}; ");
+                    builder.Append($"{user.Key}: {user.Count()}; ");
                 }
                 builder.AppendLine("```");
 
@@ -171,7 +171,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
                     try {
                         foreach (ulong user in usersIdsToBan) {
-                            await Context.Guild.AddBanAsync(user, 1, $"Banned by '{Context.User.ToString()}' using the bot '{Context.Guild.CurrentUser.Username}' raid recovery system at {DateTime.UtcNow.ToString("o")}");
+                            await Context.Guild.AddBanAsync(user, 1, $"Banned by '{Context.User}' using the bot '{Context.Guild.CurrentUser.Username}' raid recovery system at {DateTime.UtcNow:o}");
                         }
                     } catch { }
 
@@ -204,7 +204,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
                 builder.AppendLine("```");
                 foreach (IUser banUser in usersToBan) {
-                    builder.Append($"{banUser.ToString()}; ");
+                    builder.Append($"{banUser}; ");
                 }
                 builder.AppendLine("```");
 
@@ -232,11 +232,11 @@ namespace HeadNonSub.Clients.Discord.Commands {
             }
 
             if (RaidRecoveryTracker.SkipUserToBan(Context.Channel.Id, user.Id)) {
-                await BetterReplyAsync($"{BetterUserFormat(user)} will be skipped and **not** banned.", parameters: $"{user.ToString()} ({user.Id})");
+                await BetterReplyAsync($"{BetterUserFormat(user)} will be skipped and **not** banned.", parameters: $"{user} ({user.Id})");
                 await LogMessageEmbedAsync("Raid recovery system", $"{BetterUserFormat(user)} will be skipped and **not** banned.");
 
             } else {
-                await BetterReplyAsync($"{BetterUserFormat(user)} was not suspected and will **not** be banned.", parameters: $"{user.ToString()} ({user.Id})");
+                await BetterReplyAsync($"{BetterUserFormat(user)} was not suspected and will **not** be banned.", parameters: $"{user} ({user.Id})");
             }
         }
 
@@ -271,7 +271,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             }
         }
 
-        private bool IsSuspected(IUser user) {
+        private static bool IsSuspected(IUser user) {
             if (user is SocketGuildUser guildUser) {
                 if (guildUser.Roles.Count == 0) {
                     return true;
@@ -293,7 +293,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             }
         }
 
-        private Embed LoadingEmbed(string message, string description = "") {
+        private static Embed LoadingEmbed(string message, string description = "") {
             EmbedBuilder builder = new EmbedBuilder() {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                 Title = $"{message}...",

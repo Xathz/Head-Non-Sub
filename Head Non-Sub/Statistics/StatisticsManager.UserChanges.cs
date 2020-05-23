@@ -17,26 +17,26 @@ namespace HeadNonSub.Statistics {
             string backblazeAvatarBucket, string backblazeAvatarFilename, string backblazeAvatarUrl) {
 
             try {
-                using (StatisticsContext statistics = new StatisticsContext()) {
-                    UserChange item = new UserChange {
-                        DateTime = dateTime,
-                        ServerId = serverId,
-                        UserId = userId,
-                        ChangeType = changeType,
-                        OldUsername = oldUsername,
-                        NewUsername = newUsername,
-                        OldUsernameDiscriminator = oldUsernameDiscriminator,
-                        NewUsernameDiscriminator = newUsernameDiscriminator,
-                        OldUserDisplay = oldUserDisplay,
-                        NewUserDisplay = newUserDisplay,
-                        BackblazeAvatarBucket = backblazeAvatarBucket,
-                        BackblazeAvatarFilename = backblazeAvatarFilename,
-                        BackblazeAvatarUrl = backblazeAvatarUrl
-                    };
+                using StatisticsContext statistics = new StatisticsContext();
 
-                    statistics.UserChanges.Add(item);
-                    statistics.SaveChanges();
-                }
+                UserChange item = new UserChange {
+                    DateTime = dateTime,
+                    ServerId = serverId,
+                    UserId = userId,
+                    ChangeType = changeType,
+                    OldUsername = oldUsername,
+                    NewUsername = newUsername,
+                    OldUsernameDiscriminator = oldUsernameDiscriminator,
+                    NewUsernameDiscriminator = newUsernameDiscriminator,
+                    OldUserDisplay = oldUserDisplay,
+                    NewUserDisplay = newUserDisplay,
+                    BackblazeAvatarBucket = backblazeAvatarBucket,
+                    BackblazeAvatarFilename = backblazeAvatarFilename,
+                    BackblazeAvatarUrl = backblazeAvatarUrl
+                };
+
+                statistics.UserChanges.Add(item);
+                statistics.SaveChanges();
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
@@ -49,52 +49,51 @@ namespace HeadNonSub.Statistics {
         /// <param name="userId">User id.</param>
         public static string GetUserChanges(ulong serverId, ulong userId) {
             try {
-                using (StatisticsContext statistics = new StatisticsContext()) {
-                    IQueryable<UserChange> userChanges = statistics.UserChanges.AsNoTracking().OrderByDescending(x => x.DateTime).Where(x => x.UserId == userId);
-                    StringBuilder builder = new StringBuilder();
+                using StatisticsContext statistics = new StatisticsContext();
+                IQueryable<UserChange> userChanges = statistics.UserChanges.AsNoTracking().OrderByDescending(x => x.DateTime).Where(x => x.UserId == userId);
+                StringBuilder builder = new StringBuilder();
 
-                    foreach (UserChange userChange in userChanges) {
-                        if (userChange.ChangeType != NameChangeType.None) {
-                            List<string> changes = new List<string>();
+                foreach (UserChange userChange in userChanges) {
+                    if (userChange.ChangeType != NameChangeType.None) {
+                        List<string> changes = new List<string>();
 
-                            if (userChange.ChangeType.HasFlag(NameChangeType.Username)) {
-                                changes.Add($" ● [   user] {userChange.OldUsername} => {userChange.NewUsername}");
-                            }
+                        if (userChange.ChangeType.HasFlag(NameChangeType.Username)) {
+                            changes.Add($" ● [   user] {userChange.OldUsername} => {userChange.NewUsername}");
+                        }
 
-                            if (userChange.ChangeType.HasFlag(NameChangeType.Discriminator)) {
-                                changes.Add($" ● [discrim] #{userChange.OldUsernameDiscriminator} => #{userChange.NewUsernameDiscriminator}");
-                            }
+                        if (userChange.ChangeType.HasFlag(NameChangeType.Discriminator)) {
+                            changes.Add($" ● [discrim] #{userChange.OldUsernameDiscriminator} => #{userChange.NewUsernameDiscriminator}");
+                        }
 
-                            if (userChange.ChangeType.HasFlag(NameChangeType.Display)) {
-                                if (userChange.ServerId.HasValue && userChange.ServerId.Value == serverId) {
-                                    string oldUserDisplay = string.IsNullOrEmpty(userChange.OldUserDisplay) ? "<no nick>" : userChange.OldUserDisplay;
-                                    string newUserDisplay = string.IsNullOrEmpty(userChange.NewUserDisplay) ? "<no nick>" : userChange.NewUserDisplay;
+                        if (userChange.ChangeType.HasFlag(NameChangeType.Display)) {
+                            if (userChange.ServerId.HasValue && userChange.ServerId.Value == serverId) {
+                                string oldUserDisplay = string.IsNullOrEmpty(userChange.OldUserDisplay) ? "<no nick>" : userChange.OldUserDisplay;
+                                string newUserDisplay = string.IsNullOrEmpty(userChange.NewUserDisplay) ? "<no nick>" : userChange.NewUserDisplay;
 
-                                    changes.Add($" ● [   nick] {oldUserDisplay} => {newUserDisplay}");
-                                }
-                            }
-
-                            if (userChange.ChangeType.HasFlag(NameChangeType.Avatar)) {
-                                if (!string.IsNullOrWhiteSpace(userChange.BackblazeAvatarUrl)) {
-                                    changes.Add($" ● [ avatar] {userChange.BackblazeAvatarUrl}");
-                                }
-                            }
-
-                            if (changes.Count > 0) {
-                                builder.Append($"{userChange.DateTime.ToString(Constants.DateTimeFormatShort).ToLower()} utc");
-
-                                if ((userChange.ChangeType & (userChange.ChangeType - 1)) != 0) {
-                                    builder.Append(Environment.NewLine);
-                                }
-
-                                builder.Append(string.Join(Environment.NewLine, changes));
-                                builder.Append(Environment.NewLine);
+                                changes.Add($" ● [   nick] {oldUserDisplay} => {newUserDisplay}");
                             }
                         }
-                    }
 
-                    return builder.ToString().Trim();
+                        if (userChange.ChangeType.HasFlag(NameChangeType.Avatar)) {
+                            if (!string.IsNullOrWhiteSpace(userChange.BackblazeAvatarUrl)) {
+                                changes.Add($" ● [ avatar] {userChange.BackblazeAvatarUrl}");
+                            }
+                        }
+
+                        if (changes.Count > 0) {
+                            builder.Append($"{userChange.DateTime.ToString(Constants.DateTimeFormatShort).ToLower()} utc");
+
+                            if ((userChange.ChangeType & (userChange.ChangeType - 1)) != 0) {
+                                builder.Append(Environment.NewLine);
+                            }
+
+                            builder.Append(string.Join(Environment.NewLine, changes));
+                            builder.Append(Environment.NewLine);
+                        }
+                    }
                 }
+
+                return builder.ToString().Trim();
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
                 return string.Empty;
@@ -108,35 +107,34 @@ namespace HeadNonSub.Statistics {
         /// <param name="userId">User id.</param>
         public static string GetUserAvatarChanges(ulong userId) {
             try {
-                using (StatisticsContext statistics = new StatisticsContext()) {
-                    IQueryable<UserChange> userChanges = statistics.UserChanges.AsNoTracking().OrderByDescending(x => x.DateTime).Where(x => x.UserId == userId).Where(x => x.ChangeType.HasFlag(NameChangeType.Avatar));
-                    StringBuilder builder = new StringBuilder();
+                using StatisticsContext statistics = new StatisticsContext();
+                IQueryable<UserChange> userChanges = statistics.UserChanges.AsNoTracking().OrderByDescending(x => x.DateTime).Where(x => x.UserId == userId).Where(x => x.ChangeType.HasFlag(NameChangeType.Avatar));
+                StringBuilder builder = new StringBuilder();
 
-                    foreach (UserChange userChange in userChanges) {
-                        if (userChange.ChangeType != NameChangeType.None) {
-                            List<string> changes = new List<string>();
+                foreach (UserChange userChange in userChanges) {
+                    if (userChange.ChangeType != NameChangeType.None) {
+                        List<string> changes = new List<string>();
 
-                            if (userChange.ChangeType.HasFlag(NameChangeType.Avatar)) {
-                                if (!string.IsNullOrWhiteSpace(userChange.BackblazeAvatarUrl)) {
-                                    changes.Add($" ● {userChange.BackblazeAvatarUrl}");
-                                }
-                            }
-
-                            if (changes.Count > 0) {
-                                builder.Append($"{userChange.DateTime.ToString(Constants.DateTimeFormatShort).ToLower()} utc");
-
-                                if ((userChange.ChangeType & (userChange.ChangeType - 1)) != 0) {
-                                    builder.Append(Environment.NewLine);
-                                }
-
-                                builder.Append(string.Join(Environment.NewLine, changes));
-                                builder.Append(Environment.NewLine);
+                        if (userChange.ChangeType.HasFlag(NameChangeType.Avatar)) {
+                            if (!string.IsNullOrWhiteSpace(userChange.BackblazeAvatarUrl)) {
+                                changes.Add($" ● {userChange.BackblazeAvatarUrl}");
                             }
                         }
-                    }
 
-                    return builder.ToString().Trim();
+                        if (changes.Count > 0) {
+                            builder.Append($"{userChange.DateTime.ToString(Constants.DateTimeFormatShort).ToLower()} utc");
+
+                            if ((userChange.ChangeType & (userChange.ChangeType - 1)) != 0) {
+                                builder.Append(Environment.NewLine);
+                            }
+
+                            builder.Append(string.Join(Environment.NewLine, changes));
+                            builder.Append(Environment.NewLine);
+                        }
+                    }
                 }
+
+                return builder.ToString().Trim();
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
                 return string.Empty;
@@ -150,18 +148,18 @@ namespace HeadNonSub.Statistics {
         /// <returns>List of (user id, count)</returns>
         public static List<KeyValuePair<ulong, long>> GetTopChangers(int count) {
             try {
-                using (StatisticsContext statistics = new StatisticsContext()) {
-                    return statistics.UserChanges.AsNoTracking().OrderByDescending(x => x.DateTime)
-                        .Where(x => x.ChangeType != NameChangeType.None)
-                        .GroupBy(x => x.UserId)
-                        .Select(g => new {
-                            UserId = g.Key,
-                            Count = g.LongCount()
-                        }).OrderByDescending(x => x.Count)
-                        .ToDictionary(x => x.UserId, x => x.Count)
-                        .Take(count)
-                        .ToList();
-                }
+                using StatisticsContext statistics = new StatisticsContext();
+
+                return statistics.UserChanges.AsNoTracking().OrderByDescending(x => x.DateTime)
+                    .Where(x => x.ChangeType != NameChangeType.None)
+                    .GroupBy(x => x.UserId)
+                    .Select(g => new {
+                        UserId = g.Key,
+                        Count = g.LongCount()
+                    }).OrderByDescending(x => x.Count)
+                    .ToDictionary(x => x.UserId, x => x.Count)
+                    .Take(count)
+                    .ToList();
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
                 return new List<KeyValuePair<ulong, long>>();

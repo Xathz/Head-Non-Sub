@@ -11,6 +11,7 @@ using TwitchLib.Api.Helix.Models.Clips.GetClip;
 using TwitchLib.Api.Helix.Models.Users;
 using TwitchLib.Api.Services;
 using TwitchLib.Api.Services.Events.LiveStreamMonitor;
+using TwitchLib.Api.ThirdParty.AuthorizationFlow;
 using TwitchLib.Client.Models;
 using TwitchLib.Communication.Events;
 using Client = TwitchLib.Client;
@@ -35,13 +36,26 @@ namespace HeadNonSub.Clients.Twitch {
                 LoggingManager.Log.Info("Connecting");
 
                 _ApiSettings = new ApiSettings {
-                    ClientId = Constants.ApplicationNameFormatted,
+                    ClientId = SettingsManager.Configuration.TwitchClientId,
                     AccessToken = SettingsManager.Configuration.TwitchToken
                 };
 
                 _TwitchApi = new TwitchAPI(settings: _ApiSettings);
 
                 LoggingManager.Log.Info("Connected");
+
+                RefreshTokenResponse refresh = _TwitchApi.ThirdParty.AuthorizationFlow.RefreshToken(SettingsManager.Configuration.TwitchRefresh);
+                SettingsManager.Configuration.TwitchRefresh = refresh.Refresh;
+                SettingsManager.Configuration.TwitchToken = refresh.Token;
+                SettingsManager.Save();
+
+                //_TwitchApi.ThirdParty.AuthorizationFlow.OnUserAuthorizationDetected += (s, a) => {
+                //    Console.WriteLine($"      id: {a.Id}");
+                //    Console.WriteLine($"username: {a.Username}");
+                //    Console.WriteLine($"   token: {a.Token}");
+                //    Console.WriteLine($" refresh: {a.Refresh}");
+                //    Console.WriteLine($"  scopes: {a.Scopes}");
+                //};
 
 #if DEBUG
                 return;
@@ -101,8 +115,6 @@ namespace HeadNonSub.Clients.Twitch {
 
                 GetClipResponse result = await _TwitchApi.Helix.Clips.GetClipAsync(broadcasterId: userId, first: 100);
                 foreach (Clip clip in result.Clips) {
-                    DateTime created = DateTime.Parse(clip.CreatedAt);
-
                     returnClips.Add(new TwitchEntities.Clip(DateTime.Parse(clip.CreatedAt), clip.Title, clip.ViewCount, clip.Url));
                 }
 

@@ -25,9 +25,19 @@ namespace HeadNonSub.Settings {
         public string TwitchUsername { get; set; } = string.Empty;
 
         /// <summary>
-        /// Twitch oauth token.
+        /// Twitch client id.
+        /// </summary>
+        public string TwitchClientId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Twitch token.
         /// </summary>
         public string TwitchToken { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Twitch refresh token.
+        /// </summary>
+        public string TwitchRefresh { get; set; } = string.Empty;
 
         /// <summary>
         /// MeeSix (MEE6) api token.

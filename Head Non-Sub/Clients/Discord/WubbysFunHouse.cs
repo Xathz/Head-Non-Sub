@@ -106,6 +106,12 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong BotsRoleId = 328403426142715906;
 
+        public const ulong TwitchSubscriberTier1RoleId = 689250973880680482;
+
+        public const ulong TwitchSubscriberTier2RoleId = 689250974132338718;
+
+        public const ulong TwitchSubscriberTier3RoleId = 689250974228807722;
+
         public const ulong TwitchSubscriberRoleId = 428052879371272192;
 
         public const ulong PatronRoleId = 328732005024137217;

@@ -30,7 +30,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             string changes = StatisticsManager.GetUserChanges(Context.Guild.Id, user.Id);
 
             if (string.IsNullOrWhiteSpace(changes)) {
-                await BetterReplyAsync($"There is no name change data for {BetterUserFormat(user)}. Maybe they just never changed their name. :shrug:", parameters: $"{user.ToString()} ({user.Id})");
+                await BetterReplyAsync($"There is no name change data for {BetterUserFormat(user)}. Maybe they just never changed their name. :shrug:", parameters: $"{user} ({user.Id})");
                 return;
             }
 
@@ -38,7 +38,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             if (chunks.Count == 1) {
                 foreach (string chunk in chunks) {
-                    await BetterReplyAsync($"● Name changes for {BetterUserFormat(user)} ```{chunk}```", parameters: $"{user.ToString()} ({user.Id})");
+                    await BetterReplyAsync($"● Name changes for {BetterUserFormat(user)} ```{chunk}```", parameters: $"{user} ({user.Id})");
                 }
             } else {
                 Backblaze.File uploadedFile = await Backblaze.UploadTemporaryFileAsync(changes, $"{user.Id}/{Backblaze.ISOFileNameDate("txt")}");
@@ -50,7 +50,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     message = "There was an error uploading the temporary file.";
                 }
 
-                await BetterReplyAsync($"There are too many name changes to display here. {message}", parameters: $"{user.ToString()} ({user.Id})");
+                await BetterReplyAsync($"There are too many name changes to display here. {message}", parameters: $"{user} ({user.Id})");
             }
         }
 
@@ -105,7 +105,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             foreach (KeyValuePair<ulong, long> changer in changers) {
                 if (UserFromUserId(changer.Key) is SocketGuildUser user) {
-                    builder.AppendLine($"{Constants.ZeroWidthSpace}{changer.Value.ToString("N0").PadLeft(5)}: {user.ToString()}{(!string.IsNullOrEmpty(user.Nickname) ? $" ({user.Nickname})" : "")}");
+                    builder.AppendLine($"{Constants.ZeroWidthSpace}{changer.Value,-5:N0}: {user}{(!string.IsNullOrEmpty(user.Nickname) ? $" ({user.Nickname})" : "")}");
                 }
             }
 
@@ -130,39 +130,38 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             await Context.Channel.TriggerTypingAsync();
 
-            using (HttpResponseMessage response = await Http.Client.GetAsync(user.GetAvatarUrl(size: 1024))) {
-                if (response.IsSuccessStatusCode) {
-                    using (HttpContent content = response.Content) {
-                        Stream stream = await content.ReadAsStreamAsync();
+            using HttpResponseMessage response = await Http.Client.GetAsync(user.GetAvatarUrl(size: 1024));
 
-                        if (stream.Length > Constants.DiscordMaximumFileSize) {
-                            await BetterReplyAsync("There was an error processing the avatar. Re-upload was too large.");
-                        } else {
-                            string changes = StatisticsManager.GetUserAvatarChanges(user.Id);
-                            List<string> chunks = changes.SplitIntoChunksPreserveNewLines(1930);
-                            string message = null;
+            if (response.IsSuccessStatusCode) {
+                using HttpContent content = response.Content;
+                Stream stream = await content.ReadAsStreamAsync();
 
-                            if (chunks.Count == 0) {
-                                message = $"● Avatar of {BetterUserFormat(user)}";
-                            } else if (chunks.Count == 1) {
-                                foreach (string chunk in chunks) {
-                                    message = $"● Previous avatars of {BetterUserFormat(user)} ```{chunk}```{Environment.NewLine}Current avatar:";
-                                }
-                            } else {
-                                Backblaze.File uploadedFile = await Backblaze.UploadTemporaryFileAsync(changes, $"{user.Id}/{Backblaze.ISOFileNameDate("txt")}");
+                if (stream.Length > Constants.DiscordMaximumFileSize) {
+                    await BetterReplyAsync("There was an error processing the avatar. Re-upload was too large.");
+                } else {
+                    string changes = StatisticsManager.GetUserAvatarChanges(user.Id);
+                    List<string> chunks = changes.SplitIntoChunksPreserveNewLines(1930);
+                    string message = null;
 
-                                if (uploadedFile is Backblaze.File) {
-                                    message = $"● There are too many previous avatars to list here for {BetterUserFormat(user)} <{uploadedFile.ShortUrl}>{Environment.NewLine}{Environment.NewLine}Current avatar:";
-                                }
-                            }
+                    if (chunks.Count == 0) {
+                        message = $"● Avatar of {BetterUserFormat(user)}";
+                    } else if (chunks.Count == 1) {
+                        foreach (string chunk in chunks) {
+                            message = $"● Previous avatars of {BetterUserFormat(user)} ```{chunk}```{Environment.NewLine}Current avatar:";
+                        }
+                    } else {
+                        Backblaze.File uploadedFile = await Backblaze.UploadTemporaryFileAsync(changes, $"{user.Id}/{Backblaze.ISOFileNameDate("txt")}");
 
-                            stream.Seek(0, SeekOrigin.Begin);
-                            await BetterSendFileAsync(stream, $"{user.Id}_avatar.{(user.AvatarId.StartsWith("a_") ? "gif" : "png")}", message, parameters: $"{user.ToString()} ({user.Id})");
+                        if (uploadedFile is Backblaze.File) {
+                            message = $"● There are too many previous avatars to list here for {BetterUserFormat(user)} <{uploadedFile.ShortUrl}>{Environment.NewLine}{Environment.NewLine}Current avatar:";
                         }
                     }
-                } else {
-                    await BetterReplyAsync("There was an error processing the avatar. Avatar download failed.", parameters: $"{user.ToString()} ({user.Id})");
+
+                    stream.Seek(0, SeekOrigin.Begin);
+                    await BetterSendFileAsync(stream, $"{user.Id}_avatar.{(user.AvatarId.StartsWith("a_") ? "gif" : "png")}", message, parameters: $"{user} ({user.Id})");
                 }
+            } else {
+                await BetterReplyAsync("There was an error processing the avatar. Avatar download failed.", parameters: $"{user} ({user.Id})");
             }
         }
 
@@ -180,21 +179,21 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             foreach (EmoteOrEmoji item in items) {
                 if (item.IsEmote) {
-                    using (HttpResponseMessage response = await Http.Client.GetAsync($"https://cdn.discordapp.com/emojis/{item.Id}.{(item.Animated ? "gif" : "png")}")) {
-                        if (response.IsSuccessStatusCode) {
-                            using (HttpContent content = response.Content) {
-                                Stream stream = await content.ReadAsStreamAsync();
+                    using HttpResponseMessage response = await Http.Client.GetAsync($"https://cdn.discordapp.com/emojis/{item.Id}.{(item.Animated ? "gif" : "png")}");
 
-                                if (stream.Length > Constants.DiscordMaximumFileSize) {
-                                    await BetterReplyAsync("There was an error processing an emoji. Re-upload was too large.", parameters: emoji);
-                                } else {
-                                    stream.Seek(0, SeekOrigin.Begin);
-                                    await BetterSendFileAsync(stream, $"{item.Id}_emote.{(item.Animated ? "gif" : "png")}", "", parameters: emoji);
-                                }
-                            }
+                    if (response.IsSuccessStatusCode) {
+                        using HttpContent content = response.Content;
+
+                        Stream stream = await content.ReadAsStreamAsync();
+
+                        if (stream.Length > Constants.DiscordMaximumFileSize) {
+                            await BetterReplyAsync("There was an error processing an emoji. Re-upload was too large.", parameters: emoji);
                         } else {
-                            await BetterReplyAsync("There was an error processing an emoji. Emote download failed.", parameters: emoji);
+                            stream.Seek(0, SeekOrigin.Begin);
+                            await BetterSendFileAsync(stream, $"{item.Id}_emote.{(item.Animated ? "gif" : "png")}", "", parameters: emoji);
                         }
+                    } else {
+                        await BetterReplyAsync("There was an error processing an emoji. Emote download failed.", parameters: emoji);
                     }
                 } else {
                     List<string> hex = new List<string>();
@@ -205,10 +204,10 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     string fullHex = string.Join("-", hex);
 
                     if (!string.IsNullOrEmpty(fullHex)) {
-                        using (MemoryStream stream = Cache.GetStream($"twemoji_{fullHex}.png")) {
-                            if (stream is MemoryStream) {
-                                await BetterSendFileAsync(stream, $"{fullHex}_emoji.png", "", parameters: emoji);
-                            }
+                        using MemoryStream stream = Cache.GetStream($"twemoji_{fullHex}.png");
+
+                        if (stream is MemoryStream) {
+                            await BetterSendFileAsync(stream, $"{fullHex}_emoji.png", "", parameters: emoji);
                         }
                     } else {
                         await BetterReplyAsync("There was an error processing an emoji. Parse failed.", parameters: emoji);
@@ -227,20 +226,20 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
 
             if (string.IsNullOrWhiteSpace(nickname)) {
-                await BetterReplyAsync($"You did not specify a nickname to set for `{user.ToString()}`.", parameters: $"{user.ToString()} ({user.Id}); {nickname}");
+                await BetterReplyAsync($"You did not specify a nickname to set for `{user}`.", parameters: $"{user} ({user.Id}); {nickname}");
                 return;
             }
 
             if (WubbysFunHouse.IsDiscordStaff(user)) {
-                await BetterReplyAsync("You can not set the nickname of another staff member.", parameters: $"{user.ToString()} ({user.Id}); {nickname}");
+                await BetterReplyAsync("You can not set the nickname of another staff member.", parameters: $"{user} ({user.Id}); {nickname}");
                 return;
             }
 
             string orginalUserName = BetterUserFormat(user);
 
-            await user.ModifyAsync(x => { x.Nickname = nickname; }, new RequestOptions { AuditLogReason = $"Changed by {Context.User.ToString()} ({Context.User.Id})" });
+            await user.ModifyAsync(x => { x.Nickname = nickname; }, new RequestOptions { AuditLogReason = $"Changed by {Context.User} ({Context.User.Id})" });
 
-            await BetterReplyAsync($"Changed nickname for {orginalUserName} to `{nickname}`.", parameters: $"{user.ToString()} ({user.Id}); {nickname}");
+            await BetterReplyAsync($"Changed nickname for {orginalUserName} to `{nickname}`.", parameters: $"{user} ({user.Id}); {nickname}");
         }
 
     }

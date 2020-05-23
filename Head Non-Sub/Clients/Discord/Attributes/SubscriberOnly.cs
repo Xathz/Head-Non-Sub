@@ -11,7 +11,13 @@ namespace HeadNonSub.Clients.Discord.Attributes {
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services) {
             if (context.User is SocketGuildUser user) {
 
-                if (user.Roles.Any(x => x.Id == WubbysFunHouse.TwitchSubscriberRoleId || x.Id == WubbysFunHouse.PatronRoleId)) {
+                if (user.Roles.Any(x =>
+                    x.Id == WubbysFunHouse.TwitchSubscriberRoleId ||
+                    x.Id == WubbysFunHouse.TwitchSubscriberTier1RoleId ||
+                    x.Id == WubbysFunHouse.TwitchSubscriberTier2RoleId ||
+                    x.Id == WubbysFunHouse.TwitchSubscriberTier3RoleId ||
+                    x.Id == WubbysFunHouse.PatronRoleId)) {
+
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 } else {
                     return Task.FromResult(PreconditionResult.FromError($"{context.User.Mention} you must be subscribed! Sub <{WubbysFunHouse.TwitchSubscribeUrl}> or link your Twitch <{WubbysFunHouse.LinkTwitchToDiscordUrl}>."));

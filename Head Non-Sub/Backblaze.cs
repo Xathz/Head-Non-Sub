@@ -14,7 +14,6 @@ namespace HeadNonSub {
         /// Temporary files bucket. Files will be hidden after 7 days and deleted after 10.
         /// </summary>
         private static readonly B2Client _TempBucketClient = new B2Client(new B2Options() {
-            AccountId = SettingsManager.Configuration.BackblazeTempBucket.KeyId,
             ApplicationKey = SettingsManager.Configuration.BackblazeTempBucket.ApplicationKey,
             KeyId = SettingsManager.Configuration.BackblazeTempBucket.KeyId,
             BucketId = SettingsManager.Configuration.BackblazeTempBucket.BucketId,
@@ -25,7 +24,6 @@ namespace HeadNonSub {
         /// Avatar files bucket.
         /// </summary>
         private static readonly B2Client _AvatarBucketClient = new B2Client(new B2Options() {
-            AccountId = SettingsManager.Configuration.BackblazeAvatarBucket.KeyId,
             ApplicationKey = SettingsManager.Configuration.BackblazeAvatarBucket.ApplicationKey,
             KeyId = SettingsManager.Configuration.BackblazeAvatarBucket.KeyId,
             BucketId = SettingsManager.Configuration.BackblazeAvatarBucket.BucketId,
@@ -128,7 +126,7 @@ namespace HeadNonSub {
         /// ISO 8601 timestamp usable as a file name.
         /// </summary>
         /// <param name="extension">Extension of the file.</param>
-        public static string ISOFileNameDate(string extension) => $"{DateTime.UtcNow.ToString("yyyyMMddTHHmmss")}Z.{extension}";
+        public static string ISOFileNameDate(string extension) => $"{DateTime.UtcNow:yyyyMMddTHHmmss}Z.{extension}";
 
     }
 

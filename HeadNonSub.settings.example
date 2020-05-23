@@ -3,7 +3,9 @@
   "botPlaying": "pls gift me a sub",
   "discordToken": "",
   "twitchUsername": "",
+  "twitchClientId": "",
   "twitchToken": "",
+  "twitchRefresh": "",
   "meeSixToken": "",
   "cBenniToken": "",
   "urlShortenerKey": "",
@@ -13,7 +15,7 @@
   "mariaDBPassword": "",
   "backblazeTempBucket": {
     "bucketId": "",
-    "bucketName": "",
+	"bucketName": "",
     "keyId": "",
     "applicationKey": ""
   },
@@ -23,7 +25,11 @@
     "keyId": "",
     "applicationKey": ""
   },
-  "twitchStreams": [],
-  "discordWhitelist": {},
-  "discordBlacklist": {}
+  "twitchStream": {
+      "userId": "",
+      "displayName": "",
+      "discordChannel": 0
+  },
+  "discordWhitelist": { },
+  "discordBlacklist": { }
 }

@@ -41,7 +41,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 Description = $"[More data on TwitchStocks]({WubbysFunHouse.TwitchStocksUrl})"
             };
 
-            builder.AddField("Value", $"**${recent.Value.Value.ToString("N2")}** _${recent.Value.Value.ToString("N6")}_");
+            builder.AddField("Value", $"**${recent.Value.Value:N2}** _${recent.Value.Value:N6}_");
 
             builder.Footer = new EmbedFooterBuilder() {
                 Text = $"As of {FromUnixTime(recent.Value.Key).ToString().ToLower()} utc{(fromCache ? "; from cache" : "")}"
@@ -50,7 +50,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             await BetterReplyAsync(builder.Build());
         }
 
-        private async Task<KeyValuePair<long, double>?> GetRecentStockValueAsync() {
+        private static async Task<KeyValuePair<long, double>?> GetRecentStockValueAsync() {
             Dictionary<long, double> stocks = await GetStocksAsync();
 
             if (stocks.Count == 0) {
@@ -60,7 +60,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             return stocks.OrderByDescending(x => x.Key).FirstOrDefault();
         }
 
-        private async Task<Dictionary<long, double>> GetStocksAsync() {
+        private static async Task<Dictionary<long, double>> GetStocksAsync() {
             Dictionary<long, double> returnValues = new Dictionary<long, double>();
 
             Task<string> download = Http.SendRequestAsync($"https://api.twitchstocks.com/api/v1/stocks/38251312/history/1hr",

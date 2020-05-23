@@ -19,25 +19,25 @@ namespace HeadNonSub.Database {
             /// <param name="note">Note text.</param>
             public static void Insert(ulong serverId, ulong userId, Note note) {
                 try {
-                    using (DatabaseContext database = new DatabaseContext()) {
-                        if (database.UserNotes.AsNoTracking().Any(x => x.ServerId == serverId & x.UserId == userId)) {
-                            UserNote userNote = database.UserNotes.FirstOrDefault(x => x.ServerId == serverId & x.UserId == userId);
-                            userNote.Notes.Add(note);
+                    using DatabaseContext database = new DatabaseContext();
 
-                            database.UserNotes.Update(userNote);
+                    if (database.UserNotes.AsNoTracking().Any(x => x.ServerId == serverId & x.UserId == userId)) {
+                        UserNote userNote = database.UserNotes.FirstOrDefault(x => x.ServerId == serverId & x.UserId == userId);
+                        userNote.Notes.Add(note);
 
-                        } else {
-                            UserNote item = new UserNote {
-                                ServerId = serverId,
-                                UserId = userId,
-                                Notes = new List<Note> { note }
-                            };
+                        database.UserNotes.Update(userNote);
 
-                            database.UserNotes.Add(item);
-                        }
+                    } else {
+                        UserNote item = new UserNote {
+                            ServerId = serverId,
+                            UserId = userId,
+                            Notes = new List<Note> { note }
+                        };
 
-                        database.SaveChanges();
+                        database.UserNotes.Add(item);
                     }
+
+                    database.SaveChanges();
                 } catch (Exception ex) {
                     LoggingManager.Log.Error(ex);
                 }
@@ -51,12 +51,12 @@ namespace HeadNonSub.Database {
             /// <returns>List of notes.</returns>
             public static List<Note> GetUser(ulong serverId, ulong userId) {
                 try {
-                    using (DatabaseContext database = new DatabaseContext()) {
-                        if (database.UserNotes.AsNoTracking().Any(x => x.ServerId == serverId & x.UserId == userId)) {
-                            return database.UserNotes.AsNoTracking().Where(x => x.ServerId == serverId & x.UserId == userId).SelectMany(x => x.Notes).OrderByDescending(x => x.DateTime).ToList();
-                        } else {
-                            return new List<Note>();
-                        }
+                    using DatabaseContext database = new DatabaseContext();
+
+                    if (database.UserNotes.AsNoTracking().Any(x => x.ServerId == serverId & x.UserId == userId)) {
+                        return database.UserNotes.AsNoTracking().Where(x => x.ServerId == serverId & x.UserId == userId).SelectMany(x => x.Notes).OrderByDescending(x => x.DateTime).ToList();
+                    } else {
+                        return new List<Note>();
                     }
                 } catch (Exception ex) {
                     LoggingManager.Log.Error(ex);
@@ -73,18 +73,18 @@ namespace HeadNonSub.Database {
             /// <returns>True if deleted; false if id does not exist.</returns>
             public static bool Delete(ulong serverId, ulong userId, string noteId) {
                 try {
-                    using (DatabaseContext database = new DatabaseContext()) {
-                        if (database.UserNotes.AsNoTracking().Any(x => x.ServerId == serverId & x.UserId == userId)) {
-                            UserNote userNote = database.UserNotes.AsNoTracking().FirstOrDefault(x => x.ServerId == serverId & x.UserId == userId);
-                            userNote.Notes.RemoveAll(x => x.Id == noteId);
+                    using DatabaseContext database = new DatabaseContext();
 
-                            database.UserNotes.Update(userNote);
-                            database.SaveChanges();
+                    if (database.UserNotes.AsNoTracking().Any(x => x.ServerId == serverId & x.UserId == userId)) {
+                        UserNote userNote = database.UserNotes.AsNoTracking().FirstOrDefault(x => x.ServerId == serverId & x.UserId == userId);
+                        userNote.Notes.RemoveAll(x => x.Id == noteId);
 
-                            return true;
-                        } else {
-                            return false;
-                        }
+                        database.UserNotes.Update(userNote);
+                        database.SaveChanges();
+
+                        return true;
+                    } else {
+                        return false;
                     }
                 } catch (Exception ex) {
                     LoggingManager.Log.Error(ex);
@@ -100,17 +100,17 @@ namespace HeadNonSub.Database {
             /// <returns>True if all were deleted; false if no notes.</returns>
             public static bool DeleteAll(ulong serverId, ulong userId) {
                 try {
-                    using (DatabaseContext database = new DatabaseContext()) {
-                        if (database.UserNotes.AsNoTracking().Any(x => x.ServerId == serverId & x.UserId == userId)) {
-                            UserNote userNote = database.UserNotes.AsNoTracking().FirstOrDefault(x => x.ServerId == serverId & x.UserId == userId);
-                            database.UserNotes.Remove(userNote);
+                    using DatabaseContext database = new DatabaseContext();
 
-                            database.SaveChanges();
+                    if (database.UserNotes.AsNoTracking().Any(x => x.ServerId == serverId & x.UserId == userId)) {
+                        UserNote userNote = database.UserNotes.AsNoTracking().FirstOrDefault(x => x.ServerId == serverId & x.UserId == userId);
+                        database.UserNotes.Remove(userNote);
 
-                            return true;
-                        } else {
-                            return false;
-                        }
+                        database.SaveChanges();
+
+                        return true;
+                    } else {
+                        return false;
                     }
                 } catch (Exception ex) {
                     LoggingManager.Log.Error(ex);

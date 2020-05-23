@@ -127,7 +127,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(Context.Message, Direction.Before, 10).Flatten().OrderByDescending(x => x.CreatedAt);
                 IEmote emote = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 329534564160765954);
                 if (emote is IEmote) {
-                    messages.ForEach(async x => {
+                    messages.ForEachAsync(async x => {
                         if (x is IUserMessage message) {
                             await message.AddReactionAsync(emote);
                         }
@@ -146,7 +146,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(Context.Message, Direction.Before, 10).Flatten().OrderByDescending(x => x.CreatedAt);
                 IEmote emote = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 451081265467359253);
                 if (emote is IEmote) {
-                    messages.ForEach(async x => {
+                    messages.ForEachAsync(async x => {
                         if (x is IUserMessage message) {
                             await message.AddReactionAsync(emote);
                         }

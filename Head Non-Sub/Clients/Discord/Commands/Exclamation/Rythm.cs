@@ -25,9 +25,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 // 'Rythm#3722' or 'Rythm 2#2000'
                 IAsyncEnumerable<IMessage> validMessages = messages
                     .Where(x => x.Author.IsBot & (x.Author.Id == 235088799074484224 || x.Author.Id == 252128902418268161))
-                    .Where(x => x.Embeds.Any(e => e.Author.HasValue ? e.Author.Value.Name.Contains("Added to queue") : false));
+                    .Where(x => x.Embeds.Any(e => e.Author.HasValue && e.Author.Value.Name.Contains("Added to queue")));
 
-                randomMessage = (await validMessages.ToList()).PickRandom();
+                randomMessage = (await validMessages.ToListAsync()).PickRandom();
             }
 
             if (randomMessage is IMessage) {

@@ -78,7 +78,7 @@ namespace HeadNonSub.Extensions {
             int from = input.IndexOf(start) + start.Length;
             int to = input.LastIndexOf(end);
 
-            return input.Substring(from, to - from);
+            return input[from..to];
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace HeadNonSub.Extensions {
         /// </summary>
         public static bool ContainsUrls(this string input) {
             MatchCollection matches = _UrlRegex.Matches(input);
-            return (matches.Count > 0) ? true : false;
+            return matches.Count > 0;
         }
 
         /// <summary>
@@ -160,8 +160,8 @@ namespace HeadNonSub.Extensions {
         /// </summary>
         /// <remarks>https://github.com/discord-net/Discord.Net/blob/0275f7df507a2ad3f74be326488de2aa69bfccde/src/Discord.Net.Core/Utils/MentionUtils.cs#L53</remarks>
         public static bool TryParseDiscordUser(this string input, out ulong userId) {
-            if (input.Length >= 3 && input[0] == '<' && input[1] == '@' && input[input.Length - 1] == '>') {
-                input = input.Length >= 4 && input[2] == '!' ? input.Substring(3, input.Length - 4) : input.Substring(2, input.Length - 3);
+            if (input.Length >= 3 && input[0] == '<' && input[1] == '@' && input[^1] == '>') {
+                input = input.Length >= 4 && input[2] == '!' ? input[3..^1] : input[2..^1];
 
                 if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out userId)) {
                     return true;
@@ -177,8 +177,8 @@ namespace HeadNonSub.Extensions {
         /// </summary>
         /// <remarks>https://github.com/discord-net/Discord.Net/blob/0275f7df507a2ad3f74be326488de2aa69bfccde/src/Discord.Net.Core/Utils/MentionUtils.cs#L82</remarks>
         public static bool TryParseDiscordChannel(this string input, out ulong channelId) {
-            if (input.Length >= 3 && input[0] == '<' && input[1] == '#' && input[input.Length - 1] == '>') {
-                input = input.Substring(2, input.Length - 3);
+            if (input.Length >= 3 && input[0] == '<' && input[1] == '#' && input[^1] == '>') {
+                input = input[2..^1];
 
                 if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out channelId)) {
                     return true;
@@ -194,8 +194,8 @@ namespace HeadNonSub.Extensions {
         /// </summary>
         /// <remarks>https://github.com/discord-net/Discord.Net/blob/0275f7df507a2ad3f74be326488de2aa69bfccde/src/Discord.Net.Core/Utils/MentionUtils.cs#L108</remarks>
         public static bool TryParseDiscordRole(this string input, out ulong roleId) {
-            if (input.Length >= 4 && input[0] == '<' && input[1] == '@' && input[2] == '&' && input[input.Length - 1] == '>') {
-                input = input.Substring(3, input.Length - 4);
+            if (input.Length >= 4 && input[0] == '<' && input[1] == '@' && input[2] == '&' && input[^1] == '>') {
+                input = input[3..^1];
 
                 if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out roleId)) {
                     return true;
@@ -213,7 +213,7 @@ namespace HeadNonSub.Extensions {
         public static bool TryParseDiscordEmote(this string input, out EmoteOrEmoji result) {
             result = null;
 
-            if (input.Length >= 4 && input[0] == '<' && (input[1] == ':' || (input[1] == 'a' && input[2] == ':')) && input[input.Length - 1] == '>') {
+            if (input.Length >= 4 && input[0] == '<' && (input[1] == ':' || (input[1] == 'a' && input[2] == ':')) && input[^1] == '>') {
                 bool animated = input[1] == 'a';
                 int startIndex = animated ? 3 : 2;
 
@@ -226,7 +226,7 @@ namespace HeadNonSub.Extensions {
                     return false;
                 }
 
-                string name = input.Substring(startIndex, splitIndex - startIndex);
+                string name = input[startIndex..splitIndex];
                 result = new EmoteOrEmoji(id, name, animated);
                 return true;
             }
@@ -252,7 +252,7 @@ namespace HeadNonSub.Extensions {
                 string content = input.Substring(index, endIndex - index + 1);
 
                 if (TryParseDiscordUser(content, out ulong userId)) {
-                    tags.Add(new MessageTag(TagType.User, userId, index, content.Length, content.Contains("!") ? true : false));
+                    tags.Add(new MessageTag(TagType.User, userId, index, content.Length, content.Contains("!")));
 
                 } else if (TryParseDiscordRole(content, out ulong roleId)) {
                     tags.Add(new MessageTag(TagType.Role, roleId, index, content.Length));
@@ -336,11 +336,15 @@ namespace HeadNonSub.Extensions {
         /// Sanitizes the string, safely escaping any markdown sequences.
         /// </summary>
         /// <remarks>https://git.io/JeY0Y</remarks>
-        public static string SanitizeForMarkdown(this string input) {
+        public static string SanitizeForMarkdown(this string input, bool usedInCodeBlock = false) {
             if (string.IsNullOrWhiteSpace(input)) { return input; }
 
-            foreach (string unsafeChar in _MarkdownSensitiveCharacters) {
-                input = input.Replace(unsafeChar, $"\\{unsafeChar}");
+            if (usedInCodeBlock) {
+                input = input.Replace("`", "'");
+            } else {
+                foreach (string unsafeChar in _MarkdownSensitiveCharacters) {
+                    input = input.Replace(unsafeChar, $"\\{unsafeChar}");
+                }
             }
 
             return input.Trim();

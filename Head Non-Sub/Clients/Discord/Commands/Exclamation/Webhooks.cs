@@ -24,7 +24,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
 
             if (string.IsNullOrWhiteSpace(say)) {
-                await BetterReplyAsync($"You didn't tell {BetterUserFormat(user)} what to say.", parameters: $"{user.ToString()} ({user.Id}); {say}");
+                await BetterReplyAsync($"You didn't tell {BetterUserFormat(user)} what to say.", parameters: $"{user} ({user.Id}); {say}");
                 return;
             }
 
@@ -33,23 +33,21 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             if (Context.Channel is SocketTextChannel channel) {
                 Task<MemoryStream> download = Http.GetStreamAsync(user.GetAvatarUrl(ImageFormat.Png, 256));
 
-                using (MemoryStream avatar = await download) {
+                using MemoryStream avatar = await download;
+                if (download.IsCompletedSuccessfully) {
+                    RestWebhook webhook = await channel.CreateWebhookAsync(BetterUserFormat(user, true), avatar);
 
-                    if (download.IsCompletedSuccessfully) {
-                        RestWebhook webhook = await channel.CreateWebhookAsync(BetterUserFormat(user, true), avatar);
-
-                        try {
-                            using (DiscordWebhookClient webhookClient = new DiscordWebhookClient(webhook)) {
-                                await webhookClient.SendMessageAsync(say);
-                            }
-
-                            await LogUserMessageAsync("Head-Non Sub Puppet", $"User {Context.User.ToString()} ({Context.User.Id}) made {user.ToString()} ({user.Id}) say: {say}");
-
-                        } catch (Exception ex) {
-                            LoggingManager.Log.Error(ex);
-                        } finally {
-                            await webhook.DeleteAsync();
+                    try {
+                        using (DiscordWebhookClient webhookClient = new DiscordWebhookClient(webhook)) {
+                            await webhookClient.SendMessageAsync(say);
                         }
+
+                        await LogUserMessageAsync("Head-Non Sub Puppet", $"User {Context.User} ({Context.User.Id}) made {user} ({user.Id}) say: {say}");
+
+                    } catch (Exception ex) {
+                        LoggingManager.Log.Error(ex);
+                    } finally {
+                        await webhook.DeleteAsync();
                     }
                 }
             }

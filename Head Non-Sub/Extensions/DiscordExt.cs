@@ -35,8 +35,8 @@ namespace HeadNonSub.Extensions {
 
                 } else if (tag.Type == TagType.UserMention) {
                     IUser user = tag.Value as IUser;
-                    message.Replace($"<@!{tag.Key}>", $"{encaseWith}@{user.ToString()}{encaseWith}");
-                    message.Replace($"<@{tag.Key}>", $"{encaseWith}@{user.ToString()}{encaseWith}");
+                    message.Replace($"<@!{tag.Key}>", $"{encaseWith}@{user}{encaseWith}");
+                    message.Replace($"<@{tag.Key}>", $"{encaseWith}@{user}{encaseWith}");
 
                 }
             }

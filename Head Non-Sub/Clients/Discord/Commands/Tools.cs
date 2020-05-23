@@ -23,7 +23,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         public Task Ping() {
             DateTime now = DateTime.Now.ToUniversalTime();
 
-            return BetterReplyAsync($"{now.Subtract(Context.Message.CreatedAt.DateTime).TotalMilliseconds.ToString("N0")}ms" +
+            return BetterReplyAsync($"{now.Subtract(Context.Message.CreatedAt.DateTime).TotalMilliseconds:N0}ms" +
                 $"```Ping: {Context.Message.CreatedAt.DateTime.ToString(Constants.DateTimeFormatFull)}{Environment.NewLine}Pong: {now.ToString(Constants.DateTimeFormatFull)}```");
         }
 
@@ -69,7 +69,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     await channel.DeleteMessagesAsync(toDelete);
                 }
 
-                await LogMessageEmbedAsync($"Undo bot executed `@{Context.Guild.CurrentUser.ToString()} undobot`", $"{count} messages were requested to be deleted, {toDelete.Count} were deleted.");
+                await LogMessageEmbedAsync($"Undo bot executed `@{Context.Guild.CurrentUser} undobot`", $"{count} messages were requested to be deleted, {toDelete.Count} were deleted.");
             } catch { }
 
             await noticeMessage.DeleteAsync();
@@ -115,7 +115,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
                     await channel.DeleteMessagesAsync(toDelete);
 
-                    await LogMessageEmbedAsync($"Undo emotes executed `@{Context.Guild.CurrentUser.ToString()} undoemotes`", $"{count} emotes were requested to be deleted, {toDelete.Count} were deleted.");
+                    await LogMessageEmbedAsync($"Undo emotes executed `@{Context.Guild.CurrentUser} undoemotes`", $"{count} emotes were requested to be deleted, {toDelete.Count} were deleted.");
                 }
             } catch { }
 
@@ -134,7 +134,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     Description = "This channel has returned to normal."
                 };
 
-                await LogMessageEmbedAsync($"Emote mode executed `@{Context.Guild.CurrentUser.ToString()} emotemode off`", "**Mode:** Off");
+                await LogMessageEmbedAsync($"Emote mode executed `@{Context.Guild.CurrentUser} emotemode off`", "**Mode:** Off");
                 await BetterReplyAsync(builder.Build(), parameters: mode);
 
             } else if (mode == "textonly") {
@@ -146,7 +146,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     Description = "All messages with emotes/emoji will be deleted."
                 };
 
-                await LogMessageEmbedAsync($"Emote mode executed `@{Context.Guild.CurrentUser.ToString()} emotemode textonly`", "**Mode:** Text Only");
+                await LogMessageEmbedAsync($"Emote mode executed `@{Context.Guild.CurrentUser} emotemode textonly`", "**Mode:** Text Only");
                 await BetterReplyAsync(builder.Build(), parameters: mode);
 
             } else if (mode == "emoteonly") {
@@ -158,7 +158,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     Description = "All messages with text will be deleted."
                 };
 
-                await LogMessageEmbedAsync($"Emote mode executed `@{Context.Guild.CurrentUser.ToString()} emotemode emoteonly`", "**Mode:** Emote Only");
+                await LogMessageEmbedAsync($"Emote mode executed `@{Context.Guild.CurrentUser} emotemode emoteonly`", "**Mode:** Emote Only");
                 await BetterReplyAsync(builder.Build(), parameters: mode);
 
             } else {
@@ -181,7 +181,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 await BetterReplyAsync("Failed to generate the server map.");
             }
 
-            await LogMessageEmbedAsync($"Server map executed `@{Context.Guild.CurrentUser.ToString()} servermap`");
+            await LogMessageEmbedAsync($"Server map executed `@{Context.Guild.CurrentUser} servermap`");
         }
 
         [Command("membermap")]
@@ -199,7 +199,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 await BetterReplyAsync("Failed to generate the member map.");
             }
 
-            await LogMessageEmbedAsync($"Member map executed `@{Context.Guild.CurrentUser.ToString()} membermap`");
+            await LogMessageEmbedAsync($"Member map executed `@{Context.Guild.CurrentUser} membermap`");
         }
 
         [Command("emotes")]
@@ -236,7 +236,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             StringBuilder builder = new StringBuilder();
 
             foreach (SocketRole role in roles) {
-                builder.AppendLine($"{role.Name.Truncate(16, "...").PadRight(16)} {role.Id} {role.CreatedAt.DateTime.ToString(Constants.DateTimeFormatShort).ToLower()} utc {role.Color.ToString()}");
+                builder.AppendLine($"{role.Name.Truncate(16, "..."),16} {role.Id} {role.CreatedAt.DateTime.ToString(Constants.DateTimeFormatShort).ToLower()} utc {role.Color}");
             }
 
             List<string> chunks = builder.ToString().SplitIntoChunksPreserveNewLines(1950);

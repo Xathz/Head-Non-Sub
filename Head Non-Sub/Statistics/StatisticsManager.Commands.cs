@@ -19,24 +19,24 @@ namespace HeadNonSub.Statistics {
         public static void InsertCommand(DateTime dateTime, ulong serverId, ulong channelId, ulong userId, string username, string userDisplay,
                                             ulong messageId, string message, string command, string parameters, ulong? replyMessageId) {
             try {
-                using (StatisticsContext statistics = new StatisticsContext()) {
-                    Command item = new Command {
-                        DateTime = dateTime,
-                        ServerId = serverId,
-                        ChannelId = channelId,
-                        UserId = userId,
-                        Username = username,
-                        UserDisplay = userDisplay,
-                        MessageId = messageId,
-                        Message = message,
-                        CommandName = command,
-                        Parameters = parameters,
-                        ReplyMessageId = replyMessageId
-                    };
+                using StatisticsContext statistics = new StatisticsContext();
 
-                    statistics.Commands.Add(item);
-                    statistics.SaveChanges();
-                }
+                Command item = new Command {
+                    DateTime = dateTime,
+                    ServerId = serverId,
+                    ChannelId = channelId,
+                    UserId = userId,
+                    Username = username,
+                    UserDisplay = userDisplay,
+                    MessageId = messageId,
+                    Message = message,
+                    CommandName = command,
+                    Parameters = parameters,
+                    ReplyMessageId = replyMessageId
+                };
+
+                statistics.Commands.Add(item);
+                statistics.SaveChanges();
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
@@ -47,9 +47,8 @@ namespace HeadNonSub.Statistics {
         /// </summary>
         public static long GetTrueCount(ulong serverId) {
             try {
-                using (StatisticsContext statistics = new StatisticsContext()) {
-                    return statistics.Commands.AsNoTracking().Where(x => x.ServerId == serverId & x.CommandName == "ThatsTrue").LongCount();
-                }
+                using StatisticsContext statistics = new StatisticsContext();
+                return statistics.Commands.AsNoTracking().Where(x => x.ServerId == serverId & x.CommandName == "ThatsTrue").LongCount();
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
                 return 0;
@@ -61,13 +60,13 @@ namespace HeadNonSub.Statistics {
         /// </summary>
         public static List<KeyValuePair<string, long>> GetSaysCount(ulong serverId) {
             try {
-                using (StatisticsContext statistics = new StatisticsContext()) {
-                    return statistics.Commands.AsNoTracking().Where(x => x.ServerId == serverId & _CommandNameMap.Any(c => c.Key == x.CommandName))
-                            .GroupBy(x => x.CommandName).Select(g => new {
-                                CommandName = _CommandNameMap[g.Key],
-                                Count = g.LongCount()
-                            }).OrderByDescending(x => x.Count).ToDictionary(x => x.CommandName, x => x.Count).ToList();
-                }
+                using StatisticsContext statistics = new StatisticsContext();
+
+                return statistics.Commands.AsNoTracking().Where(x => x.ServerId == serverId & _CommandNameMap.Any(c => c.Key == x.CommandName))
+                        .GroupBy(x => x.CommandName).Select(g => new {
+                            CommandName = _CommandNameMap[g.Key],
+                            Count = g.LongCount()
+                        }).OrderByDescending(x => x.Count).ToDictionary(x => x.CommandName, x => x.Count).ToList();
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
                 return new List<KeyValuePair<string, long>>();
@@ -79,16 +78,15 @@ namespace HeadNonSub.Statistics {
         /// </summary>
         public static List<ulong> UndoMessages(ulong channelId, ulong userId, int count) {
             try {
-                using (StatisticsContext statistics = new StatisticsContext()) {
+                using StatisticsContext statistics = new StatisticsContext();
 
-                    ulong[] messageId = statistics.Commands.AsNoTracking().Where(x => x.ChannelId == channelId & x.UserId == userId).OrderByDescending(x => x.DateTime)
-                                        .Where(x => x.ReplyMessageId.HasValue).Take(count).Select(x => x.MessageId).Distinct().ToArray();
+                ulong[] messageId = statistics.Commands.AsNoTracking().Where(x => x.ChannelId == channelId & x.UserId == userId).OrderByDescending(x => x.DateTime)
+                                    .Where(x => x.ReplyMessageId.HasValue).Take(count).Select(x => x.MessageId).Distinct().ToArray();
 
-                    ulong[] replyMessageIds = statistics.Commands.AsNoTracking().Where(x => x.ChannelId == channelId & x.UserId == userId).OrderByDescending(x => x.DateTime)
-                                        .Where(x => x.ReplyMessageId.HasValue).Where(x => messageId.Contains(x.MessageId)).Select(x => x.ReplyMessageId.Value).Distinct().ToArray();
+                ulong[] replyMessageIds = statistics.Commands.AsNoTracking().Where(x => x.ChannelId == channelId & x.UserId == userId).OrderByDescending(x => x.DateTime)
+                                    .Where(x => x.ReplyMessageId.HasValue).Where(x => messageId.Contains(x.MessageId)).Select(x => x.ReplyMessageId.Value).Distinct().ToArray();
 
-                    return new List<ulong>(messageId.Concat(replyMessageIds));
-                }
+                return new List<ulong>(messageId.Concat(replyMessageIds));
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
                 return new List<ulong>();

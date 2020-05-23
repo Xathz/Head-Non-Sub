@@ -36,14 +36,12 @@ namespace HeadNonSub {
                 request.Content = new FormUrlEncodedContent(parameters);
             }
 
-            using (HttpResponseMessage response = await Client.SendAsync(request)) {
-                if (response.IsSuccessStatusCode) {
-                    using (HttpContent content = response.Content) {
-                        return await content.ReadAsStringAsync();
-                    }
-                } else {
-                    throw new HttpRequestException($"There was an error; ({(int)response.StatusCode}) {response.ReasonPhrase}");
-                }
+            using HttpResponseMessage response = await Client.SendAsync(request);
+            if (response.IsSuccessStatusCode) {
+                using HttpContent content = response.Content;
+                return await content.ReadAsStringAsync();
+            } else {
+                throw new HttpRequestException($"There was an error; ({(int)response.StatusCode}) {response.ReasonPhrase}");
             }
         }
 
@@ -63,20 +61,18 @@ namespace HeadNonSub {
                 }
             }
 
-            using (HttpResponseMessage response = await Client.SendAsync(request)) {
-                if (response.IsSuccessStatusCode) {
-                    using (HttpContent content = response.Content) {
-                        using (Stream stream = await content.ReadAsStreamAsync()) {
-                            MemoryStream copyStream = new MemoryStream(256);
-                            stream.CopyTo(copyStream);
-                            copyStream.Seek(0, SeekOrigin.Begin);
+            using HttpResponseMessage response = await Client.SendAsync(request);
+            if (response.IsSuccessStatusCode) {
+                using HttpContent content = response.Content;
+                using Stream stream = await content.ReadAsStreamAsync();
 
-                            return copyStream;
-                        }
-                    }
-                } else {
-                    throw new HttpRequestException($"There was an error; ({(int)response.StatusCode}) {response.ReasonPhrase}");
-                }
+                MemoryStream copyStream = new MemoryStream(256);
+                stream.CopyTo(copyStream);
+                copyStream.Seek(0, SeekOrigin.Begin);
+
+                return copyStream;
+            } else {
+                throw new HttpRequestException($"There was an error; ({(int)response.StatusCode}) {response.ReasonPhrase}");
             }
         }
 

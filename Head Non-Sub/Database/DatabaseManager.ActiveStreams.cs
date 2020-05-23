@@ -16,16 +16,16 @@ namespace HeadNonSub.Database {
             /// <returns>True if inserted; false if exists.</returns>
             public static bool Insert(string username) {
                 try {
-                    using (DatabaseContext database = new DatabaseContext()) {
-                        if (database.ActiveStreams.AsNoTracking().Any(x => x.Username == username)) {
-                            return false;
-                        } else {
-                            database.ActiveStreams.Add(new ActiveStream() { Username = username, StartedAt = DateTime.UtcNow });
+                    using DatabaseContext database = new DatabaseContext();
 
-                            database.SaveChanges();
+                    if (database.ActiveStreams.AsNoTracking().Any(x => x.Username == username)) {
+                        return false;
+                    } else {
+                        database.ActiveStreams.Add(new ActiveStream() { Username = username, StartedAt = DateTime.UtcNow });
 
-                            return true;
-                        }
+                        database.SaveChanges();
+
+                        return true;
                     }
                 } catch (Exception ex) {
                     LoggingManager.Log.Error(ex);
@@ -40,17 +40,17 @@ namespace HeadNonSub.Database {
             /// <returns>DateTime of when stream went live, null if not deleted or error.</returns>
             public static DateTime? Delete(string username) {
                 try {
-                    using (DatabaseContext database = new DatabaseContext()) {
-                        if (database.ActiveStreams.AsNoTracking().Any(x => x.Username == username)) {
-                            ActiveStream stream = database.ActiveStreams.AsNoTracking().Where(x => x.Username == username).FirstOrDefault();
-                            database.ActiveStreams.Remove(stream);
+                    using DatabaseContext database = new DatabaseContext();
 
-                            database.SaveChanges();
+                    if (database.ActiveStreams.AsNoTracking().Any(x => x.Username == username)) {
+                        ActiveStream stream = database.ActiveStreams.AsNoTracking().Where(x => x.Username == username).FirstOrDefault();
+                        database.ActiveStreams.Remove(stream);
 
-                            return stream.StartedAt;
-                        } else {
-                            return null;
-                        }
+                        database.SaveChanges();
+
+                        return stream.StartedAt;
+                    } else {
+                        return null;
                     }
                 } catch (Exception ex) {
                     LoggingManager.Log.Error(ex);

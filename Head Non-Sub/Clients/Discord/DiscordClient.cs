@@ -40,7 +40,11 @@ namespace HeadNonSub.Clients.Discord {
                 ExclusiveBulkDelete = true,
                 MessageCacheSize = 2500,
                 AlwaysDownloadUsers = true,
+#if DEBUG
+                LogLevel = LogSeverity.Debug
+#else
                 LogLevel = LogSeverity.Info
+#endif
             };
 
             _DiscordClient = new DiscordSocketClient(_DiscordConfig);
@@ -125,7 +129,7 @@ namespace HeadNonSub.Clients.Discord {
                     }
 
                     if (imageUrl is string) {
-                        builder.ImageUrl = $"{imageUrl.Replace("{width}", "1920").Replace("{height}", "1080")}?_={DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()}";
+                        builder.ImageUrl = $"{imageUrl.Replace("{width}", "1920").Replace("{height}", "1080")}?_={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
                     }
 
                     builder.Author = new EmbedAuthorBuilder {
@@ -152,11 +156,13 @@ namespace HeadNonSub.Clients.Discord {
         private static Task Log(LogMessage message) {
             switch (message.Severity) {
                 case LogSeverity.Debug:
-                    LoggingManager.Log.Info(message.Message);
+                    if (!message.Message.Contains("PRESENCE_UPDATE")) {
+                        LoggingManager.Log.Debug(message.Message);
+                    }
                     return Task.CompletedTask;
 
                 case LogSeverity.Verbose:
-                    LoggingManager.Log.Info(message.Message);
+                    LoggingManager.Log.Debug(message.Message);
                     return Task.CompletedTask;
 
                 case LogSeverity.Info:
@@ -211,24 +217,33 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static Task GuildMembersDownloaded(SocketGuild guild) {
-            LoggingManager.Log.Info($"Full memberlist was downloaded for {guild.Name} ({guild.Id}); {guild.Users.Count.ToString("N0")} total members ({guild.Users.Where(x => x.Status == UserStatus.Online).Count().ToString("N0")} online)");
+            LoggingManager.Log.Info($"Full memberlist was downloaded for {guild.Name} ({guild.Id}); {guild.Users.Count:N0} total members ({guild.Users.Where(x => x.Status == UserStatus.Online).Count():N0} online)");
             return Task.CompletedTask;
         }
 
         private static async Task UserJoined(SocketGuildUser user) {
-            // Auto-mute accounts that have been created recently
-            if (user.CreatedAt.AddMinutes(10) > DateTimeOffset.Now) {
-                try {
-                    await WubbysFunHouse.AddRoleAsync(user, WubbysFunHouse.MutedRoleId, "Auto-muted on join due to account being younger than 10 minutes.");
-                    await SendMessageAsync(WubbysFunHouse.ModLogsChannelId, $":anger: {user.Mention} was auto-muted on join due to account being younger than 10 minutes.");
-
-                } catch (Exception ex) {
-                    LoggingManager.Log.Error(ex);
-                }
+            if (user == null || string.IsNullOrEmpty(user.AvatarId)) {
+                LoggingManager.Log.Error("User joined, user is null!");
+                return;
             }
 
             if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
-                await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :inbox_tray: {user.ToString()} (`{user.Id}`) has joined.");
+                await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :inbox_tray: {user} (`{user.Id}`) has joined.");
+            }
+
+            // Auto-mute accounts that have been created recently
+            if (user.CreatedAt.AddMinutes(10) > DateTimeOffset.Now) {
+                _ = Task.Run(async () => {
+                    await Task.Delay(2000);
+
+                    try {
+                        await WubbysFunHouse.AddRoleAsync(user, WubbysFunHouse.MutedRoleId, "Auto-muted on join due to account being younger than 10 minutes.");
+                        await SendMessageAsync(WubbysFunHouse.ModLogsChannelId, $":anger: {user.Mention} was auto-muted on join due to account being younger than 10 minutes.");
+
+                    } catch (Exception ex) {
+                        LoggingManager.Log.Error(ex);
+                    }
+                });
             }
 
             // ========
@@ -246,22 +261,21 @@ namespace HeadNonSub.Clients.Discord {
                         ImageFormat imageFormat = user.AvatarId.StartsWith("a_") ? ImageFormat.Gif : ImageFormat.Png;
                         Task<MemoryStream> download = Http.GetStreamAsync(user.GetAvatarUrl(imageFormat, 1024));
 
-                        using (MemoryStream data = await download) {
-                            if (download.IsCompletedSuccessfully) {
-                                Backblaze.File avatarUpload = await Backblaze.UploadAvatarAsync(data, $"{user.Id}/{Backblaze.ISOFileNameDate(imageFormat.ToString().ToLower())}");
+                        using MemoryStream data = await download;
+                        if (download.IsCompletedSuccessfully) {
+                            Backblaze.File avatarUpload = await Backblaze.UploadAvatarAsync(data, $"{user.Id}/{Backblaze.ISOFileNameDate(imageFormat.ToString().ToLower())}");
 
-                                backblazeAvatarBucket = avatarUpload.BucketName;
-                                backblazeAvatarFilename = avatarUpload.FileName;
-                                backblazeAvatarUrl = avatarUpload.ShortUrl;
+                            backblazeAvatarBucket = avatarUpload.BucketName;
+                            backblazeAvatarFilename = avatarUpload.FileName;
+                            backblazeAvatarUrl = avatarUpload.ShortUrl;
 
-                                changeType |= StatisticsManager.NameChangeType.Avatar;
-                            } else {
-                                LoggingManager.Log.Error(download.Exception);
+                            changeType |= StatisticsManager.NameChangeType.Avatar;
+                        } else {
+                            LoggingManager.Log.Error(download.Exception);
 
-                                backblazeAvatarBucket = null;
-                                backblazeAvatarFilename = null;
-                                backblazeAvatarUrl = null;
-                            }
+                            backblazeAvatarBucket = null;
+                            backblazeAvatarFilename = null;
+                            backblazeAvatarUrl = null;
                         }
                     } catch { }
 
@@ -276,13 +290,13 @@ namespace HeadNonSub.Clients.Discord {
 
         private static async Task UserLeft(SocketGuildUser user) {
             if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
-                await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :outbox_tray: {user.ToString()} (`{user.Id}`) left the server.");
+                await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :outbox_tray: {user} (`{user.Id}`) left the server.");
             }
         }
 
         private static async Task UserBanned(SocketUser user, SocketGuild guild) {
             if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
-                await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :no_entry: {user.ToString()} (`{user.Id}`) was banned.");
+                await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :no_entry: {user} (`{user.Id}`) was banned.");
             }
         }
 
@@ -305,17 +319,17 @@ namespace HeadNonSub.Clients.Discord {
         private static async Task ProcessUserUpdated(IUser oldUser, IUser newUser) {
 
             // Bot check
-            try {
-                if (WubbysFunHouse.IsServerBot(newUser.Id)) {
-                    if (oldUser.Status == UserStatus.Online & newUser.Status == UserStatus.Offline) {
-                        await SendMessageAsync(WubbysFunHouse.ModLogsChannelId, $":warning: The bot {newUser.Mention} is **offline**!");
-                    } else if (oldUser.Status == UserStatus.Offline & newUser.Status == UserStatus.Online) {
-                        await SendMessageAsync(WubbysFunHouse.ModLogsChannelId, $":white_check_mark: The bot {newUser.Mention} is back **online**.");
-                    }
-                }
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-            }
+            //try {
+            //    if (WubbysFunHouse.IsServerBot(newUser.Id)) {
+            //        if (oldUser.Status == UserStatus.Online & newUser.Status == UserStatus.Offline) {
+            //            await SendMessageAsync(WubbysFunHouse.ModLogsChannelId, $":warning: The bot {newUser.Mention} is **offline**!");
+            //        } else if (oldUser.Status == UserStatus.Offline & newUser.Status == UserStatus.Online) {
+            //            await SendMessageAsync(WubbysFunHouse.ModLogsChannelId, $":white_check_mark: The bot {newUser.Mention} is back **online**.");
+            //        }
+            //    }
+            //} catch (Exception ex) {
+            //    LoggingManager.Log.Error(ex);
+            //}
 
             // User changes
             try {
@@ -360,22 +374,21 @@ namespace HeadNonSub.Clients.Discord {
                         ImageFormat imageFormat = newUser.AvatarId.StartsWith("a_") ? ImageFormat.Gif : ImageFormat.Png;
                         Task<MemoryStream> download = Http.GetStreamAsync(newUser.GetAvatarUrl(imageFormat, 1024));
 
-                        using (MemoryStream data = await download) {
-                            if (download.IsCompletedSuccessfully) {
-                                Backblaze.File avatarUpload = await Backblaze.UploadAvatarAsync(data, $"{newUser.Id}/{Backblaze.ISOFileNameDate(imageFormat.ToString().ToLower())}");
+                        using MemoryStream data = await download;
+                        if (download.IsCompletedSuccessfully) {
+                            Backblaze.File avatarUpload = await Backblaze.UploadAvatarAsync(data, $"{newUser.Id}/{Backblaze.ISOFileNameDate(imageFormat.ToString().ToLower())}");
 
-                                backblazeAvatarBucket = avatarUpload.BucketName;
-                                backblazeAvatarFilename = avatarUpload.FileName;
-                                backblazeAvatarUrl = avatarUpload.ShortUrl;
+                            backblazeAvatarBucket = avatarUpload.BucketName;
+                            backblazeAvatarFilename = avatarUpload.FileName;
+                            backblazeAvatarUrl = avatarUpload.ShortUrl;
 
-                                changeType |= StatisticsManager.NameChangeType.Avatar;
-                            } else {
-                                LoggingManager.Log.Error(download.Exception);
+                            changeType |= StatisticsManager.NameChangeType.Avatar;
+                        } else {
+                            LoggingManager.Log.Error(download.Exception);
 
-                                backblazeAvatarBucket = null;
-                                backblazeAvatarFilename = null;
-                                backblazeAvatarUrl = null;
-                            }
+                            backblazeAvatarBucket = null;
+                            backblazeAvatarFilename = null;
+                            backblazeAvatarUrl = null;
                         }
                     } catch { }
                 }
@@ -406,7 +419,7 @@ namespace HeadNonSub.Clients.Discord {
 
         private static async Task MessageReceived(SocketMessage socketMessage) {
 
-            #region Url in mod mail message
+#region Url in mod mail message
 
             if (socketMessage.Author.Id == WubbysFunHouse.WubbyMailBotUserId &&
                 socketMessage.Channel is SocketTextChannel textChannel &&
@@ -420,7 +433,7 @@ namespace HeadNonSub.Clients.Discord {
                 return;
             }
 
-            #endregion
+#endregion
 
             if (!(socketMessage is SocketUserMessage message)) { return; }
             if (socketMessage.Source != MessageSource.User) { return; }
@@ -472,7 +485,7 @@ namespace HeadNonSub.Clients.Discord {
                 string logMessage;
 
                 if (originalMessage.HasValue) {
-                    logMessage = $"`[{originalMessage.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :pencil: {originalMessage.Value.Author.ToString()} (`{originalMessage.Value.Author.Id}`) message edited in **#{channel.Name}**:{Environment.NewLine}**B:** {originalMessage.Value.ResolveTags()}{Environment.NewLine}**A:** {updatedMessage.ResolveTags()}";
+                    logMessage = $"`[{originalMessage.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :pencil: {originalMessage.Value.Author} (`{originalMessage.Value.Author.Id}`) message edited in **#{channel.Name}**:{Environment.NewLine}**B:** {originalMessage.Value.ResolveTags()}{Environment.NewLine}**A:** {updatedMessage.ResolveTags()}";
                 } else {
                     logMessage = $":warning: An unknown message was edited in **#{channel.Name}**: {Environment.NewLine}Old id was: {originalMessage.Id}{Environment.NewLine}New id is: {updatedMessage.Id}";
                 }
@@ -499,7 +512,7 @@ namespace HeadNonSub.Clients.Discord {
                 string logMessage;
 
                 if (message.HasValue) {
-                    logMessage = $"`[{message.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :wastebasket: {message.Value.Author.ToString()} (`{message.Value.Author.Id}`) message deleted in **#{channel.Name}**:{Environment.NewLine}{message.Value.ResolveTags()}";
+                    logMessage = $"`[{message.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :wastebasket: {message.Value.Author} (`{message.Value.Author.Id}`) message deleted in **#{channel.Name}**:{Environment.NewLine}{message.Value.ResolveTags()}";
                 } else {
                     logMessage = $":warning: An unknown message was deleted in **#{channel.Name}**: {Environment.NewLine}Message id was: {message.Id}";
                 }
@@ -535,12 +548,12 @@ namespace HeadNonSub.Clients.Discord {
                     // If not rank 10 or higher
                     if (!user.Roles.Any(x => x.Id == WubbysFunHouse.ForkliftDriversRoleId)) {
 
-                        string betterUserFormat = $"{(string.IsNullOrWhiteSpace(user.Nickname) ? user.Username : user.Nickname)} `{user.ToString()}`";
+                        string betterUserFormat = $"{(string.IsNullOrWhiteSpace(user.Nickname) ? user.Username : user.Nickname)} `{user}`";
 
                         // Move links
                         if (message.Content.ContainsUrls()) {
                             if (_DiscordClient.GetChannel(WubbysFunHouse.LinksChannelId) is IMessageChannel linksChannel) {
-                                LoggingManager.Log.Info($"Link in #{channel.Name} by {user.ToString()} ({user.Id})");
+                                LoggingManager.Log.Info($"Link in #{channel.Name} by {user} ({user.Id})");
 
                                 await message.DeleteAsync();
                                 await linksChannel.SendMessageAsync($"● Posted by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
@@ -551,23 +564,22 @@ namespace HeadNonSub.Clients.Discord {
                         } else if (message.Attachments.Count > 0) {
                             if (_DiscordClient.GetChannel(WubbysFunHouse.ActualFuckingSpamChannelId) is IMessageChannel actualFuckingSpamChannel) {
                                 foreach (Attachment attachment in message.Attachments) {
-                                    using (HttpResponseMessage response = await Http.Client.GetAsync(attachment.Url)) {
-                                        if (response.IsSuccessStatusCode) {
-                                            using (HttpContent content = response.Content) {
-                                                Stream stream = await content.ReadAsStreamAsync();
+                                    using HttpResponseMessage response = await Http.Client.GetAsync(attachment.Url);
 
-                                                LoggingManager.Log.Info($"Attachment in #{channel.Name} by {user.ToString()} ({user.Id}); {attachment.Filename}; api: {attachment.Size.Bytes().Humanize("#.##")}; downloaded: {stream.Length.Bytes().Humanize("#.##")}");
+                                    if (response.IsSuccessStatusCode) {
+                                        using HttpContent content = response.Content;
+                                        Stream stream = await content.ReadAsStreamAsync();
 
-                                                if (stream.Length > Constants.DiscordMaximumFileSize) {
-                                                    await actualFuckingSpamChannel.SendMessageAsync($"An attachment was uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}> and can not be re-uploaded, the attachment is too large for a bot to upload (`{attachment.Size.Bytes().Humanize("#.##")} / {stream.Length.Bytes().Humanize("#.##")}`). They probably have Nitro.");
-                                                } else {
-                                                    stream.Seek(0, SeekOrigin.Begin);
-                                                    await actualFuckingSpamChannel.SendFileAsync(stream, attachment.Filename, $"● Uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
-                                                }
-                                            }
+                                        LoggingManager.Log.Info($"Attachment in #{channel.Name} by {user} ({user.Id}); {attachment.Filename}; api: {attachment.Size.Bytes().Humanize("#.##")}; downloaded: {stream.Length.Bytes().Humanize("#.##")}");
+
+                                        if (stream.Length > Constants.DiscordMaximumFileSize) {
+                                            await actualFuckingSpamChannel.SendMessageAsync($"An attachment was uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}> and can not be re-uploaded, the attachment is too large for a bot to upload (`{attachment.Size.Bytes().Humanize("#.##")} / {stream.Length.Bytes().Humanize("#.##")}`). They probably have Nitro.");
                                         } else {
-                                            throw new HttpRequestException($"There was an error; ({(int)response.StatusCode}) {response.ReasonPhrase}");
+                                            stream.Seek(0, SeekOrigin.Begin);
+                                            await actualFuckingSpamChannel.SendFileAsync(stream, attachment.Filename, $"● Uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.Content}");
                                         }
+                                    } else {
+                                        throw new HttpRequestException($"There was an error; ({(int)response.StatusCode}) {response.ReasonPhrase}");
                                     }
                                 }
 

@@ -23,22 +23,14 @@
         /// <summary>
         /// Tag id formatted based on <see cref="TagType"/>.
         /// </summary>
-        public override string ToString() {
-            switch (TagType) {
-                case TagType.User:
-                    return $"<@{(ContainsExclamation ? "!" : "")}{Id}>";
-                case TagType.Role:
-                    return $"<@&{Id}>";
-                case TagType.Channel:
-                    return $"<#{Id}>";
-                case TagType.Everyone:
-                    return "@everyone";
-                case TagType.Here:
-                    return "@here";
-                default:
-                    return Id.ToString();
-            }
-        }
+        public override string ToString() => TagType switch {
+            TagType.User => $"<@{(ContainsExclamation ? "!" : "")}{Id}>",
+            TagType.Role => $"<@&{Id}>",
+            TagType.Channel => $"<#{Id}>",
+            TagType.Everyone => "@everyone",
+            TagType.Here => "@here",
+            _ => Id.ToString(),
+        };
 
     }
 

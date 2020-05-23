@@ -18,7 +18,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             long count = StatisticsManager.GetTrueCount(Context.Guild.Id);
 
-            await BetterReplyAsync($"There are {count.ToString("N0")} truths here.");
+            await BetterReplyAsync($"There are {count:N0} truths here.");
         }
 
         [Command("sayscount")]
@@ -30,7 +30,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             StringBuilder builder = new StringBuilder();
 
             foreach (KeyValuePair<string, long> command in saysCommands) {
-                builder.AppendLine($"{Constants.ZeroWidthSpace}{command.Value.ToString("N0").PadLeft(5)}: {command.Key}");
+                builder.AppendLine($"{Constants.ZeroWidthSpace}{command.Value,-5:N0}: {command.Key}");
             }
 
             List<string> chunks = builder.ToString().SplitIntoChunksPreserveNewLines(1930);

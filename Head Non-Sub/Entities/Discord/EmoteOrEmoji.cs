@@ -26,7 +26,7 @@
 
         public bool IsEmote => !IsEmoji;
 
-        public bool IsEmoji => string.IsNullOrEmpty(Emoji) ? false : true;
+        public bool IsEmoji => !string.IsNullOrEmpty(Emoji);
 
         /// <summary>
         /// Emote or emoji formatted.

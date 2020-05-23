@@ -70,7 +70,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             await BetterReplyAsync(builder.Build());
         }
 
-        private async Task<StreamlabsEntities.Tip> GetTipDataAsync() {
+        private static async Task<StreamlabsEntities.Tip> GetTipDataAsync() {
             Task<string> download = Http.SendRequestAsync($"https://streamlabs.com/api/v6/1f510f07ca2978f/tip");
             string data = await download;
 

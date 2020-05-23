@@ -37,7 +37,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 builder.Title = $"There are no notes about {BetterUserFormat(user)}";
             }
 
-            await BetterReplyAsync(builder.Build(), parameters: $"{user.ToString()} ({user.Id})");
+            await BetterReplyAsync(builder.Build(), parameters: $"{user} ({user.Id})");
         }
 
         [Command("addnote")]
@@ -48,7 +48,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
 
             if (string.IsNullOrWhiteSpace(note)) {
-                await BetterReplyAsync($"You did not enter a note to add to {user.ToString()}", parameters: $"{user.ToString()} ({user.Id}); note null");
+                await BetterReplyAsync($"You did not enter a note to add to {user}", parameters: $"{user} ({user.Id}); note null");
                 return;
             }
 
@@ -60,7 +60,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             DatabaseManager.UserNotes.Insert(Context.Guild.Id, user.Id, item);
 
-            await BetterReplyAsync($"Note added about {BetterUserFormat(user)}.", $"{user.ToString()} ({user.Id}); {note}");
+            await BetterReplyAsync($"Note added about {BetterUserFormat(user)}.", $"{user} ({user.Id}); {note}");
         }
 
         [Command("deletenote")]
@@ -71,12 +71,12 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
 
             if (string.IsNullOrWhiteSpace(noteId)) {
-                await BetterReplyAsync($"You did not enter a note id to delete.", $"{user.ToString()} ({user.Id}); {noteId}");
+                await BetterReplyAsync($"You did not enter a note id to delete.", $"{user} ({user.Id}); {noteId}");
             } else {
                 if (DatabaseManager.UserNotes.Delete(Context.Guild.Id, user.Id, noteId)) {
-                    await BetterReplyAsync($"Note about {BetterUserFormat(user)} was deleted.", $"{user.ToString()} ({user.Id}); {noteId}");
+                    await BetterReplyAsync($"Note about {BetterUserFormat(user)} was deleted.", $"{user} ({user.Id}); {noteId}");
                 } else {
-                    await BetterReplyAsync($"Invalid note id.", $"{user.ToString()} ({user.Id}); {noteId}");
+                    await BetterReplyAsync($"Invalid note id.", $"{user} ({user.Id}); {noteId}");
                 }
             }
         }
@@ -89,9 +89,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
 
             if (DatabaseManager.UserNotes.DeleteAll(Context.Guild.Id, user.Id)) {
-                await BetterReplyAsync($"All notes about {BetterUserFormat(user)} were deleted.", $"{user.ToString()} ({user.Id})");
+                await BetterReplyAsync($"All notes about {BetterUserFormat(user)} were deleted.", $"{user} ({user.Id})");
             } else {
-                await BetterReplyAsync($"There are no notes about {BetterUserFormat(user)}.", $"{user.ToString()} ({user.Id})");
+                await BetterReplyAsync($"There are no notes about {BetterUserFormat(user)}.", $"{user} ({user.Id})");
             }
         }
 
