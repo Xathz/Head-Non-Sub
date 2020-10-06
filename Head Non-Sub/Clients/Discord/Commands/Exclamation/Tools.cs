@@ -134,7 +134,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("iswubbylive")]
-        public Task IsWubbyLive() => BetterReplyAsync($"<@365156279099850755> {(TwitchClient.IsLive ? "**Yes**" : "**No**")}");
+        public Task IsWubbyLive() => BetterReplyAsync(TwitchClient.IsLive ? "**Yes**" : "**No**");
 
         [Command("altsniff")]
         [DiscordStaffOnly]

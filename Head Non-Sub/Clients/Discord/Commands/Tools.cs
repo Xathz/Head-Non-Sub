@@ -124,7 +124,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("emotemode")]
         [DiscordStaffOnly]
-        public async Task EmoteMode([Remainder]string mode = "") {
+        public async Task EmoteMode(string mode = "", [Remainder]string message = "") {
             if (mode == "off") {
                 EmoteModeTracker.RemoveMode(Context.Channel.Id);
 
@@ -161,8 +161,25 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 await LogMessageEmbedAsync($"Emote mode executed `@{Context.Guild.CurrentUser} emotemode emoteonly`", "**Mode:** Emote Only");
                 await BetterReplyAsync(builder.Build(), parameters: mode);
 
+            } else if (mode == "exactly") {
+                if (string.IsNullOrWhiteSpace(message)) {
+                    await BetterReplyAsync($"{Context.User.Mention} The exact message can not be blank!", parameters: mode);
+                    return;
+                }
+
+                EmoteModeTracker.SetMode(Context.Channel.Id, EmoteModeTracker.Mode.Exactly, message);
+
+                EmbedBuilder builder = new EmbedBuilder() {
+                    Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
+                    Title = "Emote Mode ● Exactly",
+                    Description = $"All messages that are not exactly `{message}` will be deleted."
+                };
+
+                await LogMessageEmbedAsync($"Emote mode executed `@{Context.Guild.CurrentUser} emotemode exactly`", $"**Mode:** Exactly{Environment.NewLine}**Message:** {message}");
+                await BetterReplyAsync(builder.Build(), parameters: $"{mode} ({message})");
+
             } else {
-                await BetterReplyAsync("**Valid modes are:** off, textonly, emoteonly", parameters: mode);
+                await BetterReplyAsync("**Valid modes are:** off, textonly, emoteonly, exactly", parameters: mode);
             }
         }
 

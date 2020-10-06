@@ -103,7 +103,7 @@ Command  | Parameters | Description | Access
 `blacklist remove` | `<user>` | Removes a user from the blacklist | Staff
 `help` | | A link to this document | All
 `ping` | | Check the delay from the bot to Discord | All
-`emotemode` | `<mode>` | Enable/disable current channel mode. **Modes:** `off`, `textonly`, `emoteonly` | Staff
+`emotemode` | `<mode>` | Enable/disable current channel mode. **Modes:** `off`, `textonly`, `emoteonly`, `exactly` | Staff
 `rr ban` | `<minutes>` Optional: `<token>` | Ban suspected raiders from the past `x` minutes. You will be prompted with a list of users to be banned and a confirmation token. Remove a user from being banned with the `rr skip` command | Staff
 `rr clean` | `<minutes>` | Delete messages from the suspected raiders from the past `x` minutes | Staff
 `rr disable` | | Disable the raid recovery system | Staff

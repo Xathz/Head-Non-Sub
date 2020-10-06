@@ -134,7 +134,13 @@ namespace HeadNonSub.Extensions {
             List<string> urls = new List<string>();
 
             foreach (Match match in matches) {
-                urls.Add(match.Value);
+                string url = match.Value;
+                url = url.Replace("<", "");
+                url = url.Replace(">", "");
+                url = url.Replace("%3C", "", StringComparison.InvariantCultureIgnoreCase);
+                url = url.Replace("%3E", "", StringComparison.InvariantCultureIgnoreCase);
+
+                urls.Add(url);
             }
 
             return urls;

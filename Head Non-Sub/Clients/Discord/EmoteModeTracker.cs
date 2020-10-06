@@ -5,7 +5,7 @@ namespace HeadNonSub.Clients.Discord {
 
     public static class EmoteModeTracker {
 
-        private static readonly ConcurrentDictionary<ulong, Mode> _ActiveModes = new ConcurrentDictionary<ulong, Mode>();
+        private static readonly ConcurrentDictionary<ulong, (Mode, object)> _ActiveModes = new ConcurrentDictionary<ulong, (Mode, object)>();
 
         private static readonly ConcurrentDictionary<ulong, DateTimeOffset> _NotificationTimers = new ConcurrentDictionary<ulong, DateTimeOffset>();
 
@@ -14,8 +14,8 @@ namespace HeadNonSub.Clients.Discord {
         /// </summary>
         /// <param name="channel">Channel id.</param>
         /// <param name="mode">Emote mode.</param>
-        public static void SetMode(ulong channel, Mode mode) {
-            _ActiveModes.AddOrUpdate(channel, mode, (existingChannel, existingMode) => mode);
+        public static void SetMode(ulong channel, Mode mode, object args = null) {
+            _ActiveModes.AddOrUpdate(channel, (mode, args), (existingChannel, existingMode) => (mode, args));
             _NotificationTimers.AddOrUpdate(channel, DateTimeOffset.UtcNow, (existingChannel, existingMode) => DateTimeOffset.UtcNow);
         }
 
@@ -23,11 +23,11 @@ namespace HeadNonSub.Clients.Discord {
         /// Get a channel's mode.
         /// </summary>
         /// <param name="channel">Channel Id.</param>
-        public static Mode GetMode(ulong channel) {
-            if (_ActiveModes.TryGetValue(channel, out Mode mode)) {
-                return mode;
+        public static (Mode mode, object args) GetMode(ulong channel) {
+            if (_ActiveModes.TryGetValue(channel, out (Mode mode, object args) tuple)) {
+                return tuple;
             } else {
-                return Mode.Off;
+                return (Mode.Off, null);
             }
         }
 
@@ -51,7 +51,7 @@ namespace HeadNonSub.Clients.Discord {
         /// </summary>
         /// <param name="channel">Channel id.</param>
         public static void RemoveMode(ulong channel) {
-            _ActiveModes.TryRemove(channel, out Mode _);
+            _ActiveModes.TryRemove(channel, out (Mode, object) _);
             _NotificationTimers.TryRemove(channel, out DateTimeOffset _);
         }
 
@@ -61,7 +61,8 @@ namespace HeadNonSub.Clients.Discord {
         public enum Mode {
             Off,
             TextOnly,
-            EmoteOnly
+            EmoteOnly,
+            Exactly
         }
 
     }

@@ -21,6 +21,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     public class MeeSix : BetterModuleBase {
 
         [Command("infractions")]
+        [DisallowedChannels(WubbysFunHouse.MainChannelId)]
         public async Task Infractions(SocketUser user = null) {
             if (user == null) { return; }
 
