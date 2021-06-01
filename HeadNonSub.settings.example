@@ -13,6 +13,7 @@
   "mariaDBDatabase": "",
   "mariaDBUsername": "",
   "mariaDBPassword": "",
+  "xathzEmotesKey": "",
   "backblazeTempBucket": {
     "bucketId": "",
 	"bucketName": "",

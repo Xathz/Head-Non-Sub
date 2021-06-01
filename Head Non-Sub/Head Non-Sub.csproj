@@ -50,8 +50,8 @@
 
   <ItemGroup>
     <PackageReference Include="B2Net" Version="0.7.5" />
-    <PackageReference Include="Discord.Net" Version="2.2.0" />
-    <PackageReference Include="Discord.Net.Webhook" Version="2.2.0" />
+    <PackageReference Include="Discord.Net" Version="2.3.0" />
+    <PackageReference Include="Discord.Net.Webhook" Version="2.3.0" />
     <PackageReference Include="HangFire.Core" Version="1.7.11" />
     <PackageReference Include="Humanizer.Core" Version="2.8.11" />
     <PackageReference Include="Magick.NET-Q16-HDRI-x64" Version="7.17.0.1" />

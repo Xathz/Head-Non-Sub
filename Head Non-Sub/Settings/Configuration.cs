@@ -74,6 +74,12 @@ namespace HeadNonSub.Settings {
         /// </summary>
         public string MariaDBPassword { get; set; } = string.Empty;
 
+
+        /// <summary>
+        /// Xathz's Emotes api key (https://emotes.xathz.net).
+        /// </summary>
+        public string XathzEmotesKey { get; set; } = string.Empty;
+
         /// <summary>
         /// Backblaze temporary files bucket.
         /// </summary>

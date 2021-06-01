@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 
@@ -156,6 +157,16 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             TrackStatistics();
             return Task.CompletedTask;
+        }
+
+        [Command("bong")]
+        [XathzOnly]
+        public async Task BongTrap() {
+            if (Context.Channel is SocketTextChannel channel) {
+                RestUserMessage message = await channel.SendMessageAsync("Bong!");
+                DiscordClient.BongTrapMessageId = message.Id;
+                await message.AddReactionAsync(new Emoji("⏰"));
+            }
         }
 
         //[Command("clap")]

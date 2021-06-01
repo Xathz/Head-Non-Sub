@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Hangfire;
 using HeadNonSub.Entities.Discord;
@@ -33,6 +34,8 @@ namespace HeadNonSub.Clients.Discord {
 
         private static IServiceProvider _ExclamationProvider;
         private static readonly CommandService _ExclamationService = new CommandService(_ServiceConfig);
+
+        public static ulong? BongTrapMessageId = null;
 
         public static async Task ConnectAsync() {
             _DiscordConfig = new DiscordSocketConfig {
@@ -114,7 +117,7 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
-        public static async Task TwitchChannelChange(ulong discordChannel, string streamUrl, string imageUrl, string title, string description, bool everyone = false) {
+        public static async Task TwitchChannelChange(ulong discordChannel, string streamUrl, string imageUrl, string title, string description, bool everyone = false, bool crosspost = false) {
             try {
                 if (_DiscordClient.GetChannel(discordChannel) is IMessageChannel channel) {
 
@@ -138,7 +141,14 @@ namespace HeadNonSub.Clients.Discord {
                         Url = streamUrl
                     };
 
-                    await channel.SendMessageAsync(text: (everyone ? $"@everyone" : null), embed: builder.Build());
+                    IUserMessage message = await channel.SendMessageAsync(text: (everyone ? $"@everyone" : null), embed: builder.Build());
+
+                    if (crosspost == true) {
+                        try {
+                            await message.CrosspostAsync();
+                        } catch { }
+                    }
+
                 }
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
@@ -227,13 +237,13 @@ namespace HeadNonSub.Clients.Discord {
             }
 
             // Auto-mute accounts that have been created recently
-            if (user.CreatedAt.AddMinutes(10) > DateTimeOffset.Now) {
+            if (user.CreatedAt.AddDays(7) > DateTimeOffset.Now) {
                 _ = Task.Run(async () => {
                     await Task.Delay(2000);
 
                     try {
-                        await WubbysFunHouse.AddRoleAsync(user, WubbysFunHouse.MutedRoleId, "Auto-muted on join due to account being younger than 10 minutes.");
-                        await SendMessageAsync(WubbysFunHouse.ModLogsChannelId, $":anger: {user.Mention} was auto-muted on join due to account being younger than 10 minutes.");
+                        await WubbysFunHouse.AddRoleAsync(user, WubbysFunHouse.MutedRoleId, "Auto-muted on join due to account being younger than a week.");
+                        await SendMessageAsync(WubbysFunHouse.ModLogsChannelId, $":anger: {user.Mention} was auto-muted on join due to account being younger than a week.");
 
                     } catch (Exception ex) {
                         LoggingManager.Log.Error(ex);
@@ -308,8 +318,28 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static async Task UserBanned(SocketUser user, SocketGuild guild) {
-            if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
-                await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :no_entry: {user} (`{user.Id}`) was banned.");
+            if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel userLogChannel) {
+                await userLogChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :no_entry: {user} (`{user.Id}`) was banned.");
+            }
+
+            try {
+                // Lookup audit log event
+                Task runner = Task.Run(async () => {
+                    await Task.Delay(4000);
+
+                    if (_DiscordClient.GetChannel(WubbysFunHouse.ModLogsChannelId) is IMessageChannel modLogChannel) {
+                        IEnumerable<RestAuditLogEntry> userBans = await guild.GetAuditLogsAsync(10, actionType: ActionType.Ban).FlattenAsync();
+                        RestAuditLogEntry bannedEvent = userBans.Where(x => x.Data is BanAuditLogData data && data.Target.Id == user.Id).FirstOrDefault();
+
+                        if (string.IsNullOrEmpty(bannedEvent.Reason)) {
+                            await modLogChannel.SendMessageAsync($":no_entry: {user} (`{user.Id}`) was banned by {bannedEvent.User} (`{bannedEvent.User.Id}`) with no reason specified.");
+                        } else {
+                            await modLogChannel.SendMessageAsync($":no_entry: {user} (`{user.Id}`) was banned by {bannedEvent.User} (`{bannedEvent.User.Id}`) with reason: **{bannedEvent.Reason}**");
+                        }
+                    }
+                });
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
             }
         }
 
@@ -420,12 +450,28 @@ namespace HeadNonSub.Clients.Discord {
             // BongBot
             //try {
             //    if (reaction.User.IsSpecified && reaction.User.Value.Id == 735232851431260290 && message.HasValue) {
-            //        await message.Value.AddReactionAsync(reaction.Emote);
+            //        _ = message.Value.AddReactionAsync(reaction.Emote);
             //        LoggingManager.Log.Debug($"Reacted to BongBot {reaction.Emote}");
             //    }
             //} catch (Exception ex) {
             //    LoggingManager.Log.Error(ex);
             //}
+
+            // Bong trap
+            try {
+                if (BongTrapMessageId.HasValue && message.Id == BongTrapMessageId && reaction.User.IsSpecified && reaction.User.Value is SocketGuildUser socketUser) {
+                    Random rand = new Random();
+                    if (!string.IsNullOrEmpty(socketUser.Nickname)) {
+                        string scrambledNick = new string(socketUser.Nickname.ToCharArray().OrderBy(s => (rand.Next(2) % 2) == 0).ToArray());
+                        _ = socketUser.ModifyAsync(x => x.Nickname = scrambledNick);
+                    } else {
+                        string scrambledUsername = new string(socketUser.Username.ToCharArray().OrderBy(s => (rand.Next(2) % 2) == 0).ToArray());
+                        _ = socketUser.ModifyAsync(x => x.Nickname = scrambledUsername);
+                    }
+                }
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+            }
 
             // Emote mode
             (EmoteModeTracker.Mode mode, object _) = EmoteModeTracker.GetMode(channel.Id);
@@ -535,6 +581,12 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static async Task MessageDeleted(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel) {
+
+            // Bong trap
+            if (message.Id == BongTrapMessageId) {
+                BongTrapMessageId = null;
+            }
+
             if (message.HasValue && !string.IsNullOrWhiteSpace(message.Value.Content) && !message.Value.Author.IsBot) {
                 string logMessage;
 
@@ -565,12 +617,33 @@ namespace HeadNonSub.Clients.Discord {
             try {
 
                 // chadwick (226992558839037952) #server-suggestions (502630201948373003) 50% chance
-                if (user.Id == 226992558839037952 && channel.Id == 502630201948373003 && new Random().Next(1, 100) > 50) {
-                    await channel.SendMessageAsync($"<@226992558839037952> No");
-                }
+                //if (user.Id == 226992558839037952 && channel.Id == 502630201948373003 && new Random().Next(1, 100) > 50) {
+                //    await channel.SendMessageAsync($"<@226992558839037952> No");
+                //}
 
                 // Emote mode
                 if (await ProcessMessageEmotesAsync(message)) {
+                    return;
+                }
+
+                // Jingle bells
+                //if (message.Content.Replace(" ", "").Contains("jingle", StringComparison.OrdinalIgnoreCase)) {
+                //    Task runner = Task.Run(async () => {
+                //        await JingleBells(message.Channel.Id).ConfigureAwait(false);
+                //    });
+                //}
+
+                string contentLowercase = message.Content.ToLowerInvariant();
+
+                // Discord invites
+                if (contentLowercase.Contains("https://discord.gg/")) {
+                    await message.DeleteAsync();
+                    await channel.SendMessageAsync($"{user.Mention} No invites allowed.");
+                    return;
+                }
+
+                // Discord gifts
+                if (contentLowercase.Contains("https://discord.gift/") && WubbysFunHouse.IsSubscriberOrPatron(user)) {
                     return;
                 }
 
@@ -691,6 +764,96 @@ namespace HeadNonSub.Clients.Discord {
 
             return false;
         }
+
+        //private static DateTimeOffset _LastJingleBells = DateTimeOffset.UtcNow;
+        //private static bool _SentJingleBellsCooldownMessage = false;
+
+        /// <summary>
+        /// Jingles the bells.
+        /// </summary>
+        //private static async Task JingleBells(ulong channelId) {
+        //    if (_DiscordClient.GetChannel(channelId) is IMessageChannel channel) {
+        //        if (channelId == WubbysFunHouse.ActualFuckingSpamChannelId) { return; }
+
+        //        if (_LastJingleBells.AddSeconds(240) >= DateTimeOffset.UtcNow) {
+        //            if (!_SentJingleBellsCooldownMessage) {
+        //                _SentJingleBellsCooldownMessage = true;
+
+        //                string remaining = (_LastJingleBells.AddSeconds(240) - DateTimeOffset.UtcNow).TotalSeconds.Seconds().Humanize(2);
+        //                await channel.SendMessageAsync($":mrs_claus::skin-tone-5: The elves are sleepy! Check back in {remaining} for some more cheer.");
+        //            }
+        //            return;
+        //        }
+
+        //        _LastJingleBells = DateTimeOffset.UtcNow;
+        //        _SentJingleBellsCooldownMessage = false;
+
+        //        int msDelay = 2000;
+        //        string dashing = $"{Environment.NewLine}Dashing";
+
+        //        IUserMessage sentMessage = await channel.SendMessageAsync($":wave::skin-tone-5: _I'm slow so bear with me..._");
+        //        await Task.Delay(2600);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":snowman2:{dashing}"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":snowman:{dashing} through"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":snowman2:{dashing} through the"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":snowman:{dashing} through the snow"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":snowman2:{dashing} through the snow{Environment.NewLine}In"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":snowman:{dashing} through the snow{Environment.NewLine}In a"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":snowman2:{dashing} through the snow{Environment.NewLine}In a one"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":snowman:{dashing} through the snow{Environment.NewLine}In a one-horse"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":snowman2:{dashing} through the snow{Environment.NewLine}In a one-horse open"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":snowman:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":cloud_snow:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":snowflake:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er the"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":cloud_snow:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er the fields"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":snowflake:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er the fields we"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":cloud_snow:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er the fields we go"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":laughing:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er the fields we go{Environment.NewLine}Laughing"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":rofl:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er the fields we go{Environment.NewLine}Laughing all"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":laughing:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er the fields we go{Environment.NewLine}Laughing all the"; });
+        //        await Task.Delay(msDelay);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":rofl:{dashing} through the snow{Environment.NewLine}In a one-horse open sleigh{Environment.NewLine}O'er the fields we go{Environment.NewLine}Laughing all the way"; });
+        //        await Task.Delay(4200);
+
+        //        await sentMessage.ModifyAsync(x => { x.Content = $":christmas_tree: :candle: **Happy holidays** :menorah: :star2:"; });
+        //    }
+        //}
 
     }
 

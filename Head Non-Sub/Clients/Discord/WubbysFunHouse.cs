@@ -106,13 +106,13 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong BotsRoleId = 328403426142715906;
 
-        public const ulong TwitchSubscriberTier1RoleId = 689250973880680482;
+        public const ulong TwitchSubscriberTier1RoleId = 795582134592077825;
 
-        public const ulong TwitchSubscriberTier2RoleId = 689250974132338718;
+        public const ulong TwitchSubscriberTier2RoleId = 795582134592077826;
 
-        public const ulong TwitchSubscriberTier3RoleId = 689250974228807722;
+        public const ulong TwitchSubscriberTier3RoleId = 795582134592077827;
 
-        public const ulong TwitchSubscriberRoleId = 428052879371272192;
+        public const ulong TwitchSubscriberRoleId = 795582134592077824;
 
         public const ulong PatronRoleId = 328732005024137217;
 
@@ -152,6 +152,28 @@ namespace HeadNonSub.Clients.Discord {
         /// Get if the user id is a server bot.
         /// </summary>
         public static bool IsServerBot(ulong id) => AllBotIds.Contains(id);
+
+        /// <summary>
+        /// Get if the user is a Twitch subscriber or Patron.
+        /// </summary>
+        public static bool IsSubscriberOrPatron(IUser user) {
+            if (user is SocketGuildUser socketUser) {
+
+                // Twitch subscriber
+                if (socketUser.Roles.Any(x => x.Id == TwitchSubscriberRoleId)) {
+                    return true;
+                }
+
+                // Patron
+                if (socketUser.Roles.Any(x => x.Id == PatronRoleId)) {
+                    return true;
+                }
+
+                return false;
+            } else {
+                return false;
+            }
+        }
 
         /// <summary>
         /// Get if the user is a discord staff member.

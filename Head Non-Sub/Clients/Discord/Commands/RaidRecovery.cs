@@ -240,6 +240,49 @@ namespace HeadNonSub.Clients.Discord.Commands {
             }
         }
 
+        [Command("bannew")]
+        [RequireBotPermission(GuildPermission.BanMembers, ErrorMessage = "I do not have the `Ban Members` permission.")]
+        public async Task BanNewRaidRecovery(int minutes = 5) {
+            if (minutes == 0 || minutes > 60) {
+                await BetterReplyAsync("Must be between 1 and 60. Rarely should this be greater than 5 unless accounts joined for a long period of time.", minutes.ToString());
+                return;
+            }
+
+            await Context.Channel.TriggerTypingAsync();
+
+            IUserMessage message = await BetterReplyAsync(embed: LoadingEmbed("Generating list of users to ban..."), parameters: minutes.ToString());
+
+            IEnumerable<SocketGuildUser> usersToBan = Context.Guild.Users.Where(x => x.JoinedAt.HasValue)
+                .OrderByDescending(x => x.JoinedAt)
+                .Where(x => x.JoinedAt > DateTime.UtcNow.AddMinutes(-minutes))
+                .Where(x => IsSuspected(x))
+                .Distinct();
+
+            if (usersToBan.Count() > 0) {
+                StringBuilder builder = new StringBuilder();
+                builder.AppendLine($"The following {usersToBan.Count()} users are being banned...");
+
+                builder.AppendLine("```");
+                foreach (IUser banUser in usersToBan) {
+                    builder.Append($"{banUser}; ");
+                }
+                builder.AppendLine("```");
+
+                await message.ModifyAsync(x => { x.Embed = null; x.Content = builder.ToString(); });
+
+                try {
+                    foreach (IUser banUser in usersToBan) {
+                        await Context.Guild.AddBanAsync(banUser, 1, $"Banned by '{Context.User}' using the bot '{Context.Guild.CurrentUser.Username}' raid recovery system at {DateTime.UtcNow:o}");
+                    }
+                } catch { }
+
+                await message.ModifyAsync(x => { x.Embed = null; x.Content = $"Banned {usersToBan.Count()} users."; });
+
+            } else {
+                await message.ModifyAsync(x => { x.Embed = null; x.Content = $"There are no new users to ban from the past {minutes.Minutes().Humanize(3)}."; });
+            }
+        }
+
         private async Task<ConcurrentBag<IMessage>> GetMessagesAsync() {
             if (Context.Channel is SocketTextChannel channel) {
                 ConcurrentBag<IMessage> channelMessages = new ConcurrentBag<IMessage>();

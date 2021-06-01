@@ -186,14 +186,16 @@ namespace HeadNonSub.Clients.Twitch {
             }
         }
 
-        private static void OnStreamOnline(object sender, OnStreamOnlineArgs streamOnline) {
+        private static async void OnStreamOnline(object sender, OnStreamOnlineArgs streamOnline) {
             HostingMonitor.StopMonitor();
 
             if (DatabaseManager.ActiveStreams.Insert(SettingsManager.Configuration.TwitchStream.Username)) {
+                await Task.Delay(8000);
+
                 IsLive = true;
 
                 _ = Discord.DiscordClient.SetStatus($"Watching {SettingsManager.Configuration.TwitchStream.DisplayName}!", SettingsManager.Configuration.TwitchStream.Url);
-                _ = Discord.DiscordClient.TwitchChannelChange(SettingsManager.Configuration.TwitchStream.DiscordChannel, SettingsManager.Configuration.TwitchStream.Url, streamOnline.Stream.ThumbnailUrl, $"{SettingsManager.Configuration.TwitchStream.DisplayName} is live!", streamOnline.Stream.Title, true);
+                _ = Discord.DiscordClient.TwitchChannelChange(SettingsManager.Configuration.TwitchStream.DiscordChannel, SettingsManager.Configuration.TwitchStream.Url, streamOnline.Stream.ThumbnailUrl, $"{SettingsManager.Configuration.TwitchStream.DisplayName} is live!", streamOnline.Stream.Title, true, true);
 
                 LoggingManager.Log.Info($"{SettingsManager.Configuration.TwitchStream.DisplayName} just went live");
             } else {
@@ -204,7 +206,7 @@ namespace HeadNonSub.Clients.Twitch {
         }
 
         private static void OnStreamOffline(object sender, OnStreamOfflineArgs streamOffline) {
-            HostingMonitor.StartMonitor();
+            //HostingMonitor.StartMonitor();
 
             IsLive = false;
 
