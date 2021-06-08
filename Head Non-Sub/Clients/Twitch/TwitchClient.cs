@@ -7,8 +7,7 @@ using HeadNonSub.Settings;
 using Humanizer;
 using TwitchLib.Api;
 using TwitchLib.Api.Core;
-using TwitchLib.Api.Helix.Models.Clips.GetClip;
-using TwitchLib.Api.Helix.Models.Users;
+using TwitchLib.Api.Helix.Models.Users.GetUsers;
 using TwitchLib.Api.Services;
 using TwitchLib.Api.Services.Events.LiveStreamMonitor;
 using TwitchLib.Api.ThirdParty.AuthorizationFlow;
@@ -44,10 +43,20 @@ namespace HeadNonSub.Clients.Twitch {
 
                 LoggingManager.Log.Info("Connected");
 
+                bool wasRefreshed = false;
                 RefreshTokenResponse refresh = _TwitchApi.ThirdParty.AuthorizationFlow.RefreshToken(SettingsManager.Configuration.TwitchRefresh);
-                SettingsManager.Configuration.TwitchRefresh = refresh.Refresh;
-                SettingsManager.Configuration.TwitchToken = refresh.Token;
-                SettingsManager.Save();
+
+                if (!string.IsNullOrEmpty(refresh.Refresh)) {
+                    SettingsManager.Configuration.TwitchRefresh = refresh.Refresh;
+                    wasRefreshed = true;
+                }
+                
+                if (!string.IsNullOrEmpty(refresh.Token)) {
+                    SettingsManager.Configuration.TwitchToken = refresh.Token;
+                    wasRefreshed = true;
+                }
+
+                if (wasRefreshed) { SettingsManager.Save(); }            
 
                 //_TwitchApi.ThirdParty.AuthorizationFlow.OnUserAuthorizationDetected += (s, a) => {
                 //    Console.WriteLine($"      id: {a.Id}");
@@ -101,28 +110,6 @@ namespace HeadNonSub.Clients.Twitch {
 
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
-            }
-        }
-
-        /// <summary>
-        /// Get 100 most recent clips from a stream.
-        /// </summary>
-        /// <param name="userId">User id of the stream.</param>
-        /// <param name="displayName">Display name of the stream.</param>
-        public static async Task<List<TwitchEntities.Clip>> GetClipsAsync(string userId, string displayName) {
-            if (!string.IsNullOrEmpty(userId)) {
-                List<TwitchEntities.Clip> returnClips = new List<TwitchEntities.Clip>();
-
-                GetClipResponse result = await _TwitchApi.Helix.Clips.GetClipAsync(broadcasterId: userId, first: 100);
-                foreach (Clip clip in result.Clips) {
-                    returnClips.Add(new TwitchEntities.Clip(DateTime.Parse(clip.CreatedAt), clip.Title, clip.ViewCount, clip.Url));
-                }
-
-                LoggingManager.Log.Info($"Retrieved {returnClips.Count} for {displayName} ({userId})");
-
-                return returnClips;
-            } else {
-                throw new UnsupportedTwitchChannelException($"{displayName} is not a supported Twitch channel at this time.");
             }
         }
 

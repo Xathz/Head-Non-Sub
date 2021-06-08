@@ -13,6 +13,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
     [BlacklistEnforced]
     [SubscriberOnly]
+    [Cooldown(3600, true)]
     [RequireContext(ContextType.Guild)]
     public class ImageTemplates : BetterModuleBase {
 

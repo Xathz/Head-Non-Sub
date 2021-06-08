@@ -15,10 +15,12 @@ namespace HeadNonSub.Database {
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             try {
-                optionsBuilder.UseMySql($"Server={SettingsManager.Configuration.MariaDBHost};" +
+                string connectionString = $"Server={SettingsManager.Configuration.MariaDBHost};" +
                     $"Database={SettingsManager.Configuration.MariaDBDatabase};" +
                     $"Uid={SettingsManager.Configuration.MariaDBUsername};" +
-                    $"Pwd={SettingsManager.Configuration.MariaDBPassword};");
+                    $"Pwd={SettingsManager.Configuration.MariaDBPassword};";
+
+                optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 
                 optionsBuilder.UseLoggerFactory(LoggingManager.DatabaseFactory);
             } catch (Exception ex) {
