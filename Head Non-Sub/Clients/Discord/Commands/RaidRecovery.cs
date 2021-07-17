@@ -324,7 +324,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     return false;
                 } else if (guildUser.Roles.Any(r => WubbysFunHouse.DiscordStaffRoles.Contains(r.Id))) {
                     return false;
-                } else if (guildUser.Roles.Any(r => r.Id == WubbysFunHouse.NonSubRoleId)) {
+                } else if (guildUser.Roles.Any(r => r.Id == WubbysFunHouse.NoXPRoleId)) {
                     return true;
                 } else if (guildUser.Roles.Any(r => r.Id == WubbysFunHouse.MutedRoleId)) {
                     return true;

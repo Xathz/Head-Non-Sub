@@ -106,23 +106,17 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong BotsRoleId = 328403426142715906;
 
-        public const ulong TwitchSubscriberTier1RoleId = 795582134592077825;
+        public const ulong TwitchSubscriberTier1RoleId = 865324702599872533;
 
-        public const ulong TwitchSubscriberTier2RoleId = 795582134592077826;
+        public const ulong TwitchSubscriberTier2RoleId = 865324702599872534;
 
-        public const ulong TwitchSubscriberTier3RoleId = 795582134592077827;
+        public const ulong TwitchSubscriberTier3RoleId = 865324702599872535;
 
-        public const ulong TwitchSubscriberRoleId = 795582134592077824;
-
-        public const ulong PatronRoleId = 328732005024137217;
-
-        public const ulong NonSubRoleId = 644457029406162964;
+        public const ulong TwitchSubscriberRoleId = 865324702599872532;
 
         public const ulong MutedRoleId = 445807715655221259;
 
-        public const ulong Tier3RoleId = 493641643765792768;
-
-        public const ulong RuleReaderRoleId = 580577184809353226;
+        public const ulong NoXPRoleId = 796182303080316948;
 
         /// <summary>MEE6 rank 10</summary>
         /// <remarks>
@@ -154,18 +148,18 @@ namespace HeadNonSub.Clients.Discord {
         public static bool IsServerBot(ulong id) => AllBotIds.Contains(id);
 
         /// <summary>
-        /// Get if the user is a Twitch subscriber or Patron.
+        /// Get if the user is a Twitch subscriber.
         /// </summary>
-        public static bool IsSubscriberOrPatron(IUser user) {
+        public static bool IsSubscriber(IUser user) {
             if (user is SocketGuildUser socketUser) {
 
                 // Twitch subscriber
-                if (socketUser.Roles.Any(x => x.Id == TwitchSubscriberRoleId)) {
-                    return true;
-                }
+                if (socketUser.Roles.Any(x =>
+                    x.Id == TwitchSubscriberRoleId ||
+                    x.Id == TwitchSubscriberTier1RoleId ||
+                    x.Id == TwitchSubscriberTier2RoleId ||
+                    x.Id == TwitchSubscriberTier3RoleId)) {
 
-                // Patron
-                if (socketUser.Roles.Any(x => x.Id == PatronRoleId)) {
                     return true;
                 }
 

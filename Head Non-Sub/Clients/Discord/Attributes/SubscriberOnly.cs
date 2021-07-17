@@ -15,8 +15,7 @@ namespace HeadNonSub.Clients.Discord.Attributes {
                     x.Id == WubbysFunHouse.TwitchSubscriberRoleId ||
                     x.Id == WubbysFunHouse.TwitchSubscriberTier1RoleId ||
                     x.Id == WubbysFunHouse.TwitchSubscriberTier2RoleId ||
-                    x.Id == WubbysFunHouse.TwitchSubscriberTier3RoleId ||
-                    x.Id == WubbysFunHouse.PatronRoleId)) {
+                    x.Id == WubbysFunHouse.TwitchSubscriberTier3RoleId)) {
 
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 } else {

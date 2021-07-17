@@ -231,8 +231,33 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static async Task UserJoined(SocketGuildUser user) {
+
+            // Log join
             if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
                 await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :inbox_tray: {user} (`{user.Id}`) has joined.");
+            }
+
+            // Username check
+            if (!user.Username.All(x => x <= sbyte.MaxValue)) {
+                _ = Task.Run(async () => {
+                    await Task.Delay(1000);
+
+                    try {
+                        await WubbysFunHouse.AddRoleAsync(user, WubbysFunHouse.MutedRoleId, "Auto-muted on join due to weird username.");
+                        await SendMessageAsync(WubbysFunHouse.ModLogsChannelId, $":exclamation: {user.Mention} was auto-muted on join due to due to weird username.");
+
+                        await Task.Run(async () => {
+                            await Task.Delay(8000);
+
+                            if (!user.Roles.Any(x => x.Id == WubbysFunHouse.MutedRoleId)) {
+                                await WubbysFunHouse.AddRoleAsync(user, WubbysFunHouse.MutedRoleId, "Auto-muted on join due to weird username (second attempt).");
+                                await SendMessageAsync(WubbysFunHouse.ModLogsChannelId, $":bangbang: {user.Mention} was auto-muted on join due to due to weird username (second attempt, first one either failed or was overridden <@{Constants.XathzUserId}>).");
+                            }
+                        });
+                    } catch (Exception ex) {
+                        LoggingManager.Log.Error(ex);
+                    }
+                });
             }
 
             // Auto-mute accounts that have been created recently
@@ -642,12 +667,17 @@ namespace HeadNonSub.Clients.Discord {
                 }
 
                 // Discord gifts
-                if (contentLowercase.Contains("https://discord.gift/") && WubbysFunHouse.IsSubscriberOrPatron(user)) {
+                if (contentLowercase.Contains("https://discord.gift/") && WubbysFunHouse.IsSubscriber(user)) {
                     return;
                 }
 
                 // Main channel
                 if (channel.Id == WubbysFunHouse.MainChannelId) {
+
+                    // If tier 3 skip filters
+                    if (user.Roles.Any(x => x.Id == WubbysFunHouse.TwitchSubscriberTier3RoleId)) {
+                        return;
+                    }
 
                     // If not rank 10 or higher
                     if (!user.Roles.Any(x => x.Id == WubbysFunHouse.ForkliftDriversRoleId)) {

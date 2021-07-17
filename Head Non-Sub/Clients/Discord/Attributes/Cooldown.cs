@@ -39,13 +39,13 @@ namespace HeadNonSub.Clients.Discord.Attributes {
                             return Task.FromResult(PreconditionResult.FromError($"You need to wait {remaining} before you can use `{command.Name}` again. Cooldown is server wide."));
                         }
                     } else {
-                        LoggingManager.Log.Debug($"Command \"{command.Name}\" {(_PerUser ? "per-user" : "server wide")} cooldown finished {(_PerUser ? $"for {context.User}" : "")} in {context.Guild.Name}");
+                        LoggingManager.Log.Debug($"Command \"{command.Name}\" {(_PerUser ? "per-user" : "server wide")} cooldown finished {(_PerUser ? $"for {context.User}" : "")}in {context.Guild.Name}");
 
                         DatabaseManager.Cooldowns.Delete(context.Guild.Id, context.User.Id, command.Name, _PerUser);
                         return Task.FromResult(PreconditionResult.FromSuccess());
                     }
                 } else {
-                    LoggingManager.Log.Debug($"Command \"{command.Name}\" ({_Seconds}sec) {(_PerUser ? "per-user" : "server wide")} cooldown started {(_PerUser ? $"for {context.User}" : "")} in {context.Guild.Name}");
+                    LoggingManager.Log.Debug($"Command \"{command.Name}\" ({_Seconds}sec) {(_PerUser ? "per-user" : "server wide")} cooldown started {(_PerUser ? $"for {context.User}" : "")}in {context.Guild.Name}");
 
                     DatabaseManager.Cooldowns.Insert(context.Guild.Id, context.User.Id, command.Name);
                     return Task.FromResult(PreconditionResult.FromSuccess());

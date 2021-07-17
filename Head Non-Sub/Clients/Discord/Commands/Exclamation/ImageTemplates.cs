@@ -13,19 +13,19 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
     [BlacklistEnforced]
     [SubscriberOnly]
-    [Cooldown(3600, true)]
     [RequireContext(ContextType.Guild)]
     public class ImageTemplates : BetterModuleBase {
 
         [Command("ttsays")]
+        [Cooldown(120, true)]
         public async Task TTSays([Remainder]string input) {
             await Context.Channel.TriggerTypingAsync();
 
-            string imageName = "ttsays.png";
+            string imageName = "ttsays_old.png";
 
-            // 5% chance to be old tt
+            // 5% chance to be tt
             if (new Random().Next(0, 100) >= 95) {
-                imageName = "ttsays_old.png";
+                imageName = "ttsays.png";
             }
 
             using MemoryStream stream = new MemoryStream(256);
@@ -52,6 +52,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("1024says")]
+        [Cooldown(1200, true)]
         public async Task TenTwentyFourSays([Remainder]string input = "") {
             await Context.Channel.TriggerTypingAsync();
 
@@ -84,6 +85,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("amandasays")]
+        [Cooldown(1200, true)]
         public async Task AmandaSays([Remainder]string input) {
             await Context.Channel.TriggerTypingAsync();
 
@@ -111,6 +113,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("satasays")]
+        [Cooldown(1200, true)]
         public async Task SataSays([Remainder]string input) {
             await Context.Channel.TriggerTypingAsync();
 
@@ -138,6 +141,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("jibersays")]
+        [Cooldown(1200, true)]
         public async Task JiberSays([Remainder]string input) {
             await Context.Channel.TriggerTypingAsync();
 
@@ -165,6 +169,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("sbsays")]
+        [Cooldown(1200, true)]
         public async Task StrongBadSays([Remainder]string input) {
             await Context.Channel.TriggerTypingAsync();
 
@@ -195,6 +200,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("warm")]
+        [Cooldown(300, true)]
         public async Task Warm(SocketUser user = null, [Remainder]string input = "") {
             if (user == null) {
                 await BetterReplyAsync("You must provide a user to warm.", parameters: $"user null; {input}");
