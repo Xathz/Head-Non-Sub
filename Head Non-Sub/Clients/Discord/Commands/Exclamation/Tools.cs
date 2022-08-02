@@ -179,7 +179,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             // Banned username matching
             {
-                IReadOnlyCollection<RestBan> bannedUsers = await Context.Guild.GetBansAsync();
+                IEnumerable<RestBan> bannedUsers = await Context.Guild.GetBansAsync().FlattenAsync();
                 HashSet<string> matchingUsernames = new HashSet<string>();
 
                 IEnumerable<RestBan> matchingUsernames_Inner = bannedUsers.Where(x => x.User.Id != user.Id && x.User.Username.Contains(user.Username, StringComparison.OrdinalIgnoreCase));
@@ -243,7 +243,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 return;
             }
 
-            IReadOnlyCollection<RestBan> bans = await Context.Guild.GetBansAsync();
+            IEnumerable<RestBan> bans = await Context.Guild.GetBansAsync().FlattenAsync();
             IEnumerable<RestBan> matches = bans.Where(x => x.User.Username.IndexOf(username, StringComparison.OrdinalIgnoreCase) != -1);
 
             StringBuilder builder = new StringBuilder();

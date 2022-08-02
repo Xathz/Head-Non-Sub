@@ -39,7 +39,6 @@ namespace HeadNonSub.Clients.Discord {
         public static async Task ConnectAsync() {
             _DiscordConfig = new DiscordSocketConfig {
                 DefaultRetryMode = RetryMode.AlwaysRetry,
-                ExclusiveBulkDelete = true,
                 MessageCacheSize = 2500,
                 AlwaysDownloadUsers = true,
 #if DEBUG
@@ -335,7 +334,7 @@ namespace HeadNonSub.Clients.Discord {
             });
         }
 
-        private static async Task UserLeft(SocketGuildUser user) {
+        private static async Task UserLeft(SocketGuild guild, SocketUser user) {
             if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
                 await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :outbox_tray: {user} (`{user.Id}`) left the server.");
             }
@@ -375,9 +374,9 @@ namespace HeadNonSub.Clients.Discord {
             return Task.CompletedTask;
         }
 
-        private static Task GuildMemberUpdated(SocketGuildUser oldUser, SocketGuildUser newUser) {
+        private static Task GuildMemberUpdated(Cacheable<SocketGuildUser, ulong> oldUser, SocketGuildUser newUser) {
             Task runner = Task.Run(async () => {
-                await ProcessUserUpdated(oldUser, newUser).ConfigureAwait(false);
+                await ProcessUserUpdated(oldUser.Value, newUser).ConfigureAwait(false);
             });
 
             return Task.CompletedTask;
@@ -469,7 +468,7 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
-        private static async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction) {
+        private static async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction) {
 
             // BongBot
             //try {
@@ -604,7 +603,7 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
-        private static async Task MessageDeleted(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel) {
+        private static async Task MessageDeleted(Cacheable<IMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel) {
 
             // Bong trap
             if (message.Id == BongTrapMessageId) {
@@ -615,9 +614,9 @@ namespace HeadNonSub.Clients.Discord {
                 string logMessage;
 
                 if (message.HasValue) {
-                    logMessage = $"`[{message.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :wastebasket: {message.Value.Author} (`{message.Value.Author.Id}`) message deleted in **#{channel.Name}**:{Environment.NewLine}{message.Value.ResolveTags()}";
+                    logMessage = $"`[{message.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :wastebasket: {message.Value.Author} (`{message.Value.Author.Id}`) message deleted in **#{channel.Value.Name}**:{Environment.NewLine}{message.Value.ResolveTags()}";
                 } else {
-                    logMessage = $":warning: An unknown message was deleted in **#{channel.Name}**: {Environment.NewLine}Message id was: {message.Id}";
+                    logMessage = $":warning: An unknown message was deleted in **#{channel.Value.Name}**: {Environment.NewLine}Message id was: {message.Id}";
                 }
 
                 if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {

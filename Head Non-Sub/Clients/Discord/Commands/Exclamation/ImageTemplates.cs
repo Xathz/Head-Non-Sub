@@ -40,7 +40,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
               .Font(Path.Combine(Constants.FontsDirectory, "Sloppy-Hand.otf"))
               .FillColor(new MagickColor("#B0AEAD"))
               .TextAlignment(TextAlignment.Left)
-              .TextAntialias(true)
+              .EnableTextAntialias()
               .TextEncoding(Encoding.UTF8)
               .Text(218, 45, text)
               .Draw(image);
@@ -101,7 +101,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
               .Font(Path.Combine(Constants.FontsDirectory, "ConcertOne-Regular.ttf"))
               .FillColor(new MagickColor("#404040"))
               .TextAlignment(TextAlignment.Left)
-              .TextAntialias(true)
+              .EnableTextAntialias()
               .TextEncoding(Encoding.UTF8)
               .Text(730, 260, text)
               .Draw(image);
@@ -129,7 +129,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
               .Font(Path.Combine(Constants.FontsDirectory, "ConcertOne-Regular.ttf"))
               .FillColor(new MagickColor("#EFE1E1"))
               .TextAlignment(TextAlignment.Left)
-              .TextAntialias(true)
+              .EnableTextAntialias()
               .TextEncoding(Encoding.UTF8)
               .Text(440, 62, text)
               .Draw(image);
@@ -157,7 +157,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
               .Font(Path.Combine(Constants.FontsDirectory, "Courgette-Regular.ttf"))
               .FillColor(new MagickColor("#CFB491"))
               .TextAlignment(TextAlignment.Left)
-              .TextAntialias(true)
+              .EnableTextAntialias()
               .TextEncoding(Encoding.UTF8)
               .Text(500, 290, text)
               .Draw(image);
@@ -186,7 +186,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
               .Font(Path.Combine(Constants.FontsDirectory, "VT323-Regular.ttf"))
               .FillColor(new MagickColor("#CECCCC"))
               .TextAlignment(TextAlignment.Left)
-              .TextAntialias(true)
+              .EnableTextAntialias()
               .TextEncoding(Encoding.UTF8)
               .Text(290, 190, text)
               .Draw(image);
