@@ -48,7 +48,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("random")]
-        public async Task Random([Remainder]string type = "") {
+        public async Task Random([Remainder] string type = "") {
             SocketGuildUser randomUser = null;
 
             if (type == "sub") {
@@ -112,7 +112,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("timer")]
-        public async Task Timer(TimeSpan input, [Remainder]string message) {
+        public async Task Timer(TimeSpan input, [Remainder] string message) {
             if (string.IsNullOrWhiteSpace(message)) {
                 await BetterReplyAsync("You must set a message for the timer. e.g. `!timer 20s boo! too spoopy`");
             }
@@ -265,6 +265,31 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
         }
 
-    }
+        //[Command("role")]
+        //[DiscordStaffOnly]
+        //[AllowedCategories(675632145749770297)]
+        //public async Task AddRoleEz() {
+        //    if (Context.Message.Embeds.Count > 0) {
+        //        foreach (Embed embed in Context.Message.Embeds) {
+        //            List<Entities.Discord.MessageTag> tags = embed.Description.ParseDiscordMessageTags();
+        //            bool breakLoop = false;
 
+        //            foreach (Entities.Discord.MessageTag tag in tags) {
+        //                if (tag.TagType == Entities.Discord.TagType.User) {
+        //                    SocketGuildUser mailUser = Context.Guild.GetUser(tag.Id);
+
+        //                    await WubbysFunHouse.AddRoleAsync(mailUser, 913966047470714960, "Merch 'ugly' role.");
+        //                    await Context.Channel.SendMessageAsync($"Added role to {mailUser.Mention}.");
+
+        //                    breakLoop = true;
+        //                    break;
+        //                }
+        //            }
+
+        //            if (breakLoop) { break; }
+        //        }
+        //    }
+        //}
+
+    }
 }

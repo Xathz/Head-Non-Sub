@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -20,6 +21,22 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 await message.AddReactionAsync(emote);
             }
         }
+
+        [Command("wubbydays")]
+        [SubscriberOnly]
+        public async Task WubbyDays([Remainder] string reason = "") {
+            if (new Random().Next(0, 100) >= 80) {
+                await BetterReplyAsync("https://url.xathz.net/3B9t0f0", parameters: $"rare_20_percent; {reason}");
+            } else {
+                await BetterReplyAsync("https://url.xathz.net/3mkd4jW", parameters: reason);
+            }
+        }
+
+
+        [Command("wubbysays")]
+        [Cooldown(300)]
+        [SubscriberOnly]
+        public async Task WubbySays([Remainder] string reason = "") => _ = await BetterReplyAsync("You can watch what wubby says live every Wednesday, Friday, Sunday, and often Mondays @ 8:30pm et / 5:30pm pt!", parameters: reason);
 
         [Command("executie")]
         [Cooldown(300)]

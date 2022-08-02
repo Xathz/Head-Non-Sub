@@ -122,6 +122,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("avatar")]
+        [DiscordStaffOnly]
         public async Task Avatar(SocketUser user = null) {
             if (user == null) {
                 await BetterReplyAsync("You must mention a user to see their avatar.", parameters: "user null");
