@@ -15,7 +15,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
     public class Blacklist : BetterModuleBase {
 
         [Command("add")]
-        public async Task BlacklistAdd(SocketUser user = null) {
+        public async Task BlacklistAdd(SocketGuildUser user = null) {
             if (user == null) {
                 await BetterReplyAsync("You must mention a user to add them to the blacklist.", parameters: "user null");
                 return;
@@ -44,7 +44,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         }
 
         [Command("remove")]
-        public async Task BlacklistRemove(SocketUser user = null) {
+        public async Task BlacklistRemove(SocketGuildUser user = null) {
             if (user == null) {
                 await BetterReplyAsync("You must mention a user to remove them from the blacklist.", parameters: "user null");
                 return;

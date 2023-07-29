@@ -17,7 +17,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     public class ImageTemplates : BetterModuleBase {
 
         [Command("ttsays")]
-        [Cooldown(120, true)]
+        [Cooldown(86400, true)]
         public async Task TTSays([Remainder]string input) {
             await Context.Channel.TriggerTypingAsync();
 

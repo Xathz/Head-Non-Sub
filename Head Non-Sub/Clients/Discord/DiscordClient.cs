@@ -38,8 +38,9 @@ namespace HeadNonSub.Clients.Discord {
 
         public static async Task ConnectAsync() {
             _DiscordConfig = new DiscordSocketConfig {
+                GatewayIntents = GatewayIntents.All,
                 DefaultRetryMode = RetryMode.AlwaysRetry,
-                MessageCacheSize = 2500,
+                MessageCacheSize = 3000,
                 AlwaysDownloadUsers = true,
 #if DEBUG
                 LogLevel = LogSeverity.Debug
