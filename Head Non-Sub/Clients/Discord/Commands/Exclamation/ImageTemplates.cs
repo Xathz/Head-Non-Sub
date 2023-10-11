@@ -201,7 +201,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("warm")]
         [Cooldown(300, true)]
-        public async Task Warm(SocketUser user = null, [Remainder]string input = "") {
+        public async Task Warm(SocketGuildUser user = null, [Remainder]string input = "") {
             if (user == null) {
                 await BetterReplyAsync("You must provide a user to warm.", parameters: $"user null; {input}");
                 return;
@@ -210,7 +210,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             await Context.Channel.TriggerTypingAsync();
 
             try {
-                Task<MemoryStream> download = Http.GetStreamAsync(user.GetAvatarUrl(ImageFormat.Png, 256));
+                Task<MemoryStream> download = Http.GetStreamAsync(user.GetGuildAvatarUrl(ImageFormat.Png, 256));
                 using MemoryStream data = await download;
 
                 if (download.IsCompletedSuccessfully) {

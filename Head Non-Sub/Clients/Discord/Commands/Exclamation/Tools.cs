@@ -11,6 +11,7 @@ using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Clients.Twitch;
 using HeadNonSub.Extensions;
 using Humanizer;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -262,6 +263,19 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 foreach (string chunk in chunks) {
                     await BetterReplyAsync("No banned users were found.", parameters: username);
                 }
+            }
+        }
+
+        [Command("rolld20"), Alias("d20")]
+        public async Task Roll([Remainder] string reason = "") {
+            int needed = new Random().Next(1, 20);
+            int roll = new Random().Next(1, 20);
+            bool rollMet = roll <= needed;
+
+            if (string.IsNullOrWhiteSpace(reason)) {
+                await BetterReplyAsync($":game_die: {Context.User.Mention} forgot the reason for their roll, will they instantly die? {(rollMet ? "Yes, in extreme pain" : "Unfortunately no")} (**{needed}** needed and rolled **{roll}**)");
+            } else {
+                await BetterReplyAsync($":game_die: {Context.User.Mention} rolls for `{reason.Replace("`", "")}`.. (**{needed}** needed and rolled **{roll}**)");
             }
         }
 

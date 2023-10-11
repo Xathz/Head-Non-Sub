@@ -17,6 +17,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("puppet")]
         [Cooldown(60, true)]
+        [XathzOnly] // For now, a bit powerful
         [DisallowedChannels(WubbysFunHouse.MainChannelId)]
         public async Task Puppet(SocketUser user = null, [Remainder]string say = "") {
             if (user == null) {
