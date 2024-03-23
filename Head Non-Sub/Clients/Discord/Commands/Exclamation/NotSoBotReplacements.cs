@@ -168,7 +168,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("emoji"), Alias("e")]
         [DisallowedChannels(WubbysFunHouse.MainChannelId)]
-        public async Task EnlargeEmoji([Remainder]string emoji) {
+        public async Task EnlargeEmoji([Remainder] string emoji) {
             if (string.IsNullOrWhiteSpace(emoji)) {
                 await BetterReplyAsync("You must provide an emote or emoji to enlarge.");
                 return;
@@ -220,7 +220,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("nick")]
         [DiscordStaffOnly]
         [RequireBotPermission(GuildPermission.ManageNicknames, ErrorMessage = "I do not have the `Manage Nicknames` permission, `!nick` can not be used.")]
-        public async Task SetNickname(SocketGuildUser user = null, [Remainder]string nickname = "") {
+        public async Task SetNickname(SocketGuildUser user = null, [Remainder] string nickname = "") {
             if (user == null) {
                 await BetterReplyAsync("You must mention a user to set their nickname.", parameters: $"user null; {nickname}");
                 return;

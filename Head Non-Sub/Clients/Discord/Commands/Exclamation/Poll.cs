@@ -13,7 +13,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     public class Poll : BetterModuleBase {
 
         [Command("trashpoll")]
-        public async Task TrashPoll([Remainder]string input) {
+        public async Task TrashPoll([Remainder] string input) {
             IGuildUser user = Context.User as IGuildUser;
 
             List<EmoteOrEmoji> items = Context.Message.Content.ParseDiscordMessageEmotes();

@@ -153,7 +153,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("ban")]
         [RequireBotPermission(GuildPermission.BanMembers, ErrorMessage = "I do not have the `Ban Members` permission.")]
-        public async Task BanRaidRecovery(int minutes = 10, [Remainder]string banToken = "") {
+        public async Task BanRaidRecovery(int minutes = 10, [Remainder] string banToken = "") {
             if (!RaidRecoveryTracker.Exists(Context.Channel.Id)) {
                 await BetterReplyAsync($"The raid recovery system is not enabled. Use `@{Context.Guild.CurrentUser.Username} rr enable` to enable.");
                 return;

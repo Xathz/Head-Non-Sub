@@ -18,7 +18,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("ttsays")]
         [Cooldown(86400, true)]
-        public async Task TTSays([Remainder]string input) {
+        public async Task TTSays([Remainder] string input) {
             await Context.Channel.TriggerTypingAsync();
 
             string imageName = "ttsays_old.png";
@@ -53,7 +53,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("1024says")]
         [Cooldown(1200, true)]
-        public async Task TenTwentyFourSays([Remainder]string input = "") {
+        public async Task TenTwentyFourSays([Remainder] string input = "") {
             await Context.Channel.TriggerTypingAsync();
 
             await BetterSendFileAsync(Cache.GetStream("1024notfound.gif"), "1024notfound.gif", $"● {BetterUserFormat()}", parameters: input);
@@ -86,7 +86,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("amandasays")]
         [Cooldown(1200, true)]
-        public async Task AmandaSays([Remainder]string input) {
+        public async Task AmandaSays([Remainder] string input) {
             await Context.Channel.TriggerTypingAsync();
 
             using MemoryStream stream = new MemoryStream(256);
@@ -114,7 +114,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("satasays")]
         [Cooldown(1200, true)]
-        public async Task SataSays([Remainder]string input) {
+        public async Task SataSays([Remainder] string input) {
             await Context.Channel.TriggerTypingAsync();
 
             using MemoryStream stream = new MemoryStream(256);
@@ -142,7 +142,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("jibersays")]
         [Cooldown(1200, true)]
-        public async Task JiberSays([Remainder]string input) {
+        public async Task JiberSays([Remainder] string input) {
             await Context.Channel.TriggerTypingAsync();
 
             using MemoryStream stream = new MemoryStream(256);
@@ -170,7 +170,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("sbsays")]
         [Cooldown(1200, true)]
-        public async Task StrongBadSays([Remainder]string input) {
+        public async Task StrongBadSays([Remainder] string input) {
             await Context.Channel.TriggerTypingAsync();
 
             using MemoryStream stream = new MemoryStream(256);
@@ -201,7 +201,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("warm")]
         [Cooldown(300, true)]
-        public async Task Warm(SocketGuildUser user = null, [Remainder]string input = "") {
+        public async Task Warm(SocketGuildUser user = null, [Remainder] string input = "") {
             if (user == null) {
                 await BetterReplyAsync("You must provide a user to warm.", parameters: $"user null; {input}");
                 return;

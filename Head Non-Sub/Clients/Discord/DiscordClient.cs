@@ -689,6 +689,7 @@ namespace HeadNonSub.Clients.Discord {
                 }
 
                 // Main channel
+                /*
                 if (channel.Id == WubbysFunHouse.MainChannelId) {
 
                     // If tier 3 skip filters
@@ -741,6 +742,7 @@ namespace HeadNonSub.Clients.Discord {
                         }
                     }
                 }
+                */
 
                 // Too many animated emotes in actual fucking spam
                 if (channel.Id == WubbysFunHouse.ActualFuckingSpamChannelId) {

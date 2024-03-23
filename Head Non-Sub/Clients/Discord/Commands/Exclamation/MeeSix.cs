@@ -76,7 +76,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("warn")]
-        public async Task Warn(SocketUser user = null, [Remainder]string reason = "") {
+        public async Task Warn(SocketUser user = null, [Remainder] string reason = "") {
             if (user == null) { return; }
 
             if (WubbysFunHouse.IsDiscordStaff(Context.User)) {

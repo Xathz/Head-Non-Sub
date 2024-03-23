@@ -41,7 +41,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("addnote")]
-        public async Task AddNote(SocketUser user = null, [Remainder]string note = "") {
+        public async Task AddNote(SocketUser user = null, [Remainder] string note = "") {
             if (user == null) {
                 await BetterReplyAsync("You must mention a user to add a note.", parameters: $"user null; {note}");
                 return;
@@ -64,7 +64,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("deletenote")]
-        public async Task DeleteNote(SocketUser user = null, [Remainder]string noteId = "") {
+        public async Task DeleteNote(SocketUser user = null, [Remainder] string noteId = "") {
             if (user == null) {
                 await BetterReplyAsync("You must mention a user to delete a note about them.", parameters: $"user null; {noteId}");
                 return;

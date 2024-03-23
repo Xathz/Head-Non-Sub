@@ -26,17 +26,17 @@ namespace HeadNonSub.Clients.Discord {
 
         public async Task InitializeAsync() {
             await _Commands.AddModuleAsync<Commands.Exclamation.CBenni>(_Services);
-            await _Commands.AddModuleAsync<Commands.Exclamation.Clips>(_Services);
+            //await _Commands.AddModuleAsync<Commands.Exclamation.Clips>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Fake>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.ImageTemplates>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.MeeSix>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.NotSoBotReplacements>(_Services);
-            await _Commands.AddModuleAsync<Commands.Exclamation.Poll>(_Services);
-            await _Commands.AddModuleAsync<Commands.Exclamation.Rythm>(_Services);
+            //await _Commands.AddModuleAsync<Commands.Exclamation.Poll>(_Services);
+            //await _Commands.AddModuleAsync<Commands.Exclamation.Rythm>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Spam>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Stats>(_Services);
-            await _Commands.AddModuleAsync<Commands.Exclamation.Stock>(_Services);
-            await _Commands.AddModuleAsync<Commands.Exclamation.Strawpoll>(_Services);
+            //await _Commands.AddModuleAsync<Commands.Exclamation.Stock>(_Services);
+            //await _Commands.AddModuleAsync<Commands.Exclamation.Strawpoll>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Streamlabs>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.Tools>(_Services);
             await _Commands.AddModuleAsync<Commands.Exclamation.TTS>(_Services);

@@ -19,7 +19,7 @@ namespace HeadNonSub.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -61,10 +61,9 @@ namespace HeadNonSub.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to # Version 2019080501, Last Updated Mon Aug  5 07:07:01 2019 UTC
+        ///   Looks up a localized string similar to # Version 2024032200, Last Updated Fri Mar 22 07:07:01 2024 UTC
         ///AAA
         ///AARP
-        ///ABARTH
         ///ABB
         ///ABBOTT
         ///ABBVIE
@@ -80,7 +79,6 @@ namespace HeadNonSub.Properties {
         ///ACO
         ///ACTOR
         ///AD
-        ///ADAC
         ///ADS
         ///ADULT
         ///AE
@@ -88,7 +86,6 @@ namespace HeadNonSub.Properties {
         ///AERO
         ///AETNA
         ///AF
-        ///AFAMILYCOMPANY
         ///AFL
         ///AFRICA
         ///AG
@@ -96,13 +93,11 @@ namespace HeadNonSub.Properties {
         ///AGENCY
         ///AI
         ///AIG
-        ///AIGO
         ///AIRBUS
         ///AIRFORCE
         ///AIRTEL
         ///AKDN
         ///AL
-        ///ALFAROMEO
         ///ALIBABA
         ///ALIPAY
         ///ALLFINANZ
@@ -111,6 +106,7 @@ namespace HeadNonSub.Properties {
         ///ALSACE
         ///ALSTOM
         ///AM
+        ///AMAZON
         ///AMERICANEXPRESS
         ///AMERICANFAMILY
         ///AMEX
@@ -120,7 +116,13 @@ namespace HeadNonSub.Properties {
         ///ANALYTICS
         ///ANDROID
         ///ANQUAN
-        /// [rest of string was truncated]&quot;;.
+        ///ANZ
+        ///AO
+        ///AOL
+        ///APARTMENTS
+        ///APP
+        ///APPLE
+        ///A [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string TLDs {
             get {

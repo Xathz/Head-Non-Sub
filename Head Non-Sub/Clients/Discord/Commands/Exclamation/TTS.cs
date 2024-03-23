@@ -16,23 +16,23 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("tts"), Alias("ttsdonate", "ttssub")]
         [Cooldown(30, true)]
-        public async Task Joanna([Remainder]string input) => await GenerateAndSend(input, "tts", "Joanna");
+        public async Task Joanna([Remainder] string input) => await GenerateAndSend(input, "tts", "Joanna");
 
         [Command("tts2")]
         [Cooldown(30, true)]
-        public async Task Justin([Remainder]string input) => await GenerateAndSend(input, "tts2", "Justin");
+        public async Task Justin([Remainder] string input) => await GenerateAndSend(input, "tts2", "Justin");
 
         [Command("tts3")]
         [Cooldown(30, true)]
-        public async Task Brian([Remainder]string input) => await GenerateAndSend(input, "tts3", "Brian");
+        public async Task Brian([Remainder] string input) => await GenerateAndSend(input, "tts3", "Brian");
 
         [Command("tts4")]
         [Cooldown(30, true)]
-        public async Task Mizuki([Remainder]string input) => await GenerateAndSend(input, "tts4", "Mizuki");
+        public async Task Mizuki([Remainder] string input) => await GenerateAndSend(input, "tts4", "Mizuki");
 
         [Command("tts5"), Alias("ttsbits")]
         [Cooldown(30, true)]
-        public async Task Russell([Remainder]string input) => await GenerateAndSend(input, "tts4", "Russell");
+        public async Task Russell([Remainder] string input) => await GenerateAndSend(input, "tts4", "Russell");
 
         private async Task GenerateAndSend(string text, string command, string voice) {
             await Context.Channel.TriggerTypingAsync();

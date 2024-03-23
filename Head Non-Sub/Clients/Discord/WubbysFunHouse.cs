@@ -87,7 +87,7 @@ namespace HeadNonSub.Clients.Discord {
         /// All bot user ids.
         /// </summary>
         public static readonly ReadOnlyCollection<ulong> AllBotIds = new ReadOnlyCollection<ulong>(new List<ulong> { HeadNonSubBotUserId, MediaShareBotUserId, MEE6BotUserId, PollBotUserId, RythmBotUserId, Rythm2BotUserId, StatbotBotUserId, WubbyBotUserId, WubbyIRLBotUserId, WubbyMailBotUserId, LogBotUserId });
-        
+
         #endregion
 
         #region Role ids
@@ -123,7 +123,7 @@ namespace HeadNonSub.Clients.Discord {
         /// https://wub.by/discordranks
         /// https://mee6.xyz/leaderboard/328300333010911242
         /// </remarks>
-        public const ulong ForkliftDriversRoleId = 502698826830708737;
+        //public const ulong ForkliftDriversRoleId = 502698826830708737;
 
         /// <summary>
         /// Admins, mods, and mod-lites.

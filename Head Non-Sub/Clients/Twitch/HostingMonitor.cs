@@ -32,7 +32,7 @@ namespace HeadNonSub.Clients.Twitch {
             if (_Timer is Timer) {
                 _Timer.Stop();
             }
-            
+
             LoggingManager.Log.Info($"Stopped monitor for: {SettingsManager.Configuration.TwitchStream.DisplayName}");
         }
 

@@ -124,7 +124,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("emotemode")]
         [DiscordStaffOnly]
-        public async Task EmoteMode(string mode = "", [Remainder]string message = "") {
+        public async Task EmoteMode(string mode = "", [Remainder] string message = "") {
             if (mode == "off") {
                 EmoteModeTracker.RemoveMode(Context.Channel.Id);
 

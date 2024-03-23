@@ -41,7 +41,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("executie")]
         [Cooldown(300)]
         [SubscriberOnly]
-        public async Task Executie(SocketUser user = null, [Remainder]string reason = "") {
+        public async Task Executie(SocketUser user = null, [Remainder] string reason = "") {
             if (user == null) {
                 await BetterReplyAsync("You must mention a user to executie them.", parameters: $"user null; {reason}");
                 return;

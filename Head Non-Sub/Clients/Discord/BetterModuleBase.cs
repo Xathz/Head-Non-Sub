@@ -83,7 +83,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="message">Contents of the message.</param>
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
-        public async Task<IUserMessage> BetterReplyAsync(string message, string parameters = "", [CallerMemberName]string command = "") {
+        public async Task<IUserMessage> BetterReplyAsync(string message, string parameters = "", [CallerMemberName] string command = "") {
             IUserMessage sentMessage = await Context.Channel.SendMessageAsync(message, false, null, null).ConfigureAwait(false);
 
             if (!Context.IsPrivate) {
@@ -100,7 +100,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="embed">An embed to be displayed.</param>
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
-        public async Task<IUserMessage> BetterReplyAsync(Embed embed, string parameters = "", [CallerMemberName]string command = "") {
+        public async Task<IUserMessage> BetterReplyAsync(Embed embed, string parameters = "", [CallerMemberName] string command = "") {
             IUserMessage sentMessage = await Context.Channel.SendMessageAsync(null, false, embed, null).ConfigureAwait(false);
 
             if (!Context.IsPrivate) {
@@ -118,7 +118,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="embed">An embed to be displayed.</param>
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
-        public async Task<IUserMessage> BetterReplyAsync(string message, Embed embed, string parameters = "", [CallerMemberName]string command = "") {
+        public async Task<IUserMessage> BetterReplyAsync(string message, Embed embed, string parameters = "", [CallerMemberName] string command = "") {
             IUserMessage sentMessage = await Context.Channel.SendMessageAsync(message, false, embed, null).ConfigureAwait(false);
 
             if (!Context.IsPrivate) {
@@ -137,7 +137,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="message">The message to be sent.</param>
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
-        public async Task<IUserMessage> BetterSendFileAsync(Stream stream, string fileName, string message, string parameters = "", [CallerMemberName]string command = "") {
+        public async Task<IUserMessage> BetterSendFileAsync(Stream stream, string fileName, string message, string parameters = "", [CallerMemberName] string command = "") {
             IUserMessage sentMessage = await Context.Message.Channel.SendFileAsync(stream, fileName, message).ConfigureAwait(false);
 
             if (!Context.IsPrivate) {
@@ -155,7 +155,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="message">The message to be sent.</param>
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
-        public async Task<IUserMessage> BetterSendFileAsync(string filePath, string message, string parameters = "", [CallerMemberName]string command = "") {
+        public async Task<IUserMessage> BetterSendFileAsync(string filePath, string message, string parameters = "", [CallerMemberName] string command = "") {
             IUserMessage sentMessage = await Context.Message.Channel.SendFileAsync(filePath, message).ConfigureAwait(false);
 
             if (!Context.IsPrivate) {
@@ -172,7 +172,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="replyMessageId">Reply message id.</param>
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
-        public void TrackStatistics(ulong? replyMessageId = null, string parameters = "", [CallerMemberName]string command = "") {
+        public void TrackStatistics(ulong? replyMessageId = null, string parameters = "", [CallerMemberName] string command = "") {
             if (!Context.IsPrivate) {
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
                     Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters, replyMessageId);

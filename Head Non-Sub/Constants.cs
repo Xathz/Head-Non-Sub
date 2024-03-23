@@ -20,7 +20,7 @@ namespace HeadNonSub {
         /// <summary>
         /// Application creators name. 
         /// </summary>
-        public const string Creator = "Xathz (Xathz#6861); https://github.com/Xathz";
+        public const string Creator = "Xathz (227088829079617536, Xathz#6861); https://github.com/Xathz";
 
         /// <summary>
         /// Discord trims double spaces in embeds, this prevents that.
@@ -83,9 +83,9 @@ namespace HeadNonSub {
         public const string CommandsHelpUrl = "https://git.io/fjH1r"; // https://github.com/Xathz/Head-Non-Sub/tree/master/Head%20Non-Sub/Clients/Discord/Commands/Commands.md
 
         /// <summary>
-        /// Discord maximum file size is 8MB.
+        /// Discord maximum file size is 25MB.
         /// </summary>
-        public const long DiscordMaximumFileSize = 8388119;
+        public const long DiscordMaximumFileSize = 26214400;
 
         /// <summary>
         /// The general color of the bot, used for Discord embeds.
@@ -155,7 +155,7 @@ namespace HeadNonSub {
         /// <summary>
         /// Twemoji for the application.
         /// </summary>
-        public static string TwemojiDirectory => Path.Combine(ContentDirectory, @"Twemoji\v12.0.4");
+        public static string TwemojiDirectory => Path.Combine(ContentDirectory, @"Twemoji\v14.0.2");
 
         /// <summary>
         /// Audio content files for the application.

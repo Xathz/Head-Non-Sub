@@ -50,13 +50,13 @@ namespace HeadNonSub.Clients.Twitch {
                     SettingsManager.Configuration.TwitchRefresh = refresh.Refresh;
                     wasRefreshed = true;
                 }
-                
+
                 if (!string.IsNullOrEmpty(refresh.Token)) {
                     SettingsManager.Configuration.TwitchToken = refresh.Token;
                     wasRefreshed = true;
                 }
 
-                if (wasRefreshed) { SettingsManager.Save(); }            
+                if (wasRefreshed) { SettingsManager.Save(); }
 
                 //_TwitchApi.ThirdParty.AuthorizationFlow.OnUserAuthorizationDetected += (s, a) => {
                 //    Console.WriteLine($"      id: {a.Id}");

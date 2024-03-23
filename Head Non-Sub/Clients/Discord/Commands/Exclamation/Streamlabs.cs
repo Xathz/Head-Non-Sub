@@ -12,7 +12,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     public class Streamlabs : BetterModuleBase {
 
         [Command("prices"), Alias("mediashare")]
-        public async Task Prices([Remainder]string input = "") {
+        public async Task Prices([Remainder] string input = "") {
             await Context.Channel.TriggerTypingAsync();
 
             bool fromCache = false;

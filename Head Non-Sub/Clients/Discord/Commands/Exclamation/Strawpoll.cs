@@ -16,7 +16,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     public class Strawpoll : BetterModuleBase {
 
         [Command("strawpoll")]
-        public Task StrawpollCreate([Remainder]string input) {
+        public Task StrawpollCreate([Remainder] string input) {
             string[] messages = input.Split('|');
 
             CreatedPoll newPoll = null;
@@ -32,7 +32,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         }
 
         [Command("strawpollresults"), Alias("strawpollr")]
-        public Task StrawpollResults([Remainder]string input) {
+        public Task StrawpollResults([Remainder] string input) {
             Context.Message.DeleteAsync();
 
             FetchedPoll fetchedPoll = null;
