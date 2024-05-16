@@ -13,6 +13,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("prices"), Alias("mediashare")]
         public async Task Prices([Remainder] string input = "") {
+            await BetterReplyAsync("https://tangia.co/paymoneywubby?media_share <https://www.reddit.com/r/PaymoneyWubby/comments/1cl57nv/new_media_share_info_if_you_are_submitting/>");
+
+            /*
             await Context.Channel.TriggerTypingAsync();
 
             bool fromCache = false;
@@ -68,6 +71,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             };
 
             await BetterReplyAsync(builder.Build());
+            */
+
         }
 
         private static async Task<StreamlabsEntities.Tip> GetTipDataAsync() {
