@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="TLDs" xml:space="preserve">
-    <value># Version 2024032200, Last Updated Fri Mar 22 07:07:01 2024 UTC
+    <value># Version 2025042300, Last Updated Wed Apr 23 07:07:01 2025 UTC
 AAA
 AARP
 ABB
@@ -205,7 +205,6 @@ AUSPOST
 AUTHOR
 AUTO
 AUTOS
-AVIANCA
 AW
 AWS
 AX
@@ -418,7 +417,6 @@ CY
 CYMRU
 CYOU
 CZ
-DABUR
 DAD
 DANCE
 DATA
@@ -749,7 +747,6 @@ KAUFEN
 KDDI
 KE
 KERRYHOTELS
-KERRYLOGISTICS
 KERRYPROPERTIES
 KFH
 KG
@@ -813,7 +810,6 @@ LIMITED
 LIMO
 LINCOLN
 LINK
-LIPSY
 LIVE
 LIVING
 LK
@@ -923,7 +919,6 @@ NA
 NAB
 NAGOYA
 NAME
-NATURA
 NAVY
 NBA
 NC
@@ -1160,7 +1155,6 @@ SG
 SH
 SHANGRILA
 SHARP
-SHAW
 SHELL
 SHIA
 SHIKSHA
@@ -1568,7 +1562,7 @@ ZM
 ZONE
 ZUERICH
 ZW</value>
-    <comment>Version 2024032200, Last Updated Fri Mar 22 07:07:01 2024 UTC
+    <comment>Version 2025042300, Last Updated Wed Apr 23 07:07:01 2025 UTC
 https://data.iana.org/TLD/tlds-alpha-by-domain.txt</comment>
   </data>
 </root>

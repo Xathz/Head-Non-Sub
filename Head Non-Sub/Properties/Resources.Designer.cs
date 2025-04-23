@@ -61,7 +61,7 @@ namespace HeadNonSub.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to # Version 2024032200, Last Updated Fri Mar 22 07:07:01 2024 UTC
+        ///   Looks up a localized string similar to # Version 2025042300, Last Updated Wed Apr 23 07:07:01 2025 UTC
         ///AAA
         ///AARP
         ///ABB

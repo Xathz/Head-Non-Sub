@@ -8,6 +8,7 @@ using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Extensions;
 using ImageMagick;
+using ImageMagick.Drawing;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -21,11 +22,11 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         public async Task TTSays([Remainder] string input) {
             await Context.Channel.TriggerTypingAsync();
 
-            string imageName = "ttsays_old.png";
+            string imageName = "ttsays.png";
 
             // 5% chance to be tt
             if (new Random().Next(0, 100) >= 95) {
-                imageName = "ttsays.png";
+                imageName = "ttsays_old.png";
             }
 
             using MemoryStream stream = new MemoryStream(256);
