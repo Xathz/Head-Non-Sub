@@ -1,91 +1,82 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using HeadNonSub.Clients.Discord;
-using HeadNonSub.Clients.Twitch;
-using HeadNonSub.Database;
+using HeadNonSub.HostedServices;
 using HeadNonSub.Settings;
-using HeadNonSub.Statistics;
-using Humanizer.Configuration;
-using Humanizer.DateTimeHumanizeStrategy;
-using ImageMagick;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using NLog;
+using NLog.Extensions.Logging;
 
 namespace HeadNonSub {
 
     class Program {
 
-        private readonly DateTime _Started = DateTime.Now;
-        private readonly IServiceProvider _ServiceProvider;
+        static async Task Main(string[] args) {
+            try {
+                CreatePIDFile();
+                Console.Title = Constants.ApplicationName;
+                PrintBanner();
 
-        static void Main() => new Program().StartAsync().GetAwaiter().GetResult();
+                // Create and run the host
+                IHost host = CreateHostBuilder(args).Build();
+                await host.RunAsync();
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex, "Application terminated with error");
+            } finally {
+                LoggingManager.Flush();
+                // Ensure all appenders are flushed
+                LogManager.Shutdown();
+            }
+        }
 
-        public Program() {
-            CreatePIDFile();
-            Console.Title = Constants.ApplicationName;
+        static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((context, config) => {
+                    config
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
+                })
+                .ConfigureLogging((context, logging) => {
+                    // Add NLog provider for logging
+                    logging.AddNLog("nlog.config");
+                })
+                .ConfigureServices((context, services) => {
+                    // Ensure directories exist
+                    EnsureDirectories();
 
-            PrintBanner();
+                    // Initialize logging and settings
+                    LoggingManager.Initialize();
+                    SettingsManager.Load();
 
+                    // Register configuration
+                    services.AddSingleton(sp => Options.Create(SettingsManager.Configuration));
+
+                    // Register hosted services (order matters)
+                    services.AddHostedService<CacheHostedService>();
+                    services.AddHostedService<BotHostedService>();
+
+                    // Register memory cache
+                    services.AddMemoryCache();
+
+                    // Expose IServiceProvider to static services
+                    services.AddSingleton(sp => sp);
+
+                    LoggingManager.Log.Info("Services configured");
+                });
+
+        static void EnsureDirectories() {
             Directory.CreateDirectory(Constants.WorkingDirectory);
             Directory.CreateDirectory(Constants.LogDirectory);
             Directory.CreateDirectory(Constants.RuntimesDirectory);
             Directory.CreateDirectory(Constants.TemporaryDirectory);
             Directory.CreateDirectory(Constants.MagickNETDirectory);
             Directory.CreateDirectory(Constants.ContentDirectory);
-
-            LoggingManager.Initialize();
-            SettingsManager.Load();
-
-            // Setup dependency injection container
-            ServiceCollection services = new ServiceCollection();
-            ConfigureServices(services);
-            _ServiceProvider = services.BuildServiceProvider();
-
-            // Pass configuration to static services that need it
-            IOptions<Configuration> configOptions = _ServiceProvider.GetRequiredService<IOptions<Configuration>>();
-            SettingsManager.SetServiceProvider(_ServiceProvider);
-            DiscordClient.SetConfigurationOptions(configOptions);
-            TwitchClient.SetConfigurationOptions(configOptions);
-            Backblaze.SetConfigurationOptions(configOptions);
-            Http.SetConfigurationOptions(configOptions);
-            Clients.Twitch.HostingMonitor.SetConfigurationOptions(configOptions);
-
-            // Validate configuration
-            Configuration configuration = configOptions.Value;
-            List<string> validationErrors = ConfigurationValidator.Validate(configuration);
-            if (validationErrors.Count > 0) {
-                foreach (string error in validationErrors) {
-                    LoggingManager.Log.Error(error);
-                }
-                throw new InvalidOperationException("Configuration validation failed");
-            }
-
-            DatabaseManager.Load();
-            StatisticsManager.Load();
-
-            MagickNET.SetTempDirectory(Constants.MagickNETDirectory);
-
-            // Increase humanizer's precision 
-            Configurator.DateTimeHumanizeStrategy = new PrecisionDateTimeHumanizeStrategy(precision: .95);
-            Configurator.DateTimeOffsetHumanizeStrategy = new PrecisionDateTimeOffsetHumanizeStrategy(precision: .95);
         }
 
-        /// <summary>
-        /// Configure dependency injection services.
-        /// </summary>
-        private static void ConfigureServices(IServiceCollection services) {
-            // Register configuration as a singleton
-            services.AddSingleton<IOptions<Configuration>>(sp => {
-                return Options.Create(SettingsManager.Configuration);
-            });
-
-            // Register other services here as needed
-            LoggingManager.Log.Info("Services configured");
-        }
-
-        private static void PrintBanner() {
+        static void PrintBanner() {
             ConsoleColor originalColor = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"===================================");
@@ -96,48 +87,7 @@ namespace HeadNonSub {
             Console.WriteLine();
         }
 
-        private async Task StartAsync() {
-            LoggingManager.Log.Info("Starting...");
-
-            // Load content into cache
-            await Cache.LoadContentAsync();
-
-            // Connect to Discord
-            await DiscordClient.ConnectAsync();
-
-            // Connect to Twitch
-            await TwitchClient.ConnectApiAsync();
-
-            // Block and wait
-            await UserInputAsync();
-        }
-
-        private async Task UserInputAsync() {
-            WaitForInput:
-
-            string input = await Task.Run(() => Console.ReadLine());
-            if (input == "exit") {
-                LoggingManager.Log.Info("Exiting...");
-
-                await DiscordClient.StopAsync();
-                await Task.Delay(2000);
-
-                LoggingManager.Flush();
-                await Task.Delay(1000);
-
-                return;
-            } else if (input == "cache") {
-                LoggingManager.Log.Info($"Keys in the cache: {Cache.ListKeys()}");
-
-            } else if (input == "help" || string.IsNullOrWhiteSpace(input)) {
-                Console.WriteLine($"=== {Constants.ApplicationName} v{Constants.ApplicationVersion}; Running for: {DateTime.Now.Subtract(_Started):c}");
-                Console.WriteLine($"=== Available commands: exit, cache");
-            }
-
-            goto WaitForInput;
-        }
-
-        private static void CreatePIDFile() {
+        static void CreatePIDFile() {
             try {
                 File.WriteAllText(Constants.ProcessIdFile, Constants.ProcessId.ToString());
             } catch (Exception ex) {
