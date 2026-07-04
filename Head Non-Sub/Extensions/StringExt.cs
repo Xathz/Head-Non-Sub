@@ -228,7 +228,7 @@ namespace HeadNonSub.Extensions {
                     return false;
                 }
 
-                if (!ulong.TryParse(input.Substring(splitIndex + 1, input.Length - splitIndex - 2), NumberStyles.None, CultureInfo.InvariantCulture, out ulong id)) {
+                if (!ulong.TryParse(input.AsSpan(splitIndex + 1, input.Length - splitIndex - 2), NumberStyles.None, CultureInfo.InvariantCulture, out ulong id)) {
                     return false;
                 }
 

@@ -29,9 +29,7 @@ namespace HeadNonSub {
         /// <summary>
         /// Set the configuration options (called during startup from DI container).
         /// </summary>
-        public static void SetConfigurationOptions(IOptions<Configuration> configurationOptions) {
-            _ConfigurationOptions = configurationOptions;
-        }
+        public static void SetConfigurationOptions(IOptions<Configuration> configurationOptions) => _ConfigurationOptions = configurationOptions;
 
         /// <summary>
         /// Get the current configuration, preferring injected options over static SettingsManager.
@@ -95,7 +93,12 @@ namespace HeadNonSub {
             B2UploadUrl uploadUrl = await _TempBucketClient.Files.GetUploadUrl();
             string sha1Hash = Utilities.GetSHA1Hash(fileData);
 
-            B2File uploadedFile = await _TempBucketClient.Files.Upload(fileData, fileName, uploadUrl);
+            B2FileUploadContext uploadContext = new B2FileUploadContext {
+                FileName = fileName,
+                B2UploadUrl = uploadUrl
+            };
+
+            B2File uploadedFile = await _TempBucketClient.Files.Upload(fileData, uploadContext);
 
             if (sha1Hash == uploadedFile.ContentSHA1) {
                 string fullUrl = $"{Constants.BackblazeCDN}/file/{SettingsManager.Configuration.BackblazeTempBucket.BucketName}/{uploadedFile.FileName}";
@@ -122,7 +125,12 @@ namespace HeadNonSub {
 
             string sha1Hash = Utilities.GetSHA1Hash(fileData);
 
-            B2File uploadedFile = await _TempBucketClient.Files.Upload(fileData, fileName, uploadUrl);
+            B2FileUploadContext uploadContext = new B2FileUploadContext {
+                FileName = fileName,
+                B2UploadUrl = uploadUrl
+            };
+
+            B2File uploadedFile = await _TempBucketClient.Files.Upload(fileData, uploadContext);
 
             if (sha1Hash == uploadedFile.ContentSHA1) {
                 string fullUrl = $"{Constants.BackblazeCDN}/file/{SettingsManager.Configuration.BackblazeTempBucket.BucketName}/{uploadedFile.FileName}";
@@ -149,7 +157,12 @@ namespace HeadNonSub {
 
             string sha1Hash = Utilities.GetSHA1Hash(fileData);
 
-            B2File uploadedFile = await _AvatarBucketClient.Files.Upload(fileData, fileName, uploadUrl);
+            B2FileUploadContext uploadContext = new B2FileUploadContext {
+                FileName = fileName,
+                B2UploadUrl = uploadUrl
+            };
+
+            B2File uploadedFile = await _AvatarBucketClient.Files.Upload(fileData, uploadContext);
 
             if (sha1Hash == uploadedFile.ContentSHA1) {
                 string fullUrl = $"{Constants.BackblazeCDN}/file/{SettingsManager.Configuration.BackblazeAvatarBucket.BucketName}/{uploadedFile.FileName}";

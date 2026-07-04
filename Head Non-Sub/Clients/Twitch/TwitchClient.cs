@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using HeadNonSub.Database;
-using HeadNonSub.Exceptions;
 using HeadNonSub.Settings;
 using Humanizer;
 using Microsoft.Extensions.Options;
@@ -15,7 +13,6 @@ using TwitchLib.Api.ThirdParty.AuthorizationFlow;
 using TwitchLib.Client.Models;
 using TwitchLib.Communication.Events;
 using Client = TwitchLib.Client;
-using TwitchEntities = HeadNonSub.Entities.Twitch;
 
 namespace HeadNonSub.Clients.Twitch {
 
@@ -39,9 +36,7 @@ namespace HeadNonSub.Clients.Twitch {
         /// <summary>
         /// Set the configuration options (called during startup from DI container).
         /// </summary>
-        public static void SetConfigurationOptions(IOptions<Configuration> configurationOptions) {
-            _ConfigurationOptions = configurationOptions;
-        }
+        public static void SetConfigurationOptions(IOptions<Configuration> configurationOptions) => _ConfigurationOptions = configurationOptions;
 
         /// <summary>
         /// Get the current configuration, preferring injected options over static SettingsManager.

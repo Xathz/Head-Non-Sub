@@ -34,7 +34,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             List<string> messageChunks = messages.SplitIntoChunksPreserveNewLines(1980);
 
             IEnumerable<string> possibleUsers = Context.Guild.Users.Where(x => x.Username.Contains(user, StringComparison.OrdinalIgnoreCase)).Select(x => BetterUserFormat(x));
-            string possibleUsersString = (possibleUsers.Count() > 0) ? $"{Environment.NewLine}Possible users here: {string.Join(", ", possibleUsers)}" : "";
+            string possibleUsersString = (possibleUsers.Any()) ? $"{Environment.NewLine}Possible users here: {string.Join(", ", possibleUsers)}" : "";
 
             bool sentHeader = false;
             foreach (string chunk in messageChunks) {

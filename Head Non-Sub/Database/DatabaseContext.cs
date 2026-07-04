@@ -19,9 +19,7 @@ namespace HeadNonSub.Database {
         /// <summary>
         /// Constructor with optional configuration injection.
         /// </summary>
-        public DatabaseContext(IOptions<Configuration> configurationOptions = null) {
-            _Configuration = configurationOptions?.Value ?? SettingsManager.Configuration;
-        }
+        public DatabaseContext(IOptions<Configuration> configurationOptions = null) => _Configuration = configurationOptions?.Value ?? SettingsManager.Configuration;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             try {

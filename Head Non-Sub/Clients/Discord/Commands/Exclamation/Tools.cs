@@ -11,7 +11,6 @@ using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Clients.Twitch;
 using HeadNonSub.Extensions;
 using Humanizer;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
@@ -81,14 +80,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             // If it is a valid user
             if (randomUser is SocketGuildUser) {
-                EmbedBuilder builder = new EmbedBuilder() {
+                EmbedBuilder builder = new EmbedBuilder {
                     Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                     Title = $"Picking a random {type}...",
-                    ThumbnailUrl = Constants.LoadingGifUrl
-                };
-
-                builder.Footer = new EmbedFooterBuilder() {
-                    Text = $"Random user requested by {BetterUserFormat(formatChar: "")}"
+                    ThumbnailUrl = Constants.LoadingGifUrl,
+                    Footer = new EmbedFooterBuilder() {
+                        Text = $"Random user requested by {BetterUserFormat(formatChar: "")}"
+                    }
                 };
 
                 IUserMessage message = await BetterReplyAsync(builder.Build(), parameters: type);
@@ -162,7 +160,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 HashSet<string> matchingUsernames = new HashSet<string>();
 
                 IEnumerable<SocketGuildUser> matchingUsernames_Inner = Context.Guild.Users.Where(x => x.Id != user.Id && x.Username.Contains(user.Username, StringComparison.OrdinalIgnoreCase));
-                if (matchingUsernames_Inner.Count() > 0) {
+                if (matchingUsernames_Inner.Any()) {
                     foreach (SocketGuildUser matchedUser in matchingUsernames_Inner) {
                         matchingUsernames.Add($"{matchedUser.Username} (`{matchedUser.Id}`)");
                     }
@@ -186,7 +184,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 HashSet<string> matchingUsernames = new HashSet<string>();
 
                 IEnumerable<RestBan> matchingUsernames_Inner = bannedUsers.Where(x => x.User.Id != user.Id && x.User.Username.Contains(user.Username, StringComparison.OrdinalIgnoreCase));
-                if (matchingUsernames_Inner.Count() > 0) {
+                if (matchingUsernames_Inner.Any()) {
                     foreach (RestBan matchedUser in matchingUsernames_Inner) {
                         matchingUsernames.Add($"{matchedUser.User.Username} (`{matchedUser.User.Id}`)");
                     }
@@ -211,7 +209,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     HashSet<string> matchingNicknames = new HashSet<string>();
 
                     IEnumerable<SocketGuildUser> matchingNicknames_Inner = Context.Guild.Users.Where(x => x.Id != user.Id && !string.IsNullOrEmpty(x.Nickname) && x.Nickname.Contains(user.Nickname, StringComparison.OrdinalIgnoreCase));
-                    if (matchingNicknames_Inner.Count() > 0) {
+                    if (matchingNicknames_Inner.Any()) {
                         foreach (SocketGuildUser matchedUser in matchingNicknames_Inner) {
                             matchingNicknames.Add($"{matchedUser.Username} (`{matchedUser.Id}`)");
                         }
@@ -247,7 +245,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
 
             IEnumerable<RestBan> bans = await Context.Guild.GetBansAsync().FlattenAsync();
-            IEnumerable<RestBan> matches = bans.Where(x => x.User.Username.IndexOf(username, StringComparison.OrdinalIgnoreCase) != -1);
+            IEnumerable<RestBan> matches = bans.Where(x => x.User.Username.Contains(username, StringComparison.OrdinalIgnoreCase));
 
             StringBuilder builder = new StringBuilder();
 

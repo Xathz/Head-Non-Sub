@@ -144,7 +144,7 @@ namespace HeadNonSub {
                     List<string> lines = data.SplitByNewLines();
                     HashSet<string> domains = new HashSet<string>();
                     foreach (string line in lines) {
-                        if (!line.StartsWith("#")) {
+                        if (!line.StartsWith('#')) {
                             domains.Add(line.ToLower());
                         }
                     }
@@ -165,7 +165,7 @@ namespace HeadNonSub {
                 List<string> lines = Resources.TLDs.SplitByNewLines();
                 HashSet<string> domains = new HashSet<string>();
                 foreach (string line in lines) {
-                    if (!line.StartsWith("#")) {
+                    if (!line.StartsWith('#')) {
                         domains.Add(line.ToLower());
                     }
                 }

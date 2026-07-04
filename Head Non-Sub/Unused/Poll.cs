@@ -24,18 +24,16 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 content = content.Replace(item.ToString(), "");
             }
 
-            EmbedBuilder builder = new EmbedBuilder() {
+            EmbedBuilder builder = new EmbedBuilder {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
-                Description = content
-            };
-
-            builder.Author = new EmbedAuthorBuilder() {
-                IconUrl = user.GetAvatarUrl(),
-                Name = $"{(!string.IsNullOrWhiteSpace(user.Nickname) ? user.Nickname : user.Username)} asks"
-            };
-
-            builder.Footer = new EmbedFooterBuilder() {
-                Text = "Answer using the reactions below"
+                Description = content,
+                Author = new EmbedAuthorBuilder() {
+                    IconUrl = user.GetAvatarUrl(),
+                    Name = $"{(!string.IsNullOrWhiteSpace(user.Nickname) ? user.Nickname : user.Username)} asks"
+                },
+                Footer = new EmbedFooterBuilder() {
+                    Text = "Answer using the reactions below"
+                }
             };
 
             await Context.Message.DeleteAsync();

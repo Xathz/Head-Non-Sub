@@ -56,7 +56,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                     }
 
                     if (ulong.TryParse(infraction.AuthorId, out ulong authorId)) {
-                        SocketUser authorUser = UserFromUserId(authorId);
+                        SocketGuildUser authorUser = UserFromUserId(authorId);
                         builder.AppendLine($"{infraction.CreatedAtDateTime.ToString(Constants.DateTimeFormatMedium).ToLower()} utc ({infraction.Id}) {(authorUser == null ? "Unknown Moderator" : authorUser.ToString())} ● {reason}");
                     } else {
                         builder.AppendLine($"{infraction.CreatedAtDateTime.ToString(Constants.DateTimeFormatMedium).ToLower()} utc ({infraction.Id}) Unknown Moderator ● {reason}");

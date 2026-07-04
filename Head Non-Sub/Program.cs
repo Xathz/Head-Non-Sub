@@ -75,7 +75,7 @@ namespace HeadNonSub {
         /// <summary>
         /// Configure dependency injection services.
         /// </summary>
-        private void ConfigureServices(IServiceCollection services) {
+        private static void ConfigureServices(IServiceCollection services) {
             // Register configuration as a singleton
             services.AddSingleton<IOptions<Configuration>>(sp => {
                 return Options.Create(SettingsManager.Configuration);
@@ -85,7 +85,7 @@ namespace HeadNonSub {
             LoggingManager.Log.Info("Services configured");
         }
 
-        private void PrintBanner() {
+        private static void PrintBanner() {
             ConsoleColor originalColor = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"===================================");
@@ -137,7 +137,7 @@ namespace HeadNonSub {
             goto WaitForInput;
         }
 
-        private void CreatePIDFile() {
+        private static void CreatePIDFile() {
             try {
                 File.WriteAllText(Constants.ProcessIdFile, Constants.ProcessId.ToString());
             } catch (Exception ex) {

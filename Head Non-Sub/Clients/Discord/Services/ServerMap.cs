@@ -16,6 +16,12 @@ namespace HeadNonSub.Clients.Discord.Services {
 
         public ServerMap(SocketCommandContext context) => _Context = context;
 
+        private readonly JsonSerializerOptions _JsonOptions = new JsonSerializerOptions {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            WriteIndented = true
+        };
+
         /// <summary>
         /// Generate the server map.
         /// </summary>
@@ -44,7 +50,7 @@ namespace HeadNonSub.Clients.Discord.Services {
                     Id = guildRole.Id,
                     Name = guildRole.Name,
                     Created = guildRole.CreatedAt.UtcDateTime,
-                    Color = guildRole.Color.RawValue == 0 ? "#ffffff" : guildRole.Colors.PrimaryColor.ToString(),
+                    Color = guildRole.Colors.PrimaryColor.RawValue == 0 ? "#ffffff" : guildRole.Colors.PrimaryColor.ToString(),
                     Mentionable = guildRole.IsMentionable,
                     Hoisted = guildRole.IsHoisted
                 };
@@ -166,11 +172,7 @@ namespace HeadNonSub.Clients.Discord.Services {
                     File.Delete(jsonFile);
                 }
 
-                string json = JsonSerializer.Serialize(map, new JsonSerializerOptions {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                    WriteIndented = true
-                });
+                string json = JsonSerializer.Serialize(map, _JsonOptions);
 
                 File.WriteAllText(jsonFile, json);
 

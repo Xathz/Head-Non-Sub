@@ -17,7 +17,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         /// <summary>
         /// Get the current configuration (for commands that modify/read config).
         /// </summary>
-        protected Configuration GetConfiguration() => SettingsManager.Configuration;
+        protected static Configuration GetConfiguration() => SettingsManager.Configuration;
 
         [Command("add")]
         public async Task BlacklistAdd(SocketGuildUser user = null) {
@@ -34,8 +34,8 @@ namespace HeadNonSub.Clients.Discord.Commands {
             if (GetConfiguration().DiscordBlacklist.Any(x => x.Key == Context.Guild.Id && x.Value.Contains(user.Id))) {
                 await BetterReplyAsync($"{BetterUserFormat(user)} is already blacklisted.", parameters: $"{user} ({user.Id})");
             } else {
-                if (GetConfiguration().DiscordBlacklist.ContainsKey(Context.Guild.Id)) {
-                    GetConfiguration().DiscordBlacklist[Context.Guild.Id].Add(user.Id);
+                if (GetConfiguration().DiscordBlacklist.TryGetValue(Context.Guild.Id, out HashSet<ulong> value)) {
+                    value.Add(user.Id);
                 } else {
                     GetConfiguration().DiscordBlacklist.Add(Context.Guild.Id, new HashSet<ulong>() { user.Id });
                 }
@@ -72,7 +72,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         public Task BlacklistList() {
             IEnumerable<ulong> userIds = GetConfiguration().DiscordBlacklist.Where(x => x.Key == Context.Guild.Id).SelectMany(x => x.Value);
 
-            if (userIds.Count() > 0) {
+            if (userIds.Any()) {
                 IEnumerable<SocketGuildUser> users = Context.Guild.Users.Where(x => userIds.Contains(x.Id));
 
                 return BetterReplyAsync($"Blacklisted users{Environment.NewLine}```{string.Join(Environment.NewLine, users.Select(x => $"{x} ({x.Id}) {x.Roles.OrderByDescending(r => r.Position).FirstOrDefault().Name}"))}```");

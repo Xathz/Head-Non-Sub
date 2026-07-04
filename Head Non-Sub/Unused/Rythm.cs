@@ -31,15 +31,14 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
 
             if (randomMessage is IMessage) {
-                EmbedBuilder builder = new EmbedBuilder() {
+                EmbedBuilder builder = new EmbedBuilder {
                     Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                     Description = $"{randomMessage.Embeds.ElementAt(0).Description}{Environment.NewLine}**Duration:** {randomMessage.Embeds.ElementAt(0).Fields.Where(x => x.Name == "Song Duration").FirstOrDefault().Value}",
-                    ThumbnailUrl = randomMessage.Embeds.ElementAt(0).Thumbnail.Value.Url
-                };
-
-                builder.Author = new EmbedAuthorBuilder() {
-                    IconUrl = randomMessage.Author.GetAvatarUrl(),
-                    Name = $"Random Song from {randomMessage.Author.Username}"
+                    ThumbnailUrl = randomMessage.Embeds.ElementAt(0).Thumbnail.Value.Url,
+                    Author = new EmbedAuthorBuilder() {
+                        IconUrl = randomMessage.Author.GetAvatarUrl(),
+                        Name = $"Random Song from {randomMessage.Author.Username}"
+                    }
                 };
 
                 IUserMessage reply = await BetterReplyAsync(embed: builder.Build());

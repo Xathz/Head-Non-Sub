@@ -8,15 +8,13 @@ namespace HeadNonSub.Statistics {
 
     public class StatisticsContext : DbContext {
 
-        private Configuration _Configuration;
+        private readonly Configuration _Configuration;
 
         public DbSet<Command> Commands { get; set; }
 
         public DbSet<UserChange> UserChanges { get; set; }
 
-        public StatisticsContext(IOptions<Configuration> configurationOptions = null) {
-            _Configuration = configurationOptions?.Value ?? SettingsManager.Configuration;
-        }
+        public StatisticsContext(IOptions<Configuration> configurationOptions = null) => _Configuration = configurationOptions?.Value ?? SettingsManager.Configuration;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             try {

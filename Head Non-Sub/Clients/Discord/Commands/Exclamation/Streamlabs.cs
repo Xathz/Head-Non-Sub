@@ -1,9 +1,5 @@
-﻿using System;
-using System.Globalization;
-using System.Threading.Tasks;
-using Discord;
+﻿using System.Threading.Tasks;
 using Discord.Commands;
-using Humanizer;
 using StreamlabsEntities = HeadNonSub.Entities.Streamlabs.v6.Tip;
 
 namespace HeadNonSub.Clients.Discord.Commands.Exclamation {

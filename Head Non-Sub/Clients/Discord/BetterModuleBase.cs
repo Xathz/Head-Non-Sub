@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using HeadNonSub.Extensions;
 using HeadNonSub.Statistics;
@@ -84,7 +85,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
         public async Task<IUserMessage> BetterReplyAsync(string message, string parameters = "", [CallerMemberName] string command = "") {
-            IUserMessage sentMessage = await Context.Channel.SendMessageAsync(message, false, null, null).ConfigureAwait(false);
+            RestUserMessage sentMessage = await Context.Channel.SendMessageAsync(message, false, null, null).ConfigureAwait(false);
 
             if (!Context.IsPrivate) {
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
@@ -101,7 +102,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
         public async Task<IUserMessage> BetterReplyAsync(Embed embed, string parameters = "", [CallerMemberName] string command = "") {
-            IUserMessage sentMessage = await Context.Channel.SendMessageAsync(null, false, embed, null).ConfigureAwait(false);
+            RestUserMessage sentMessage = await Context.Channel.SendMessageAsync(null, false, embed, null).ConfigureAwait(false);
 
             if (!Context.IsPrivate) {
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
@@ -119,7 +120,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
         public async Task<IUserMessage> BetterReplyAsync(string message, Embed embed, string parameters = "", [CallerMemberName] string command = "") {
-            IUserMessage sentMessage = await Context.Channel.SendMessageAsync(message, false, embed, null).ConfigureAwait(false);
+            RestUserMessage sentMessage = await Context.Channel.SendMessageAsync(message, false, embed, null).ConfigureAwait(false);
 
             if (!Context.IsPrivate) {
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
@@ -138,7 +139,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
         public async Task<IUserMessage> BetterSendFileAsync(Stream stream, string fileName, string message, string parameters = "", [CallerMemberName] string command = "") {
-            IUserMessage sentMessage = await Context.Message.Channel.SendFileAsync(stream, fileName, message).ConfigureAwait(false);
+            RestUserMessage sentMessage = await Context.Message.Channel.SendFileAsync(stream, fileName, message).ConfigureAwait(false);
 
             if (!Context.IsPrivate) {
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
@@ -156,7 +157,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
         public async Task<IUserMessage> BetterSendFileAsync(string filePath, string message, string parameters = "", [CallerMemberName] string command = "") {
-            IUserMessage sentMessage = await Context.Message.Channel.SendFileAsync(filePath, message).ConfigureAwait(false);
+            RestUserMessage sentMessage = await Context.Message.Channel.SendFileAsync(filePath, message).ConfigureAwait(false);
 
             if (!Context.IsPrivate) {
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,

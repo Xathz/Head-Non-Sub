@@ -21,12 +21,15 @@ namespace HeadNonSub {
         /// </summary>
         private static IOptions<Configuration> _ConfigurationOptions;
 
+        private static readonly JsonSerializerOptions _JsonSerializerOptions = new JsonSerializerOptions {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
         /// <summary>
         /// Set the configuration options (called during startup from DI container).
         /// </summary>
-        public static void SetConfigurationOptions(IOptions<Configuration> configurationOptions) {
-            _ConfigurationOptions = configurationOptions;
-        }
+        public static void SetConfigurationOptions(IOptions<Configuration> configurationOptions) => _ConfigurationOptions = configurationOptions;
 
         /// <summary>
         /// Get the current configuration, preferring injected options over static SettingsManager.
@@ -122,11 +125,7 @@ namespace HeadNonSub {
         /// <param name="json">Json to deserialize.</param>
         public static T DeserializeJson<T>(string json) {
             try {
-                JsonSerializerOptions options = new JsonSerializerOptions {
-                    PropertyNameCaseInsensitive = true,
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
-                return JsonSerializer.Deserialize<T>(json, options);
+                return JsonSerializer.Deserialize<T>(json, _JsonSerializerOptions);
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
                 return default;

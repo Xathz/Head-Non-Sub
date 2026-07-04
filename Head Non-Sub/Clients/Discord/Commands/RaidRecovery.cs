@@ -196,7 +196,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 .Select(x => x.Key)
                 .Distinct();
 
-            if (usersToBan.Count() > 0) {
+            if (usersToBan.Any()) {
                 RaidRecoveryTracker.AddUsersToBan(Context.Channel.Id, usersToBan.Select(x => x.Id).ToHashSet());
 
                 StringBuilder builder = new StringBuilder();
@@ -258,7 +258,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 .Where(x => IsSuspected(x))
                 .Distinct();
 
-            if (usersToBan.Count() > 0) {
+            if (usersToBan.Any()) {
                 StringBuilder builder = new StringBuilder();
                 builder.AppendLine($"The following {usersToBan.Count()} users are being banned...");
 
@@ -292,7 +292,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     }
                 });
 
-                if (channelMessages.Count > 0) {
+                if (!channelMessages.IsEmpty) {
                     IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(channelMessages.OrderBy(x => x.CreatedAt).FirstOrDefault(), Direction.Before, 1000).Flatten();
                     await foreach (IMessage x in messages) {
                         if (!channelMessages.Any(m => m.Id == x.Id)) {
@@ -337,12 +337,12 @@ namespace HeadNonSub.Clients.Discord.Commands {
         }
 
         private static Embed LoadingEmbed(string message, string description = "") {
-            EmbedBuilder builder = new EmbedBuilder() {
+            EmbedBuilder builder = new EmbedBuilder {
                 Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                 Title = $"{message}...",
-                ThumbnailUrl = Constants.LoadingGifUrl
+                ThumbnailUrl = Constants.LoadingGifUrl,
+                Description = (string.IsNullOrWhiteSpace(description) ? null : description)
             };
-            builder.Description = (string.IsNullOrWhiteSpace(description) ? null : description);
 
             return builder.Build();
         }

@@ -52,7 +52,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             await Context.Message.DeleteAsync();
 
             string filename = clean.Truncate(40).ToLower();
-            if (filename.EndsWith("_")) { filename = filename.Remove(filename.Length - 1, 1); }
+            if (filename.EndsWith('_')) { filename = filename.Remove(filename.Length - 1, 1); }
 
             using MemoryStream oggFile = await GenerateAsync(clean, voice);
             if (oggFile is MemoryStream) {

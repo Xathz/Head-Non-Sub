@@ -20,9 +20,7 @@ namespace HeadNonSub.Settings {
         /// <summary>
         /// Set the service provider for DI access (called during startup).
         /// </summary>
-        public static void SetServiceProvider(IServiceProvider serviceProvider) {
-            _ServiceProvider = serviceProvider;
-        }
+        public static void SetServiceProvider(IServiceProvider serviceProvider) => _ServiceProvider = serviceProvider;
 
         /// <summary>
         /// Get the configuration from IOptions pattern if available, otherwise from static instance.
@@ -70,11 +68,8 @@ namespace HeadNonSub.Settings {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
 
-            Configuration = JsonSerializer.Deserialize<Configuration>(File.ReadAllText(settingsFile), options);
-
-            if (Configuration == null) {
-                throw new ArgumentNullException("The configuration was null after deserialization");
-            }
+            Configuration = JsonSerializer.Deserialize<Configuration>(File.ReadAllText(settingsFile), options)
+                ?? throw new ArgumentNullException("Configuration", "The configuration was null after deserialization");
         }
 
         /// <summary>

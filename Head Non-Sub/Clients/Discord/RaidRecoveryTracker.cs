@@ -76,8 +76,8 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="channel">Channel id.</param>
         /// <param name="users">List of users to ban.</param>
         public static void AddUsersToBan(ulong channel, HashSet<ulong> users) {
-            if (_ActiveRaids.ContainsKey(channel)) {
-                _ActiveRaids[channel].UsersToBan.UnionWith(users);
+            if (_ActiveRaids.TryGetValue(channel, out ActiveRaid value)) {
+                value.UsersToBan.UnionWith(users);
             }
         }
 
@@ -99,8 +99,8 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="channel">Channel id.</param>
         /// <param name="user">User id to remove from users to ban.</param>
         public static bool SkipUserToBan(ulong channel, ulong user) {
-            if (_ActiveRaids.ContainsKey(channel)) {
-                return _ActiveRaids[channel].UsersToBan.Remove(user);
+            if (_ActiveRaids.TryGetValue(channel, out ActiveRaid value)) {
+                return value.UsersToBan.Remove(user);
             } else {
                 return false;
             }

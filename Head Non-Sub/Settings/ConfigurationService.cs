@@ -7,17 +7,13 @@ namespace HeadNonSub.Settings {
     /// </summary>
     public class ConfigurationService : IConfigurationService {
 
-        private readonly IOptions<Configuration> _Options;
-
-        public ConfigurationService(IOptions<Configuration> options) {
-            _Options = options;
-        }
+        public ConfigurationService(IOptions<Configuration> options) => Options = options;
 
         /// <inheritdoc />
-        public IOptions<Configuration> Options => _Options;
+        public IOptions<Configuration> Options { get; }
 
         /// <inheritdoc />
-        public Configuration Value => _Options.Value;
+        public Configuration Value => Options.Value;
 
     }
 

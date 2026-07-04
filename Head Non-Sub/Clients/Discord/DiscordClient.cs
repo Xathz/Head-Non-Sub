@@ -44,9 +44,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <summary>
         /// Set the configuration options (called during startup from DI container).
         /// </summary>
-        public static void SetConfigurationOptions(IOptions<Configuration> configurationOptions) {
-            _ConfigurationOptions = configurationOptions;
-        }
+        public static void SetConfigurationOptions(IOptions<Configuration> configurationOptions) => _ConfigurationOptions = configurationOptions;
 
         /// <summary>
         /// Get the current configuration, preferring injected options over static SettingsManager.

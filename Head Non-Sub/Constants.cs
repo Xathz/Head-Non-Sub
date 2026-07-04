@@ -95,7 +95,7 @@ namespace HeadNonSub {
         /// <summary>
         /// Current process id.
         /// </summary>
-        public static int ProcessId => Process.GetCurrentProcess().Id;
+        public static int ProcessId => System.Environment.ProcessId;
 
         /// <summary>
         /// Application version.
