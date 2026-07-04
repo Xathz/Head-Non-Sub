@@ -146,7 +146,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(Context.Message, Direction.Before, 10).Flatten().OrderByDescending(x => x.CreatedAt);
                 IEmote emote = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 451081265467359253);
                 if (emote is IEmote) {
-                    await foreach (var x in messages) {
+                    await foreach (IMessage x in messages) {
                         if (x is IUserMessage message) {
                             await message.AddReactionAsync(emote);
                         }

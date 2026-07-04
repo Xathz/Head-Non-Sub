@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -16,6 +14,7 @@ using HeadNonSub.Settings;
 using HeadNonSub.Statistics;
 using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace HeadNonSub.Clients.Discord {
 
@@ -35,7 +34,29 @@ namespace HeadNonSub.Clients.Discord {
         private static IServiceProvider _ExclamationProvider;
         private static readonly CommandService _ExclamationService = new CommandService(_ServiceConfig);
 
+        /// <summary>
+        /// Optional IOptions configuration provider (for dependency injection).
+        /// </summary>
+        private static IOptions<Configuration> _ConfigurationOptions;
+
         public static ulong? BongTrapMessageId = null;
+
+        /// <summary>
+        /// Set the configuration options (called during startup from DI container).
+        /// </summary>
+        public static void SetConfigurationOptions(IOptions<Configuration> configurationOptions) {
+            _ConfigurationOptions = configurationOptions;
+        }
+
+        /// <summary>
+        /// Get the current configuration, preferring injected options over static SettingsManager.
+        /// </summary>
+        private static Configuration GetConfiguration() {
+            if (_ConfigurationOptions != null) {
+                return _ConfigurationOptions.Value;
+            }
+            return SettingsManager.Configuration;
+        }
 
         public static async Task ConnectAsync() {
             _DiscordConfig = new DiscordSocketConfig {
@@ -93,7 +114,7 @@ namespace HeadNonSub.Clients.Discord {
             await _ExclamationProvider.GetRequiredService<ExclamationCommands>().InitializeAsync();
             ExclamationCommandList = _ExclamationProvider.GetRequiredService<ExclamationCommands>().CommandList;
 
-            await _DiscordClient.LoginAsync(TokenType.Bot, SettingsManager.Configuration.DiscordToken);
+            await _DiscordClient.LoginAsync(TokenType.Bot, GetConfiguration().DiscordToken);
             await _DiscordClient.StartAsync();
         }
 
@@ -206,11 +227,11 @@ namespace HeadNonSub.Clients.Discord {
 
         private static async Task Connected() {
             try {
-                await _DiscordClient.CurrentUser.ModifyAsync(x => x.Username = SettingsManager.Configuration.BotNickname);
-                LoggingManager.Log.Info($"Changed the bot nickname to: {SettingsManager.Configuration.BotNickname}");
+                await _DiscordClient.CurrentUser.ModifyAsync(x => x.Username = GetConfiguration().BotNickname);
+                LoggingManager.Log.Info($"Changed the bot nickname to: {GetConfiguration().BotNickname}");
 
-                await _DiscordClient.SetGameAsync(SettingsManager.Configuration.BotPlaying);
-                LoggingManager.Log.Info($"Changed the bot 'now playing' status to: {SettingsManager.Configuration.BotPlaying}");
+                await _DiscordClient.SetGameAsync(GetConfiguration().BotPlaying);
+                LoggingManager.Log.Info($"Changed the bot 'now playing' status to: {GetConfiguration().BotPlaying}");
 
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);

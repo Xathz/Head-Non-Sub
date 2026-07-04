@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using HeadNonSub.Clients.Discord;
@@ -9,12 +10,15 @@ using HeadNonSub.Statistics;
 using Humanizer.Configuration;
 using Humanizer.DateTimeHumanizeStrategy;
 using ImageMagick;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace HeadNonSub {
 
     class Program {
 
         private readonly DateTime _Started = DateTime.Now;
+        private readonly IServiceProvider _ServiceProvider;
 
         static void Main() => new Program().StartAsync().GetAwaiter().GetResult();
 
@@ -22,15 +26,7 @@ namespace HeadNonSub {
             CreatePIDFile();
             Console.Title = Constants.ApplicationName;
 
-            ConsoleColor originalColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"===================================");
-            Console.WriteLine($"======= {Constants.ApplicationName} v{Constants.ApplicationVersion} =======");
-            Console.WriteLine("===   https://github.com/Xathz  ===");
-            Console.WriteLine($"===================================");
-            Console.ForegroundColor = originalColor;
-
-            Console.WriteLine();
+            PrintBanner();
 
             Directory.CreateDirectory(Constants.WorkingDirectory);
             Directory.CreateDirectory(Constants.LogDirectory);
@@ -42,6 +38,30 @@ namespace HeadNonSub {
             LoggingManager.Initialize();
             SettingsManager.Load();
 
+            // Setup dependency injection container
+            ServiceCollection services = new ServiceCollection();
+            ConfigureServices(services);
+            _ServiceProvider = services.BuildServiceProvider();
+
+            // Pass configuration to static services that need it
+            IOptions<Configuration> configOptions = _ServiceProvider.GetRequiredService<IOptions<Configuration>>();
+            SettingsManager.SetServiceProvider(_ServiceProvider);
+            DiscordClient.SetConfigurationOptions(configOptions);
+            TwitchClient.SetConfigurationOptions(configOptions);
+            Backblaze.SetConfigurationOptions(configOptions);
+            Http.SetConfigurationOptions(configOptions);
+            Clients.Twitch.HostingMonitor.SetConfigurationOptions(configOptions);
+
+            // Validate configuration
+            Configuration configuration = configOptions.Value;
+            List<string> validationErrors = ConfigurationValidator.Validate(configuration);
+            if (validationErrors.Count > 0) {
+                foreach (string error in validationErrors) {
+                    LoggingManager.Log.Error(error);
+                }
+                throw new InvalidOperationException("Configuration validation failed");
+            }
+
             DatabaseManager.Load();
             StatisticsManager.Load();
 
@@ -50,6 +70,30 @@ namespace HeadNonSub {
             // Increase humanizer's precision 
             Configurator.DateTimeHumanizeStrategy = new PrecisionDateTimeHumanizeStrategy(precision: .95);
             Configurator.DateTimeOffsetHumanizeStrategy = new PrecisionDateTimeOffsetHumanizeStrategy(precision: .95);
+        }
+
+        /// <summary>
+        /// Configure dependency injection services.
+        /// </summary>
+        private void ConfigureServices(IServiceCollection services) {
+            // Register configuration as a singleton
+            services.AddSingleton<IOptions<Configuration>>(sp => {
+                return Options.Create(SettingsManager.Configuration);
+            });
+
+            // Register other services here as needed
+            LoggingManager.Log.Info("Services configured");
+        }
+
+        private void PrintBanner() {
+            ConsoleColor originalColor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"===================================");
+            Console.WriteLine($"======= {Constants.ApplicationName} v{Constants.ApplicationVersion} =======");
+            Console.WriteLine("===   https://github.com/Xathz  ===");
+            Console.WriteLine($"===================================");
+            Console.ForegroundColor = originalColor;
+            Console.WriteLine();
         }
 
         private async Task StartAsync() {

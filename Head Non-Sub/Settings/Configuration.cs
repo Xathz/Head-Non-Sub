@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace HeadNonSub.Settings {
 
@@ -17,6 +18,7 @@ namespace HeadNonSub.Settings {
         /// <summary>
         /// Discord api token.
         /// </summary>
+        [Required(ErrorMessage = "DiscordToken is required")]
         public string DiscordToken { get; set; } = string.Empty;
 
         /// <summary>
@@ -57,21 +59,25 @@ namespace HeadNonSub.Settings {
         /// <summary>
         /// MariaDB host.
         /// </summary>
+        [Required(ErrorMessage = "MariaDBHost is required")]
         public string MariaDBHost { get; set; } = string.Empty;
 
         /// <summary>
         /// MariaDB database.
         /// </summary>
+        [Required(ErrorMessage = "MariaDBDatabase is required")]
         public string MariaDBDatabase { get; set; } = string.Empty;
 
         /// <summary>
         /// MariaDB username.
         /// </summary>
+        [Required(ErrorMessage = "MariaDBUsername is required")]
         public string MariaDBUsername { get; set; } = string.Empty;
 
         /// <summary>
         /// MariaDB password.
         /// </summary>
+        [Required(ErrorMessage = "MariaDBPassword is required")]
         public string MariaDBPassword { get; set; } = string.Empty;
 
         /// <summary>

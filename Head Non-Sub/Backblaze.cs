@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using B2Net;
 using B2Net.Models;
 using HeadNonSub.Settings;
+using Microsoft.Extensions.Options;
 
 namespace HeadNonSub {
 
@@ -13,27 +14,65 @@ namespace HeadNonSub {
         /// <summary>
         /// Temporary files bucket. Files will be hidden after 7 days and deleted after 10.
         /// </summary>
-        private static readonly B2Client _TempBucketClient = new B2Client(new B2Options() {
-            ApplicationKey = SettingsManager.Configuration.BackblazeTempBucket.ApplicationKey,
-            KeyId = SettingsManager.Configuration.BackblazeTempBucket.KeyId,
-            BucketId = SettingsManager.Configuration.BackblazeTempBucket.BucketId,
-            PersistBucket = true
-        });
+        private static B2Client _TempBucketClient;
 
         /// <summary>
         /// Avatar files bucket.
         /// </summary>
-        private static readonly B2Client _AvatarBucketClient = new B2Client(new B2Options() {
-            ApplicationKey = SettingsManager.Configuration.BackblazeAvatarBucket.ApplicationKey,
-            KeyId = SettingsManager.Configuration.BackblazeAvatarBucket.KeyId,
-            BucketId = SettingsManager.Configuration.BackblazeAvatarBucket.BucketId,
-            PersistBucket = true
-        });
+        private static B2Client _AvatarBucketClient;
+
+        /// <summary>
+        /// Optional IOptions configuration provider (for dependency injection).
+        /// </summary>
+        private static IOptions<Configuration> _ConfigurationOptions;
+
+        /// <summary>
+        /// Set the configuration options (called during startup from DI container).
+        /// </summary>
+        public static void SetConfigurationOptions(IOptions<Configuration> configurationOptions) {
+            _ConfigurationOptions = configurationOptions;
+        }
+
+        /// <summary>
+        /// Get the current configuration, preferring injected options over static SettingsManager.
+        /// </summary>
+        private static Configuration GetConfiguration() {
+            if (_ConfigurationOptions != null) {
+                return _ConfigurationOptions.Value;
+            }
+            return SettingsManager.Configuration;
+        }
+
+        /// <summary>
+        /// Initialize the Backblaze clients (called once at startup).
+        /// </summary>
+        private static void InitializeClients() {
+            if (_TempBucketClient != null) {
+                return; // Already initialized
+            }
+
+            Configuration config = GetConfiguration();
+
+            _TempBucketClient = new B2Client(new B2Options() {
+                ApplicationKey = config.BackblazeTempBucket.ApplicationKey,
+                KeyId = config.BackblazeTempBucket.KeyId,
+                BucketId = config.BackblazeTempBucket.BucketId,
+                PersistBucket = true
+            });
+
+            _AvatarBucketClient = new B2Client(new B2Options() {
+                ApplicationKey = config.BackblazeAvatarBucket.ApplicationKey,
+                KeyId = config.BackblazeAvatarBucket.KeyId,
+                BucketId = config.BackblazeAvatarBucket.BucketId,
+                PersistBucket = true
+            });
+        }
 
         /// <summary>
         /// Authorize with the Backblaze api.
         /// </summary>
         public static async Task Authorize() {
+            InitializeClients();
             await _TempBucketClient.Authorize();
             await _AvatarBucketClient.Authorize();
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Timers;
 using HeadNonSub.Settings;
+using Microsoft.Extensions.Options;
 using TwitchEntities = HeadNonSub.Entities.Twitch;
 
 namespace HeadNonSub.Clients.Twitch {
@@ -13,6 +14,28 @@ namespace HeadNonSub.Clients.Twitch {
         private const int _MaxCount = 25;
         private static volatile int _Count = 0;
 
+        /// <summary>
+        /// Optional IOptions configuration provider (for dependency injection).
+        /// </summary>
+        private static IOptions<Configuration> _ConfigurationOptions;
+
+        /// <summary>
+        /// Set the configuration options (called during startup from DI container).
+        /// </summary>
+        public static void SetConfigurationOptions(IOptions<Configuration> configurationOptions) {
+            _ConfigurationOptions = configurationOptions;
+        }
+
+        /// <summary>
+        /// Get the current configuration, preferring injected options over static SettingsManager.
+        /// </summary>
+        private static Configuration GetConfiguration() {
+            if (_ConfigurationOptions != null) {
+                return _ConfigurationOptions.Value;
+            }
+            return SettingsManager.Configuration;
+        }
+
         public static void StartMonitor() {
             _Timer = new Timer();
             _Stop = false;
@@ -24,7 +47,7 @@ namespace HeadNonSub.Clients.Twitch {
 
             _Timer.Start();
 
-            LoggingManager.Log.Info($"Started monitor for: {SettingsManager.Configuration.TwitchStream.DisplayName}");
+            LoggingManager.Log.Info($"Started monitor for: {GetConfiguration().TwitchStream.DisplayName}");
         }
 
         public static void StopMonitor() {
@@ -33,27 +56,27 @@ namespace HeadNonSub.Clients.Twitch {
                 _Timer.Stop();
             }
 
-            LoggingManager.Log.Info($"Stopped monitor for: {SettingsManager.Configuration.TwitchStream.DisplayName}");
+            LoggingManager.Log.Info($"Stopped monitor for: {GetConfiguration().TwitchStream.DisplayName}");
         }
 
         private static async void Check(object sender, ElapsedEventArgs elapsed) {
             if (!_Stop) {
                 if (_Count >= _MaxCount) {
-                    LoggingManager.Log.Info($"Check max count reached, stopping monitor for: {SettingsManager.Configuration.TwitchStream.DisplayName}");
+                    LoggingManager.Log.Info($"Check max count reached, stopping monitor for: {GetConfiguration().TwitchStream.DisplayName}");
                     StopMonitor();
                     return;
                 }
 
                 try {
-                    string hostsJson = await Http.SendRequestAsync($"https://tmi.twitch.tv/hosts?include_logins=1&host={SettingsManager.Configuration.TwitchStream.UserId}");
+                    string hostsJson = await Http.SendRequestAsync($"https://tmi.twitch.tv/hosts?include_logins=1&host={GetConfiguration().TwitchStream.UserId}");
                     TwitchEntities.HostsResponse hostsResponse = Http.DeserializeJson<TwitchEntities.HostsResponse>(hostsJson);
 
                     if (hostsResponse.Hosts.Count > 0 && !string.IsNullOrEmpty(hostsResponse.Hosts[0].TargetDisplayName)) {
                         string host = hostsResponse.Hosts[0].TargetDisplayName;
 
-                        await Discord.DiscordClient.TwitchChannelChange(SettingsManager.Configuration.TwitchStream.DiscordChannel, $"https://www.twitch.tv/{host}", null, $"{SettingsManager.Configuration.TwitchStream.DisplayName} is hosting {host}", null);
+                        await Discord.DiscordClient.TwitchChannelChange(GetConfiguration().TwitchStream.DiscordChannel, $"https://www.twitch.tv/{host}", null, $"{GetConfiguration().TwitchStream.DisplayName} is hosting {host}", null);
 
-                        LoggingManager.Log.Info($"Now hosting {host}, stopping monitor for: {SettingsManager.Configuration.TwitchStream.DisplayName}");
+                        LoggingManager.Log.Info($"Now hosting {host}, stopping monitor for: {GetConfiguration().TwitchStream.DisplayName}");
                         StopMonitor();
                         return;
                     }

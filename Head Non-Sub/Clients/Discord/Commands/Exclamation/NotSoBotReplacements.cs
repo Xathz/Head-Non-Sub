@@ -18,6 +18,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     [RequireContext(ContextType.Guild)]
     public class NotSoBotReplacements : BetterModuleBase {
 
+        private static readonly char[] _TrimChars = new char[] { '0' };
+
         [Command("names")]
         public async Task NameChanges(SocketUser user = null) {
             if (user == null) {
@@ -199,7 +201,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 } else {
                     List<string> hex = new List<string>();
                     foreach (int character in item.Emoji.GetUnicodeCodePoints()) {
-                        hex.Add(character.ToString("x4").TrimStart(new char[] { '0' }));
+                        hex.Add(character.ToString("x4").TrimStart(_TrimChars));
                     }
 
                     string fullHex = string.Join("-", hex);

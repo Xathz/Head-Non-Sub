@@ -44,7 +44,7 @@ namespace HeadNonSub.Clients.Discord.Services {
                     Id = guildRole.Id,
                     Name = guildRole.Name,
                     Created = guildRole.CreatedAt.UtcDateTime,
-                    Color = guildRole.Color.RawValue == 0 ? "#ffffff" : guildRole.Color.ToString(),
+                    Color = guildRole.Color.RawValue == 0 ? "#ffffff" : guildRole.Colors.PrimaryColor.ToString(),
                     Mentionable = guildRole.IsMentionable,
                     Hoisted = guildRole.IsHoisted
                 };

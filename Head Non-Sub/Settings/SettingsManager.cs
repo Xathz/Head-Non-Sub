@@ -13,6 +13,35 @@ namespace HeadNonSub.Settings {
         public static Configuration Configuration = new Configuration();
 
         /// <summary>
+        /// Optional service provider for accessing IOptions-based configuration.
+        /// </summary>
+        private static IServiceProvider _ServiceProvider;
+
+        /// <summary>
+        /// Set the service provider for DI access (called during startup).
+        /// </summary>
+        public static void SetServiceProvider(IServiceProvider serviceProvider) {
+            _ServiceProvider = serviceProvider;
+        }
+
+        /// <summary>
+        /// Get the configuration from IOptions pattern if available, otherwise from static instance.
+        /// </summary>
+        public static Configuration GetConfiguration() {
+            if (_ServiceProvider != null) {
+                try {
+                    object optionsFactory = _ServiceProvider.GetService(typeof(Microsoft.Extensions.Options.IOptionsFactory<Configuration>));
+                    if (optionsFactory is Microsoft.Extensions.Options.IOptionsFactory<Configuration> factory) {
+                        return factory.Create(Microsoft.Extensions.Options.Options.DefaultName);
+                    }
+                } catch {
+                    // Fall back to static configuration
+                }
+            }
+            return Configuration;
+        }
+
+        /// <summary>
         /// Load settings from the disk at <see cref="Constants.SettingsFile" />.
         /// </summary>
         public static void Load() {
@@ -36,7 +65,7 @@ namespace HeadNonSub.Settings {
         }
 
         private static void LoadJSON(string settingsFile) {
-            var options = new JsonSerializerOptions {
+            JsonSerializerOptions options = new JsonSerializerOptions {
                 PropertyNameCaseInsensitive = true,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
@@ -55,7 +84,7 @@ namespace HeadNonSub.Settings {
             string tempFile = $"{Constants.SettingsFile}.temp";
 
             try {
-                var options = new JsonSerializerOptions {
+                JsonSerializerOptions options = new JsonSerializerOptions {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     WriteIndented = true,
                     DefaultIgnoreCondition = JsonIgnoreCondition.Never

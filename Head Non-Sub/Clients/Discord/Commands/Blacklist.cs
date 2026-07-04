@@ -14,6 +14,11 @@ namespace HeadNonSub.Clients.Discord.Commands {
     [RequireContext(ContextType.Guild)]
     public class Blacklist : BetterModuleBase {
 
+        /// <summary>
+        /// Get the current configuration (for commands that modify/read config).
+        /// </summary>
+        protected Configuration GetConfiguration() => SettingsManager.Configuration;
+
         [Command("add")]
         public async Task BlacklistAdd(SocketGuildUser user = null) {
             if (user == null) {
@@ -26,13 +31,13 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 return;
             }
 
-            if (SettingsManager.Configuration.DiscordBlacklist.Any(x => x.Key == Context.Guild.Id && x.Value.Contains(user.Id))) {
+            if (GetConfiguration().DiscordBlacklist.Any(x => x.Key == Context.Guild.Id && x.Value.Contains(user.Id))) {
                 await BetterReplyAsync($"{BetterUserFormat(user)} is already blacklisted.", parameters: $"{user} ({user.Id})");
             } else {
-                if (SettingsManager.Configuration.DiscordBlacklist.ContainsKey(Context.Guild.Id)) {
-                    SettingsManager.Configuration.DiscordBlacklist[Context.Guild.Id].Add(user.Id);
+                if (GetConfiguration().DiscordBlacklist.ContainsKey(Context.Guild.Id)) {
+                    GetConfiguration().DiscordBlacklist[Context.Guild.Id].Add(user.Id);
                 } else {
-                    SettingsManager.Configuration.DiscordBlacklist.Add(Context.Guild.Id, new HashSet<ulong>() { user.Id });
+                    GetConfiguration().DiscordBlacklist.Add(Context.Guild.Id, new HashSet<ulong>() { user.Id });
                 }
 
                 SettingsManager.Save();
@@ -50,8 +55,8 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 return;
             }
 
-            if (SettingsManager.Configuration.DiscordBlacklist.Any(x => x.Key == Context.Guild.Id && x.Value.Contains(user.Id))) {
-                SettingsManager.Configuration.DiscordBlacklist[Context.Guild.Id].Remove(user.Id);
+            if (GetConfiguration().DiscordBlacklist.Any(x => x.Key == Context.Guild.Id && x.Value.Contains(user.Id))) {
+                GetConfiguration().DiscordBlacklist[Context.Guild.Id].Remove(user.Id);
 
                 SettingsManager.Save();
                 LoggingManager.Log.Info($"{user} ({user.Id}) was removed from the blacklist by {Context.User} ({Context.User.Id})");
@@ -65,7 +70,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [Command("list")]
         public Task BlacklistList() {
-            IEnumerable<ulong> userIds = SettingsManager.Configuration.DiscordBlacklist.Where(x => x.Key == Context.Guild.Id).SelectMany(x => x.Value);
+            IEnumerable<ulong> userIds = GetConfiguration().DiscordBlacklist.Where(x => x.Key == Context.Guild.Id).SelectMany(x => x.Value);
 
             if (userIds.Count() > 0) {
                 IEnumerable<SocketGuildUser> users = Context.Guild.Users.Where(x => userIds.Contains(x.Id));

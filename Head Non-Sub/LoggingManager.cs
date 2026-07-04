@@ -132,7 +132,8 @@ namespace HeadNonSub {
         private static LogFactory _DatabaseFactoryNLog;
 
         private static void InitializeDatabaseFactory() {
-            LoggingConfiguration factoryConfiguration = new LoggingConfiguration();
+            _DatabaseFactoryNLog = new LogFactory();
+            LoggingConfiguration factoryConfiguration = new LoggingConfiguration(_DatabaseFactoryNLog);
 
             // All messages from Trace to Warn levels write to the general file
             FileTarget fileTarget_DatabaseGeneral = new FileTarget() {
@@ -167,7 +168,6 @@ namespace HeadNonSub {
             factoryConfiguration.AddTarget(fileTarget_DatabaseError);
             factoryConfiguration.AddRule(LogLevel.Error, LogLevel.Fatal, $"{Constants.ApplicationNameFormatted}Database");
 
-            _DatabaseFactoryNLog = new LogFactory(factoryConfiguration);
             NLogLoggerProvider loggerProvider = new NLogLoggerProvider(new NLogProviderOptions(), _DatabaseFactoryNLog);
 
             DatabaseFactory = new MSLogging.LoggerFactory(new[] { loggerProvider });

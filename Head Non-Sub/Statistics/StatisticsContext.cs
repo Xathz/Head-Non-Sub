@@ -2,21 +2,28 @@
 using HeadNonSub.Settings;
 using HeadNonSub.Statistics.Tables;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace HeadNonSub.Statistics {
 
     public class StatisticsContext : DbContext {
 
+        private Configuration _Configuration;
+
         public DbSet<Command> Commands { get; set; }
 
         public DbSet<UserChange> UserChanges { get; set; }
 
+        public StatisticsContext(IOptions<Configuration> configurationOptions = null) {
+            _Configuration = configurationOptions?.Value ?? SettingsManager.Configuration;
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             try {
-                string connectionString = $"Server={SettingsManager.Configuration.MariaDBHost};" +
-                    $"Database={SettingsManager.Configuration.MariaDBDatabase};" +
-                    $"Uid={SettingsManager.Configuration.MariaDBUsername};" +
-                    $"Pwd={SettingsManager.Configuration.MariaDBPassword};";
+                string connectionString = $"Server={_Configuration.MariaDBHost};" +
+                    $"Database={_Configuration.MariaDBDatabase};" +
+                    $"Uid={_Configuration.MariaDBUsername};" +
+                    $"Pwd={_Configuration.MariaDBPassword};";
 
                 optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 

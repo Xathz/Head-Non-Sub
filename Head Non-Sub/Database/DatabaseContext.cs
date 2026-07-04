@@ -2,10 +2,13 @@
 using HeadNonSub.Database.Tables;
 using HeadNonSub.Settings;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace HeadNonSub.Database {
 
     public class DatabaseContext : DbContext {
+
+        private readonly Configuration _Configuration;
 
         public DbSet<ActiveStream> ActiveStreams { get; set; }
 
@@ -13,12 +16,19 @@ namespace HeadNonSub.Database {
 
         public DbSet<UserNote> UserNotes { get; set; }
 
+        /// <summary>
+        /// Constructor with optional configuration injection.
+        /// </summary>
+        public DatabaseContext(IOptions<Configuration> configurationOptions = null) {
+            _Configuration = configurationOptions?.Value ?? SettingsManager.Configuration;
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             try {
-                string connectionString = $"Server={SettingsManager.Configuration.MariaDBHost};" +
-                    $"Database={SettingsManager.Configuration.MariaDBDatabase};" +
-                    $"Uid={SettingsManager.Configuration.MariaDBUsername};" +
-                    $"Pwd={SettingsManager.Configuration.MariaDBPassword};";
+                string connectionString = $"Server={_Configuration.MariaDBHost};" +
+                    $"Database={_Configuration.MariaDBDatabase};" +
+                    $"Uid={_Configuration.MariaDBUsername};" +
+                    $"Pwd={_Configuration.MariaDBPassword};";
 
                 optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 

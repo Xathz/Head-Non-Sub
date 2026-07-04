@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HeadNonSub.Database;
 using HeadNonSub.Exceptions;
 using HeadNonSub.Settings;
 using Humanizer;
+using Microsoft.Extensions.Options;
 using TwitchLib.Api;
 using TwitchLib.Api.Core;
 using TwitchLib.Api.Helix.Models.Users.GetUsers;
@@ -28,15 +29,37 @@ namespace HeadNonSub.Clients.Twitch {
 
         private static LiveStreamMonitorService _StreamMonitor;
 
+        /// <summary>
+        /// Optional IOptions configuration provider (for dependency injection).
+        /// </summary>
+        private static IOptions<Configuration> _ConfigurationOptions;
+
         public static bool IsLive { private set; get; } = false;
+
+        /// <summary>
+        /// Set the configuration options (called during startup from DI container).
+        /// </summary>
+        public static void SetConfigurationOptions(IOptions<Configuration> configurationOptions) {
+            _ConfigurationOptions = configurationOptions;
+        }
+
+        /// <summary>
+        /// Get the current configuration, preferring injected options over static SettingsManager.
+        /// </summary>
+        private static Configuration GetConfiguration() {
+            if (_ConfigurationOptions != null) {
+                return _ConfigurationOptions.Value;
+            }
+            return GetConfiguration();
+        }
 
         public static async Task ConnectApiAsync() {
             try {
                 LoggingManager.Log.Info("Connecting");
 
                 _ApiSettings = new ApiSettings {
-                    ClientId = SettingsManager.Configuration.TwitchClientId,
-                    AccessToken = SettingsManager.Configuration.TwitchToken
+                    ClientId = GetConfiguration().TwitchClientId,
+                    AccessToken = GetConfiguration().TwitchToken
                 };
 
                 _TwitchApi = new TwitchAPI(settings: _ApiSettings);
@@ -44,15 +67,15 @@ namespace HeadNonSub.Clients.Twitch {
                 LoggingManager.Log.Info("Connected");
 
                 bool wasRefreshed = false;
-                RefreshTokenResponse refresh = _TwitchApi.ThirdParty.AuthorizationFlow.RefreshToken(SettingsManager.Configuration.TwitchRefresh);
+                RefreshTokenResponse refresh = _TwitchApi.ThirdParty.AuthorizationFlow.RefreshToken(GetConfiguration().TwitchRefresh);
 
                 if (!string.IsNullOrEmpty(refresh.Refresh)) {
-                    SettingsManager.Configuration.TwitchRefresh = refresh.Refresh;
+                    GetConfiguration().TwitchRefresh = refresh.Refresh;
                     wasRefreshed = true;
                 }
 
                 if (!string.IsNullOrEmpty(refresh.Token)) {
-                    SettingsManager.Configuration.TwitchToken = refresh.Token;
+                    GetConfiguration().TwitchToken = refresh.Token;
                     wasRefreshed = true;
                 }
 
@@ -86,13 +109,13 @@ namespace HeadNonSub.Clients.Twitch {
             try {
                 LoggingManager.Log.Info("Connecting");
 
-                _ConnectionCredentials = new ConnectionCredentials(SettingsManager.Configuration.TwitchUsername, SettingsManager.Configuration.TwitchToken);
+                _ConnectionCredentials = new ConnectionCredentials(GetConfiguration().TwitchUsername, GetConfiguration().TwitchToken);
 
                 _TwitchClient = new Client.TwitchClient {
                     AutoReListenOnException = true
                 };
 
-                _TwitchClient.Initialize(_ConnectionCredentials, SettingsManager.Configuration.TwitchStream.Username);
+                _TwitchClient.Initialize(_ConnectionCredentials, GetConfiguration().TwitchStream.Username);
 
                 _TwitchClient.Connect();
 
@@ -114,39 +137,39 @@ namespace HeadNonSub.Clients.Twitch {
         }
 
         private static async Task<bool> CompleteTwitchStreamSettingsAsync() {
-            if (string.IsNullOrWhiteSpace(SettingsManager.Configuration.TwitchStream.UserId) & string.IsNullOrWhiteSpace(SettingsManager.Configuration.TwitchStream.DisplayName)) {
+            if (string.IsNullOrWhiteSpace(GetConfiguration().TwitchStream.UserId) & string.IsNullOrWhiteSpace(GetConfiguration().TwitchStream.DisplayName)) {
                 LoggingManager.Log.Error("Both the Twitch stream user id and display name are empty.");
                 return false;
             }
 
-            if (SettingsManager.Configuration.TwitchStream.DiscordChannel == 0) {
+            if (GetConfiguration().TwitchStream.DiscordChannel == 0) {
                 LoggingManager.Log.Error("The Discord channel is not set.");
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(SettingsManager.Configuration.TwitchStream.UserId)) {
+            if (string.IsNullOrWhiteSpace(GetConfiguration().TwitchStream.UserId)) {
                 try {
-                    GetUsersResponse result = await _TwitchApi.Helix.Users.GetUsersAsync(logins: SettingsManager.Configuration.TwitchStream.UsernameAsList);
+                    GetUsersResponse result = await _TwitchApi.Helix.Users.GetUsersAsync(logins: GetConfiguration().TwitchStream.UsernameAsList);
 
                     if (result.Users.Length > 0) {
-                        SettingsManager.Configuration.TwitchStream.UserId = result.Users[0].Id;
+                        GetConfiguration().TwitchStream.UserId = result.Users[0].Id;
                     }
 
-                    LoggingManager.Log.Info($"Retrieved user id for username: {SettingsManager.Configuration.TwitchStream.Username}");
+                    LoggingManager.Log.Info($"Retrieved user id for username: {GetConfiguration().TwitchStream.Username}");
                     SettingsManager.Save();
 
                 } catch (Exception ex) {
                     LoggingManager.Log.Error(ex);
                 }
-            } else if (string.IsNullOrWhiteSpace(SettingsManager.Configuration.TwitchStream.DisplayName)) {
+            } else if (string.IsNullOrWhiteSpace(GetConfiguration().TwitchStream.DisplayName)) {
                 try {
-                    GetUsersResponse result = await _TwitchApi.Helix.Users.GetUsersAsync(ids: SettingsManager.Configuration.TwitchStream.UserIdAsList);
+                    GetUsersResponse result = await _TwitchApi.Helix.Users.GetUsersAsync(ids: GetConfiguration().TwitchStream.UserIdAsList);
 
                     if (result.Users.Length > 0) {
-                        SettingsManager.Configuration.TwitchStream.DisplayName = result.Users[0].DisplayName;
+                        GetConfiguration().TwitchStream.DisplayName = result.Users[0].DisplayName;
                     }
 
-                    LoggingManager.Log.Info($"Retrieved display name for user id: {SettingsManager.Configuration.TwitchStream.UserId}");
+                    LoggingManager.Log.Info($"Retrieved display name for user id: {GetConfiguration().TwitchStream.UserId}");
                     SettingsManager.Save();
 
                 } catch (Exception ex) {
@@ -160,14 +183,14 @@ namespace HeadNonSub.Clients.Twitch {
         private static void StartMonitor() {
             try {
                 _StreamMonitor = new LiveStreamMonitorService(_TwitchApi, 30);
-                _StreamMonitor.SetChannelsByName(SettingsManager.Configuration.TwitchStream.UsernameAsList);
+                _StreamMonitor.SetChannelsByName(GetConfiguration().TwitchStream.UsernameAsList);
 
                 _StreamMonitor.Start();
 
                 _StreamMonitor.OnStreamOnline += OnStreamOnline;
                 _StreamMonitor.OnStreamOffline += OnStreamOffline;
 
-                LoggingManager.Log.Info($"Stream monitoring is running for: {SettingsManager.Configuration.TwitchStream.DisplayName}");
+                LoggingManager.Log.Info($"Stream monitoring is running for: {GetConfiguration().TwitchStream.DisplayName}");
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
@@ -176,19 +199,19 @@ namespace HeadNonSub.Clients.Twitch {
         private static async void OnStreamOnline(object sender, OnStreamOnlineArgs streamOnline) {
             HostingMonitor.StopMonitor();
 
-            if (DatabaseManager.ActiveStreams.Insert(SettingsManager.Configuration.TwitchStream.Username)) {
+            if (DatabaseManager.ActiveStreams.Insert(GetConfiguration().TwitchStream.Username)) {
                 await Task.Delay(8000);
 
                 IsLive = true;
 
-                _ = Discord.DiscordClient.SetStatus($"Watching {SettingsManager.Configuration.TwitchStream.DisplayName}!", SettingsManager.Configuration.TwitchStream.Url);
-                _ = Discord.DiscordClient.TwitchChannelChange(SettingsManager.Configuration.TwitchStream.DiscordChannel, SettingsManager.Configuration.TwitchStream.Url, streamOnline.Stream.ThumbnailUrl, $"{SettingsManager.Configuration.TwitchStream.DisplayName} is live!", streamOnline.Stream.Title, true, true);
+                _ = Discord.DiscordClient.SetStatus($"Watching {GetConfiguration().TwitchStream.DisplayName}!", GetConfiguration().TwitchStream.Url);
+                _ = Discord.DiscordClient.TwitchChannelChange(GetConfiguration().TwitchStream.DiscordChannel, GetConfiguration().TwitchStream.Url, streamOnline.Stream.ThumbnailUrl, $"{GetConfiguration().TwitchStream.DisplayName} is live!", streamOnline.Stream.Title, true, true);
 
-                LoggingManager.Log.Info($"{SettingsManager.Configuration.TwitchStream.DisplayName} just went live");
+                LoggingManager.Log.Info($"{GetConfiguration().TwitchStream.DisplayName} just went live");
             } else {
-                _ = Discord.DiscordClient.SetStatus($"Watching {SettingsManager.Configuration.TwitchStream.DisplayName}!", SettingsManager.Configuration.TwitchStream.Url);
+                _ = Discord.DiscordClient.SetStatus($"Watching {GetConfiguration().TwitchStream.DisplayName}!", GetConfiguration().TwitchStream.Url);
 
-                LoggingManager.Log.Info($"{SettingsManager.Configuration.TwitchStream.DisplayName} is still live");
+                LoggingManager.Log.Info($"{GetConfiguration().TwitchStream.DisplayName} is still live");
             }
         }
 
@@ -197,13 +220,13 @@ namespace HeadNonSub.Clients.Twitch {
 
             IsLive = false;
 
-            DateTime? startedAt = DatabaseManager.ActiveStreams.Delete(SettingsManager.Configuration.TwitchStream.Username);
+            DateTime? startedAt = DatabaseManager.ActiveStreams.Delete(GetConfiguration().TwitchStream.Username);
             _ = Discord.DiscordClient.SetStatus();
 
             string duration = startedAt.HasValue ? $"They were live for {(DateTime.UtcNow - startedAt.Value).TotalMilliseconds.Milliseconds().Humanize(3)}{Environment.NewLine}" : "";
-            _ = Discord.DiscordClient.TwitchChannelChange(SettingsManager.Configuration.TwitchStream.DiscordChannel, SettingsManager.Configuration.TwitchStream.Url, null, $"{SettingsManager.Configuration.TwitchStream.DisplayName} is offline", $"{duration}Thanks for watching!");
+            _ = Discord.DiscordClient.TwitchChannelChange(GetConfiguration().TwitchStream.DiscordChannel, GetConfiguration().TwitchStream.Url, null, $"{GetConfiguration().TwitchStream.DisplayName} is offline", $"{duration}Thanks for watching!");
 
-            LoggingManager.Log.Info($"{SettingsManager.Configuration.TwitchStream.DisplayName} is offline");
+            LoggingManager.Log.Info($"{GetConfiguration().TwitchStream.DisplayName} is offline");
         }
 
         private static void OnConnected(object sender, Client.Events.OnConnectedArgs connected) => LoggingManager.Log.Info("Connected to Twitch");

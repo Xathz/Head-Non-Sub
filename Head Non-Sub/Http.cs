@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using HeadNonSub.Settings;
+using Microsoft.Extensions.Options;
 
 namespace HeadNonSub {
 
@@ -14,6 +15,28 @@ namespace HeadNonSub {
         /// Static http client.
         /// </summary>
         public static readonly HttpClient Client = new HttpClient();
+
+        /// <summary>
+        /// Optional IOptions configuration provider (for dependency injection).
+        /// </summary>
+        private static IOptions<Configuration> _ConfigurationOptions;
+
+        /// <summary>
+        /// Set the configuration options (called during startup from DI container).
+        /// </summary>
+        public static void SetConfigurationOptions(IOptions<Configuration> configurationOptions) {
+            _ConfigurationOptions = configurationOptions;
+        }
+
+        /// <summary>
+        /// Get the current configuration, preferring injected options over static SettingsManager.
+        /// </summary>
+        private static Configuration GetConfiguration() {
+            if (_ConfigurationOptions != null) {
+                return _ConfigurationOptions.Value;
+            }
+            return SettingsManager.Configuration;
+        }
 
         /// <summary>
         /// Send a http request.
@@ -81,7 +104,7 @@ namespace HeadNonSub {
         /// </summary>
         /// <param name="url">Url to shorten.</param>
         public static async Task<string> ShortenUrl(string url) {
-            Task<string> shortenRequest = SendRequestAsync(Constants.UrlShortener, parameters: new Dictionary<string, string> { { "key", SettingsManager.Configuration.UrlShortenerKey }, { "url", url } }, method: Method.Post);
+            Task<string> shortenRequest = SendRequestAsync(Constants.UrlShortener, parameters: new Dictionary<string, string> { { "key", GetConfiguration().UrlShortenerKey }, { "url", url } }, method: Method.Post);
             string shortenedUrl = await shortenRequest;
 
             if (shortenRequest.IsCompletedSuccessfully) {
@@ -99,7 +122,7 @@ namespace HeadNonSub {
         /// <param name="json">Json to deserialize.</param>
         public static T DeserializeJson<T>(string json) {
             try {
-                var options = new JsonSerializerOptions {
+                JsonSerializerOptions options = new JsonSerializerOptions {
                     PropertyNameCaseInsensitive = true,
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };

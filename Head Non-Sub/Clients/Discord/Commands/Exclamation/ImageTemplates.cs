@@ -22,11 +22,11 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         public async Task TTSays([Remainder] string input) {
             await Context.Channel.TriggerTypingAsync();
 
-            string imageName = "ttsays.png";
+            string imageName = "ttsays_old.png";
 
             // 5% chance to be tt
             if (new Random().Next(0, 100) >= 95) {
-                imageName = "ttsays_old.png";
+                imageName = "ttsays.png";
             }
 
             using MemoryStream stream = new MemoryStream(256);

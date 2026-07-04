@@ -253,7 +253,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
             StringBuilder builder = new StringBuilder();
 
             foreach (SocketRole role in roles) {
-                builder.AppendLine($"{role.Name.Truncate(16, "..."),16} {role.Id} {role.CreatedAt.DateTime.ToString(Constants.DateTimeFormatShort).ToLower()} utc {role.Color}");
+                builder.AppendLine($"{role.Name.Truncate(16, "..."),16} {role.Id} {role.CreatedAt.DateTime.ToString(Constants.DateTimeFormatShort).ToLower()} utc {role.Colors.PrimaryColor}");
             }
 
             List<string> chunks = builder.ToString().SplitIntoChunksPreserveNewLines(1950);
