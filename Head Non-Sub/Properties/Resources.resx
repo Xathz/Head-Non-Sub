@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="TLDs" xml:space="preserve">
-    <value># Version 2025042300, Last Updated Wed Apr 23 07:07:01 2025 UTC
+    <value># Version 2026062302, Last Updated Wed Jun 24 07:07:01 2026 UTC
 AAA
 AARP
 ABB
@@ -238,7 +238,6 @@ BE
 BEATS
 BEAUTY
 BEER
-BENTLEY
 BERLIN
 BEST
 BESTBUY
@@ -465,7 +464,6 @@ DOWNLOAD
 DRIVE
 DTV
 DUBAI
-DUNLOP
 DUPONT
 DURBAN
 DVAG
@@ -608,7 +606,6 @@ GODADDY
 GOLD
 GOLDPOINT
 GOLF
-GOO
 GOODYEAR
 GOOG
 GOOGLE
@@ -778,7 +775,6 @@ LA
 LACAIXA
 LAMBORGHINI
 LAMER
-LANCASTER
 LAND
 LANDROVER
 LANXESS
@@ -865,6 +861,7 @@ MEME
 MEMORIAL
 MEN
 MENU
+MERCK
 MERCKMSD
 MG
 MH
@@ -1034,7 +1031,6 @@ POLITIE
 PORN
 POST
 PR
-PRAMERICA
 PRAXI
 PRESS
 PRIME
@@ -1068,7 +1064,6 @@ REALTOR
 REALTY
 RECIPES
 RED
-REDSTONE
 REDUMBRELLA
 REHAB
 REISE
@@ -1375,7 +1370,6 @@ WINDOWS
 WINE
 WINNERS
 WME
-WOLTERSKLUWER
 WOODSIDE
 WORK
 WORKS
@@ -1562,7 +1556,7 @@ ZM
 ZONE
 ZUERICH
 ZW</value>
-    <comment>Version 2025042300, Last Updated Wed Apr 23 07:07:01 2025 UTC
+    <comment>Version 2026062302, Last Updated Wed Jun 24 07:07:01 2026 UTC
 https://data.iana.org/TLD/tlds-alpha-by-domain.txt</comment>
   </data>
 </root>

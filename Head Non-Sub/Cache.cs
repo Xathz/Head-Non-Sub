@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Caching;
 using System.Threading.Tasks;
 using HeadNonSub.Extensions;
 using HeadNonSub.Properties;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace HeadNonSub {
 
     public static class Cache {
 
-        private static readonly MemoryCache _Cache = MemoryCache.Default;
+        private static IMemoryCache _Cache = new MemoryCache(new MemoryCacheOptions());
+        private static HashSet<string> _CacheKeys = new HashSet<string>();
 
         public static IReadOnlyCollection<string> TLDs { get; private set; }
 
@@ -22,11 +23,15 @@ namespace HeadNonSub {
         /// <param name="item">Data for the cache entry.</param>
         /// <param name="expirationMin">Number of minutes the cache will live. If <see langword="null"/> it will never expire.</param>
         public static void Add(string key, object item, int? expirationMin = 5) {
+            _CacheKeys.Add(key);
             if (expirationMin.HasValue) {
-                _Cache.Add(key, item, DateTimeOffset.UtcNow.AddMinutes(expirationMin.Value));
+                MemoryCacheEntryOptions cacheOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(expirationMin.Value));
+
+                _Cache.Set(key, item, cacheOptions);
                 LoggingManager.Log.Debug($"Added '{key}' and will expire in {expirationMin} minute(s)");
             } else {
-                _Cache.Add(key, item, ObjectCache.InfiniteAbsoluteExpiration);
+                _Cache.Set(key, item);
                 LoggingManager.Log.Debug($"Added '{key}' and will never expire");
             }
         }
@@ -38,7 +43,7 @@ namespace HeadNonSub {
         /// <param name="item">Data for the cache entry.</param>
         /// <param name="expirationMin">Number of minutes the cache will live. If <see langword="null"/> it will never expire.</param>
         public static void AddOrUpdate(string key, object item, int? expirationMin = 5) {
-            bool wasUpdated = _Cache.Contains(key);
+            bool wasUpdated = _Cache.TryGetValue(key, out object _);
 
             Remove(key);
             Add(key, item, expirationMin);
@@ -53,8 +58,10 @@ namespace HeadNonSub {
         /// </summary>
         /// <param name="key">Unique identifier for the cache entry to update.</param>
         public static void Remove(string key) {
-            if (_Cache.Contains(key)) {
+            if (_Cache.TryGetValue(key, out object _)) {
                 _Cache.Remove(key);
+                _CacheKeys.Remove(key);
+
                 LoggingManager.Log.Debug($"Removed '{key}'");
             } else {
                 LoggingManager.Log.Debug($"Attempted to remove '{key}' but the key does not exist");
@@ -66,9 +73,10 @@ namespace HeadNonSub {
         /// </summary>
         /// <param name="key">Unique identifier for the cache entry to get.</param>
         public static object Get(string key) {
-            if (_Cache.Contains(key)) {
+            if (_Cache.TryGetValue(key, out object value)) {
                 LoggingManager.Log.Debug($"Retrieved '{key}'");
-                return _Cache.Get(key);
+
+                return value;
             } else {
                 LoggingManager.Log.Debug($"Attempted to retrieve '{key}' but the key does not exist");
                 return null;
@@ -78,27 +86,27 @@ namespace HeadNonSub {
         /// <summary>
         /// Get a comma separated list of all keys in the cache.
         /// </summary>
-        public static string ListKeys() => string.Join(", ", _Cache.Select(x => x.Key).ToList());
+        public static string ListKeys() => string.Join(", ", _CacheKeys.ToList());
 
         /// <summary>
         /// Get a entry from the cache as a <see cref="MemoryStream"/>.
         /// </summary>
         /// <param name="key">A unique identifier for the cache entry to get.</param>
         public static MemoryStream GetStream(string key) {
-            if (!_Cache.Contains(key)) {
+            if (!_Cache.TryGetValue(key, out object cachedValue)) {
                 return null;
             }
 
             MemoryStream memoryStream = new MemoryStream(256);
 
-            // Copy to a new stream becuase Discord will close this when used
-            MemoryStream fromCache = _Cache.Get(key) as MemoryStream;
+            // Copy to a new stream because Discord will close this when used
+            MemoryStream fromCache = cachedValue as MemoryStream;
             fromCache.CopyTo(memoryStream);
             memoryStream.Seek(0, SeekOrigin.Begin);
 
             // Reset position of the stream in the cache
             fromCache.Seek(0, SeekOrigin.Begin);
-            _Cache.Set(key, fromCache, ObjectCache.InfiniteAbsoluteExpiration);
+            _Cache.Set(key, fromCache);
 
             return memoryStream;
         }
@@ -126,13 +134,14 @@ namespace HeadNonSub {
                 }
 
                 memoryStream.Seek(0, SeekOrigin.Begin);
-                _Cache.Add(key, memoryStream, ObjectCache.InfiniteAbsoluteExpiration);
+                _CacheKeys.Add(key);
+                _Cache.Set(key, memoryStream);
             }
 
             // Download and parse top level domains
             await DownloadTLDsAsync();
 
-            LoggingManager.Log.Info($"Loaded {_Cache.GetCount()} items into cache");
+            LoggingManager.Log.Info($"Loaded {_CacheKeys.Count} items into cache");
         }
 
         private static async Task DownloadTLDsAsync() {
