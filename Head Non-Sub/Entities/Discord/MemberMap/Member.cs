@@ -1,30 +1,30 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.Discord.MemberMap {
 
     public class Member {
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
 
-        [JsonProperty("username")]
+        [JsonPropertyName("username")]
         public string Username { get; set; }
 
-        [JsonProperty("nickname")]
+        [JsonPropertyName("nickname")]
         public string Nickname { get; set; }
 
-        [JsonProperty("created")]
+        [JsonPropertyName("created")]
         public DateTime Created { get; set; }
 
-        [JsonProperty("joined")]
+        [JsonPropertyName("joined")]
         public DateTime? Joined { get; set; }
 
-        [JsonProperty("avatarUrl")]
+        [JsonPropertyName("avatarUrl")]
         public string AvatarUrl { get; set; }
 
-        [JsonProperty("roles")]
+        [JsonPropertyName("roles")]
         public List<Role> Roles { get; set; } = new List<Role>();
 
         public bool ShouldSerializeNickname() => !string.IsNullOrEmpty(Nickname);

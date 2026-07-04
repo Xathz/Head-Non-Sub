@@ -106,13 +106,17 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong BotsRoleId = 328403426142715906;
 
-        public const ulong TwitchSubscriberTier1RoleId = 1244946627886714892;
+        public const ulong PatreonLilBroRoleId = 1488258271046533240;
 
-        public const ulong TwitchSubscriberTier2RoleId = 1244946627886714893;
+        public const ulong PatreonRealOneRoleId = 1488259881919053895;
 
-        public const ulong TwitchSubscriberTier3RoleId = 1244946627886714894;
+        public const ulong TwitchSubscriberTier1RoleId = 1455366512549298248;
 
-        public const ulong TwitchSubscriberRoleId = 1244946627886714891;
+        public const ulong TwitchSubscriberTier2RoleId = 1455366512549298249;
+
+        public const ulong TwitchSubscriberTier3RoleId = 1455366512549298250;
+
+        public const ulong TwitchSubscriberRoleId = 1455366512549298247;
 
         public const ulong MutedRoleId = 445807715655221259;
 
@@ -148,17 +152,22 @@ namespace HeadNonSub.Clients.Discord {
         public static bool IsServerBot(ulong id) => AllBotIds.Contains(id);
 
         /// <summary>
-        /// Get if the user is a Twitch subscriber.
+        /// Get if the user is a subscriber.
         /// </summary>
         public static bool IsSubscriber(IUser user) {
             if (user is SocketGuildUser socketUser) {
 
-                // Twitch subscriber
                 if (socketUser.Roles.Any(x =>
+
+                    // Twitch subscriber
                     x.Id == TwitchSubscriberRoleId ||
                     x.Id == TwitchSubscriberTier1RoleId ||
                     x.Id == TwitchSubscriberTier2RoleId ||
-                    x.Id == TwitchSubscriberTier3RoleId)) {
+                    x.Id == TwitchSubscriberTier3RoleId ||
+
+                    // Patreon subscriber
+                    x.Id == PatreonLilBroRoleId ||
+                    x.Id == PatreonRealOneRoleId)) {
 
                     return true;
                 }

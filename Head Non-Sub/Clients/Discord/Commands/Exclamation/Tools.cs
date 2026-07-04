@@ -112,6 +112,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
         }
 
+        /*
         [Command("timer")]
         public async Task Timer(TimeSpan input, [Remainder] string message) {
             if (string.IsNullOrWhiteSpace(message)) {
@@ -129,6 +130,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             await BetterReplyAsync(message, parameters: $"{input.Humanize()}; {message}");
         }
+        */
 
         [Command("iswubbylive")]
         public Task IsWubbyLive() => BetterReplyAsync(TwitchClient.IsLive ? "**Yes**" : "**No**");

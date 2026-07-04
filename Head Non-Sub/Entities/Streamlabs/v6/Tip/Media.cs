@@ -1,38 +1,38 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.Streamlabs.v6.Tip {
 
     public class Media {
 
-        [JsonProperty("enabled")]
+        [JsonPropertyName("enabled")]
         public bool Enabled { get; set; }
 
-        [JsonProperty("allowed_types")]
+        [JsonPropertyName("allowed_types")]
         public List<string> AllowedTypes { get; set; }
 
-        [JsonProperty("min_amount_to_share")]
+        [JsonPropertyName("min_amount_to_share")]
         public string MinAmountToShare { get; set; }
 
-        [JsonProperty("price_per_second")]
+        [JsonPropertyName("price_per_second")]
         public string PricePerSecond { get; set; }
 
-        [JsonProperty("max_duration")]
+        [JsonPropertyName("max_duration")]
         public string MaxDuration { get; set; }
 
-        [JsonProperty("volume")]
+        [JsonPropertyName("volume")]
         public int Volume { get; set; }
 
-        [JsonProperty("security")]
+        [JsonPropertyName("security")]
         public int Security { get; set; }
 
-        [JsonProperty("auto_show_video")]
+        [JsonPropertyName("auto_show_video")]
         public bool AutoShowVideo { get; set; }
 
-        [JsonProperty("advanced_settings")]
+        [JsonPropertyName("advanced_settings")]
         public AdvancedSettings AdvancedSettings { get; set; }
 
-        [JsonProperty("tutorial_accordion_open")]
+        [JsonPropertyName("tutorial_accordion_open")]
         public bool TutorialAccordionOpen { get; set; }
 
     }

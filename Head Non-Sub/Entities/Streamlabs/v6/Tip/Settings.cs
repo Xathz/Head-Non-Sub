@@ -1,5 +1,5 @@
-﻿using System;
-using Newtonsoft.Json;
+using System;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.Streamlabs.v6.Tip {
 
@@ -8,7 +8,7 @@ namespace HeadNonSub.Entities.Streamlabs.v6.Tip {
         [JsonIgnore]
         public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
 
-        [JsonProperty("media")]
+        [JsonPropertyName("media")]
         public Media Media { get; set; }
 
     }

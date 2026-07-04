@@ -1,22 +1,22 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.MeeSix.Moderator {
 
     public class User {
 
-        [JsonProperty("avatar")]
+        [JsonPropertyName("avatar")]
         public string Avatar { get; set; }
 
-        [JsonProperty("bot")]
+        [JsonPropertyName("bot")]
         public bool Bot { get; set; }
 
-        [JsonProperty("discriminator")]
+        [JsonPropertyName("discriminator")]
         public string Discriminator { get; set; }
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public string Id { get; set; }
 
-        [JsonProperty("username")]
+        [JsonPropertyName("username")]
         public string Username { get; set; }
 
     }

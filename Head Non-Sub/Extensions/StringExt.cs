@@ -258,7 +258,7 @@ namespace HeadNonSub.Extensions {
                 string content = input.Substring(index, endIndex - index + 1);
 
                 if (TryParseDiscordUser(content, out ulong userId)) {
-                    tags.Add(new MessageTag(TagType.User, userId, index, content.Length, content.Contains("!")));
+                    tags.Add(new MessageTag(TagType.User, userId, index, content.Length, content.Contains('!')));
 
                 } else if (TryParseDiscordRole(content, out ulong roleId)) {
                     tags.Add(new MessageTag(TagType.Role, roleId, index, content.Length));

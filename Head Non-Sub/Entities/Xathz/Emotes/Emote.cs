@@ -1,25 +1,25 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.Xathz.Emotes {
 
     public class Emote {
 
-        [JsonProperty("xxHash64")]
+        [JsonPropertyName("xxHash64")]
         public string XXHash64 { get; set; }
 
-        [JsonProperty("size")]
+        [JsonPropertyName("size")]
         public string Size { get; set; }
 
-        [JsonProperty("hashDuplicateCount")]
+        [JsonPropertyName("hashDuplicateCount")]
         public int HashDuplicateCount { get; set; }
 
-        [JsonProperty("distinctNameCount")]
+        [JsonPropertyName("distinctNameCount")]
         public int DistinctNameCount { get; set; }
 
-        [JsonProperty("names")]
+        [JsonPropertyName("names")]
         public string Names { get; set; }
 
-        [JsonProperty("file")]
+        [JsonPropertyName("file")]
         public string File { get; set; }
 
     }

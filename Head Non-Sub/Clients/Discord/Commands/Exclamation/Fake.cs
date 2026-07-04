@@ -22,6 +22,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             }
         }
 
+        /*
         [Command("wubbydays")]
         [SubscriberOnly]
         public async Task WubbyDays([Remainder] string reason = "") {
@@ -31,7 +32,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 await BetterReplyAsync("https://url.xathz.net/3mkd4jW", parameters: reason);
             }
         }
-
+        */
 
         [Command("wubbysays")]
         [Cooldown(300)]

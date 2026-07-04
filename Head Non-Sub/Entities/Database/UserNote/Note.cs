@@ -1,20 +1,20 @@
-﻿using System;
-using Newtonsoft.Json;
+using System;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.Database.UserNote {
 
     public class Note {
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public string Id { get; protected set; } = Guid.NewGuid().ToString("N").Substring(0, 12);
 
-        [JsonProperty("datetime")]
+        [JsonPropertyName("datetime")]
         public DateTime DateTime { get; set; }
 
-        [JsonProperty("user_id")]
+        [JsonPropertyName("user_id")]
         public ulong UserId { get; set; }
 
-        [JsonProperty("text")]
+        [JsonPropertyName("text")]
         public string Text { get; set; }
 
     }

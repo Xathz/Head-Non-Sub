@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.TwitchStocks {
 
     public class Values {
 
-        [JsonProperty("data")]
+        [JsonPropertyName("data")]
         public List<List<double>> Data { get; set; }
 
     }

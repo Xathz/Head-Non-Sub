@@ -1,36 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.MeeSix.Moderator {
 
     public class Message {
 
-        [JsonProperty("author")]
+        [JsonPropertyName("author")]
         public User Author { get; set; }
 
-        [JsonProperty("channel_id")]
+        [JsonPropertyName("channel_id")]
         public string ChannelId { get; set; }
 
-        [JsonProperty("content")]
+        [JsonPropertyName("content")]
         public string Content { get; set; }
 
-        [JsonProperty("edited_timestamp")]
+        [JsonPropertyName("edited_timestamp")]
         public DateTime? EditedTimestamp { get; set; }
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public string Id { get; set; }
 
-        [JsonProperty("mention_everyone")]
+        [JsonPropertyName("mention_everyone")]
         public bool MentionEveryone { get; set; }
 
-        [JsonProperty("mentions")]
+        [JsonPropertyName("mentions")]
         public List<User> Mentions { get; set; }
 
-        [JsonProperty("timestamp")]
+        [JsonPropertyName("timestamp")]
         public DateTime Timestamp { get; set; }
 
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public int Type { get; set; }
 
     }

@@ -1,13 +1,13 @@
-﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.MeeSix.Leaderboard {
 
     public class RoleReward {
 
-        [JsonProperty("rank")]
+        [JsonPropertyName("rank")]
         public int Rank { get; set; }
 
-        [JsonProperty("role")]
+        [JsonPropertyName("role")]
         public Role Role { get; set; }
 
     }

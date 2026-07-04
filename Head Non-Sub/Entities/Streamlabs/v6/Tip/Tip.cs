@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.Streamlabs.v6.Tip {
 
     public class Tip {
 
-        [JsonProperty("settings")]
+        [JsonPropertyName("settings")]
         public Settings Settings { get; set; }
 
     }

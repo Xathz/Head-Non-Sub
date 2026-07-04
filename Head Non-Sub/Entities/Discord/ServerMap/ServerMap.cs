@@ -1,45 +1,45 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.Discord.ServerMap {
 
     public class ServerMap {
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
 
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonProperty("created")]
+        [JsonPropertyName("created")]
         public DateTime Created { get; set; }
 
-        [JsonProperty("owner")]
+        [JsonPropertyName("owner")]
         public User Owner { get; set; }
 
-        [JsonProperty("totalMembers")]
+        [JsonPropertyName("totalMembers")]
         public int TotalMembers { get; set; }
 
-        [JsonProperty("voiceRegion")]
+        [JsonPropertyName("voiceRegion")]
         public string VoiceRegion { get; set; }
 
-        [JsonProperty("verificationLevel")]
+        [JsonPropertyName("verificationLevel")]
         public string VerificationLevel { get; set; }
 
-        [JsonProperty("iconUrl")]
+        [JsonPropertyName("iconUrl")]
         public string IconUrl { get; set; }
 
-        [JsonProperty("roles")]
+        [JsonPropertyName("roles")]
         public List<Role> Roles { get; set; } = new List<Role>();
 
-        [JsonProperty("categories")]
+        [JsonPropertyName("categories")]
         public List<Category> Categories { get; set; } = new List<Category>();
 
-        [JsonProperty("categorylessChannels")]
+        [JsonPropertyName("categorylessChannels")]
         public List<Channel> CategorylessChannels { get; set; } = new List<Channel>();
 
-        [JsonProperty("emotes")]
+        [JsonPropertyName("emotes")]
         public List<Emote> Emotes { get; set; } = new List<Emote>();
 
         public bool ShouldSerializeRoles() => Roles.Count > 0;

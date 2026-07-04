@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.MeeSix.Moderator {
 
     public class Moderator {
 
-        [JsonProperty("infractions")]
+        [JsonPropertyName("infractions")]
         public List<Infraction> Infractions { get; set; }
 
-        [JsonProperty("page")]
+        [JsonPropertyName("page")]
         public int Page { get; set; }
 
     }

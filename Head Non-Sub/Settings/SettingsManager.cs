@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Settings {
 
@@ -36,7 +36,12 @@ namespace HeadNonSub.Settings {
         }
 
         private static void LoadJSON(string settingsFile) {
-            Configuration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(settingsFile));
+            var options = new JsonSerializerOptions {
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+            Configuration = JsonSerializer.Deserialize<Configuration>(File.ReadAllText(settingsFile), options);
 
             if (Configuration == null) {
                 throw new ArgumentNullException("The configuration was null after deserialization");
@@ -50,13 +55,13 @@ namespace HeadNonSub.Settings {
             string tempFile = $"{Constants.SettingsFile}.temp";
 
             try {
-                string json = JsonConvert.SerializeObject(Configuration, new JsonSerializerSettings() {
-                    ContractResolver = new DefaultContractResolver {
-                        NamingStrategy = new CamelCaseNamingStrategy()
-                    },
-                    NullValueHandling = NullValueHandling.Include,
-                    Formatting = Formatting.Indented
-                });
+                var options = new JsonSerializerOptions {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true,
+                    DefaultIgnoreCondition = JsonIgnoreCondition.Never
+                };
+
+                string json = JsonSerializer.Serialize(Configuration, options);
 
                 File.WriteAllText(tempFile, json);
 

@@ -1,13 +1,13 @@
-﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.Streamlabs {
 
     public class Polly {
 
-        [JsonProperty("success")]
+        [JsonPropertyName("success")]
         public bool Success { get; set; }
 
-        [JsonProperty("speak_url")]
+        [JsonPropertyName("speak_url")]
         public string SpeakUrl { get; set; }
 
     }

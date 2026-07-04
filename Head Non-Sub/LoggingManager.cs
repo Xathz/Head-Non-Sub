@@ -94,9 +94,7 @@ namespace HeadNonSub {
                 Layout = "${longdate} [${pad:padCharacter= :padding=5:fixedLength=true:alignmentOnTruncation=Right:${uppercase:${level}}}] [${callsite:includeNamespace=false:cleanNamesOfAnonymousDelegates=true:cleanNamesOfAsyncContinuations=true}] ${message}",
                 ArchiveFileName = Path.Combine(Constants.LogDirectory, "General{#}.Archive.log"),
                 ArchiveEvery = FileArchivePeriod.Day,
-                ArchiveNumbering = ArchiveNumberingMode.Rolling,
-                MaxArchiveFiles = 7,
-                ConcurrentWrites = false
+                MaxArchiveFiles = 14
             };
             // Limit how often the file will get written to disk.
             // Default: BufferSize = 50 (log events), FlushTimeout = 5000 (milliseconds)
@@ -117,9 +115,7 @@ namespace HeadNonSub {
                 Layout = "${longdate} [${pad:padCharacter= :padding=5:fixedLength=true:alignmentOnTruncation=Right:${uppercase:${level}}}] [${callsite:includeSourcePath=true:cleanNamesOfAnonymousDelegates=true:cleanNamesOfAsyncContinuations=true}:${callsite-linenumber}; ${stacktrace}] ${message}${exception:format=ToString,StackTrace}",
                 ArchiveFileName = Path.Combine(Constants.LogDirectory, "Error{#}.Archive.log"),
                 ArchiveEvery = FileArchivePeriod.Day,
-                ArchiveNumbering = ArchiveNumberingMode.Rolling,
-                MaxArchiveFiles = 7,
-                ConcurrentWrites = false
+                MaxArchiveFiles = 14
             };
             loggingConfiguration.AddTarget(fileTarget_Error);
             loggingConfiguration.AddRule(LogLevel.Error, LogLevel.Fatal, Constants.ApplicationNameFormatted);
@@ -145,9 +141,7 @@ namespace HeadNonSub {
                 Layout = "${longdate} [${pad:padCharacter= :padding=5:fixedLength=true:alignmentOnTruncation=Right:${uppercase:${level}}}] [${callsite:includeNamespace=false:cleanNamesOfAnonymousDelegates=true:cleanNamesOfAsyncContinuations=true}] ${message}",
                 ArchiveFileName = Path.Combine(Constants.LogDirectory, "Database.General{#}.Archive.log"),
                 ArchiveEvery = FileArchivePeriod.Day,
-                ArchiveNumbering = ArchiveNumberingMode.Rolling,
-                MaxArchiveFiles = 7,
-                ConcurrentWrites = false
+                MaxArchiveFiles = 14
             };
             // Limit how often the file will get written to disk.
             // Default: BufferSize = 50 (log events), FlushTimeout = 5000 (milliseconds)
@@ -168,9 +162,7 @@ namespace HeadNonSub {
                 Layout = "${longdate} [${pad:padCharacter= :padding=5:fixedLength=true:alignmentOnTruncation=Right:${uppercase:${level}}}] [${callsite:includeSourcePath=true:cleanNamesOfAnonymousDelegates=true:cleanNamesOfAsyncContinuations=true}:${callsite-linenumber}; ${stacktrace}] ${message}${exception:format=ToString,StackTrace}",
                 ArchiveFileName = Path.Combine(Constants.LogDirectory, "Database.Error{#}.Archive.log"),
                 ArchiveEvery = FileArchivePeriod.Day,
-                ArchiveNumbering = ArchiveNumberingMode.Rolling,
-                MaxArchiveFiles = 7,
-                ConcurrentWrites = false
+                MaxArchiveFiles = 14
             };
             factoryConfiguration.AddTarget(fileTarget_DatabaseError);
             factoryConfiguration.AddRule(LogLevel.Error, LogLevel.Fatal, $"{Constants.ApplicationNameFormatted}Database");

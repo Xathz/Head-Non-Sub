@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using HeadNonSub.Settings;
-using Newtonsoft.Json;
 
 namespace HeadNonSub {
 
@@ -99,7 +99,11 @@ namespace HeadNonSub {
         /// <param name="json">Json to deserialize.</param>
         public static T DeserializeJson<T>(string json) {
             try {
-                return JsonConvert.DeserializeObject<T>(json);
+                var options = new JsonSerializerOptions {
+                    PropertyNameCaseInsensitive = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+                return JsonSerializer.Deserialize<T>(json, options);
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
                 return default;

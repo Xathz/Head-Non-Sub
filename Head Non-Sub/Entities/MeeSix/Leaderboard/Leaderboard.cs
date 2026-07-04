@@ -1,17 +1,17 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.MeeSix.Leaderboard {
 
     public class Leaderboard {
 
-        [JsonProperty("guild")]
+        [JsonPropertyName("guild")]
         public Guild Guild { get; set; }
 
-        [JsonProperty("players")]
+        [JsonPropertyName("players")]
         public List<Player> Players { get; set; }
 
-        [JsonProperty("role_rewards")]
+        [JsonPropertyName("role_rewards")]
         public List<RoleReward> RoleRewards { get; set; }
 
     }

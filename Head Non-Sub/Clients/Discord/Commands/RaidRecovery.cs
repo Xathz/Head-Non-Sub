@@ -294,18 +294,18 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
                 if (channelMessages.Count > 0) {
                     IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(channelMessages.OrderBy(x => x.CreatedAt).FirstOrDefault(), Direction.Before, 1000).Flatten();
-                    await messages.ForEachAsync(x => {
+                    await foreach (IMessage x in messages) {
                         if (!channelMessages.Any(m => m.Id == x.Id)) {
                             channelMessages.Add(x);
                         }
-                    });
+                    }
                 } else {
                     IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(1000).Flatten();
-                    await messages.ForEachAsync(x => {
+                    await foreach (IMessage x in messages) {
                         if (!channelMessages.Any(m => m.Id == x.Id)) {
                             channelMessages.Add(x);
                         }
-                    });
+                    }
                 }
 
                 return channelMessages;

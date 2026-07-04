@@ -39,7 +39,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             try {
                 string pollId = new Uri(input).Segments[1];
-                if (pollId.Contains("/")) { pollId = pollId.Replace("/", ""); }
+                if (pollId.Contains('/')) { pollId = pollId.Replace("/", ""); }
 
                 bool pollIdAttempt = int.TryParse(pollId, out int pollIdResult);
                 fetchedPoll = Get.GetPoll(pollIdResult);

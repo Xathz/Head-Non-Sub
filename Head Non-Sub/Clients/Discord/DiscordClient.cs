@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -80,6 +81,9 @@ namespace HeadNonSub.Clients.Discord {
 
             _DiscordClient.ReactionAdded += ReactionAdded;
 
+            _DiscordClient.PresenceUpdated += PresenceUpdated;
+            _DiscordClient.InviteCreated += InviteCreated;
+
             _MentionProvider.GetRequiredService<CommandService>().Log += Log;
             _ExclamationProvider.GetRequiredService<CommandService>().Log += Log;
 
@@ -92,6 +96,10 @@ namespace HeadNonSub.Clients.Discord {
             await _DiscordClient.LoginAsync(TokenType.Bot, SettingsManager.Configuration.DiscordToken);
             await _DiscordClient.StartAsync();
         }
+
+        private static async Task PresenceUpdated(SocketUser user, SocketPresence oldPresence, SocketPresence newPresence) => await Task.CompletedTask;
+
+        private static async Task InviteCreated(SocketInvite invite) => await Task.CompletedTask;
 
         public static ReadOnlyCollection<CommandInfo> MentionCommandList { get; private set; }
 
@@ -213,7 +221,7 @@ namespace HeadNonSub.Clients.Discord {
             LoggingManager.Log.Warn($"Joined guild {guild.Name} ({guild.Id}).");
 
             // Leave if an invalid guild
-            if (guild.Id != Constants.XathzDiscordGuild || guild.Id != WubbysFunHouse.ServerId) {
+            if (guild.Id != Constants.XathzDiscordGuild && guild.Id != WubbysFunHouse.ServerId) {
                 guild.LeaveAsync(new RequestOptions { AuditLogReason = $"This bot is private. This guild needs to be whitelisted. Contact: {Constants.Creator}" });
             }
 
@@ -368,17 +376,17 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static Task UserUpdated(SocketUser oldUser, SocketUser newUser) {
-            Task runner = Task.Run(async () => {
-                await ProcessUserUpdated(oldUser, newUser).ConfigureAwait(false);
-            });
+            //Task runner = Task.Run(async () => {
+            //    await ProcessUserUpdated(oldUser, newUser).ConfigureAwait(false);
+            //});
 
             return Task.CompletedTask;
         }
 
         private static Task GuildMemberUpdated(Cacheable<SocketGuildUser, ulong> oldUser, SocketGuildUser newUser) {
-            Task runner = Task.Run(async () => {
-                await ProcessUserUpdated(oldUser.Value, newUser).ConfigureAwait(false);
-            });
+            //Task runner = Task.Run(async () => {
+            //    await ProcessUserUpdated(oldUser.Value, newUser).ConfigureAwait(false);
+            //});
 
             return Task.CompletedTask;
         }

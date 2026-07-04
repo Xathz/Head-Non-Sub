@@ -1,36 +1,36 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.Discord.ServerMap {
 
     public class Channel {
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
 
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonProperty("created")]
+        [JsonPropertyName("created")]
         public DateTime Created { get; set; }
 
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public ChannelType Type { get; set; }
 
-        [JsonProperty("topic")]
+        [JsonPropertyName("topic")]
         public string Topic { get; set; }
 
-        [JsonProperty("nsfw")]
+        [JsonPropertyName("nsfw")]
         public bool? NSFW { get; set; }
 
-        [JsonProperty("userLimit")]
+        [JsonPropertyName("userLimit")]
         public int? UserLimit { get; set; }
 
-        [JsonProperty("bitrate")]
+        [JsonPropertyName("bitrate")]
         public int? Bitrate { get; set; }
 
-        [JsonProperty("permissionOverwrites")]
+        [JsonPropertyName("permissionOverwrites")]
         public List<PermissionOverwrite> PermissionOverwrites { get; set; } = new List<PermissionOverwrite>();
 
         public bool ShouldSerializePermissionOverwrites() => PermissionOverwrites.Count > 0;

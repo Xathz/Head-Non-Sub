@@ -63,7 +63,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
                 if (Context.Channel is SocketTextChannel channel) {
                     IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(500).Flatten();
-                    IEnumerable<IMessage> foundToDelete = messages.Where(x => (x.Author.Id == Context.Client.CurrentUser.Id)).OrderByDescending(x => x.CreatedAt).Take(count).ToEnumerable();
+                    IEnumerable<IMessage> foundToDelete = await messages.Where(x => (x.Author.Id == Context.Client.CurrentUser.Id)).OrderByDescending(x => x.CreatedAt).Take(count).ToListAsync();
                     toDelete.AddRange(foundToDelete);
 
                     await channel.DeleteMessagesAsync(toDelete);
@@ -96,7 +96,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
                 if (Context.Channel is SocketTextChannel channel) {
                     IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(500).Flatten();
-                    IEnumerable<IMessage> foundToDelete = messages.Where(x => {
+                    IEnumerable<IMessage> foundToDelete = await messages.Where(x => {
                         List<EmoteOrEmoji> emotes = x.Content.ParseDiscordMessageEmotes();
 
                         if (emotes.Count > 0) {
@@ -110,7 +110,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                         } else {
                             return false;
                         }
-                    }).OrderByDescending(x => x.CreatedAt).Take(count).ToEnumerable();
+                    }).OrderByDescending(x => x.CreatedAt).Take(count).ToListAsync();
                     toDelete.AddRange(foundToDelete);
 
                     await channel.DeleteMessagesAsync(toDelete);

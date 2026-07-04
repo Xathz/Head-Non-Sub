@@ -211,7 +211,20 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             await Context.Channel.TriggerTypingAsync();
 
             try {
-                Task<MemoryStream> download = Http.GetStreamAsync(user.GetGuildAvatarUrl(ImageFormat.Png, 256));
+                string avatarUrl = null;
+                if (user.GetGuildAvatarUrl(ImageFormat.Png, 256) != null) {
+                    avatarUrl = user.GetGuildAvatarUrl(ImageFormat.Png, 256);
+                } else if (user.GetDisplayAvatarUrl(ImageFormat.Png, 256) != null) {
+                    avatarUrl = user.GetDisplayAvatarUrl(ImageFormat.Png, 256);
+                } else {
+                    avatarUrl = user.GetDefaultAvatarUrl();
+                }
+
+                if (avatarUrl == null) {
+                    await BetterReplyAsync("Failed to get avatar url. You've just warmed yourself idiot.");
+                }
+
+                Task<MemoryStream> download = Http.GetStreamAsync(avatarUrl);
                 using MemoryStream data = await download;
 
                 if (download.IsCompletedSuccessfully) {

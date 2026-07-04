@@ -82,7 +82,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             if (WubbysFunHouse.IsDiscordStaff(Context.User)) {
                 if (Context.Channel is SocketTextChannel channel) {
                     IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(200).Flatten();
-                    IEnumerable<IMessage> foundMessages = messages.Where(x => x.Author.Id == user.Id).OrderByDescending(x => x.CreatedAt).Take(10).ToEnumerable().OrderBy(x => x.CreatedAt);
+                    IEnumerable<IMessage> foundMessages = (await messages.Where(x => x.Author.Id == user.Id).OrderByDescending(x => x.CreatedAt).Take(10).ToListAsync()).OrderBy(x => x.CreatedAt);
 
                     StringBuilder builder = new StringBuilder();
                     foreach (IMessage message in foundMessages) {

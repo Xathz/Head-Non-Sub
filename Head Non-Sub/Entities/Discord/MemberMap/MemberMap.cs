@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.Discord.MemberMap {
 
     public class MemberMap {
 
-        [JsonProperty("members")]
+        [JsonPropertyName("members")]
         public List<Member> Members { get; set; } = new List<Member>();
 
     }

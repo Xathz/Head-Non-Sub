@@ -123,40 +123,38 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("youareallretarded")]
         [XathzOnly]
-        public Task AllRetarded() {
+        public async Task AllRetarded() {
             if (Context.Channel is SocketTextChannel channel) {
                 IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(Context.Message, Direction.Before, 10).Flatten().OrderByDescending(x => x.CreatedAt);
                 IEmote emote = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 329534564160765954);
                 if (emote is IEmote) {
-                    messages.ForEachAsync(async x => {
+                    await foreach (IMessage x in messages) {
                         if (x is IUserMessage message) {
                             await message.AddReactionAsync(emote);
                         }
-                    });
+                    }
                 }
             }
 
             TrackStatistics();
-            return Task.CompletedTask;
         }
 
         [Command("allthis")]
         [XathzOnly]
-        public Task AllThis() {
+        public async Task AllThis() {
             if (Context.Channel is SocketTextChannel channel) {
                 IAsyncEnumerable<IMessage> messages = channel.GetMessagesAsync(Context.Message, Direction.Before, 10).Flatten().OrderByDescending(x => x.CreatedAt);
                 IEmote emote = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 451081265467359253);
                 if (emote is IEmote) {
-                    messages.ForEachAsync(async x => {
+                    await foreach (var x in messages) {
                         if (x is IUserMessage message) {
                             await message.AddReactionAsync(emote);
                         }
-                    });
+                    }
                 }
             }
 
             TrackStatistics();
-            return Task.CompletedTask;
         }
 
         [Command("bong")]

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Discord.Commands;
 using Discord.WebSocket;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using MapEntities = HeadNonSub.Entities.Discord.MemberMap;
 
 namespace HeadNonSub.Clients.Discord.Services {
@@ -54,12 +54,10 @@ namespace HeadNonSub.Clients.Discord.Services {
                     File.Delete(jsonFile);
                 }
 
-                string json = JsonConvert.SerializeObject(map, new JsonSerializerSettings() {
-                    ContractResolver = new DefaultContractResolver {
-                        NamingStrategy = new CamelCaseNamingStrategy()
-                    },
-                    NullValueHandling = NullValueHandling.Ignore,
-                    Formatting = Formatting.Indented
+                string json = JsonSerializer.Serialize(map, new JsonSerializerOptions {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    WriteIndented = true
                 });
 
                 File.WriteAllText(jsonFile, json);

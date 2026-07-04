@@ -1,20 +1,20 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.Discord.ServerMap {
 
     public class PermissionOverwrite {
 
-        [JsonProperty("target")]
+        [JsonPropertyName("target")]
         public PermissionTarget Target { get; set; }
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
 
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonProperty("permissions")]
+        [JsonPropertyName("permissions")]
         public Dictionary<string, PermissionValue> Permissions { get; set; } = new Dictionary<string, PermissionValue>();
 
         public bool ShouldSerializePermissions() => Permissions.Count > 0;

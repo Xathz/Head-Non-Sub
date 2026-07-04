@@ -1,23 +1,23 @@
-﻿using System;
-using Newtonsoft.Json;
+using System;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.Discord.ServerMap {
 
     public class User {
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
 
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonProperty("created")]
+        [JsonPropertyName("created")]
         public DateTime Created { get; set; }
 
-        [JsonProperty("joined")]
+        [JsonPropertyName("joined")]
         public DateTime? Joined { get; set; }
 
-        [JsonProperty("avatarUrl")]
+        [JsonPropertyName("avatarUrl")]
         public string AvatarUrl { get; set; }
 
     }

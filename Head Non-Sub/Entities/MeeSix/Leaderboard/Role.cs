@@ -1,31 +1,31 @@
-﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.MeeSix.Leaderboard {
 
     public class Role {
 
-        [JsonProperty("color")]
+        [JsonPropertyName("color")]
         public int Color { get; set; }
 
-        [JsonProperty("hoist")]
+        [JsonPropertyName("hoist")]
         public bool Hoist { get; set; }
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public string Id { get; set; }
 
-        [JsonProperty("managed")]
+        [JsonPropertyName("managed")]
         public bool Managed { get; set; }
 
-        [JsonProperty("mentionable")]
+        [JsonPropertyName("mentionable")]
         public bool Mentionable { get; set; }
 
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonProperty("permissions")]
+        [JsonPropertyName("permissions")]
         public int Permissions { get; set; }
 
-        [JsonProperty("position")]
+        [JsonPropertyName("position")]
         public int Position { get; set; }
 
     }

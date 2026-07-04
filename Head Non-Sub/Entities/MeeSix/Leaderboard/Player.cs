@@ -1,32 +1,32 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.MeeSix.Leaderboard {
 
     public class Player {
 
-        [JsonProperty("avatar")]
+        [JsonPropertyName("avatar")]
         public string Avatar { get; set; }
 
-        [JsonProperty("detailed_xp")]
+        [JsonPropertyName("detailed_xp")]
         public List<int> DetailedXp { get; set; }
 
-        [JsonProperty("discriminator")]
+        [JsonPropertyName("discriminator")]
         public string Discriminator { get; set; }
 
-        [JsonProperty("guild_id")]
+        [JsonPropertyName("guild_id")]
         public string GuildId { get; set; }
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public string Id { get; set; }
 
-        [JsonProperty("level")]
+        [JsonPropertyName("level")]
         public int Level { get; set; }
 
-        [JsonProperty("username")]
+        [JsonPropertyName("username")]
         public string Username { get; set; }
 
-        [JsonProperty("xp")]
+        [JsonPropertyName("xp")]
         public int Xp { get; set; }
 
     }

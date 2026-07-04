@@ -1,33 +1,33 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.Twitch {
 
     public class HostsResponse {
 
-        [JsonProperty("hosts")]
+        [JsonPropertyName("hosts")]
         public List<Host> Hosts { get; set; }
 
     }
 
     public class Host {
 
-        [JsonProperty("host_id")]
+        [JsonPropertyName("host_id")]
         public int HostId { get; set; }
 
-        [JsonProperty("host_login")]
+        [JsonPropertyName("host_login")]
         public string HostLogin { get; set; }
 
-        [JsonProperty("host_display_name")]
+        [JsonPropertyName("host_display_name")]
         public string HostDisplayName { get; set; }
 
-        [JsonProperty("target_id")]
+        [JsonPropertyName("target_id")]
         public int TargetId { get; set; }
 
-        [JsonProperty("target_login")]
+        [JsonPropertyName("target_login")]
         public string TargetLogin { get; set; }
 
-        [JsonProperty("target_display_name")]
+        [JsonPropertyName("target_display_name")]
         public string TargetDisplayName { get; set; }
 
     }

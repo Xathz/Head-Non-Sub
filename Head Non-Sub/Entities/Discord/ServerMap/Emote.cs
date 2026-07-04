@@ -1,29 +1,29 @@
-﻿using System;
-using Newtonsoft.Json;
+using System;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.Discord.ServerMap {
 
     public class Emote {
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
 
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonProperty("created")]
+        [JsonPropertyName("created")]
         public DateTime Created { get; set; }
 
-        [JsonProperty("creatorId")]
+        [JsonPropertyName("creatorId")]
         public ulong CreatorId { get; set; }
 
-        [JsonProperty("creatorName")]
+        [JsonPropertyName("creatorName")]
         public string CreatorName { get; set; }
 
-        [JsonProperty("animated")]
+        [JsonPropertyName("animated")]
         public bool Animated { get; set; }
 
-        [JsonProperty("url")]
+        [JsonPropertyName("url")]
         public string Url { get; set; }
 
     }

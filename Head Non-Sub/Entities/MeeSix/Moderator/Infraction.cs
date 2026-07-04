@@ -1,5 +1,5 @@
 ﻿using System;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace HeadNonSub.Entities.MeeSix.Moderator {
 
@@ -7,25 +7,25 @@ namespace HeadNonSub.Entities.MeeSix.Moderator {
 
         private DateTime? _CreatedAtDateTime;
 
-        [JsonProperty("author_id")]
+        [JsonPropertyName("author_id")]
         public string AuthorId { get; set; }
 
-        [JsonProperty("created_at")]
+        [JsonPropertyName("created_at")]
         public long CreatedAt { get; set; }
 
-        [JsonProperty("guild_id")]
+        [JsonPropertyName("guild_id")]
         public string GuildId { get; set; }
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public string Id { get; set; }
 
-        [JsonProperty("message")]
+        [JsonPropertyName("message")]
         public Message Message { get; set; }
 
-        [JsonProperty("reason")]
+        [JsonPropertyName("reason")]
         public string Reason { get; set; }
 
-        [JsonProperty("user_id")]
+        [JsonPropertyName("user_id")]
         public string UserId { get; set; }
 
         public DateTime CreatedAtDateTime {
