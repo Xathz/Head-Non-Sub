@@ -151,7 +151,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 TimeSpan timeFromCreateToJoin = user.JoinedAt.Value - user.CreatedAt;
 
                 if (timeFromCreateToJoin.TotalHours <= 12) {
-                    builder.AppendLine($":small_blue_diamond: **Time from account creation to join:** {timeFromCreateToJoin.Humanize(3, minUnit: Humanizer.Localisation.TimeUnit.Second)}");
+                    builder.AppendLine($":small_blue_diamond: **Time from account creation to join:** {timeFromCreateToJoin.Humanize(3, minUnit: TimeUnit.Second)}");
                 }
             }
 
