@@ -1,6 +1,6 @@
 # Head Non-Sub
 
-Discord bot for the PaymoneyWubby server. C# / .NET 8, single project in `Head Non-Sub/`, no tests.
+Discord bot for the PaymoneyWubby server. C# / .NET 10, single project in `Head Non-Sub/`, no tests.
 Build: `dotnet build "Head Non-Sub.sln"`
 
 ## Working preferences
