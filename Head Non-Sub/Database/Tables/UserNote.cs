@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using HeadNonSub.Entities.Database.UserNote;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -22,9 +23,12 @@ namespace HeadNonSub.Database.Tables {
 
     public class UserNoteConfiguration : IEntityTypeConfiguration<UserNote> {
 
+        private static readonly JsonSerializerOptions _SerializeOptions = new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
+        private static readonly JsonSerializerOptions _DeserializeOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
         public void Configure(EntityTypeBuilder<UserNote> builder) => builder.Property(x => x.Notes).HasConversion(
-            x => JsonSerializer.Serialize(x, new JsonSerializerOptions { DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull }),
-            x => JsonSerializer.Deserialize<List<Note>>(x, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }));
+            x => JsonSerializer.Serialize(x, _SerializeOptions),
+            x => JsonSerializer.Deserialize<List<Note>>(x, _DeserializeOptions));
 
     }
 

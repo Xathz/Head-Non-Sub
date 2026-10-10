@@ -14,6 +14,12 @@ namespace HeadNonSub.Clients.Discord.Services {
 
         public MemberMap(SocketCommandContext context) => _Context = context;
 
+        private static readonly JsonSerializerOptions _JsonOptions = new JsonSerializerOptions {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            WriteIndented = true
+        };
+
         /// <summary>
         /// Generate the member map.
         /// </summary>
@@ -54,11 +60,7 @@ namespace HeadNonSub.Clients.Discord.Services {
                     File.Delete(jsonFile);
                 }
 
-                string json = JsonSerializer.Serialize(map, new JsonSerializerOptions {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                    WriteIndented = true
-                });
+                string json = JsonSerializer.Serialize(map, _JsonOptions);
 
                 File.WriteAllText(jsonFile, json);
 

@@ -268,8 +268,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("rolld20"), Alias("d20")]
         public async Task Roll([Remainder] string reason = "") {
-            int needed = new Random().Next(1, 20);
-            int roll = new Random().Next(1, 20);
+            int needed = System.Random.Shared.Next(1, 21);
+            int roll = System.Random.Shared.Next(1, 21);
             bool rollMet = roll <= needed;
 
             if (string.IsNullOrWhiteSpace(reason)) {

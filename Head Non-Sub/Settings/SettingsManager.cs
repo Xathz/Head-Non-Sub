@@ -12,6 +12,17 @@ namespace HeadNonSub.Settings {
         /// </summary>
         public static Configuration Configuration = new Configuration();
 
+        private static readonly JsonSerializerOptions _LoadOptions = new JsonSerializerOptions {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
+        private static readonly JsonSerializerOptions _SaveOptions = new JsonSerializerOptions {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.Never
+        };
+
         /// <summary>
         /// Optional service provider for accessing IOptions-based configuration.
         /// </summary>
@@ -63,13 +74,8 @@ namespace HeadNonSub.Settings {
         }
 
         private static void LoadJSON(string settingsFile) {
-            JsonSerializerOptions options = new JsonSerializerOptions {
-                PropertyNameCaseInsensitive = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
-
-            Configuration = JsonSerializer.Deserialize<Configuration>(File.ReadAllText(settingsFile), options)
-                ?? throw new ArgumentNullException("Configuration", "The configuration was null after deserialization");
+            Configuration = JsonSerializer.Deserialize<Configuration>(File.ReadAllText(settingsFile), _LoadOptions)
+                ?? throw new JsonException("The configuration was null after deserialization");
         }
 
         /// <summary>
@@ -79,13 +85,7 @@ namespace HeadNonSub.Settings {
             string tempFile = $"{Constants.SettingsFile}.temp";
 
             try {
-                JsonSerializerOptions options = new JsonSerializerOptions {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    WriteIndented = true,
-                    DefaultIgnoreCondition = JsonIgnoreCondition.Never
-                };
-
-                string json = JsonSerializer.Serialize(Configuration, options);
+                string json = JsonSerializer.Serialize(Configuration, _SaveOptions);
 
                 File.WriteAllText(tempFile, json);
 
