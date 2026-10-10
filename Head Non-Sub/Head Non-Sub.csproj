@@ -6,6 +6,8 @@
 	<Platforms>x64</Platforms>
     <RootNamespace>HeadNonSub</RootNamespace>
     <StartupObject>HeadNonSub.Program</StartupObject>
+    <!-- Run with "dotnet HeadNonSub.dll", the apphost would clash with the HeadNonSub working directory on Linux -->
+    <UseAppHost>false</UseAppHost>
     <Authors>Xathz</Authors>
     <Description>Non-subs are the worst, they come in here and act like they own the place. At least I am the head of them all.</Description>
     <Version>2.10.1</Version>
