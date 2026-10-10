@@ -264,44 +264,6 @@ namespace HeadNonSub.Clients.Discord {
                 await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :inbox_tray: {user} (`{user.Id}`) has joined.");
             }
 
-            // Username check
-            //if (!user.Username.All(x => x <= sbyte.MaxValue)) {
-            //    _ = Task.Run(async () => {
-            //        await Task.Delay(1000);
-
-            //        try {
-            //            await WubbysFunHouse.AddRoleAsync(user, WubbysFunHouse.MutedRoleId, "Auto-muted on join due to weird username.");
-            //            await SendMessageAsync(WubbysFunHouse.ModLogsChannelId, $":exclamation: {user.Mention} was auto-muted on join due to due to weird username.");
-
-            //            await Task.Run(async () => {
-            //                await Task.Delay(8000);
-
-            //                if (!user.Roles.Any(x => x.Id == WubbysFunHouse.MutedRoleId)) {
-            //                    await WubbysFunHouse.AddRoleAsync(user, WubbysFunHouse.MutedRoleId, "Auto-muted on join due to weird username (second attempt).");
-            //                    await SendMessageAsync(WubbysFunHouse.ModLogsChannelId, $":bangbang: {user.Mention} was auto-muted on join due to due to weird username (second attempt, first one either failed or was overridden <@{Constants.XathzUserId}>).");
-            //                }
-            //            });
-            //        } catch (Exception ex) {
-            //            LoggingManager.Log.Error(ex);
-            //        }
-            //    });
-            //}
-
-            // Auto-mute accounts that have been created recently
-            //if (user.CreatedAt.AddDays(7) > DateTimeOffset.Now) {
-            //    _ = Task.Run(async () => {
-            //        await Task.Delay(2000);
-
-            //        try {
-            //            await WubbysFunHouse.AddRoleAsync(user, WubbysFunHouse.MutedRoleId, "Auto-muted on join due to account being younger than a week.");
-            //            await SendMessageAsync(WubbysFunHouse.ModLogsChannelId, $":anger: {user.Mention} was auto-muted on join due to account being younger than a week.");
-
-            //        } catch (Exception ex) {
-            //            LoggingManager.Log.Error(ex);
-            //        }
-            //    });
-            //}
-
             if (user == null) {
                 LoggingManager.Log.Error("User joined, user is null");
                 return;
@@ -319,47 +281,6 @@ namespace HeadNonSub.Clients.Discord {
                 LoggingManager.Log.Error("User joined, avatar id is null!");
                 return;
             }
-
-            // ========
-
-            Task runner = Task.Run(async () => {
-                try {
-                    StatisticsManager.NameChangeType changeType =
-                        StatisticsManager.NameChangeType.Username |
-                        StatisticsManager.NameChangeType.Discriminator |
-                        StatisticsManager.NameChangeType.Display;
-
-                    string backblazeAvatarBucket = null, backblazeAvatarFilename = null, backblazeAvatarUrl = null;
-
-                    try {
-                        ImageFormat imageFormat = user.AvatarId.StartsWith("a_") ? ImageFormat.Gif : ImageFormat.Png;
-                        Task<MemoryStream> download = Http.GetStreamAsync(user.GetAvatarUrl(imageFormat, 1024));
-
-                        using MemoryStream data = await download;
-                        if (download.IsCompletedSuccessfully) {
-                            Backblaze.File avatarUpload = await Backblaze.UploadAvatarAsync(data, $"{user.Id}/{Backblaze.ISOFileNameDate(imageFormat.ToString().ToLower())}");
-
-                            backblazeAvatarBucket = avatarUpload.BucketName;
-                            backblazeAvatarFilename = avatarUpload.FileName;
-                            backblazeAvatarUrl = avatarUpload.ShortUrl;
-
-                            changeType |= StatisticsManager.NameChangeType.Avatar;
-                        } else {
-                            LoggingManager.Log.Error(download.Exception);
-
-                            backblazeAvatarBucket = null;
-                            backblazeAvatarFilename = null;
-                            backblazeAvatarUrl = null;
-                        }
-                    } catch { }
-
-                    StatisticsManager.InsertUserChange(DateTime.UtcNow, user.Guild.Id, user.Id, changeType, null, user.Username, null, user.Discriminator,
-                        null, user.Nickname, backblazeAvatarBucket, backblazeAvatarFilename, backblazeAvatarUrl);
-
-                } catch (Exception ex) {
-                    LoggingManager.Log.Error(ex);
-                }
-            });
         }
 
         private static async Task UserLeft(SocketGuild guild, SocketUser user) {
@@ -410,103 +331,7 @@ namespace HeadNonSub.Clients.Discord {
             return Task.CompletedTask;
         }
 
-        private static async Task ProcessUserUpdated(IUser oldUser, IUser newUser) {
-
-            // Bot check
-            //try {
-            //    if (WubbysFunHouse.IsServerBot(newUser.Id)) {
-            //        if (oldUser.Status == UserStatus.Online & newUser.Status == UserStatus.Offline) {
-            //            await SendMessageAsync(WubbysFunHouse.ModLogsChannelId, $":warning: The bot {newUser.Mention} is **offline**!");
-            //        } else if (oldUser.Status == UserStatus.Offline & newUser.Status == UserStatus.Online) {
-            //            await SendMessageAsync(WubbysFunHouse.ModLogsChannelId, $":white_check_mark: The bot {newUser.Mention} is back **online**.");
-            //        }
-            //    }
-            //} catch (Exception ex) {
-            //    LoggingManager.Log.Error(ex);
-            //}
-
-            // User changes
-            try {
-                StatisticsManager.NameChangeType changeType = StatisticsManager.NameChangeType.None;
-
-                ulong? guildId = null;
-                string oldUsername = null, newUsername = null;
-                string oldDiscriminator = null, newDiscriminator = null;
-                string oldNickname = null, newNickname = null;
-                string backblazeAvatarBucket = null, backblazeAvatarFilename = null, backblazeAvatarUrl = null;
-
-                if (oldUser is SocketGuildUser & newUser is SocketGuildUser) {
-                    SocketGuildUser oldSocketUser = oldUser as SocketGuildUser;
-                    SocketGuildUser newSocketUser = newUser as SocketGuildUser;
-
-                    guildId = newSocketUser.Guild.Id;
-
-                    if (oldSocketUser.Nickname != newSocketUser.Nickname) {
-                        changeType |= StatisticsManager.NameChangeType.Display;
-
-                        oldNickname = oldSocketUser.Nickname;
-                        newNickname = newSocketUser.Nickname;
-                    }
-                }
-
-                if (oldUser.Username != newUser.Username) {
-                    changeType |= StatisticsManager.NameChangeType.Username;
-
-                    oldUsername = oldUser.Username;
-                    newUsername = newUser.Username;
-                }
-
-                if (oldUser.Discriminator != newUser.Discriminator) {
-                    changeType |= StatisticsManager.NameChangeType.Discriminator;
-
-                    oldDiscriminator = oldUser.Discriminator;
-                    newDiscriminator = newUser.Discriminator;
-                }
-
-                if (oldUser.AvatarId != newUser.AvatarId) {
-                    try {
-                        ImageFormat imageFormat = newUser.AvatarId.StartsWith("a_") ? ImageFormat.Gif : ImageFormat.Png;
-                        Task<MemoryStream> download = Http.GetStreamAsync(newUser.GetAvatarUrl(imageFormat, 1024));
-
-                        using MemoryStream data = await download;
-                        if (download.IsCompletedSuccessfully) {
-                            Backblaze.File avatarUpload = await Backblaze.UploadAvatarAsync(data, $"{newUser.Id}/{Backblaze.ISOFileNameDate(imageFormat.ToString().ToLower())}");
-
-                            backblazeAvatarBucket = avatarUpload.BucketName;
-                            backblazeAvatarFilename = avatarUpload.FileName;
-                            backblazeAvatarUrl = avatarUpload.ShortUrl;
-
-                            changeType |= StatisticsManager.NameChangeType.Avatar;
-                        } else {
-                            LoggingManager.Log.Error(download.Exception);
-
-                            backblazeAvatarBucket = null;
-                            backblazeAvatarFilename = null;
-                            backblazeAvatarUrl = null;
-                        }
-                    } catch { }
-                }
-
-                if (changeType != StatisticsManager.NameChangeType.None) {
-                    StatisticsManager.InsertUserChange(DateTime.UtcNow, guildId, newUser.Id, changeType, oldUsername, newUsername, oldDiscriminator, newDiscriminator,
-                        oldNickname, newNickname, backblazeAvatarBucket, backblazeAvatarFilename, backblazeAvatarUrl);
-                }
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-            }
-        }
-
         private static async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction) {
-
-            // BongBot
-            //try {
-            //    if (reaction.User.IsSpecified && reaction.User.Value.Id == 735232851431260290 && message.HasValue) {
-            //        _ = message.Value.AddReactionAsync(reaction.Emote);
-            //        LoggingManager.Log.Debug($"Reacted to BongBot {reaction.Emote}");
-            //    }
-            //} catch (Exception ex) {
-            //    LoggingManager.Log.Error(ex);
-            //}
 
             // Bong trap
             try {

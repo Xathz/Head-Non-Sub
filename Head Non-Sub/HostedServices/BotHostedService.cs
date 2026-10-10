@@ -42,7 +42,6 @@ namespace HeadNonSub.HostedServices {
                 SettingsManager.SetServiceProvider(_ServiceProvider);
                 DiscordClient.SetConfigurationOptions(_ConfigurationOptions);
                 TwitchClient.SetConfigurationOptions(_ConfigurationOptions);
-                Backblaze.SetConfigurationOptions(_ConfigurationOptions);
                 Http.SetConfigurationOptions(_ConfigurationOptions);
                 HostingMonitor.SetConfigurationOptions(_ConfigurationOptions);
 

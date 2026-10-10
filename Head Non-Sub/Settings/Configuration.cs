@@ -86,16 +86,6 @@ namespace HeadNonSub.Settings {
         public string XathzEmotesKey { get; set; } = string.Empty;
 
         /// <summary>
-        /// Backblaze temporary files bucket.
-        /// </summary>
-        public BackblazeBucket BackblazeTempBucket { get; set; } = new BackblazeBucket();
-
-        /// <summary>
-        /// Backblaze avatar files bucket.
-        /// </summary>
-        public BackblazeBucket BackblazeAvatarBucket { get; set; } = new BackblazeBucket();
-
-        /// <summary>
         /// Twitch stream to monitor and report online/offline status.
         /// </summary>
         public TwitchStream TwitchStream { get; set; } = new TwitchStream();
