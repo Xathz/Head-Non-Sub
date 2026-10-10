@@ -16,7 +16,7 @@ namespace HeadNonSub.Clients.Discord.Services {
 
         public ServerMap(SocketCommandContext context) => _Context = context;
 
-        private readonly JsonSerializerOptions _JsonOptions = new JsonSerializerOptions {
+        private static readonly JsonSerializerOptions _JsonOptions = new JsonSerializerOptions {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             WriteIndented = true

@@ -511,12 +511,11 @@ namespace HeadNonSub.Clients.Discord {
             // Bong trap
             try {
                 if (BongTrapMessageId.HasValue && message.Id == BongTrapMessageId && reaction.User.IsSpecified && reaction.User.Value is SocketGuildUser socketUser) {
-                    Random rand = new Random();
                     if (!string.IsNullOrEmpty(socketUser.Nickname)) {
-                        string scrambledNick = new string(socketUser.Nickname.ToCharArray().OrderBy(s => (rand.Next(2) % 2) == 0).ToArray());
+                        string scrambledNick = new string(socketUser.Nickname.ToCharArray().OrderBy(s => (Random.Shared.Next(2) % 2) == 0).ToArray());
                         _ = socketUser.ModifyAsync(x => x.Nickname = scrambledNick);
                     } else {
-                        string scrambledUsername = new string(socketUser.Username.ToCharArray().OrderBy(s => (rand.Next(2) % 2) == 0).ToArray());
+                        string scrambledUsername = new string(socketUser.Username.ToCharArray().OrderBy(s => (Random.Shared.Next(2) % 2) == 0).ToArray());
                         _ = socketUser.ModifyAsync(x => x.Nickname = scrambledUsername);
                     }
                 }

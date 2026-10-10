@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace HeadNonSub.Extensions {
@@ -15,11 +14,6 @@ namespace HeadNonSub.Extensions {
         /// Pick mutiple random entries from a list.
         /// </summary>
         public static IEnumerable<T> PickRandom<T>(this IEnumerable<T> source, int count) => source.Shuffle().Take(count);
-
-        /// <summary>
-        /// Shuffle a list.
-        /// </summary>
-        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source) => source.OrderBy(x => Guid.NewGuid());
 
     }
 

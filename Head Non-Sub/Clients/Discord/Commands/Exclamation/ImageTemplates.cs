@@ -25,7 +25,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             string imageName = "ttsays_old.png";
 
             // 5% chance to be tt
-            if (new Random().Next(0, 100) >= 95) {
+            if (Random.Shared.Next(0, 100) >= 95) {
                 imageName = "ttsays.png";
             }
 

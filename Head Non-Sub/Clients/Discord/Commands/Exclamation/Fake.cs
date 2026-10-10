@@ -25,7 +25,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [Command("wubbydays")]
         [SubscriberOnly]
         public async Task WubbyDays([Remainder] string reason = "") {
-            if (new Random().Next(0, 100) >= 80) {
+            if (Random.Shared.Next(0, 100) >= 80) {
                 await BetterReplyAsync("https://url.xathz.net/3B9t0f0", parameters: $"rare_20_percent; {reason}");
             } else {
                 await BetterReplyAsync("https://url.xathz.net/3mkd4jW", parameters: reason);

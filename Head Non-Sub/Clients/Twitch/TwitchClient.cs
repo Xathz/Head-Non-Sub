@@ -84,16 +84,15 @@ namespace HeadNonSub.Clients.Twitch {
                 //    Console.WriteLine($"  scopes: {a.Scopes}");
                 //};
 
-#if DEBUG
-                return;
-#endif
-
+                // Skip stream monitoring when debugging
+#if !DEBUG
                 // Get user id's for streams that do not have it set
                 if (await CompleteTwitchStreamSettingsAsync()) {
                     StartMonitor();
                 } else {
                     LoggingManager.Log.Error("Failed to complete Twitch stream settings, skipping stream monitoring.");
                 }
+#endif
 
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);

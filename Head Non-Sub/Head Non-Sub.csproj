@@ -2,11 +2,12 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <LangVersion>8.0</LangVersion>
+    <TargetFramework>net10.0</TargetFramework>
 	<Platforms>x64</Platforms>
     <RootNamespace>HeadNonSub</RootNamespace>
     <StartupObject>HeadNonSub.Program</StartupObject>
+    <!-- Run with "dotnet HeadNonSub.dll", the apphost would clash with the HeadNonSub working directory on Linux -->
+    <UseAppHost>false</UseAppHost>
     <Authors>Xathz</Authors>
     <Description>Non-subs are the worst, they come in here and act like they own the place. At least I am the head of them all.</Description>
     <Version>2.10.1</Version>
@@ -51,22 +52,22 @@
 
   <ItemGroup>
     <PackageReference Include="B2Net" Version="0.8.0" />
-    <PackageReference Include="Discord.Net" Version="3.20.1" />
-    <PackageReference Include="Discord.Net.Webhook" Version="3.20.1" />
+    <PackageReference Include="Discord.Net" Version="3.20.2" />
+    <PackageReference Include="Discord.Net.Webhook" Version="3.20.2" />
     <PackageReference Include="Humanizer.Core" Version="3.0.10" />
-    <PackageReference Include="Magick.NET-Q16-HDRI-x64" Version="14.14.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.9" />
+    <PackageReference Include="Magick.NET-Q16-HDRI-x64" Version="15.0.0" />
+    <!-- Latest patch supported by Pomelo, there is no EF Core 10 version of Pomelo yet -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.20" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.12" />
+    <!-- Overrides the vulnerable version pulled in by B2Net -->
     <PackageReference Include="Microsoft.NETCore.Jit" Version="2.0.8" />
-    <PackageReference Include="NLog" Version="6.1.3" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="6.1.3" />
+    <PackageReference Include="NLog" Version="6.2.1" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="6.2.1" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
-    <PackageReference Include="StrawPollNET" Version="1.0.2" />
-    <PackageReference Include="System.Runtime.Caching" Version="10.0.9" />
-    <PackageReference Include="System.Text.Json" Version="10.0.9" />
     <PackageReference Include="TwitchLib" Version="3.5.3" />
   </ItemGroup>
 
