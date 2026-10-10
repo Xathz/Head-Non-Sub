@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using NLog;
-using NLog.Conditions;
 using NLog.Config;
 using NLog.Extensions.Logging;
 using NLog.Targets;
@@ -41,42 +40,42 @@ namespace HeadNonSub {
 
             // Override the trace color
             ConsoleRowHighlightingRule consoleTarget_RowRules_Trace = new ConsoleRowHighlightingRule() {
-                Condition = ConditionParser.ParseExpression("level == LogLevel.Trace"),
+                Condition = "level == LogLevel.Trace",
                 ForegroundColor = ConsoleOutputColor.Gray
             };
             consoleTarget.RowHighlightingRules.Add(consoleTarget_RowRules_Trace);
 
             // Override the debug color
             ConsoleRowHighlightingRule consoleTarget_RowRules_Debug = new ConsoleRowHighlightingRule() {
-                Condition = ConditionParser.ParseExpression("level == LogLevel.Debug"),
+                Condition = "level == LogLevel.Debug",
                 ForegroundColor = ConsoleOutputColor.Gray
             };
             consoleTarget.RowHighlightingRules.Add(consoleTarget_RowRules_Debug);
 
             // Override the info color
             ConsoleRowHighlightingRule consoleTarget_RowRules_Info = new ConsoleRowHighlightingRule() {
-                Condition = ConditionParser.ParseExpression("level == LogLevel.Info"),
+                Condition = "level == LogLevel.Info",
                 ForegroundColor = ConsoleOutputColor.White
             };
             consoleTarget.RowHighlightingRules.Add(consoleTarget_RowRules_Info);
 
             // Override the warn color
             ConsoleRowHighlightingRule consoleTarget_RowRules_Warn = new ConsoleRowHighlightingRule() {
-                Condition = ConditionParser.ParseExpression("level == LogLevel.Warn"),
+                Condition = "level == LogLevel.Warn",
                 ForegroundColor = ConsoleOutputColor.Yellow
             };
             consoleTarget.RowHighlightingRules.Add(consoleTarget_RowRules_Warn);
 
             // Override the error color
             ConsoleRowHighlightingRule consoleTarget_RowRules_Error = new ConsoleRowHighlightingRule() {
-                Condition = ConditionParser.ParseExpression("level == LogLevel.Error"),
+                Condition = "level == LogLevel.Error",
                 ForegroundColor = ConsoleOutputColor.Red
             };
             consoleTarget.RowHighlightingRules.Add(consoleTarget_RowRules_Error);
 
             // Override the fatal color
             ConsoleRowHighlightingRule consoleTarget_RowRules_Fatal = new ConsoleRowHighlightingRule() {
-                Condition = ConditionParser.ParseExpression("level == LogLevel.Fatal"),
+                Condition = "level == LogLevel.Fatal",
                 ForegroundColor = ConsoleOutputColor.Red
             };
             consoleTarget.RowHighlightingRules.Add(consoleTarget_RowRules_Fatal);
