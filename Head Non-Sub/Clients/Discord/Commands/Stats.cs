@@ -1,34 +1,30 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using Discord.Commands;
+using Discord;
+using Discord.Interactions;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Extensions;
 using HeadNonSub.Statistics;
 
-namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
+namespace HeadNonSub.Clients.Discord.Commands {
 
+    [Group("stats", "Command statistics")]
     [BlacklistEnforced]
-    [RequireContext(ContextType.Guild)]
+    [CommandContextType(InteractionContextType.Guild)]
     public class Stats : BetterModuleBase {
 
-        [Command("truecount")]
+        [SlashCommand("true", "How many times the true picture was posted")]
         public async Task TrueCount() {
-            await Context.Channel.TriggerTypingAsync();
-
             long count = StatisticsManager.GetTrueCount(Context.Guild.Id);
-
             await BetterReplyAsync($"There are {count:N0} truths here.");
         }
 
-        [Command("sayscount")]
+        [SlashCommand("says", "The most used /says templates")]
         public async Task SaysCount() {
-            await Context.Channel.TriggerTypingAsync();
-
             List<KeyValuePair<string, long>> saysCommands = StatisticsManager.GetSaysCount(Context.Guild.Id);
 
             StringBuilder builder = new StringBuilder();
-
             foreach (KeyValuePair<string, long> command in saysCommands) {
                 builder.AppendLine($"{Constants.ZeroWidthSpace}{command.Value,-5:N0}: {command.Key}");
             }
@@ -36,12 +32,12 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
             List<string> chunks = builder.ToString().SplitIntoChunksPreserveNewLines(1930);
 
             if (chunks.Count == 0) {
-                await BetterReplyAsync("There is no top `!says` command data.");
+                await BetterReplyAsync("There is no `/says` data yet.");
                 return;
             }
 
             foreach (string chunk in chunks) {
-                await BetterReplyAsync($"● Top `!says` commands ```{chunk}```");
+                await BetterReplyAsync($"● Top `/says` templates ```{chunk}```");
             }
         }
 

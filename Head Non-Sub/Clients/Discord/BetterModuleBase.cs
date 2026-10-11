@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Commands;
-using Discord.Rest;
+using Discord.Interactions;
 using Discord.WebSocket;
 using HeadNonSub.Extensions;
 using HeadNonSub.Statistics;
 
 namespace HeadNonSub.Clients.Discord {
 
-    public abstract class BetterModuleBase : ModuleBase<SocketCommandContext> {
+    public abstract class BetterModuleBase : InteractionModuleBase<SocketInteractionContext> {
 
         protected BetterModuleBase() { }
 
@@ -25,29 +25,25 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         /// <summary>
-        /// Get a socket user from a user id.
+        /// The slash command as text, for statistics.
         /// </summary>
-        /// <param name="userId">User id to convert to a socket user.</param>
-        public SocketGuildUser UserFromUserId(ulong userId) {
-            try {
-                return Context.Guild.GetUser(userId);
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-                return null;
+        private string CommandText() {
+            if (Context.Interaction is SocketSlashCommand slashCommand) {
+                StringBuilder builder = new StringBuilder($"/{slashCommand.Data.Name}");
+                AppendOptions(builder, slashCommand.Data.Options);
+                return builder.ToString();
             }
+
+            return string.Empty;
         }
 
-        /// <summary>
-        /// Format a log string containing this context  info.
-        /// </summary>
-        public string BetterLogFormat() {
-            if (Context.IsPrivate) {
-                return $"{Context.User}/{Context.User.Id} in DM/{Context.Channel.Name} ({Context.Channel.Id})";
-            } else {
-                if (Context.User is SocketGuildUser guildUser) {
-                    return $"{(!string.IsNullOrWhiteSpace(guildUser.Nickname) ? guildUser.Nickname : guildUser.Username)} ({guildUser}/{guildUser.Id}) in {Context.Guild.Name}/{Context.Channel.Name} ({Context.Guild.Id}/{Context.Channel.Id})";
+        private static void AppendOptions(StringBuilder builder, IEnumerable<SocketSlashCommandDataOption> options) {
+            foreach (SocketSlashCommandDataOption option in options) {
+                if (option.Type == ApplicationCommandOptionType.SubCommand || option.Type == ApplicationCommandOptionType.SubCommandGroup) {
+                    builder.Append($" {option.Name}");
+                    AppendOptions(builder, option.Options);
                 } else {
-                    return $"{Context.User}/{Context.User.Id} in {Context.Guild.Name}/{Context.Channel.Name} ({Context.Guild.Id}/{Context.Channel.Id})";
+                    builder.Append($" {option.Name}:{option.Value}");
                 }
             }
         }
@@ -55,17 +51,11 @@ namespace HeadNonSub.Clients.Discord {
         /// <summary>
         /// Formats a user's display name and username.
         /// </summary>
-        /// <param name="user">Optional user, if <see langword="null" /> use <see cref="CommandContext.User"/>.</param>
-        public string BetterUserFormat(SocketUser user = null, bool nicknameOnly = false, string formatChar = "`") {
-            if (user is null) {
-                if (Context.User is SocketGuildUser contextUser) {
-                    if (nicknameOnly) {
-                        return $"{(string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Username : contextUser.Nickname)}";
-                    } else {
-                        return $"{(string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Username : contextUser.Nickname)} {formatChar}{contextUser}{formatChar}";
-                    }
-                }
-            }
+        /// <param name="user">Optional user, if <see langword="null" /> use the user running the command.</param>
+        /// <param name="nicknameOnly">Only return the display name.</param>
+        /// <param name="formatChar">Character to wrap the username in.</param>
+        public string BetterUserFormat(IUser user = null, bool nicknameOnly = false, string formatChar = "`") {
+            user ??= Context.User;
 
             if (user is SocketGuildUser guildUser) {
                 if (nicknameOnly) {
@@ -75,95 +65,76 @@ namespace HeadNonSub.Clients.Discord {
                 }
             }
 
-            return $"{Context.User.Username} {formatChar}{Context.User}{formatChar}";
+            return $"{user.Username} {formatChar}{user}{formatChar}";
         }
 
         /// <summary>
-        /// Sends a message to the source channel.
+        /// Reply to the command, or send a follow up if it was already replied to or deferred.
         /// </summary>
         /// <param name="message">Contents of the message.</param>
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
-        public async Task<IUserMessage> BetterReplyAsync(string message, string parameters = "", [CallerMemberName] string command = "") {
-            RestUserMessage sentMessage = await Context.Channel.SendMessageAsync(message, false, null, null, allowedMentions: DiscordClient.UserMentionsOnly).ConfigureAwait(false);
-
-            if (!Context.IsPrivate) {
-                StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
-                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters, sentMessage.Id);
-            }
-
-            return sentMessage;
-        }
+        public Task<IUserMessage> BetterReplyAsync(string message, string parameters = "", [CallerMemberName] string command = "") => SendAsync(message, null, parameters, command);
 
         /// <summary>
-        /// Sends a message to the source channel.
+        /// Reply to the command, or send a follow up if it was already replied to or deferred.
         /// </summary>
         /// <param name="embed">An embed to be displayed.</param>
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
-        public async Task<IUserMessage> BetterReplyAsync(Embed embed, string parameters = "", [CallerMemberName] string command = "") {
-            RestUserMessage sentMessage = await Context.Channel.SendMessageAsync(null, false, embed, null, allowedMentions: DiscordClient.UserMentionsOnly).ConfigureAwait(false);
-
-            if (!Context.IsPrivate) {
-                StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
-                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters, sentMessage.Id);
-            }
-
-            return sentMessage;
-        }
+        public Task<IUserMessage> BetterReplyAsync(Embed embed, string parameters = "", [CallerMemberName] string command = "") => SendAsync(null, embed, parameters, command);
 
         /// <summary>
-        /// Sends a message to the source channel.
+        /// Reply only the user running the command can see. Not tracked in statistics.
         /// </summary>
         /// <param name="message">Contents of the message.</param>
-        /// <param name="embed">An embed to be displayed.</param>
-        /// <param name="parameters">Additional parameters passed to the command.</param>
-        /// <param name="command">Name of who called this method.</param>
-        public async Task<IUserMessage> BetterReplyAsync(string message, Embed embed, string parameters = "", [CallerMemberName] string command = "") {
-            RestUserMessage sentMessage = await Context.Channel.SendMessageAsync(message, false, embed, null, allowedMentions: DiscordClient.UserMentionsOnly).ConfigureAwait(false);
-
-            if (!Context.IsPrivate) {
-                StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
-                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters, sentMessage.Id);
+        public async Task EphemeralReplyAsync(string message) {
+            if (Context.Interaction.HasResponded) {
+                await FollowupAsync(message, ephemeral: true, allowedMentions: DiscordClient.UserMentionsOnly);
+            } else {
+                await RespondAsync(message, ephemeral: true, allowedMentions: DiscordClient.UserMentionsOnly);
             }
-
-            return sentMessage;
         }
 
         /// <summary>
-        /// Sends a file to the source channel.
+        /// Reply to the command with a file, or send it as a follow up if it was already replied to or deferred.
         /// </summary>
-        /// <param name="stream">The System.IO.Stream of the file to be sent.</param>
+        /// <param name="stream">The stream of the file to be sent.</param>
         /// <param name="fileName">The name of the attachment.</param>
         /// <param name="message">The message to be sent.</param>
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
         public async Task<IUserMessage> BetterSendFileAsync(Stream stream, string fileName, string message, string parameters = "", [CallerMemberName] string command = "") {
-            RestUserMessage sentMessage = await Context.Message.Channel.SendFileAsync(stream, fileName, message, allowedMentions: DiscordClient.UserMentionsOnly).ConfigureAwait(false);
-
-            if (!Context.IsPrivate) {
-                StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
-                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters, sentMessage.Id);
+            if (stream is null) {
+                LoggingManager.Log.Error($"No file to send for {command}: {fileName}");
+                await EphemeralReplyAsync("Sorry, that file could not be found.");
+                return null;
             }
 
+            IUserMessage sentMessage;
+
+            if (Context.Interaction.HasResponded) {
+                sentMessage = await FollowupWithFileAsync(stream, fileName, message, allowedMentions: DiscordClient.UserMentionsOnly);
+            } else {
+                await RespondWithFileAsync(stream, fileName, message, allowedMentions: DiscordClient.UserMentionsOnly);
+                sentMessage = await GetOriginalResponseAsync();
+            }
+
+            TrackStatistics(sentMessage.Id, parameters, command);
             return sentMessage;
         }
 
-        /// <summary>
-        /// Sends a file to the source channel.
-        /// </summary>
-        /// <param name="filePath">The file path of the file.</param>
-        /// <param name="message">The message to be sent.</param>
-        /// <param name="parameters">Additional parameters passed to the command.</param>
-        /// <param name="command">Name of who called this method.</param>
-        public async Task<IUserMessage> BetterSendFileAsync(string filePath, string message, string parameters = "", [CallerMemberName] string command = "") {
-            RestUserMessage sentMessage = await Context.Message.Channel.SendFileAsync(filePath, message, allowedMentions: DiscordClient.UserMentionsOnly).ConfigureAwait(false);
+        private async Task<IUserMessage> SendAsync(string message, Embed embed, string parameters, string command) {
+            IUserMessage sentMessage;
 
-            if (!Context.IsPrivate) {
-                StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
-                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters, sentMessage.Id);
+            if (Context.Interaction.HasResponded) {
+                sentMessage = await FollowupAsync(message, embed: embed, allowedMentions: DiscordClient.UserMentionsOnly);
+            } else {
+                await RespondAsync(message, embed: embed, allowedMentions: DiscordClient.UserMentionsOnly);
+                sentMessage = await GetOriginalResponseAsync();
             }
 
+            TrackStatistics(sentMessage.Id, parameters, command);
             return sentMessage;
         }
 
@@ -174,9 +145,9 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
         public void TrackStatistics(ulong? replyMessageId = null, string parameters = "", [CallerMemberName] string command = "") {
-            if (!Context.IsPrivate) {
-                StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
-                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Message.Id, Context.Message.Content, command, parameters, replyMessageId);
+            if (Context.Guild is SocketGuild guild) {
+                StatisticsManager.InsertCommand(Context.Interaction.CreatedAt.UtcDateTime, guild.Id, Context.Channel.Id,
+                    Context.User.Id, Context.User.ToString(), DisplayName(), Context.Interaction.Id, CommandText(), command, parameters, replyMessageId);
             }
         }
 
@@ -190,9 +161,6 @@ namespace HeadNonSub.Clients.Discord {
             try {
                 if (Context.Guild.Id == WubbysFunHouse.ServerId) {
                     if (Context.Guild.GetChannel(WubbysFunHouse.ModLogsChannelId) is IMessageChannel channel) {
-
-                        await channel.TriggerTypingAsync();
-
                         EmbedBuilder builder = new EmbedBuilder() {
                             Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
                             Title = title
@@ -208,7 +176,7 @@ namespace HeadNonSub.Clients.Discord {
                             builder.AddField("Info", info, true);
                         }
 
-                        return await channel.SendMessageAsync(embed: builder.Build(), allowedMentions: DiscordClient.UserMentionsOnly).ConfigureAwait(false);
+                        return await channel.SendMessageAsync(embed: builder.Build(), allowedMentions: DiscordClient.UserMentionsOnly);
                     }
                 }
 
@@ -216,36 +184,6 @@ namespace HeadNonSub.Clients.Discord {
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
                 return null;
-            }
-        }
-
-        /// <summary>
-        /// Log a message to <see cref="WubbysFunHouse.ModLogsChannelId"/>.
-        /// </summary>
-        public async Task<List<IUserMessage>> LogMessageAsync(string title, string info) {
-            try {
-                if (Context.Guild.Id == WubbysFunHouse.ServerId) {
-                    if (Context.Guild.GetChannel(WubbysFunHouse.ModLogsChannelId) is IMessageChannel channel) {
-
-                        await channel.TriggerTypingAsync();
-
-                        // Max length per-message is 2,000 characters
-                        List<string> chunks = info.SanitizeForMarkdown().SplitIntoChunksPreserveNewLines(1998 - title.Length);
-
-                        List<IUserMessage> sentMessages = new List<IUserMessage>();
-
-                        foreach (string chunk in chunks) {
-                            sentMessages.Add(await channel.SendMessageAsync($"{title} ```{chunk}```", allowedMentions: DiscordClient.UserMentionsOnly).ConfigureAwait(false));
-                        }
-
-                        return sentMessages;
-                    }
-                }
-
-                return new List<IUserMessage>();
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-                return new List<IUserMessage>();
             }
         }
 
@@ -257,15 +195,13 @@ namespace HeadNonSub.Clients.Discord {
                 if (Context.Guild.Id == WubbysFunHouse.ServerId) {
                     if (Context.Guild.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel channel) {
 
-                        await channel.TriggerTypingAsync();
-
                         // Max length per-message is 2,000 characters
                         List<string> chunks = info.SanitizeForMarkdown().SplitIntoChunksPreserveNewLines(1998 - title.Length);
 
                         List<IUserMessage> sentMessages = new List<IUserMessage>();
 
                         foreach (string chunk in chunks) {
-                            sentMessages.Add(await channel.SendMessageAsync($"{title} ```{chunk}```", allowedMentions: DiscordClient.UserMentionsOnly).ConfigureAwait(false));
+                            sentMessages.Add(await channel.SendMessageAsync($"{title} ```{chunk}```", allowedMentions: DiscordClient.UserMentionsOnly));
                         }
 
                         return sentMessages;

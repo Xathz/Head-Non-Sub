@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Commands;
+using Discord.Interactions;
 using Discord.Rest;
 using Discord.WebSocket;
 using HeadNonSub.Extensions;
@@ -22,21 +21,14 @@ namespace HeadNonSub.Clients.Discord {
         private static DiscordSocketConfig _DiscordConfig;
         private static DiscordSocketClient _DiscordClient;
 
-        private static readonly CommandServiceConfig _ServiceConfig = new CommandServiceConfig() {
-            DefaultRunMode = RunMode.Async,
-            LogLevel = LogSeverity.Verbose
-        };
-
         /// <summary>
         /// Only allow user mentions, blocks @everyone, @here and role pings from user supplied text.
         /// </summary>
         public static readonly AllowedMentions UserMentionsOnly = new AllowedMentions(AllowedMentionTypes.Users);
 
-        private static IServiceProvider _MentionProvider;
-        private static readonly CommandService _MentionService = new CommandService(_ServiceConfig);
+        private static IServiceProvider _CommandProvider;
 
-        private static IServiceProvider _ExclamationProvider;
-        private static readonly CommandService _ExclamationService = new CommandService(_ServiceConfig);
+        private static MentionReplies _MentionReplies;
 
         /// <summary>
         /// Optional IOptions configuration provider (for dependency injection).
@@ -75,15 +67,17 @@ namespace HeadNonSub.Clients.Discord {
 
             _DiscordClient = new DiscordSocketClient(_DiscordConfig);
 
-            _MentionProvider = new ServiceCollection().AddSingleton(_DiscordClient)
-                .AddSingleton(_MentionService)
-                .AddSingleton<MentionCommands>()
+            InteractionServiceConfig interactionConfig = new InteractionServiceConfig() {
+                DefaultRunMode = RunMode.Async,
+                LogLevel = LogSeverity.Verbose
+            };
+
+            _CommandProvider = new ServiceCollection().AddSingleton(_DiscordClient)
+                .AddSingleton(x => new InteractionService(_DiscordClient.Rest, interactionConfig))
+                .AddSingleton<SlashCommands>()
                 .BuildServiceProvider();
 
-            _ExclamationProvider = new ServiceCollection().AddSingleton(_DiscordClient)
-                .AddSingleton(_ExclamationService)
-                .AddSingleton<ExclamationCommands>()
-                .BuildServiceProvider();
+            _MentionReplies = new MentionReplies(_DiscordClient);
 
             _DiscordClient.Log += Log;
             _DiscordClient.Connected += Connected;
@@ -107,14 +101,8 @@ namespace HeadNonSub.Clients.Discord {
             _DiscordClient.PresenceUpdated += PresenceUpdated;
             _DiscordClient.InviteCreated += InviteCreated;
 
-            _MentionProvider.GetRequiredService<CommandService>().Log += Log;
-            _ExclamationProvider.GetRequiredService<CommandService>().Log += Log;
-
-            await _MentionProvider.GetRequiredService<MentionCommands>().InitializeAsync();
-            MentionCommandList = _MentionProvider.GetRequiredService<MentionCommands>().CommandList;
-
-            await _ExclamationProvider.GetRequiredService<ExclamationCommands>().InitializeAsync();
-            ExclamationCommandList = _ExclamationProvider.GetRequiredService<ExclamationCommands>().CommandList;
+            _CommandProvider.GetRequiredService<InteractionService>().Log += Log;
+            await _CommandProvider.GetRequiredService<SlashCommands>().InitializeAsync();
 
             await _DiscordClient.LoginAsync(TokenType.Bot, GetConfiguration().DiscordToken);
             await _DiscordClient.StartAsync();
@@ -123,10 +111,6 @@ namespace HeadNonSub.Clients.Discord {
         private static async Task PresenceUpdated(SocketUser user, SocketPresence oldPresence, SocketPresence newPresence) => await Task.CompletedTask;
 
         private static async Task InviteCreated(SocketInvite invite) => await Task.CompletedTask;
-
-        public static ReadOnlyCollection<CommandInfo> MentionCommandList { get; private set; }
-
-        public static ReadOnlyCollection<CommandInfo> ExclamationCommandList { get; private set; }
 
         public static async Task StopAsync() => await _DiscordClient.StopAsync();
 
@@ -345,7 +329,7 @@ namespace HeadNonSub.Clients.Discord {
 
                     return;
                 } else {
-                    await message.Channel.SendMessageAsync($"No commands are available via direct message. Please mention the bot (`@{_DiscordClient.CurrentUser.Username}`) on the server.");
+                    await message.Channel.SendMessageAsync("No commands are available via direct message. Use the slash commands on the server, type `/` to see them.");
                     return;
                 }
             }

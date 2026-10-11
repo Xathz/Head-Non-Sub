@@ -1,24 +1,27 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord.Commands;
-using Discord.WebSocket;
+using Discord;
+using Discord.Interactions;
 using HeadNonSub.Settings;
 
 namespace HeadNonSub.Clients.Discord.Attributes {
 
+    /// <summary>
+    /// Block users on the blacklist from using the command.
+    /// </summary>
     public sealed class BlacklistEnforced : PreconditionAttribute {
 
-        public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services) {
-            if (context.User is SocketGuildUser user) {
-                if (SettingsManager.Configuration.DiscordBlacklist.Any(x => x.Key == context.Guild.Id & x.Value.Contains(user.Id))) {
-                    return Task.FromResult(PreconditionResult.FromError($"{context.User.Mention} you are blacklisted. You can not use any commands."));
-                } else {
-                    return Task.FromResult(PreconditionResult.FromSuccess());
-                }
+        public override Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, ICommandInfo commandInfo, IServiceProvider services) {
+            if (context.Guild is null) {
+                return Task.FromResult(PreconditionResult.FromError("You must be in a server to run this command."));
             }
 
-            return Task.FromResult(PreconditionResult.FromError($"{context.User.Mention} you must be in a guild to run this command."));
+            if (SettingsManager.Configuration.DiscordBlacklist.Any(x => x.Key == context.Guild.Id & x.Value.Contains(context.User.Id))) {
+                return Task.FromResult(PreconditionResult.FromError("You are blacklisted. You can not use any commands."));
+            }
+
+            return Task.FromResult(PreconditionResult.FromSuccess());
         }
 
     }

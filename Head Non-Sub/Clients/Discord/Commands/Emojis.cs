@@ -3,34 +3,35 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Discord.Commands;
+using Discord;
+using Discord.Interactions;
 using HeadNonSub.Clients.Discord.Attributes;
 using HeadNonSub.Entities.Discord;
 using HeadNonSub.Extensions;
 
-namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
+namespace HeadNonSub.Clients.Discord.Commands {
 
     [BlacklistEnforced]
-    [RequireContext(ContextType.Guild)]
-    public class NotSoBotReplacements : BetterModuleBase {
+    [CommandContextType(InteractionContextType.Guild)]
+    public class Emojis : BetterModuleBase {
 
         private static readonly char[] _TrimChars = new char[] { '0' };
 
         private const int _MaxEmoji = 5;
 
-        [Command("emoji"), Alias("e")]
+        [SlashCommand("emoji", "Enlarge emotes or emoji, up to 5")]
         [DisallowedChannels(WubbysFunHouse.MainChannelId)]
         [Cooldown(10, true)]
-        public async Task EnlargeEmoji([Remainder] string emoji) {
-            if (string.IsNullOrWhiteSpace(emoji)) {
-                await BetterReplyAsync("You must provide an emote or emoji to enlarge.");
+        public async Task EnlargeEmoji([Summary("emoji", "Emotes or emoji to enlarge")] string emoji) {
+            // Limit how many files one command can make the bot upload
+            List<EmoteOrEmoji> items = emoji.ParseDiscordMessageEmotes().Take(_MaxEmoji).ToList();
+
+            if (items.Count == 0) {
+                await EphemeralReplyAsync("You must provide an emote or emoji to enlarge.");
                 return;
             }
 
-            await Context.Channel.TriggerTypingAsync();
-
-            // Limit how many files one message can make the bot upload
-            List<EmoteOrEmoji> items = Context.Message.Content.ParseDiscordMessageEmotes().Take(_MaxEmoji).ToList();
+            await DeferAsync();
 
             foreach (EmoteOrEmoji item in items) {
                 if (item.IsEmote) {
@@ -60,16 +61,14 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
                     if (!string.IsNullOrEmpty(fullHex)) {
                         using MemoryStream stream = Cache.GetStream($"twemoji_{fullHex}.png");
-
-                        if (stream is MemoryStream) {
-                            await BetterSendFileAsync(stream, $"{fullHex}_emoji.png", "", parameters: emoji);
-                        }
+                        await BetterSendFileAsync(stream, $"{fullHex}_emoji.png", "", parameters: emoji);
                     } else {
                         await BetterReplyAsync("There was an error processing an emoji. Parse failed.", parameters: emoji);
                     }
                 }
             }
         }
+
     }
 
 }
