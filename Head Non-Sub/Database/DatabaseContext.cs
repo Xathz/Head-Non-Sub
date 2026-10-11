@@ -1,5 +1,4 @@
-﻿using System;
-using HeadNonSub.Database.Tables;
+﻿using HeadNonSub.Database.Tables;
 using HeadNonSub.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -26,16 +25,11 @@ namespace HeadNonSub.Database {
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
-            try {
-                // Cooldowns
-                modelBuilder.Entity<Cooldown>().ToTable("cooldowns");
-                modelBuilder.Entity<Cooldown>().HasKey(x => new { x.ServerId, x.UserId, x.Command });
-                modelBuilder.Entity<Cooldown>().HasIndex(x => x.ServerId);
-                modelBuilder.Entity<Cooldown>().HasIndex(x => x.UserId);
-
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-            }
+            // Cooldowns
+            modelBuilder.Entity<Cooldown>().ToTable("cooldowns");
+            modelBuilder.Entity<Cooldown>().HasKey(x => new { x.ServerId, x.UserId, x.Command });
+            modelBuilder.Entity<Cooldown>().HasIndex(x => x.ServerId);
+            modelBuilder.Entity<Cooldown>().HasIndex(x => x.UserId);
         }
 
     }
