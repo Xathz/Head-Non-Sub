@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using NLog;
 using NLog.Config;
@@ -151,7 +152,13 @@ namespace HeadNonSub {
             string message = logEvent.Exception != null && logEvent.Message == "{0}" ? string.Empty : logEvent.FormattedMessage;
 
             if (logEvent.Exception is Exception ex) {
-                string exception = $"{ex.GetType().Name}: {ex.Message}";
+                // Include inner exceptions, they often hold the real cause
+                List<string> exceptions = new List<string>();
+                for (Exception current = ex; current != null; current = current.InnerException) {
+                    exceptions.Add($"{current.GetType().Name}: {current.Message}");
+                }
+
+                string exception = string.Join(" -> ", exceptions);
                 return string.IsNullOrEmpty(message) ? exception : $"{message}: {exception}";
             }
 
