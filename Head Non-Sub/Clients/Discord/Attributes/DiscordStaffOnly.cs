@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Discord.Commands;
-using Discord.WebSocket;
+using Discord;
+using Discord.Interactions;
 
 namespace HeadNonSub.Clients.Discord.Attributes {
 
+    /// <summary>
+    /// Restrict a command to Discord staff. Pair with <see cref="DefaultMemberPermissionsAttribute"/> so non-staff don't see it.
+    /// </summary>
     public sealed class DiscordStaffOnly : PreconditionAttribute {
 
-        public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services) {
-            if (context.User is SocketGuildUser user) {
-
-                if (WubbysFunHouse.IsDiscordStaff(user)) {
-                    return Task.FromResult(PreconditionResult.FromSuccess());
-                }
-
-                return Task.FromResult(PreconditionResult.FromError($"{user.Mention} this is a Discord staff only command."));
+        public override Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, ICommandInfo commandInfo, IServiceProvider services) {
+            if (WubbysFunHouse.IsDiscordStaff(context.User)) {
+                return Task.FromResult(PreconditionResult.FromSuccess());
             }
 
-            return Task.FromResult(PreconditionResult.FromError($"{context.User.Mention} you must be in a guild to run this command."));
+            return Task.FromResult(PreconditionResult.FromError("This is a Discord staff only command."));
         }
 
     }
