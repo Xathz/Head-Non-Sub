@@ -1,4 +1,5 @@
 ﻿using System;
+using HeadNonSub.Database;
 using HeadNonSub.Settings;
 using HeadNonSub.Statistics.Tables;
 using Microsoft.EntityFrameworkCore;
@@ -15,18 +16,11 @@ namespace HeadNonSub.Statistics {
         public StatisticsContext(IOptions<Configuration> configurationOptions = null) => _Configuration = configurationOptions?.Value ?? SettingsManager.Configuration;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-            try {
-                string connectionString = $"Server={_Configuration.MariaDBHost};" +
-                    $"Database={_Configuration.MariaDBDatabase};" +
-                    $"Uid={_Configuration.MariaDBUsername};" +
-                    $"Pwd={_Configuration.MariaDBPassword};";
+            // Let connection errors through, catching them here left the context without a provider
+            string connectionString = DatabaseConnection.GetConnectionString(_Configuration);
 
-                optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
-
-                optionsBuilder.UseLoggerFactory(LoggingManager.DatabaseFactory);
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-            }
+            optionsBuilder.UseMySql(connectionString, DatabaseConnection.GetServerVersion(connectionString));
+            optionsBuilder.UseLoggerFactory(LoggingManager.DatabaseFactory);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
