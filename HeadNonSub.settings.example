@@ -2,12 +2,10 @@
   "botNickname": "Head Non-Sub",
   "botPlaying": "pls gift me a sub",
   "discordToken": "",
-  "urlShortenerKey": "",
   "mariaDBHost": "",
   "mariaDBDatabase": "",
   "mariaDBUsername": "",
   "mariaDBPassword": "",
   "xathzEmotesKey": "",
-  "discordWhitelist": { },
   "discordBlacklist": { }
 }

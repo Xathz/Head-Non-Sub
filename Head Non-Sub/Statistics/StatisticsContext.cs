@@ -12,8 +12,6 @@ namespace HeadNonSub.Statistics {
 
         public DbSet<Command> Commands { get; set; }
 
-        public DbSet<UserChange> UserChanges { get; set; }
-
         public StatisticsContext(IOptions<Configuration> configurationOptions = null) => _Configuration = configurationOptions?.Value ?? SettingsManager.Configuration;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
@@ -35,10 +33,6 @@ namespace HeadNonSub.Statistics {
             try {
                 modelBuilder.Entity<Command>().ToTable("commands");
                 modelBuilder.Entity<Command>().HasKey(x => x.Id);
-
-                modelBuilder.Entity<UserChange>().ToTable("user_changes");
-                modelBuilder.Entity<UserChange>().HasKey(x => x.Id);
-                modelBuilder.Entity<UserChange>().HasIndex(x => x.UserId);
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
