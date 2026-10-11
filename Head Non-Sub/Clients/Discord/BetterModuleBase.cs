@@ -85,7 +85,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
         public async Task<IUserMessage> BetterReplyAsync(string message, string parameters = "", [CallerMemberName] string command = "") {
-            RestUserMessage sentMessage = await Context.Channel.SendMessageAsync(message, false, null, null).ConfigureAwait(false);
+            RestUserMessage sentMessage = await Context.Channel.SendMessageAsync(message, false, null, null, allowedMentions: DiscordClient.UserMentionsOnly).ConfigureAwait(false);
 
             if (!Context.IsPrivate) {
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
@@ -102,7 +102,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
         public async Task<IUserMessage> BetterReplyAsync(Embed embed, string parameters = "", [CallerMemberName] string command = "") {
-            RestUserMessage sentMessage = await Context.Channel.SendMessageAsync(null, false, embed, null).ConfigureAwait(false);
+            RestUserMessage sentMessage = await Context.Channel.SendMessageAsync(null, false, embed, null, allowedMentions: DiscordClient.UserMentionsOnly).ConfigureAwait(false);
 
             if (!Context.IsPrivate) {
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
@@ -120,7 +120,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
         public async Task<IUserMessage> BetterReplyAsync(string message, Embed embed, string parameters = "", [CallerMemberName] string command = "") {
-            RestUserMessage sentMessage = await Context.Channel.SendMessageAsync(message, false, embed, null).ConfigureAwait(false);
+            RestUserMessage sentMessage = await Context.Channel.SendMessageAsync(message, false, embed, null, allowedMentions: DiscordClient.UserMentionsOnly).ConfigureAwait(false);
 
             if (!Context.IsPrivate) {
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
@@ -139,7 +139,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
         public async Task<IUserMessage> BetterSendFileAsync(Stream stream, string fileName, string message, string parameters = "", [CallerMemberName] string command = "") {
-            RestUserMessage sentMessage = await Context.Message.Channel.SendFileAsync(stream, fileName, message).ConfigureAwait(false);
+            RestUserMessage sentMessage = await Context.Message.Channel.SendFileAsync(stream, fileName, message, allowedMentions: DiscordClient.UserMentionsOnly).ConfigureAwait(false);
 
             if (!Context.IsPrivate) {
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
@@ -157,7 +157,7 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="parameters">Additional parameters passed to the command.</param>
         /// <param name="command">Name of who called this method.</param>
         public async Task<IUserMessage> BetterSendFileAsync(string filePath, string message, string parameters = "", [CallerMemberName] string command = "") {
-            RestUserMessage sentMessage = await Context.Message.Channel.SendFileAsync(filePath, message).ConfigureAwait(false);
+            RestUserMessage sentMessage = await Context.Message.Channel.SendFileAsync(filePath, message, allowedMentions: DiscordClient.UserMentionsOnly).ConfigureAwait(false);
 
             if (!Context.IsPrivate) {
                 StatisticsManager.InsertCommand(Context.Message.CreatedAt.DateTime, Context.Guild.Id, Context.Channel.Id,
@@ -208,7 +208,7 @@ namespace HeadNonSub.Clients.Discord {
                             builder.AddField("Info", info, true);
                         }
 
-                        return await channel.SendMessageAsync(embed: builder.Build()).ConfigureAwait(false);
+                        return await channel.SendMessageAsync(embed: builder.Build(), allowedMentions: DiscordClient.UserMentionsOnly).ConfigureAwait(false);
                     }
                 }
 
@@ -235,7 +235,7 @@ namespace HeadNonSub.Clients.Discord {
                         List<IUserMessage> sentMessages = new List<IUserMessage>();
 
                         foreach (string chunk in chunks) {
-                            sentMessages.Add(await channel.SendMessageAsync($"{title} ```{chunk}```").ConfigureAwait(false));
+                            sentMessages.Add(await channel.SendMessageAsync($"{title} ```{chunk}```", allowedMentions: DiscordClient.UserMentionsOnly).ConfigureAwait(false));
                         }
 
                         return sentMessages;
@@ -265,7 +265,7 @@ namespace HeadNonSub.Clients.Discord {
                         List<IUserMessage> sentMessages = new List<IUserMessage>();
 
                         foreach (string chunk in chunks) {
-                            sentMessages.Add(await channel.SendMessageAsync($"{title} ```{chunk}```").ConfigureAwait(false));
+                            sentMessages.Add(await channel.SendMessageAsync($"{title} ```{chunk}```", allowedMentions: DiscordClient.UserMentionsOnly).ConfigureAwait(false));
                         }
 
                         return sentMessages;
