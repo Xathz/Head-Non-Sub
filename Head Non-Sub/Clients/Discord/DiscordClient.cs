@@ -27,6 +27,11 @@ namespace HeadNonSub.Clients.Discord {
             LogLevel = LogSeverity.Verbose
         };
 
+        /// <summary>
+        /// Only allow user mentions, blocks @everyone, @here and role pings from user supplied text.
+        /// </summary>
+        public static readonly AllowedMentions UserMentionsOnly = new AllowedMentions(AllowedMentionTypes.Users);
+
         private static IServiceProvider _MentionProvider;
         private static readonly CommandService _MentionService = new CommandService(_ServiceConfig);
 
@@ -222,7 +227,7 @@ namespace HeadNonSub.Clients.Discord {
 
             // Log join
             if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
-                await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :inbox_tray: {user} (`{user.Id}`) has joined.");
+                await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :inbox_tray: {user} (`{user.Id}`) has joined.", allowedMentions: UserMentionsOnly);
             }
 
             if (user == null) {
@@ -246,13 +251,13 @@ namespace HeadNonSub.Clients.Discord {
 
         private static async Task UserLeft(SocketGuild guild, SocketUser user) {
             if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
-                await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :outbox_tray: {user} (`{user.Id}`) left the server.");
+                await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :outbox_tray: {user} (`{user.Id}`) left the server.", allowedMentions: UserMentionsOnly);
             }
         }
 
         private static async Task UserBanned(SocketUser user, SocketGuild guild) {
             if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel userLogChannel) {
-                await userLogChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :no_entry: {user} (`{user.Id}`) was banned.");
+                await userLogChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :no_entry: {user} (`{user.Id}`) was banned.", allowedMentions: UserMentionsOnly);
             }
 
             try {
@@ -265,9 +270,9 @@ namespace HeadNonSub.Clients.Discord {
                         RestAuditLogEntry bannedEvent = userBans.Where(x => x.Data is BanAuditLogData data && data.Target.Id == user.Id).FirstOrDefault();
 
                         if (string.IsNullOrEmpty(bannedEvent.Reason)) {
-                            await modLogChannel.SendMessageAsync($":no_entry: {user} (`{user.Id}`) was banned by {bannedEvent.User} (`{bannedEvent.User.Id}`) with no reason specified.");
+                            await modLogChannel.SendMessageAsync($":no_entry: {user} (`{user.Id}`) was banned by {bannedEvent.User} (`{bannedEvent.User.Id}`) with no reason specified.", allowedMentions: UserMentionsOnly);
                         } else {
-                            await modLogChannel.SendMessageAsync($":no_entry: {user} (`{user.Id}`) was banned by {bannedEvent.User} (`{bannedEvent.User.Id}`) with reason: **{bannedEvent.Reason}**");
+                            await modLogChannel.SendMessageAsync($":no_entry: {user} (`{user.Id}`) was banned by {bannedEvent.User} (`{bannedEvent.User.Id}`) with reason: **{bannedEvent.Reason}**", allowedMentions: UserMentionsOnly);
                         }
                     }
                 });
@@ -323,7 +328,7 @@ namespace HeadNonSub.Clients.Discord {
                 socketMessage.Embeds.Any(x => x.Description.ContainsUrls())) {
 
                 List<string> urls = socketMessage.Embeds.FirstOrDefault().Description.GetUrls();
-                await socketMessage.Channel.SendMessageAsync($"Url detected in `WubbyMail` message, attempting to embed...{Environment.NewLine}{string.Join(Environment.NewLine, urls)}");
+                await socketMessage.Channel.SendMessageAsync($"Url detected in `WubbyMail` message, attempting to embed...{Environment.NewLine}{string.Join(Environment.NewLine, urls)}", allowedMentions: UserMentionsOnly);
 
                 return;
             }
@@ -388,7 +393,7 @@ namespace HeadNonSub.Clients.Discord {
 
                     if (!string.IsNullOrEmpty(logMessage)) {
                         if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
-                            await logChannel.SendMessageAsync(logMessage);
+                            await logChannel.SendMessageAsync(logMessage, allowedMentions: UserMentionsOnly);
                         }
                     }
                 }
@@ -412,7 +417,7 @@ namespace HeadNonSub.Clients.Discord {
                 }
 
                 if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
-                    await logChannel.SendMessageAsync(logMessage);
+                    await logChannel.SendMessageAsync(logMessage, allowedMentions: UserMentionsOnly);
                 }
             }
         }
@@ -465,7 +470,7 @@ namespace HeadNonSub.Clients.Discord {
                 // Discord invites
                 if (contentLowercase.Contains("https://discord.gg/")) {
                     await message.DeleteAsync();
-                    await channel.SendMessageAsync($"{user.Mention} No invites allowed.");
+                    await channel.SendMessageAsync($"{user.Mention} No invites allowed.", allowedMentions: UserMentionsOnly);
                     return;
                 }
 
@@ -493,10 +498,10 @@ namespace HeadNonSub.Clients.Discord {
                             if (_DiscordClient.GetChannel(WubbysFunHouse.LinksChannelId) is IMessageChannel linksChannel) {
                                 LoggingManager.Log.Info($"Link in #{channel.Name} by {user} ({user.Id})");
 
-                                await linksChannel.SendMessageAsync($"● Posted by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.ResolveTags()}");
+                                await linksChannel.SendMessageAsync($"● Posted by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.ResolveTags()}", allowedMentions: UserMentionsOnly);
 
                                 await message.DeleteAsync();
-                                await channel.SendMessageAsync($"{user.Mention} You need the `Forklift Drivers` role or higher to post links here. Link was moved to <#{WubbysFunHouse.LinksChannelId}>.");
+                                await channel.SendMessageAsync($"{user.Mention} You need the `Forklift Drivers` role or higher to post links here. Link was moved to <#{WubbysFunHouse.LinksChannelId}>.", allowedMentions: UserMentionsOnly);
                             }
 
                             // Move attachments
@@ -512,10 +517,10 @@ namespace HeadNonSub.Clients.Discord {
                                         LoggingManager.Log.Info($"Attachment in #{channel.Name} by {user} ({user.Id}); {attachment.Filename}; api: {attachment.Size.Bytes().Humanize("#.##")}; downloaded: {stream.Length.Bytes().Humanize("#.##")}");
 
                                         if (stream.Length > Constants.DiscordMaximumFileSize) {
-                                            await actualFuckingSpamChannel.SendMessageAsync($"An attachment was uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}> and can not be re-uploaded, the attachment is too large for a bot to upload (`{attachment.Size.Bytes().Humanize("#.##")} / {stream.Length.Bytes().Humanize("#.##")}`). They probably have Nitro.");
+                                            await actualFuckingSpamChannel.SendMessageAsync($"An attachment was uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}> and can not be re-uploaded, the attachment is too large for a bot to upload (`{attachment.Size.Bytes().Humanize("#.##")} / {stream.Length.Bytes().Humanize("#.##")}`). They probably have Nitro.", allowedMentions: UserMentionsOnly);
                                         } else {
                                             stream.Seek(0, SeekOrigin.Begin);
-                                            await actualFuckingSpamChannel.SendFileAsync(stream, attachment.Filename, $"● Uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.ResolveTags()}");
+                                            await actualFuckingSpamChannel.SendFileAsync(stream, attachment.Filename, $"● Uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.ResolveTags()}", allowedMentions: UserMentionsOnly);
                                         }
                                     } else {
                                         throw new HttpRequestException($"There was an error; ({(int)response.StatusCode}) {response.ReasonPhrase}");
@@ -523,7 +528,7 @@ namespace HeadNonSub.Clients.Discord {
                                 }
 
                                 await message.DeleteAsync();
-                                await channel.SendMessageAsync($"{user.Mention} You need to be `Forklift Drivers` or higher to upload files here. Attachment was moved to <#{WubbysFunHouse.ActualFuckingSpamChannelId}>.");
+                                await channel.SendMessageAsync($"{user.Mention} You need to be `Forklift Drivers` or higher to upload files here. Attachment was moved to <#{WubbysFunHouse.ActualFuckingSpamChannelId}>.", allowedMentions: UserMentionsOnly);
                             }
                         }
                     }
@@ -536,7 +541,7 @@ namespace HeadNonSub.Clients.Discord {
 
                     if (count > 10) {
                         await message.DeleteAsync();
-                        await channel.SendMessageAsync($"{user.Mention} Only 10 or less animated emotes/emoji per-message. Having many of them breaks the channel for some people.");
+                        await channel.SendMessageAsync($"{user.Mention} Only 10 or less animated emotes/emoji per-message. Having many of them breaks the channel for some people.", allowedMentions: UserMentionsOnly);
                     }
                 }
             } catch (Exception ex) {

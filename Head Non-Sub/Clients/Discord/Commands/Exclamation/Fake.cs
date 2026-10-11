@@ -34,13 +34,13 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         */
 
         [Command("wubbysays")]
-        [Cooldown(300)]
         [SubscriberOnly]
+        [Cooldown(300)]
         public async Task WubbySays([Remainder] string reason = "") => _ = await BetterReplyAsync("You can watch what wubby says live every Wednesday, Friday, Sunday, and often Mondays @ 8:30pm et / 5:30pm pt!", parameters: reason);
 
         [Command("executie")]
-        [Cooldown(300)]
         [SubscriberOnly]
+        [Cooldown(300)]
         public async Task Executie(SocketUser user = null, [Remainder] string reason = "") {
             if (user == null) {
                 await BetterReplyAsync("You must mention a user to executie them.", parameters: $"user null; {reason}");
