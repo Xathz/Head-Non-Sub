@@ -62,11 +62,15 @@ namespace HeadNonSub.Statistics {
             try {
                 using StatisticsContext statistics = new StatisticsContext();
 
-                return statistics.Commands.AsNoTracking().Where(x => x.ServerId == serverId & _CommandNameMap.Any(c => c.Key == x.CommandName))
+                string[] commandNames = _CommandNameMap.Keys.ToArray();
+
+                // Count in the database then map to display names
+                return statistics.Commands.AsNoTracking().Where(x => x.ServerId == serverId & commandNames.Contains(x.CommandName))
                         .GroupBy(x => x.CommandName).Select(g => new {
-                            CommandName = _CommandNameMap[g.Key],
+                            CommandName = g.Key,
                             Count = g.LongCount()
-                        }).OrderByDescending(x => x.Count).ToDictionary(x => x.CommandName, x => x.Count).ToList();
+                        }).ToList()
+                        .Select(x => new KeyValuePair<string, long>(_CommandNameMap[x.CommandName], x.Count)).OrderByDescending(x => x.Value).ToList();
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
                 return new List<KeyValuePair<string, long>>();
