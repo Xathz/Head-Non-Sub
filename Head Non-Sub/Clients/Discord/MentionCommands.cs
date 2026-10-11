@@ -62,15 +62,15 @@ namespace HeadNonSub.Clients.Discord {
 
                 switch (result.Error) {
                     case CommandError.UnmetPrecondition:
-                        await context.Channel.SendMessageAsync(result.ErrorReason);
+                        await context.Channel.SendMessageAsync(result.ErrorReason, allowedMentions: DiscordClient.UserMentionsOnly);
                         break;
 
                     case CommandError.ObjectNotFound:
-                        await context.Channel.SendMessageAsync(result.ErrorReason);
+                        await context.Channel.SendMessageAsync(result.ErrorReason, allowedMentions: DiscordClient.UserMentionsOnly);
                         break;
 
                     case CommandError.ParseFailed:
-                        await context.Channel.SendMessageAsync(result.ErrorReason);
+                        await context.Channel.SendMessageAsync(result.ErrorReason, allowedMentions: DiscordClient.UserMentionsOnly);
                         break;
 
                     default:
