@@ -42,7 +42,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
                         Stream stream = await content.ReadAsStreamAsync();
 
-                        if (stream.Length > Constants.DiscordMaximumFileSize) {
+                        if ((ulong)stream.Length > Context.Interaction.AttachmentSizeLimit) {
                             await BetterReplyAsync("There was an error processing an emoji. Re-upload was too large.", parameters: emoji);
                         } else {
                             stream.Seek(0, SeekOrigin.Begin);

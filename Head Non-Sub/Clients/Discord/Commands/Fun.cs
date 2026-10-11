@@ -32,7 +32,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [SlashCommand("dating", "Speed dating")]
         public async Task Dating() {
-            IUserMessage message = await BetterReplyAsync($"Haha {Context.User.Username}, you are alone.");
+            IUserMessage message = await BetterReplyAsync($"Haha {BetterUserFormat(nicknameOnly: true)}, you are alone.");
 
             IEmote emote = Context.Guild.Emotes.FirstOrDefault(x => x.Id == 461043064979456012);
             if (emote is IEmote) {

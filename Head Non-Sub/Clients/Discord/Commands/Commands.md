@@ -13,8 +13,8 @@ Access | Scope / Description
 --- | ---
 All | Everyone
 Sub | Users that have a `Twitch Subscriber` or `Patreon` role
-Staff | **Built-in roles:** `Administrator`<br>**Guild (server) roles:** `Admins`, `Mods`, `Mod-Lite`<br>**Users:** `xathz`
-Xathz | `xathz` only
+Staff | **Built-in roles:** `Administrator`<br>**Guild (server) roles:** `Admins`, `Mods`, `Mod-Lite`<br>**Users:** Xathz
+Xathz | Xathz only
 
 ## Commands
 
