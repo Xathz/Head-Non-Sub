@@ -24,6 +24,7 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
         [DisallowedChannels(WubbysFunHouse.MainChannelId)]
         public async Task Infractions(SocketUser user = null) {
             if (user == null) { return; }
+            if (!WubbysFunHouse.IsDiscordOrTwitchStaff(Context.User)) { return; }
 
             await Context.Channel.TriggerTypingAsync();
 
@@ -131,6 +132,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         [Command("unmute")]
         public async Task Unmute(SocketUser user = null) {
+            if (!WubbysFunHouse.IsDiscordStaff(Context.User)) { return; }
+
             if (user is SocketGuildUser guildUser) {
                 await WubbysFunHouse.RemoveRoleAsync(guildUser, WubbysFunHouse.MutedRoleId, $"Mute removed by {Context.User} ({Context.User.Id})");
                 await BetterReplyAsync($"Force removed the MEE6 `Mute` role from `{user}`.");
