@@ -89,26 +89,16 @@ namespace HeadNonSub {
         public static string ListKeys() => string.Join(", ", _CacheKeys.ToList());
 
         /// <summary>
-        /// Get a entry from the cache as a <see cref="MemoryStream"/>.
+        /// Get a entry from the cache as a new read only <see cref="MemoryStream"/>.
         /// </summary>
         /// <param name="key">A unique identifier for the cache entry to get.</param>
         public static MemoryStream GetStream(string key) {
-            if (!_Cache.TryGetValue(key, out object cachedValue)) {
-                return null;
+            if (_Cache.TryGetValue(key, out object cachedValue) && cachedValue is byte[] data) {
+                // New stream each call so commands running at the same time don't share a position
+                return new MemoryStream(data, false);
             }
 
-            MemoryStream memoryStream = new MemoryStream(256);
-
-            // Copy to a new stream because Discord will close this when used
-            MemoryStream fromCache = cachedValue as MemoryStream;
-            fromCache.CopyTo(memoryStream);
-            memoryStream.Seek(0, SeekOrigin.Begin);
-
-            // Reset position of the stream in the cache
-            fromCache.Seek(0, SeekOrigin.Begin);
-            _Cache.Set(key, fromCache);
-
-            return memoryStream;
+            return null;
         }
 
         /// <summary>
@@ -128,14 +118,9 @@ namespace HeadNonSub {
                     key = $"twemoji_{fileInfo.Name}";
                 }
 
-                MemoryStream memoryStream = new MemoryStream();
-                using (FileStream fileStream = File.OpenRead(fileInfo.FullName)) {
-                    fileStream.CopyTo(memoryStream);
-                }
-
-                memoryStream.Seek(0, SeekOrigin.Begin);
+                byte[] data = await File.ReadAllBytesAsync(fileInfo.FullName);
                 _CacheKeys.Add(key);
-                _Cache.Set(key, memoryStream);
+                _Cache.Set(key, data);
             }
 
             // Download and parse top level domains
