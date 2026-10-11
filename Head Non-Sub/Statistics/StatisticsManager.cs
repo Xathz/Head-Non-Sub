@@ -1,4 +1,5 @@
 ﻿using System;
+using HeadNonSub.Extensions;
 
 namespace HeadNonSub.Statistics {
 
@@ -8,11 +9,7 @@ namespace HeadNonSub.Statistics {
             using StatisticsContext statistics = new StatisticsContext();
 
             if (statistics.Database.CanConnect()) {
-                if (statistics.Database.EnsureCreated()) {
-                    LoggingManager.Log.Info("Database created");
-                } else {
-                    LoggingManager.Log.Info("Database already exists, connected");
-                }
+                statistics.EnsureTablesCreated();
             } else {
                 LoggingManager.Log.Error("Can connect check failed");
             }
