@@ -4,8 +4,6 @@
 
 - Some commands have cooldowns either server wide, per-channel, or per-user
   - Some are dynamic so the duration can not be listed here
-- The raid recovery system commands are per-channel
-  - If enabled at the same time in different channels all lists and ban lists are seperate
 - Not all commands are listed, some are excluded here to prevent abuse
 
 ### Users
@@ -35,10 +33,6 @@ Mainly used for memes and random things.
 
 Command | Parameters | Description | Access
 --- | --- | --- | ---
-`addnote` | `<user>` `<note>` | Add a note to a user | Staff
-`notes` | `<user>` | Get a users notes | Staff
-`deleteallnotes` | `<user>` | Delete all notes about a user | Staff
-`deletenote` | `<user>` `<noteid>` | Delete a note. Get the note id's from the `notes` command | Staff
 `prices` | | The donation prices for media share and special events on [PaymoneyWubby](https://wub.by/ttv)'s stream. **Alias:** `mediashare` | All
 `randomclip` | | Get a random [PaymoneyWubby](https://wub.by/ttv) Twitch clip | All
 `randomsong` | | Random song that Rythm Bot or Rythm Bot 2 has played | All
@@ -48,7 +42,6 @@ Command | Parameters | Description | Access
 `strawpollresults` | `<url>` | Get the results of a [Straw Poll](https://www.strawpoll.me). **Alias:** `strawpollr` | All
 `trashpoll` | `<text>` `<emotes and emoji>` | Sometimes it fails to use the emotes and emoji so it's trash | All
 `truecount` | | Number of times `!true` was used | All
-`twitchuser` | `<twitch username>` | Get most recent Twitch messages and mod actions | Staff
 
 ### Shitposting
 
@@ -103,18 +96,6 @@ Command  | Parameters | Description | Access
 `blacklist remove` | `<user>` | Removes a user from the blacklist | Staff
 `help` | | A link to this document | All
 `ping` | | Check the delay from the bot to Discord | All
-`emotemode` | `<mode>` | Enable/disable current channel mode. **Modes:** `off`, `textonly`, `emoteonly`, `exactly` | Staff
-`rr ban` | `<minutes>` Optional: `<token>` | Ban suspected raiders from the past `x` minutes. You will be prompted with a list of users to be banned and a confirmation token. Remove a user from being banned with the `rr skip` command | Staff
-`rr clean` | `<minutes>` | Delete messages from the suspected raiders from the past `x` minutes | Staff
-`rr disable` | | Disable the raid recovery system | Staff
-`rr enable` | | Enable the raid recovery system | Staff
-`rr list` | `<minutes>` | List suspected raiders and how many messages they sent in the past `x` minutes | Staff
-`rr skip` |  `<user>` | Remove a user from the ban command | Staff
-`servermap` | | Direct message you a JSON file containing server info and layout | Staff
-`membermap` | | Direct message you a JSON file containing all server members | Staff
-`undo` | `<count>` | Delete ***your*** `x` most recent and bot replies | All
-`undobot` | `<count>` | Delete `x` most recent bot messages | Staff
-`undoemotes` | `<count>` | Delete `x` most messages that are mostly emotes | Staff
 `good bot` | | :smirk: | Xathz
 `you are great` | | Bot will respond to you. **Aliases:** `how are you`, `i like you`, `i love you`, `nice to see you` | All
 `you suck` | | Bot will respond to you. **Aliases:** `die`, `fuck off`, `fuck you`, `i hate you`| All

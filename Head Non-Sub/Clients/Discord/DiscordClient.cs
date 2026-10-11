@@ -8,7 +8,6 @@ using Discord;
 using Discord.Commands;
 using Discord.Rest;
 using Discord.WebSocket;
-using HeadNonSub.Entities.Discord;
 using HeadNonSub.Extensions;
 using HeadNonSub.Settings;
 using HeadNonSub.Statistics;
@@ -293,7 +292,7 @@ namespace HeadNonSub.Clients.Discord {
             return Task.CompletedTask;
         }
 
-        private static async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction) {
+        private static Task ReactionAdded(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction) {
 
             // Bong trap
             try {
@@ -310,19 +309,7 @@ namespace HeadNonSub.Clients.Discord {
                 LoggingManager.Log.Error(ex);
             }
 
-            // Emote mode
-            (EmoteModeTracker.Mode mode, object _) = EmoteModeTracker.GetMode(channel.Id);
-
-            if (mode == EmoteModeTracker.Mode.TextOnly) {
-                if (message.HasValue & reaction.User.IsSpecified) {
-
-                    if (WubbysFunHouse.IsDiscordOrTwitchStaff(reaction.User.Value)) {
-                        return;
-                    }
-
-                    await message.Value.RemoveReactionAsync(reaction.Emote, reaction.User.Value);
-                }
-            }
+            return Task.CompletedTask;
         }
 
         private static async Task MessageReceived(SocketMessage socketMessage) {
@@ -406,15 +393,6 @@ namespace HeadNonSub.Clients.Discord {
                     }
                 }
             }
-
-            // ========
-
-            if (!(updatedMessage is SocketUserMessage message)) { return; }
-            if (updatedMessage.Source != MessageSource.User) { return; }
-
-            if (!WubbysFunHouse.IsDiscordOrTwitchStaff(updatedMessage.Author)) {
-                await ProcessMessageEmotesAsync(message);
-            }
         }
 
         private static async Task MessageDeleted(Cacheable<IMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel) {
@@ -474,11 +452,6 @@ namespace HeadNonSub.Clients.Discord {
                 //if (user.Id == 226992558839037952 && channel.Id == 502630201948373003 && new Random().Next(1, 100) > 50) {
                 //    await channel.SendMessageAsync($"<@226992558839037952> No");
                 //}
-
-                // Emote mode
-                if (await ProcessMessageEmotesAsync(message)) {
-                    return;
-                }
 
                 // Jingle bells
                 if (message.Content.Replace(" ", "").Contains("jingle", StringComparison.OrdinalIgnoreCase)) {
@@ -569,61 +542,6 @@ namespace HeadNonSub.Clients.Discord {
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
-        }
-
-        /// <summary>
-        /// Process emote mode for a message.
-        /// </summary>
-        /// <param name="message">Message to process.</param>
-        /// <returns>True if message was deleted.</returns>
-        private static async Task<bool> ProcessMessageEmotesAsync(SocketUserMessage message) {
-            (EmoteModeTracker.Mode mode, object args) = EmoteModeTracker.GetMode(message.Channel.Id);
-
-            if (mode != EmoteModeTracker.Mode.Off) {
-
-                if (message.Attachments.Count > 0) {
-                    return await DeleteMessageAsync();
-                }
-
-                List<EmoteOrEmoji> emotes = message.Content.ParseDiscordMessageEmotes();
-
-                if (mode == EmoteModeTracker.Mode.TextOnly) {
-                    if (emotes.Count > 0) {
-                        return await DeleteMessageAsync();
-                    }
-
-                } else if (mode == EmoteModeTracker.Mode.EmoteOnly) {
-                    string content = message.Content;
-
-                    foreach (EmoteOrEmoji emote in emotes) {
-                        content = content.Replace(emote.ToString(), "");
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(content)) {
-                        return await DeleteMessageAsync();
-                    }
-
-                } else if (mode == EmoteModeTracker.Mode.Exactly) {
-                    if (args is string argString) {
-                        if (!string.Equals(message.Content, argString, StringComparison.InvariantCultureIgnoreCase)) {
-                            return await DeleteMessageAsync();
-                        }
-                    }
-
-                }
-
-                async Task<bool> DeleteMessageAsync() {
-                    await message.DeleteAsync();
-
-                    if (EmoteModeTracker.ShouldSendNotification(message.Channel.Id)) {
-                        await message.Channel.SendMessageAsync($"The channel is currently in **{mode.Humanize().ToLower()}** mode.");
-                    }
-
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         private static DateTimeOffset _LastJingleBells = DateTimeOffset.UtcNow;

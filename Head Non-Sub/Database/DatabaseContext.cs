@@ -12,8 +12,6 @@ namespace HeadNonSub.Database {
 
         public DbSet<Cooldown> Cooldowns { get; set; }
 
-        public DbSet<UserNote> UserNotes { get; set; }
-
         /// <summary>
         /// Constructor with optional configuration injection.
         /// </summary>
@@ -41,12 +39,6 @@ namespace HeadNonSub.Database {
                 modelBuilder.Entity<Cooldown>().HasKey(x => new { x.ServerId, x.UserId, x.Command });
                 modelBuilder.Entity<Cooldown>().HasIndex(x => x.ServerId);
                 modelBuilder.Entity<Cooldown>().HasIndex(x => x.UserId);
-
-                // User notes
-                modelBuilder.Entity<UserNote>().ToTable("user_notes");
-                modelBuilder.Entity<UserNote>().HasKey(x => new { x.ServerId, x.UserId });
-
-                modelBuilder.ApplyConfiguration(new UserNoteConfiguration());
 
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);

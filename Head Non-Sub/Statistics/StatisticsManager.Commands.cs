@@ -73,26 +73,6 @@ namespace HeadNonSub.Statistics {
             }
         }
 
-        /// <summary>
-        /// Get the most recent message id and reply message id per-user in a channel.
-        /// </summary>
-        public static List<ulong> UndoMessages(ulong channelId, ulong userId, int count) {
-            try {
-                using StatisticsContext statistics = new StatisticsContext();
-
-                ulong[] messageId = statistics.Commands.AsNoTracking().Where(x => x.ChannelId == channelId & x.UserId == userId).OrderByDescending(x => x.DateTime)
-                                    .Where(x => x.ReplyMessageId.HasValue).Take(count).Select(x => x.MessageId).Distinct().ToArray();
-
-                ulong[] replyMessageIds = statistics.Commands.AsNoTracking().Where(x => x.ChannelId == channelId & x.UserId == userId).OrderByDescending(x => x.DateTime)
-                                    .Where(x => x.ReplyMessageId.HasValue).Where(x => messageId.Contains(x.MessageId)).Select(x => x.ReplyMessageId.Value).Distinct().ToArray();
-
-                return new List<ulong>(messageId.Concat(replyMessageIds));
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-                return new List<ulong>();
-            }
-        }
-
     }
 
 }
