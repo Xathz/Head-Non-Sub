@@ -1,5 +1,4 @@
-﻿using System;
-using HeadNonSub.Database;
+﻿using HeadNonSub.Database;
 using HeadNonSub.Settings;
 using HeadNonSub.Statistics.Tables;
 using Microsoft.EntityFrameworkCore;
@@ -24,12 +23,8 @@ namespace HeadNonSub.Statistics {
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
-            try {
-                modelBuilder.Entity<Command>().ToTable("commands");
-                modelBuilder.Entity<Command>().HasKey(x => x.Id);
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-            }
+            modelBuilder.Entity<Command>().ToTable("commands");
+            modelBuilder.Entity<Command>().HasKey(x => x.Id);
         }
 
     }
