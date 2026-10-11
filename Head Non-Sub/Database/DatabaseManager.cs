@@ -10,7 +10,7 @@ namespace HeadNonSub.Database {
             if (database.Database.CanConnect()) {
                 database.EnsureTablesCreated();
             } else {
-                LoggingManager.Log.Error("Can connect check failed");
+                LoggingManager.Log.Error("Can not connect to the database");
             }
         }
 

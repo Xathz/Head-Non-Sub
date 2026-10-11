@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using NLog;
 using NLog.Config;
 using NLog.Extensions.Logging;
@@ -24,18 +25,33 @@ namespace HeadNonSub {
         public static MSLogging.LoggerFactory DatabaseFactory;
 
         /// <summary>
+        /// Where the message came from, the Source property if set, the calling method for the bot, otherwise the logger name.
+        /// </summary>
+        private const string _SourceLayout = "${event-properties:item=Source:whenEmpty=${when:when=logger=='" + Constants.ApplicationNameFormatted + "':inner=${callsite:includeNamespace=false:cleanNamesOfAnonymousDelegates=true:cleanNamesOfAsyncContinuations=true}:else=${logger}}}";
+
+        /// <summary>
+        /// Layout for the console and general log file.
+        /// </summary>
+        private const string _Layout = "${longdate} [${level:uppercase=true:padding=5}] [" + _SourceLayout + "] ${text}";
+
+        /// <summary>
         /// Setup all the logging targets and rules. Call only once, usually at the start of the program.
         /// </summary>
         public static void Initialize() {
             Directory.CreateDirectory(Constants.LogDirectory);
+
+            // Message with any exception on the same line
+            LogManager.Setup().SetupExtensions(x => x.RegisterLayoutRenderer("text", logEvent => FormatText(logEvent)));
+
             LoggingConfiguration loggingConfiguration = new LoggingConfiguration();
+
+            // Only warnings and errors from Microsoft libraries, the bot logs its own start and stop
+            loggingConfiguration.AddRule(LogLevel.Trace, LogLevel.Info, new NullTarget(), "Microsoft.*", true);
 
             // Setup and layout formatting for the console
             ColoredConsoleTarget consoleTarget = new ColoredConsoleTarget() {
                 Name = Constants.ApplicationNameFormatted,
-                //Layout = "${message}"
-                // Match the console target format with file targets. It looks cluttered on small terminals
-                Layout = "${longdate} [${pad:padCharacter= :padding=5:fixedLength=true:alignmentOnTruncation=Right:${uppercase:${level}}}] [${callsite:includeNamespace=false:cleanNamesOfAnonymousDelegates=true:cleanNamesOfAsyncContinuations=true}] ${message}"
+                Layout = _Layout
             };
 
             // Override the trace color
@@ -90,7 +106,7 @@ namespace HeadNonSub {
             FileTarget fileTarget_General = new FileTarget() {
                 Name = Constants.ApplicationNameFormatted,
                 FileName = Path.Combine(Constants.LogDirectory, "General.log"),
-                Layout = "${longdate} [${pad:padCharacter= :padding=5:fixedLength=true:alignmentOnTruncation=Right:${uppercase:${level}}}] [${callsite:includeNamespace=false:cleanNamesOfAnonymousDelegates=true:cleanNamesOfAsyncContinuations=true}] ${message}",
+                Layout = _Layout,
                 ArchiveFileName = Path.Combine(Constants.LogDirectory, "General{#}.Archive.log"),
                 ArchiveEvery = FileArchivePeriod.Day,
                 MaxArchiveFiles = 14
@@ -125,7 +141,21 @@ namespace HeadNonSub {
             // Setup logger factory
             InitializeDatabaseFactory();
 
-            Log.Info("Logging initialization finished.");
+            Log.Info("Logging initialized");
+        }
+
+        /// <summary>
+        /// Format the message and any exception on one line. A bare Log.Error(ex) has "{0}" as its message.
+        /// </summary>
+        private static string FormatText(LogEventInfo logEvent) {
+            string message = logEvent.Exception != null && logEvent.Message == "{0}" ? string.Empty : logEvent.FormattedMessage;
+
+            if (logEvent.Exception is Exception ex) {
+                string exception = $"{ex.GetType().Name}: {ex.Message}";
+                return string.IsNullOrEmpty(message) ? exception : $"{message}: {exception}";
+            }
+
+            return message;
         }
 
         private static LogFactory _DatabaseFactoryNLog;

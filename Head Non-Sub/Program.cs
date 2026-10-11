@@ -6,6 +6,7 @@ using HeadNonSub.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NLog;
 using NLog.Extensions.Logging;
@@ -18,7 +19,6 @@ namespace HeadNonSub {
             try {
                 CreatePIDFile();
                 Console.Title = Constants.ApplicationName;
-                PrintBanner();
 
                 // Create and run the host
                 IHost host = CreateHostBuilder(args).Build();
@@ -40,7 +40,8 @@ namespace HeadNonSub {
                         .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
                 })
                 .ConfigureLogging((context, logging) => {
-                    // Add NLog provider for logging, configured in LoggingManager
+                    // Only NLog so every console line uses the same format, configured in LoggingManager
+                    logging.ClearProviders();
                     logging.AddNLog();
                 })
                 .ConfigureServices((context, services) => {
@@ -49,6 +50,7 @@ namespace HeadNonSub {
 
                     // Initialize logging and settings
                     LoggingManager.Initialize();
+                    LoggingManager.Log.Info($"{Constants.ApplicationName} v{Constants.ApplicationVersion}, https://github.com/Xathz");
                     SettingsManager.Load();
 
                     // Register configuration
@@ -67,17 +69,6 @@ namespace HeadNonSub {
             Directory.CreateDirectory(Constants.TemporaryDirectory);
             Directory.CreateDirectory(Constants.MagickNETDirectory);
             Directory.CreateDirectory(Constants.ContentDirectory);
-        }
-
-        static void PrintBanner() {
-            ConsoleColor originalColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"===================================");
-            Console.WriteLine($"======= {Constants.ApplicationName} v{Constants.ApplicationVersion} =======");
-            Console.WriteLine("===   https://github.com/Xathz  ===");
-            Console.WriteLine($"===================================");
-            Console.ForegroundColor = originalColor;
-            Console.WriteLine();
         }
 
         static void CreatePIDFile() {

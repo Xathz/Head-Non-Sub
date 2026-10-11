@@ -35,7 +35,7 @@ namespace HeadNonSub.Settings {
             try {
                 LoadJSON(Constants.SettingsFile);
 
-                LoggingManager.Log.Info("Settings loaded.");
+                LoggingManager.Log.Info("Settings loaded");
                 return;
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
