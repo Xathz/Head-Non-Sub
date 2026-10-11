@@ -72,24 +72,6 @@ namespace HeadNonSub.Extensions {
         }
 
         /// <summary>
-        /// Extract a string between two strings.
-        /// </summary>
-        public static string Extract(this string input, string start, string end) {
-            int from = input.IndexOf(start) + start.Length;
-            int to = input.LastIndexOf(end);
-
-            return input[from..to];
-        }
-
-        /// <summary>
-        /// Remove all empty lines.
-        /// </summary>
-        public static string RemoveEmptyLines(this string input) {
-            List<string> clean = input.SplitByNewLines();
-            return string.Join(Environment.NewLine, clean);
-        }
-
-        /// <summary>
         /// Remove all new lines and line breaks from a string.
         /// </summary>
         public static string RemoveNewLines(this string input) => input.Replace(Environment.NewLine, " ").Replace("\r\n", " ").Replace("\n", " ").Replace("\r", " ");
@@ -162,57 +144,6 @@ namespace HeadNonSub.Extensions {
         }
 
         /// <summary>
-        /// Tries to parse a provided user mention string.
-        /// </summary>
-        /// <remarks>https://github.com/discord-net/Discord.Net/blob/0275f7df507a2ad3f74be326488de2aa69bfccde/src/Discord.Net.Core/Utils/MentionUtils.cs#L53</remarks>
-        public static bool TryParseDiscordUser(this string input, out ulong userId) {
-            if (input.Length >= 3 && input[0] == '<' && input[1] == '@' && input[^1] == '>') {
-                input = input.Length >= 4 && input[2] == '!' ? input[3..^1] : input[2..^1];
-
-                if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out userId)) {
-                    return true;
-                }
-            }
-
-            userId = 0;
-            return false;
-        }
-
-        /// <summary>
-        /// Tries to parse a provided channel mention string.
-        /// </summary>
-        /// <remarks>https://github.com/discord-net/Discord.Net/blob/0275f7df507a2ad3f74be326488de2aa69bfccde/src/Discord.Net.Core/Utils/MentionUtils.cs#L82</remarks>
-        public static bool TryParseDiscordChannel(this string input, out ulong channelId) {
-            if (input.Length >= 3 && input[0] == '<' && input[1] == '#' && input[^1] == '>') {
-                input = input[2..^1];
-
-                if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out channelId)) {
-                    return true;
-                }
-            }
-
-            channelId = 0;
-            return false;
-        }
-
-        /// <summary>
-        /// Tries to parse a provided role mention string.
-        /// </summary>
-        /// <remarks>https://github.com/discord-net/Discord.Net/blob/0275f7df507a2ad3f74be326488de2aa69bfccde/src/Discord.Net.Core/Utils/MentionUtils.cs#L108</remarks>
-        public static bool TryParseDiscordRole(this string input, out ulong roleId) {
-            if (input.Length >= 4 && input[0] == '<' && input[1] == '@' && input[2] == '&' && input[^1] == '>') {
-                input = input[3..^1];
-
-                if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out roleId)) {
-                    return true;
-                }
-            }
-
-            roleId = 0;
-            return false;
-        }
-
-        /// <summary>
         /// Tries to parse an <see cref="EmoteOrEmoji"/> from its raw format.
         /// </summary>
         /// <remarks>https://github.com/discord-net/Discord.Net/blob/0275f7df507a2ad3f74be326488de2aa69bfccde/src/Discord.Net.Core/Entities/Emotes/Emote.cs#L79</remarks>
@@ -238,69 +169,6 @@ namespace HeadNonSub.Extensions {
             }
 
             return false;
-        }
-
-        /// <summary>
-        /// Parse a string for discord tags. Mentioned users, roles, channels, @everyone, and @here.
-        /// </summary>
-        /// <remarks>https://github.com/discord-net/Discord.Net/blob/0275f7df507a2ad3f74be326488de2aa69bfccde/src/Discord.Net.Rest/Entities/Messages/MessageHelper.cs#L98</remarks>
-        public static List<MessageTag> ParseDiscordMessageTags(this string input) {
-            List<MessageTag> tags = new List<MessageTag>();
-            int index = 0;
-
-            while (true) {
-                index = input.IndexOf('<', index);
-                if (index == -1) { break; }
-
-                int endIndex = input.IndexOf('>', index + 1);
-                if (endIndex == -1) { break; }
-
-                string content = input.Substring(index, endIndex - index + 1);
-
-                if (TryParseDiscordUser(content, out ulong userId)) {
-                    tags.Add(new MessageTag(TagType.User, userId, index, content.Length, content.Contains('!')));
-
-                } else if (TryParseDiscordRole(content, out ulong roleId)) {
-                    tags.Add(new MessageTag(TagType.Role, roleId, index, content.Length));
-
-                } else if (TryParseDiscordChannel(content, out ulong channelId)) {
-                    tags.Add(new MessageTag(TagType.Channel, channelId, index, content.Length));
-
-                } else {
-                    index += 1;
-                    continue;
-                }
-
-                index = endIndex + 1;
-            }
-
-            index = 0;
-            while (true) {
-                index = input.IndexOf("@everyone", index);
-                if (index == -1) { break; }
-
-                int? tagIndex = FindIndex(tags, index);
-                if (tagIndex.HasValue) {
-                    tags.Add(new MessageTag(TagType.Everyone, 0, index, "@everyone".Length));
-                }
-
-                index++;
-            }
-
-            index = 0;
-            while (true) {
-                index = input.IndexOf("@here", index);
-                if (index == -1) { break; }
-
-                int? tagIndex = FindIndex(tags, index);
-                if (tagIndex.HasValue) {
-                    tags.Add(new MessageTag(TagType.Here, 0, index, "@here".Length));
-                }
-
-                index++;
-            }
-
-            return tags;
         }
 
         /// <summary>
@@ -354,18 +222,6 @@ namespace HeadNonSub.Extensions {
             }
 
             return input.Trim();
-        }
-
-        private static int? FindIndex(List<MessageTag> tags, int index) {
-            int i = 0;
-            for (; i < tags.Count; i++) {
-                MessageTag tag = tags[i];
-                if (index < tag.Index) {
-                    break;
-                }
-            }
-
-            return i > 0 && index < tags[i - 1].Index + tags[i - 1].Length ? null : (int?)i;
         }
 
     }

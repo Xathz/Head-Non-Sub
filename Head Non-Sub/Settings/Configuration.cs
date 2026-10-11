@@ -22,16 +22,6 @@ namespace HeadNonSub.Settings {
         public string DiscordToken { get; set; } = string.Empty;
 
         /// <summary>
-        /// MeeSix (MEE6) api token.
-        /// </summary>
-        public string MeeSixToken { get; set; } = string.Empty;
-
-        /// <summary>
-        /// CBenni api token.
-        /// </summary>
-        public string CBenniToken { get; set; } = string.Empty;
-
-        /// <summary>
         /// Url shortener api key.
         /// </summary>
         public string UrlShortenerKey { get; set; } = string.Empty;

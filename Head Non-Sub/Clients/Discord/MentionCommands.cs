@@ -28,7 +28,6 @@ namespace HeadNonSub.Clients.Discord {
             await _Commands.AddModuleAsync<Commands.Blacklist>(_Services);
             await _Commands.AddModuleAsync<Commands.FakeChat>(_Services);
             await _Commands.AddModuleAsync<Commands.Help>(_Services);
-            await _Commands.AddModuleAsync<Commands.RaidRecovery>(_Services);
             await _Commands.AddModuleAsync<Commands.Tools>(_Services);
 
             CommandList = _Commands.Commands.ToList().AsReadOnly();

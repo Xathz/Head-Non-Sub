@@ -47,8 +47,6 @@ namespace HeadNonSub.Clients.Discord {
 
         #region Channel category ids
 
-        public const ulong ModDaddiesCategoryId = 490764927448121345;
-
         public const ulong ModMailCategoryId = 675632145749770297;
 
         #endregion
@@ -119,8 +117,6 @@ namespace HeadNonSub.Clients.Discord {
         public const ulong TwitchSubscriberRoleId = 1455366512549298247;
 
         public const ulong MutedRoleId = 445807715655221259;
-
-        public const ulong NoXPRoleId = 796182303080316948;
 
         /// <summary>MEE6 rank 10</summary>
         /// <remarks>
@@ -228,72 +224,6 @@ namespace HeadNonSub.Clients.Discord {
 
                 return false;
             } else {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Add a role to a user.
-        /// </summary>
-        /// <param name="user">The user.</param>
-        /// <param name="roleId">The role identifier.</param>
-        /// <returns>True if added; false if not added.</returns>
-        public static async Task<bool> AddRoleAsync(SocketGuildUser user, ulong roleId, string reason = null) {
-            IRole role = user.Guild.Roles.FirstOrDefault(x => x.Id == roleId);
-
-            if (role is IRole) {
-                return await AddRoleAsync(user, role, reason);
-            } else {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Add a role to a user.
-        /// </summary>
-        /// <param name="user">The user.</param>
-        /// <param name="role">The role.</param>
-        /// <returns>True if added; false if not added.</returns>
-        public static async Task<bool> AddRoleAsync(SocketGuildUser user, IRole role, string reason = null) {
-            try {
-                RequestOptions auditLogReason = string.IsNullOrEmpty(reason) ? null : new RequestOptions { AuditLogReason = reason };
-                await user.AddRoleAsync(role, auditLogReason);
-                return true;
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Remove a role from a user.
-        /// </summary>
-        /// <param name="user">The user.</param>
-        /// <param name="roleId">The role identifier.</param>
-        /// <returns>True if removed; false if not removed.</returns>
-        public static async Task<bool> RemoveRoleAsync(SocketGuildUser user, ulong roleId, string reason = null) {
-            IRole role = user.Guild.Roles.FirstOrDefault(x => x.Id == roleId);
-
-            if (role is IRole) {
-                return await RemoveRoleAsync(user, role, reason);
-            } else {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Remove a role from a user.
-        /// </summary>
-        /// <param name="user">The user.</param>
-        /// <param name="role">The role.</param>
-        /// <returns>True if removed; false if not removed.</returns>
-        public static async Task<bool> RemoveRoleAsync(SocketGuildUser user, IRole role, string reason = null) {
-            try {
-                RequestOptions auditLogReason = string.IsNullOrEmpty(reason) ? null : new RequestOptions { AuditLogReason = reason };
-                await user.RemoveRoleAsync(role, auditLogReason);
-                return true;
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
                 return false;
             }
         }
