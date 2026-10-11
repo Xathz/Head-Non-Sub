@@ -2,10 +2,6 @@
   "botNickname": "Head Non-Sub",
   "botPlaying": "pls gift me a sub",
   "discordToken": "",
-  "twitchUsername": "",
-  "twitchClientId": "",
-  "twitchToken": "",
-  "twitchRefresh": "",
   "meeSixToken": "",
   "cBenniToken": "",
   "urlShortenerKey": "",
@@ -14,23 +10,6 @@
   "mariaDBUsername": "",
   "mariaDBPassword": "",
   "xathzEmotesKey": "",
-  "backblazeTempBucket": {
-    "bucketId": "",
-	"bucketName": "",
-    "keyId": "",
-    "applicationKey": ""
-  },
-  "backblazeAvatarBucket": {
-    "bucketId": "",
-    "bucketName": "",
-    "keyId": "",
-    "applicationKey": ""
-  },
-  "twitchStream": {
-      "userId": "",
-      "displayName": "",
-      "discordChannel": 0
-  },
   "discordWhitelist": { },
   "discordBlacklist": { }
 }

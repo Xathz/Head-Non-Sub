@@ -22,26 +22,6 @@ namespace HeadNonSub.Settings {
         public string DiscordToken { get; set; } = string.Empty;
 
         /// <summary>
-        /// Twitch username.
-        /// </summary>
-        public string TwitchUsername { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Twitch client id.
-        /// </summary>
-        public string TwitchClientId { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Twitch token.
-        /// </summary>
-        public string TwitchToken { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Twitch refresh token.
-        /// </summary>
-        public string TwitchRefresh { get; set; } = string.Empty;
-
-        /// <summary>
         /// MeeSix (MEE6) api token.
         /// </summary>
         public string MeeSixToken { get; set; } = string.Empty;
@@ -84,11 +64,6 @@ namespace HeadNonSub.Settings {
         /// Xathz's Emotes api key (https://emotes.xathz.net).
         /// </summary>
         public string XathzEmotesKey { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Twitch stream to monitor and report online/offline status.
-        /// </summary>
-        public TwitchStream TwitchStream { get; set; } = new TwitchStream();
 
         /// <summary>
         /// List of users (user id's) to act as admins with commands. Key = server id; Value = hashset of user ids.

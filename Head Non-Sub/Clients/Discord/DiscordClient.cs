@@ -143,44 +143,6 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
-        public static async Task TwitchChannelChange(ulong discordChannel, string streamUrl, string imageUrl, string title, string description, bool everyone = false, bool crosspost = false) {
-            try {
-                if (_DiscordClient.GetChannel(discordChannel) is IMessageChannel channel) {
-
-                    EmbedBuilder builder = new EmbedBuilder() {
-                        Color = new Color(Constants.GeneralColor.R, Constants.GeneralColor.G, Constants.GeneralColor.B),
-                        Url = streamUrl,
-                        Title = title
-                    };
-
-                    if (description is string) {
-                        builder.Description = description;
-                    }
-
-                    if (imageUrl is string) {
-                        builder.ImageUrl = $"{imageUrl.Replace("{width}", "1920").Replace("{height}", "1080")}?_={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
-                    }
-
-                    builder.Author = new EmbedAuthorBuilder {
-                        Name = "Twitch",
-                        IconUrl = Constants.TwitchLogoTransparentUrl,
-                        Url = streamUrl
-                    };
-
-                    IUserMessage message = await channel.SendMessageAsync(text: (everyone ? $"@everyone" : null), embed: builder.Build());
-
-                    if (crosspost == true) {
-                        try {
-                            await message.CrosspostAsync();
-                        } catch { }
-                    }
-
-                }
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-            }
-        }
-
         public static async Task SetStatus(string name = "", string url = "") {
             if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(url)) {
                 await _DiscordClient.SetGameAsync(SettingsManager.Configuration.BotPlaying);
