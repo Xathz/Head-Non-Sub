@@ -63,7 +63,6 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.12" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.12" />
     <!-- Overrides the vulnerable version pulled in by B2Net -->
-    <PackageReference Include="Microsoft.NETCore.Jit" Version="2.0.8" />
     <PackageReference Include="NLog" Version="6.2.1" />
     <PackageReference Include="NLog.Extensions.Logging" Version="6.2.1" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
