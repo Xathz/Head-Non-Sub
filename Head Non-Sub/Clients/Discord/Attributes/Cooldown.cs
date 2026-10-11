@@ -41,7 +41,9 @@ namespace HeadNonSub.Clients.Discord.Attributes {
                     } else {
                         LoggingManager.Log.Debug($"Command \"{command.Name}\" {(_PerUser ? "per-user" : "server wide")} cooldown finished {(_PerUser ? $"for {context.User}" : "")}in {context.Guild.Name}");
 
+                        // Start a new cooldown for this use
                         DatabaseManager.Cooldowns.Delete(context.Guild.Id, context.User.Id, command.Name, _PerUser);
+                        DatabaseManager.Cooldowns.Insert(context.Guild.Id, context.User.Id, command.Name);
                         return Task.FromResult(PreconditionResult.FromSuccess());
                     }
                 } else {
