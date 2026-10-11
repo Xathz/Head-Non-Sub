@@ -1,5 +1,4 @@
-﻿using System;
-using HeadNonSub.Extensions;
+﻿using HeadNonSub.Extensions;
 
 namespace HeadNonSub.Statistics {
 
@@ -13,15 +12,6 @@ namespace HeadNonSub.Statistics {
             } else {
                 LoggingManager.Log.Error("Can connect check failed");
             }
-        }
-
-        [Flags]
-        public enum NameChangeType : ushort {
-            None = 0,
-            Username = 1,
-            Discriminator = 2,
-            Display = 4,
-            Avatar = 8
         }
 
     }

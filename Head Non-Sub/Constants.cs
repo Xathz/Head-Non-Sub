@@ -51,11 +51,6 @@ namespace HeadNonSub {
         public const ulong XathzUserId = 227088829079617536;
 
         /// <summary>
-        /// Url shortener service url.
-        /// </summary>
-        public const string UrlShortener = "https://hns.xathz.net/index.php";
-
-        /// <summary>
         /// Loading gif url.
         /// </summary>
         public const string LoadingGifUrl = "https://cdn.discordapp.com/attachments/559869208976949278/559869759257051136/Loading.gif";

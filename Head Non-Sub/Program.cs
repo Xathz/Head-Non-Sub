@@ -40,8 +40,8 @@ namespace HeadNonSub {
                         .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
                 })
                 .ConfigureLogging((context, logging) => {
-                    // Add NLog provider for logging
-                    logging.AddNLog("nlog.config");
+                    // Add NLog provider for logging, configured in LoggingManager
+                    logging.AddNLog();
                 })
                 .ConfigureServices((context, services) => {
                     // Ensure directories exist
@@ -57,12 +57,6 @@ namespace HeadNonSub {
                     // Register hosted services (order matters)
                     services.AddHostedService<CacheHostedService>();
                     services.AddHostedService<BotHostedService>();
-
-                    // Register memory cache
-                    services.AddMemoryCache();
-
-                    // Expose IServiceProvider to static services
-                    services.AddSingleton(sp => sp);
 
                     LoggingManager.Log.Info("Services configured");
                 });

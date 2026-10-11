@@ -25,15 +25,11 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong MainChannelId = 403341336129830918;
 
-        public const ulong LinksChannelId = 553407177654665216;
-
         public const ulong ActualFuckingSpamChannelId = 537727672747294738;
 
         public const ulong ModLogsChannelId = 502940074036690954;
 
         public const ulong UserLogsChannelId = 490766846761500683;
-
-        public const ulong ModsChannelId = 490766924201066516;
 
         #endregion
 
@@ -51,32 +47,7 @@ namespace HeadNonSub.Clients.Discord {
 
         #region Bot ids
 
-        public const ulong HeadNonSubBotUserId = 545778771517636638;
-
-        public const ulong MediaShareBotUserId = 683851337024274439;
-
-        public const ulong MEE6BotUserId = 159985870458322944;
-
-        public const ulong PollBotUserId = 266162291735658496;
-
-        public const ulong RythmBotUserId = 235088799074484224;
-
-        public const ulong Rythm2BotUserId = 252128902418268161;
-
-        public const ulong StatbotBotUserId = 491769129318088714;
-
-        public const ulong WubbyBotUserId = 489538588120449039;
-
-        public const ulong WubbyIRLBotUserId = 529090224324608000;
-
         public const ulong WubbyMailBotUserId = 523299238369820692;
-
-        public const ulong LogBotUserId = 555800636332179480;
-
-        /// <summary>
-        /// All bot user ids.
-        /// </summary>
-        public static readonly ReadOnlyCollection<ulong> AllBotIds = new ReadOnlyCollection<ulong>(new List<ulong> { HeadNonSubBotUserId, MediaShareBotUserId, MEE6BotUserId, PollBotUserId, RythmBotUserId, Rythm2BotUserId, StatbotBotUserId, WubbyBotUserId, WubbyIRLBotUserId, WubbyMailBotUserId, LogBotUserId });
 
         #endregion
 
@@ -94,8 +65,6 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong SubredditModRoleId = 542135412106330122;
 
-        public const ulong BotsRoleId = 328403426142715906;
-
         public const ulong PatreonLilBroRoleId = 1488258271046533240;
 
         public const ulong PatreonRealOneRoleId = 1488259881919053895;
@@ -110,13 +79,6 @@ namespace HeadNonSub.Clients.Discord {
 
         public const ulong MutedRoleId = 445807715655221259;
 
-        /// <summary>MEE6 rank 10</summary>
-        /// <remarks>
-        /// https://wub.by/discordranks
-        /// https://mee6.xyz/leaderboard/328300333010911242
-        /// </remarks>
-        //public const ulong ForkliftDriversRoleId = 502698826830708737;
-
         /// <summary>
         /// Admins, mods, and mod-lites.
         /// </summary>
@@ -127,17 +89,7 @@ namespace HeadNonSub.Clients.Discord {
         /// </summary>
         public static readonly ReadOnlyCollection<ulong> TwitchStaffRoles = new ReadOnlyCollection<ulong>(new List<ulong> { GingerBoyRoleId, AdminsRoleId, ModsRoleId, ModLiteRoleId, TwitchModRoleId });
 
-        /// <summary>
-        /// Admins, mods, mod-lites, twitch mods, and subreddit mods.
-        /// </summary>
-        public static readonly ReadOnlyCollection<ulong> AllStaffRoles = new ReadOnlyCollection<ulong>(new List<ulong> { GingerBoyRoleId, AdminsRoleId, ModsRoleId, ModLiteRoleId, TwitchModRoleId, SubredditModRoleId });
-
         #endregion
-
-        /// <summary>
-        /// Get if the user id is a server bot.
-        /// </summary>
-        public static bool IsServerBot(ulong id) => AllBotIds.Contains(id);
 
         /// <summary>
         /// Get if the user is a subscriber.

@@ -22,11 +22,6 @@ namespace HeadNonSub.Settings {
         public string DiscordToken { get; set; } = string.Empty;
 
         /// <summary>
-        /// Url shortener api key.
-        /// </summary>
-        public string UrlShortenerKey { get; set; } = string.Empty;
-
-        /// <summary>
         /// MariaDB host.
         /// </summary>
         [Required(ErrorMessage = "MariaDBHost is required")]

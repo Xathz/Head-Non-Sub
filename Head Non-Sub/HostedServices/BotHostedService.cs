@@ -8,7 +8,6 @@ using HeadNonSub.Settings;
 using HeadNonSub.Statistics;
 using Humanizer;
 using ImageMagick;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
@@ -20,16 +19,12 @@ namespace HeadNonSub.HostedServices {
     public class BotHostedService : IHostedService {
 
         private readonly IHostApplicationLifetime _ApplicationLifetime;
-        private readonly IConfiguration _Configuration;
         private readonly IOptions<Configuration> _ConfigurationOptions;
-        private readonly IServiceProvider _ServiceProvider;
         private DateTime _Started;
 
-        public BotHostedService(IHostApplicationLifetime applicationLifetime, IConfiguration configuration, IOptions<Configuration> configurationOptions, IServiceProvider serviceProvider) {
+        public BotHostedService(IHostApplicationLifetime applicationLifetime, IOptions<Configuration> configurationOptions) {
             _ApplicationLifetime = applicationLifetime;
-            _Configuration = configuration;
             _ConfigurationOptions = configurationOptions;
-            _ServiceProvider = serviceProvider;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken) {
@@ -37,10 +32,8 @@ namespace HeadNonSub.HostedServices {
             LoggingManager.Log.Info("Bot service starting...");
 
             try {
-                // Pass service provider to static services
-                SettingsManager.SetServiceProvider(_ServiceProvider);
+                // Pass configuration to static services
                 DiscordClient.SetConfigurationOptions(_ConfigurationOptions);
-                Http.SetConfigurationOptions(_ConfigurationOptions);
 
                 // Configure Magick.NET
                 MagickNET.SetTempDirectory(Constants.MagickNETDirectory);

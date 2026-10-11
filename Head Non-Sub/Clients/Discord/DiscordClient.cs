@@ -26,8 +26,6 @@ namespace HeadNonSub.Clients.Discord {
 
         private static IServiceProvider _CommandProvider;
 
-        private static MentionReplies _MentionReplies;
-
         /// <summary>
         /// Optional IOptions configuration provider (for dependency injection).
         /// </summary>
@@ -77,7 +75,8 @@ namespace HeadNonSub.Clients.Discord {
                 .AddSingleton<SlashCommands>()
                 .BuildServiceProvider();
 
-            _MentionReplies = new MentionReplies(_DiscordClient);
+            // Subscribes to message events for @bot replies
+            new MentionReplies(_DiscordClient);
 
             _DiscordClient.Log += Log;
             _DiscordClient.Connected += Connected;
@@ -119,14 +118,6 @@ namespace HeadNonSub.Clients.Discord {
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
                 return null;
-            }
-        }
-
-        public static async Task SetStatus(string name = "", string url = "") {
-            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(url)) {
-                await _DiscordClient.SetGameAsync(SettingsManager.Configuration.BotPlaying);
-            } else {
-                await _DiscordClient.SetGameAsync(name, url, ActivityType.Watching);
             }
         }
 
@@ -370,33 +361,12 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="user">User who sent the message.</param>
         private static async Task ProcessMessageAsync(SocketTextChannel channel, SocketUserMessage message, SocketGuildUser user) {
 
-            // Trick or treat
-            //string messageNoSpace = message.Content.Replace(" ", "");
-            //if (string.Equals(messageNoSpace, "trickortreat", StringComparison.OrdinalIgnoreCase) ||
-            //    string.Equals(messageNoSpace, "trickrtreat", StringComparison.OrdinalIgnoreCase) ||
-            //    string.Equals(messageNoSpace, "trickertreat", StringComparison.OrdinalIgnoreCase) ||
-            //    string.Equals(messageNoSpace, "trick-or-treat", StringComparison.OrdinalIgnoreCase)) {
-
-            //    if (new Random().Next(0, 100) >= 75) { // Trick
-            //        await message.Channel.SendFileAsync(Cache.GetStream("trick.png"), "trick.png");
-            //    } else { // Treat
-            //        await message.Channel.SendFileAsync(Cache.GetStream("treat.png"), "treat.png");
-            //    }
-
-            //    return;
-            //}
-
             // Staff
             if (WubbysFunHouse.IsDiscordOrTwitchStaff(user)) {
                 return;
             }
 
             try {
-
-                // chadwick (226992558839037952) #server-suggestions (502630201948373003) 50% chance
-                //if (user.Id == 226992558839037952 && channel.Id == 502630201948373003 && new Random().Next(1, 100) > 50) {
-                //    await channel.SendMessageAsync($"<@226992558839037952> No");
-                //}
 
                 // Jingle bells
                 if (message.Content.Replace(" ", "").Contains("jingle", StringComparison.OrdinalIgnoreCase)) {
@@ -418,62 +388,6 @@ namespace HeadNonSub.Clients.Discord {
                 if (contentLowercase.Contains("https://discord.gift/") && WubbysFunHouse.IsSubscriber(user)) {
                     return;
                 }
-
-                // Main channel
-                /*
-                if (channel.Id == WubbysFunHouse.MainChannelId) {
-
-                    // If tier 3 skip filters
-                    if (user.Roles.Any(x => x.Id == WubbysFunHouse.TwitchSubscriberTier3RoleId)) {
-                        return;
-                    }
-
-                    // If not rank 10 or higher
-                    if (!user.Roles.Any(x => x.Id == WubbysFunHouse.ForkliftDriversRoleId)) {
-
-                        string betterUserFormat = $"{user.DisplayName} `{user}`";
-
-                        // Move links
-                        if (message.Content.ContainsUrls()) {
-                            if (_DiscordClient.GetChannel(WubbysFunHouse.LinksChannelId) is IMessageChannel linksChannel) {
-                                LoggingManager.Log.Info($"Link in #{channel.Name} by {user} ({user.Id})");
-
-                                await linksChannel.SendMessageAsync($"● Posted by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.ResolveTags()}", allowedMentions: UserMentionsOnly);
-
-                                await message.DeleteAsync();
-                                await channel.SendMessageAsync($"{user.Mention} You need the `Forklift Drivers` role or higher to post links here. Link was moved to <#{WubbysFunHouse.LinksChannelId}>.", allowedMentions: UserMentionsOnly);
-                            }
-
-                            // Move attachments
-                        } else if (message.Attachments.Count > 0) {
-                            if (_DiscordClient.GetChannel(WubbysFunHouse.ActualFuckingSpamChannelId) is IMessageChannel actualFuckingSpamChannel) {
-                                foreach (Attachment attachment in message.Attachments) {
-                                    using HttpResponseMessage response = await Http.Client.GetAsync(attachment.Url);
-
-                                    if (response.IsSuccessStatusCode) {
-                                        using HttpContent content = response.Content;
-                                        Stream stream = await content.ReadAsStreamAsync();
-
-                                        LoggingManager.Log.Info($"Attachment in #{channel.Name} by {user} ({user.Id}); {attachment.Filename}; api: {attachment.Size.Bytes().Humanize("#.##")}; downloaded: {stream.Length.Bytes().Humanize("#.##")}");
-
-                                        if ((ulong)stream.Length > channel.Guild.MaxUploadLimit) {
-                                            await actualFuckingSpamChannel.SendMessageAsync($"An attachment was uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}> and can not be re-uploaded, the attachment is too large for a bot to upload (`{attachment.Size.Bytes().Humanize("#.##")} / {stream.Length.Bytes().Humanize("#.##")}`). They probably have Nitro.", allowedMentions: UserMentionsOnly);
-                                        } else {
-                                            stream.Seek(0, SeekOrigin.Begin);
-                                            await actualFuckingSpamChannel.SendFileAsync(stream, attachment.Filename, $"● Uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}>{Environment.NewLine}{message.ResolveTags()}", allowedMentions: UserMentionsOnly);
-                                        }
-                                    } else {
-                                        throw new HttpRequestException($"There was an error; ({(int)response.StatusCode}) {response.ReasonPhrase}");
-                                    }
-                                }
-
-                                await message.DeleteAsync();
-                                await channel.SendMessageAsync($"{user.Mention} You need to be `Forklift Drivers` or higher to upload files here. Attachment was moved to <#{WubbysFunHouse.ActualFuckingSpamChannelId}>.", allowedMentions: UserMentionsOnly);
-                            }
-                        }
-                    }
-                }
-                */
 
                 // Too many animated emotes in actual fucking spam
                 if (channel.Id == WubbysFunHouse.ActualFuckingSpamChannelId) {
