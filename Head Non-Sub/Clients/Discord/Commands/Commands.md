@@ -65,7 +65,6 @@ Name | Description | Access
 Command | Options | Description | Access
 --- | --- | --- | ---
 `/says` | `who` `text` | Render text on a template. **Who:** `tt2468` (reflect upon something), `1024` (1024's screen), `Amanda` (engrave Amanda's plate), `Satazero` (now with icecream), `jiberjiber` (wet and waiting to reflect), `Strong Bad` (Strong Bad and his computer) | Sub
-`/tts` | `text` `voice` | Text to speech. **Voices:** `Joanna` (donos and subs, default), `Justin`, `Brian`, `Mizuki`, `Russell` (bits) | Sub
 `/warm` | `user` `reason` | Warm someone up | Sub
 `/executie` | `user` `reason` | A parody of the `!execute` command in [WubbyBot](https://github.com/tt2468/WubbyBot) | Sub
 `/wubbysays` | | When to watch wubby live | Sub

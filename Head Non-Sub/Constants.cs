@@ -116,11 +116,6 @@ namespace HeadNonSub {
         public static string MagickNETDirectory => Path.Combine(TemporaryDirectory, "MagickNET");
 
         /// <summary>
-        /// Runtime files for the application.
-        /// </summary>
-        public static string RuntimesDirectory => Path.Combine(WorkingDirectory, "Runtimes");
-
-        /// <summary>
         /// Content files for the application.
         /// </summary>
         public static string ContentDirectory => Path.Combine(WorkingDirectory, "Content");

@@ -70,7 +70,6 @@ namespace HeadNonSub {
         static void EnsureDirectories() {
             Directory.CreateDirectory(Constants.WorkingDirectory);
             Directory.CreateDirectory(Constants.LogDirectory);
-            Directory.CreateDirectory(Constants.RuntimesDirectory);
             Directory.CreateDirectory(Constants.TemporaryDirectory);
             Directory.CreateDirectory(Constants.MagickNETDirectory);
             Directory.CreateDirectory(Constants.ContentDirectory);
