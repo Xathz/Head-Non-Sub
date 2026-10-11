@@ -42,19 +42,6 @@ namespace HeadNonSub.Settings {
                 errors.Add("MariaDBPassword is required and cannot be empty");
             }
 
-            // Twitch Configuration (optional but should warn if not configured)
-            if (string.IsNullOrWhiteSpace(configuration.TwitchUsername)) {
-                LoggingManager.Log.Warn("TwitchUsername is empty - Twitch integration will not work");
-            }
-
-            if (string.IsNullOrWhiteSpace(configuration.TwitchClientId)) {
-                LoggingManager.Log.Warn("TwitchClientId is empty - Twitch integration will not work");
-            }
-
-            if (string.IsNullOrWhiteSpace(configuration.TwitchToken)) {
-                LoggingManager.Log.Warn("TwitchToken is empty - Twitch integration will not work");
-            }
-
             return errors;
         }
 

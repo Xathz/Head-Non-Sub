@@ -10,8 +10,6 @@ namespace HeadNonSub.Database {
 
         private readonly Configuration _Configuration;
 
-        public DbSet<ActiveStream> ActiveStreams { get; set; }
-
         public DbSet<Cooldown> Cooldowns { get; set; }
 
         public DbSet<UserNote> UserNotes { get; set; }
@@ -38,10 +36,6 @@ namespace HeadNonSub.Database {
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             try {
-                // Active streams
-                modelBuilder.Entity<ActiveStream>().ToTable("active_streams");
-                modelBuilder.Entity<ActiveStream>().HasKey(x => x.Username);
-
                 // Cooldowns
                 modelBuilder.Entity<Cooldown>().ToTable("cooldowns");
                 modelBuilder.Entity<Cooldown>().HasKey(x => new { x.ServerId, x.UserId, x.Command });

@@ -15,7 +15,7 @@ using Microsoft.Extensions.Options;
 namespace HeadNonSub.HostedServices {
 
     /// <summary>
-    /// Hosted service that orchestrates bot initialization including Discord and Twitch connections.
+    /// Hosted service that orchestrates bot initialization including the Discord connection.
     /// </summary>
     public class BotHostedService : IHostedService {
 
