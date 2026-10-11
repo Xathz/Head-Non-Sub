@@ -16,9 +16,9 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
     public class Webhooks : BetterModuleBase {
 
         [Command("puppet")]
-        [Cooldown(60, true)]
         [XathzOnly] // For now, a bit powerful
         [DisallowedChannels(WubbysFunHouse.MainChannelId)]
+        [Cooldown(60, true)]
         public async Task Puppet(SocketUser user = null, [Remainder] string say = "") {
             if (user == null) {
                 await BetterReplyAsync("You must mention a user to make them talk.", parameters: $"user null; {say}");
