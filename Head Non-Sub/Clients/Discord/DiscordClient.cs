@@ -230,23 +230,6 @@ namespace HeadNonSub.Clients.Discord {
                 await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :inbox_tray: {user} (`{user.Id}`) has joined.", allowedMentions: UserMentionsOnly);
             }
 
-            if (user == null) {
-                LoggingManager.Log.Error("User joined, user is null");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(user.Guild.Id.ToString())) {
-                LoggingManager.Log.Error("User joined, guild id is null");
-                return;
-            }
-
-            await _DiscordClient.GetGuild(user.Guild.Id).DownloadUsersAsync();
-            user = _DiscordClient.GetGuild(user.Guild.Id).GetUser(user.Id);
-
-            if (string.IsNullOrEmpty(user.AvatarId)) {
-                LoggingManager.Log.Error("User joined, avatar id is null!");
-                return;
-            }
         }
 
         private static async Task UserLeft(SocketGuild guild, SocketUser user) {
