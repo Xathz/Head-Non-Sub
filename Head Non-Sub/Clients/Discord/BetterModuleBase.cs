@@ -16,13 +16,7 @@ namespace HeadNonSub.Clients.Discord {
 
         protected BetterModuleBase() { }
 
-        private string DisplayName() {
-            if (Context.User is SocketGuildUser contextUser) {
-                return !string.IsNullOrWhiteSpace(contextUser.Nickname) ? contextUser.Nickname : "";
-            } else {
-                return string.Empty;
-            }
-        }
+        private string DisplayName() => Context.User is SocketGuildUser contextUser ? contextUser.DisplayName : Context.User.GlobalName ?? Context.User.Username;
 
         /// <summary>
         /// The slash command as text, for statistics.
@@ -57,15 +51,10 @@ namespace HeadNonSub.Clients.Discord {
         public string BetterUserFormat(IUser user = null, bool nicknameOnly = false, string formatChar = "`") {
             user ??= Context.User;
 
-            if (user is SocketGuildUser guildUser) {
-                if (nicknameOnly) {
-                    return $"{(string.IsNullOrWhiteSpace(guildUser.Nickname) ? guildUser.Username : guildUser.Nickname)}";
-                } else {
-                    return $"{(string.IsNullOrWhiteSpace(guildUser.Nickname) ? guildUser.Username : guildUser.Nickname)} {formatChar}{guildUser}{formatChar}";
-                }
-            }
+            // Server nickname, then global display name, then username
+            string displayName = user is SocketGuildUser guildUser ? guildUser.DisplayName : user.GlobalName ?? user.Username;
 
-            return $"{user.Username} {formatChar}{user}{formatChar}";
+            return nicknameOnly ? displayName : $"{displayName} {formatChar}{user}{formatChar}";
         }
 
         /// <summary>

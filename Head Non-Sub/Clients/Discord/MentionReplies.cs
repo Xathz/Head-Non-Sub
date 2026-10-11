@@ -53,8 +53,8 @@ namespace HeadNonSub.Clients.Discord {
                 try {
                     IUserMessage sentMessage = await channel.SendMessageAsync(reply, allowedMentions: DiscordClient.UserMentionsOnly);
 
-                    string nickname = message.Author is SocketGuildUser guildUser ? guildUser.Nickname ?? "" : "";
-                    StatisticsManager.InsertCommand(message.CreatedAt.UtcDateTime, channel.Guild.Id, channel.Id, message.Author.Id, message.Author.ToString(), nickname,
+                    string displayName = message.Author is SocketGuildUser guildUser ? guildUser.DisplayName : message.Author.GlobalName ?? message.Author.Username;
+                    StatisticsManager.InsertCommand(message.CreatedAt.UtcDateTime, channel.Guild.Id, channel.Id, message.Author.Id, message.Author.ToString(), displayName,
                         message.Id, message.Content, command, "", sentMessage.Id);
                 } catch (Exception ex) {
                     LoggingManager.Log.Error(ex);

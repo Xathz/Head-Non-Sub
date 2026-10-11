@@ -170,8 +170,11 @@ namespace HeadNonSub.Clients.Discord {
 
         private static async Task Connected() {
             try {
-                await _DiscordClient.CurrentUser.ModifyAsync(x => x.Username = GetConfiguration().BotNickname);
-                LoggingManager.Log.Info($"Changed the bot nickname to: {GetConfiguration().BotNickname}");
+                // Discord only allows a couple of username changes per hour
+                if (_DiscordClient.CurrentUser.Username != GetConfiguration().BotNickname) {
+                    await _DiscordClient.CurrentUser.ModifyAsync(x => x.Username = GetConfiguration().BotNickname);
+                    LoggingManager.Log.Info($"Changed the bot nickname to: {GetConfiguration().BotNickname}");
+                }
 
                 await _DiscordClient.SetGameAsync(GetConfiguration().BotPlaying);
                 LoggingManager.Log.Info($"Changed the bot 'now playing' status to: {GetConfiguration().BotPlaying}");
@@ -264,13 +267,8 @@ namespace HeadNonSub.Clients.Discord {
             // Bong trap
             try {
                 if (BongTrapMessageId.HasValue && message.Id == BongTrapMessageId && reaction.User.IsSpecified && reaction.User.Value is SocketGuildUser socketUser) {
-                    if (!string.IsNullOrEmpty(socketUser.Nickname)) {
-                        string scrambledNick = new string(socketUser.Nickname.ToCharArray().OrderBy(s => (Random.Shared.Next(2) % 2) == 0).ToArray());
-                        _ = socketUser.ModifyAsync(x => x.Nickname = scrambledNick);
-                    } else {
-                        string scrambledUsername = new string(socketUser.Username.ToCharArray().OrderBy(s => (Random.Shared.Next(2) % 2) == 0).ToArray());
-                        _ = socketUser.ModifyAsync(x => x.Nickname = scrambledUsername);
-                    }
+                    string scrambledName = new string(socketUser.DisplayName.ToCharArray().OrderBy(s => (Random.Shared.Next(2) % 2) == 0).ToArray());
+                    _ = socketUser.ModifyAsync(x => x.Nickname = scrambledName);
                 }
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
@@ -453,7 +451,7 @@ namespace HeadNonSub.Clients.Discord {
                     // If not rank 10 or higher
                     if (!user.Roles.Any(x => x.Id == WubbysFunHouse.ForkliftDriversRoleId)) {
 
-                        string betterUserFormat = $"{(string.IsNullOrWhiteSpace(user.Nickname) ? user.Username : user.Nickname)} `{user}`";
+                        string betterUserFormat = $"{user.DisplayName} `{user}`";
 
                         // Move links
                         if (message.Content.ContainsUrls()) {
@@ -478,7 +476,7 @@ namespace HeadNonSub.Clients.Discord {
 
                                         LoggingManager.Log.Info($"Attachment in #{channel.Name} by {user} ({user.Id}); {attachment.Filename}; api: {attachment.Size.Bytes().Humanize("#.##")}; downloaded: {stream.Length.Bytes().Humanize("#.##")}");
 
-                                        if (stream.Length > Constants.DiscordMaximumFileSize) {
+                                        if ((ulong)stream.Length > channel.Guild.MaxUploadLimit) {
                                             await actualFuckingSpamChannel.SendMessageAsync($"An attachment was uploaded by {betterUserFormat} in <#{WubbysFunHouse.MainChannelId}> and can not be re-uploaded, the attachment is too large for a bot to upload (`{attachment.Size.Bytes().Humanize("#.##")} / {stream.Length.Bytes().Humanize("#.##")}`). They probably have Nitro.", allowedMentions: UserMentionsOnly);
                                         } else {
                                             stream.Seek(0, SeekOrigin.Begin);
