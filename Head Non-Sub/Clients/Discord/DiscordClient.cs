@@ -102,7 +102,12 @@ namespace HeadNonSub.Clients.Discord {
             await _DiscordClient.StartAsync();
         }
 
-        public static async Task StopAsync() => await _DiscordClient.StopAsync();
+        public static async Task StopAsync() {
+            // Not created when startup failed before connecting
+            if (_DiscordClient != null) {
+                await _DiscordClient.StopAsync();
+            }
+        }
 
         public static async Task<ulong?> SendMessageAsync(ulong id, string message) {
             try {
@@ -122,37 +127,19 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static Task Log(LogMessage message) {
-            switch (message.Severity) {
-                case LogSeverity.Debug:
-                    if (!message.Message.Contains("PRESENCE_UPDATE")) {
-                        LoggingManager.Log.Debug(message.Message);
-                    }
-                    return Task.CompletedTask;
+            NLog.LogLevel level = message.Severity switch {
+                LogSeverity.Debug => NLog.LogLevel.Debug,
+                LogSeverity.Verbose => NLog.LogLevel.Debug,
+                LogSeverity.Info => NLog.LogLevel.Info,
+                LogSeverity.Warning => NLog.LogLevel.Warn,
+                LogSeverity.Error => NLog.LogLevel.Error,
+                _ => NLog.LogLevel.Fatal
+            };
 
-                case LogSeverity.Verbose:
-                    LoggingManager.Log.Debug(message.Message);
-                    return Task.CompletedTask;
-
-                case LogSeverity.Info:
-                    LoggingManager.Log.Info(message.Message);
-                    return Task.CompletedTask;
-
-                case LogSeverity.Warning:
-                    LoggingManager.Log.Warn(message.Message);
-                    return Task.CompletedTask;
-
-                case LogSeverity.Error:
-                    LoggingManager.Log.Error(message.Message);
-                    return Task.CompletedTask;
-
-                case LogSeverity.Critical:
-                    LoggingManager.Log.Fatal(message.Message);
-                    return Task.CompletedTask;
-
-                default:
-                    LoggingManager.Log.Info($"UnknownSeverity: {message.Message}");
-                    return Task.CompletedTask;
-            }
+            // Show where in Discord.Net the message came from, like Discord.Gateway
+            string source = message.Source == "Discord" ? "Discord" : $"Discord.{message.Source.Replace(" ", "")}";
+            LoggingManager.Log.WithProperty("Source", source).Log(level, message.Exception, message.Message ?? string.Empty);
+            return Task.CompletedTask;
         }
 
         private static async Task Connected() {
@@ -160,11 +147,11 @@ namespace HeadNonSub.Clients.Discord {
                 // Discord only allows a couple of username changes per hour
                 if (_DiscordClient.CurrentUser.Username != GetConfiguration().BotNickname) {
                     await _DiscordClient.CurrentUser.ModifyAsync(x => x.Username = GetConfiguration().BotNickname);
-                    LoggingManager.Log.Info($"Changed the bot nickname to: {GetConfiguration().BotNickname}");
+                    LoggingManager.Log.Info($"Changed the bot username to {GetConfiguration().BotNickname}");
                 }
 
                 await _DiscordClient.SetGameAsync(GetConfiguration().BotPlaying);
-                LoggingManager.Log.Info($"Changed the bot 'now playing' status to: {GetConfiguration().BotPlaying}");
+                LoggingManager.Log.Info($"Set the bot status to playing {GetConfiguration().BotPlaying}");
 
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
@@ -172,7 +159,7 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static Task JoinedGuild(SocketGuild guild) {
-            LoggingManager.Log.Warn($"Joined guild {guild.Name} ({guild.Id}).");
+            LoggingManager.Log.Warn($"Joined guild {guild.Name} ({guild.Id})");
 
             // Leave if an invalid guild
             if (guild.Id != Constants.XathzDiscordGuild && guild.Id != WubbysFunHouse.ServerId) {
@@ -188,7 +175,7 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static Task GuildMembersDownloaded(SocketGuild guild) {
-            LoggingManager.Log.Info($"Full memberlist was downloaded for {guild.Name} ({guild.Id}); {guild.Users.Count:N0} total members");
+            LoggingManager.Log.Info($"Downloaded the member list for {guild.Name} ({guild.Id}), {guild.Users.Count:N0} members");
             return Task.CompletedTask;
         }
 

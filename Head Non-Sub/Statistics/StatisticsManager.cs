@@ -10,7 +10,7 @@ namespace HeadNonSub.Statistics {
             if (statistics.Database.CanConnect()) {
                 statistics.EnsureTablesCreated();
             } else {
-                LoggingManager.Log.Error("Can connect check failed");
+                LoggingManager.Log.Error("Can not connect to the database for statistics");
             }
         }
 

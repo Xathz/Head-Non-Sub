@@ -61,7 +61,7 @@ namespace HeadNonSub.HostedServices {
                 // Connect to Discord
                 await DiscordClient.ConnectAsync();
 
-                LoggingManager.Log.Info("Bot service started successfully");
+                LoggingManager.Log.Info("Bot service started");
 
                 // Start the console input loop
                 _ = UserInputAsync(cancellationToken);
@@ -97,8 +97,8 @@ namespace HeadNonSub.HostedServices {
                         LoggingManager.Log.Info($"Keys in the cache: {Cache.ListKeys()}");
                     } else if (input == "help" || string.IsNullOrWhiteSpace(input)) {
                         TimeSpan uptime = DateTime.Now.Subtract(_Started);
-                        Console.WriteLine($"=== {Constants.ApplicationName} v{Constants.ApplicationVersion}; Running for: {uptime:c}");
-                        Console.WriteLine($"=== Available commands: exit, cache, help");
+                        LoggingManager.Log.Info($"{Constants.ApplicationName} v{Constants.ApplicationVersion}, running for {uptime:d\\.hh\\:mm\\:ss}");
+                        LoggingManager.Log.Info("Console commands: exit, cache, help");
                     }
                 }
             } catch (OperationCanceledException) {

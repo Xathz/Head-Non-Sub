@@ -12,11 +12,11 @@ namespace HeadNonSub.HostedServices {
         public async Task StartAsync(CancellationToken cancellationToken) {
             LoggingManager.Log.Info("Initializing cache...");
             await Cache.LoadContentAsync();
-            LoggingManager.Log.Info("Cache initialization complete");
+            LoggingManager.Log.Info("Cache initialized");
         }
 
         public Task StopAsync(CancellationToken cancellationToken) {
-            LoggingManager.Log.Info("Cache service stopping");
+            LoggingManager.Log.Info("Cache service stopped");
             return Task.CompletedTask;
         }
 
