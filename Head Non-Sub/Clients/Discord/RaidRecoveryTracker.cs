@@ -71,13 +71,13 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         /// <summary>
-        /// Add a list of users to ban.
+        /// Set the list of users to ban, replacing any previous list.
         /// </summary>
         /// <param name="channel">Channel id.</param>
         /// <param name="users">List of users to ban.</param>
-        public static void AddUsersToBan(ulong channel, HashSet<ulong> users) {
+        public static void SetUsersToBan(ulong channel, HashSet<ulong> users) {
             if (_ActiveRaids.TryGetValue(channel, out ActiveRaid value)) {
-                value.UsersToBan.UnionWith(users);
+                value.UsersToBan = users;
             }
         }
 

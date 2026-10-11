@@ -169,15 +169,24 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     IUserMessage banningMessage = await BetterReplyAsync(embed: LoadingEmbed("Banning users"), parameters: minutes.ToString());
                     HashSet<ulong> usersIdsToBan = RaidRecoveryTracker.UsersToBan(Context.Channel.Id);
 
-                    try {
-                        foreach (ulong user in usersIdsToBan) {
+                    // Ban each user separately so one failure doesn't stop the rest
+                    List<ulong> failed = new List<ulong>();
+                    foreach (ulong user in usersIdsToBan) {
+                        try {
                             await Context.Guild.AddBanAsync(user, 1, $"Banned by '{Context.User}' using the bot '{Context.Guild.CurrentUser.Username}' raid recovery system at {DateTime.UtcNow:o}");
+                        } catch (Exception ex) {
+                            failed.Add(user);
+                            LoggingManager.Log.Error(ex);
                         }
-                    } catch { }
+                    }
 
-                    await banningMessage.ModifyAsync(x => { x.Embed = null; x.Content = $"Banned {usersIdsToBan.Count} users."; });
-                    await LogMessageEmbedAsync("Raid recovery system", $"Banned {usersIdsToBan.Count} users.{Environment.NewLine}{Environment.NewLine}{string.Join(", ", usersIdsToBan)}");
+                    string failedText = failed.Count > 0 ? $" Failed to ban {failed.Count}: {string.Join(", ", failed)}" : "";
+                    await banningMessage.ModifyAsync(x => { x.Embed = null; x.Content = $"Banned {usersIdsToBan.Count - failed.Count} users.{failedText}"; });
+                    await LogMessageEmbedAsync("Raid recovery system", $"Banned {usersIdsToBan.Count - failed.Count} users.{failedText}{Environment.NewLine}{Environment.NewLine}{string.Join(", ", usersIdsToBan)}");
                     TrackStatistics(banningMessage.Id, parameters: $"token: {banToken}; banned: {string.Join(", ", usersIdsToBan)}");
+
+                    // Clear the list so the token can't ban the same users again
+                    RaidRecoveryTracker.SetUsersToBan(Context.Channel.Id, new HashSet<ulong>());
                     return;
                 } else {
                     await BetterReplyAsync("Invalid ban token.");
@@ -197,7 +206,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 .Distinct();
 
             if (usersToBan.Any()) {
-                RaidRecoveryTracker.AddUsersToBan(Context.Channel.Id, usersToBan.Select(x => x.Id).ToHashSet());
+                RaidRecoveryTracker.SetUsersToBan(Context.Channel.Id, usersToBan.Select(x => x.Id).ToHashSet());
 
                 StringBuilder builder = new StringBuilder();
                 builder.AppendLine($"The following {usersToBan.Count()} users will be banned.");
@@ -252,11 +261,12 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
             IUserMessage message = await BetterReplyAsync(embed: LoadingEmbed("Generating list of users to ban..."), parameters: minutes.ToString());
 
-            IEnumerable<SocketGuildUser> usersToBan = Context.Guild.Users.Where(x => x.JoinedAt.HasValue)
+            List<SocketGuildUser> usersToBan = Context.Guild.Users.Where(x => x.JoinedAt.HasValue)
                 .OrderByDescending(x => x.JoinedAt)
                 .Where(x => x.JoinedAt > DateTime.UtcNow.AddMinutes(-minutes))
                 .Where(x => IsSuspected(x))
-                .Distinct();
+                .Distinct()
+                .ToList();
 
             if (usersToBan.Any()) {
                 StringBuilder builder = new StringBuilder();
@@ -270,13 +280,19 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
                 await message.ModifyAsync(x => { x.Embed = null; x.Content = builder.ToString(); });
 
-                try {
-                    foreach (IUser banUser in usersToBan) {
+                // Ban each user separately so one failure doesn't stop the rest
+                List<IUser> failed = new List<IUser>();
+                foreach (IUser banUser in usersToBan) {
+                    try {
                         await Context.Guild.AddBanAsync(banUser, 1, $"Banned by '{Context.User}' using the bot '{Context.Guild.CurrentUser.Username}' raid recovery system at {DateTime.UtcNow:o}");
+                    } catch (Exception ex) {
+                        failed.Add(banUser);
+                        LoggingManager.Log.Error(ex);
                     }
-                } catch { }
+                }
 
-                await message.ModifyAsync(x => { x.Embed = null; x.Content = $"Banned {usersToBan.Count()} users."; });
+                string failedText = failed.Count > 0 ? $" Failed to ban {failed.Count}: {string.Join("; ", failed)}" : "";
+                await message.ModifyAsync(x => { x.Embed = null; x.Content = $"Banned {usersToBan.Count() - failed.Count} users.{failedText}"; });
 
             } else {
                 await message.ModifyAsync(x => { x.Embed = null; x.Content = $"There are no new users to ban from the past {minutes.Minutes().Humanize(3)}."; });
@@ -316,10 +332,11 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         private static bool IsSuspected(IUser user) {
             if (user is SocketGuildUser guildUser) {
-                if (guildUser.Roles.Count == 0) {
-                    return true;
-                } else if (guildUser.IsBot) {
+                if (guildUser.IsBot) {
                     return false;
+                } else if (!guildUser.Roles.Any(r => !r.IsEveryone)) {
+                    // Roles always includes @everyone, so this is a user with no other roles
+                    return true;
                 } else if (guildUser.Roles.Any(r => r.Permissions.Administrator)) {
                     return false;
                 } else if (guildUser.Roles.Any(r => WubbysFunHouse.DiscordStaffRoles.Contains(r.Id))) {
