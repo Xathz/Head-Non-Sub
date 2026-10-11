@@ -90,6 +90,12 @@ namespace HeadNonSub.HostedServices {
                 while (!cancellationToken.IsCancellationRequested) {
                     string input = await Task.Run(() => Console.ReadLine(), cancellationToken);
 
+                    // Null means there is no console input, like when running as a service
+                    if (input == null) {
+                        LoggingManager.Log.Info("Console input is not available, console commands are disabled");
+                        break;
+                    }
+
                     if (input == "exit") {
                         LoggingManager.Log.Info("Exit command received");
                         _ApplicationLifetime.StopApplication();
