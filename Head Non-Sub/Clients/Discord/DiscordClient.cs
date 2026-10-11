@@ -54,7 +54,9 @@ namespace HeadNonSub.Clients.Discord {
 
         public static async Task ConnectAsync() {
             _DiscordConfig = new DiscordSocketConfig {
-                GatewayIntents = GatewayIntents.All,
+                // Only what the bot uses, members and message content are privileged and must be enabled in the developer portal
+                GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildMembers | GatewayIntents.GuildBans | GatewayIntents.GuildEmojis |
+                    GatewayIntents.GuildMessages | GatewayIntents.GuildMessageReactions | GatewayIntents.DirectMessages | GatewayIntents.MessageContent,
                 DefaultRetryMode = RetryMode.AlwaysRetry,
                 MessageCacheSize = 3000,
                 AlwaysDownloadUsers = true,
@@ -98,19 +100,12 @@ namespace HeadNonSub.Clients.Discord {
 
             _DiscordClient.ReactionAdded += ReactionAdded;
 
-            _DiscordClient.PresenceUpdated += PresenceUpdated;
-            _DiscordClient.InviteCreated += InviteCreated;
-
             _CommandProvider.GetRequiredService<InteractionService>().Log += Log;
             await _CommandProvider.GetRequiredService<SlashCommands>().InitializeAsync();
 
             await _DiscordClient.LoginAsync(TokenType.Bot, GetConfiguration().DiscordToken);
             await _DiscordClient.StartAsync();
         }
-
-        private static async Task PresenceUpdated(SocketUser user, SocketPresence oldPresence, SocketPresence newPresence) => await Task.CompletedTask;
-
-        private static async Task InviteCreated(SocketInvite invite) => await Task.CompletedTask;
 
         public static async Task StopAsync() => await _DiscordClient.StopAsync();
 
@@ -203,7 +198,7 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static Task GuildMembersDownloaded(SocketGuild guild) {
-            LoggingManager.Log.Info($"Full memberlist was downloaded for {guild.Name} ({guild.Id}); {guild.Users.Count:N0} total members ({guild.Users.Where(x => x.Status == UserStatus.Online).Count():N0} online)");
+            LoggingManager.Log.Info($"Full memberlist was downloaded for {guild.Name} ({guild.Id}); {guild.Users.Count:N0} total members");
             return Task.CompletedTask;
         }
 
