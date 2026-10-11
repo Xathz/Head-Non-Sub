@@ -16,12 +16,16 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [SlashCommand("true", "How many times the true picture was posted")]
         public async Task TrueCount() {
+            await DeferAsync();
+
             long count = StatisticsManager.GetTrueCount(Context.Guild.Id);
             await BetterReplyAsync($"There are {count:N0} truths here.");
         }
 
         [SlashCommand("says", "The most used /says templates")]
         public async Task SaysCount() {
+            await DeferAsync();
+
             List<KeyValuePair<string, long>> saysCommands = StatisticsManager.GetSaysCount(Context.Guild.Id);
 
             StringBuilder builder = new StringBuilder();

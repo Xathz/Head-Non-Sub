@@ -13,6 +13,8 @@ namespace HeadNonSub.Clients.Discord {
         private readonly DiscordSocketClient _DiscordClient;
         private readonly IServiceProvider _Services;
 
+        private bool _Registered;
+
         public SlashCommands(IServiceProvider services) {
             _Interactions = services.GetRequiredService<InteractionService>();
             _DiscordClient = services.GetRequiredService<DiscordSocketClient>();
@@ -25,7 +27,16 @@ namespace HeadNonSub.Clients.Discord {
 
         public async Task InitializeAsync() => await _Interactions.AddModulesAsync(typeof(SlashCommands).Assembly, _Services);
 
-        private async Task Ready() {
+        private Task Ready() {
+            // Ready fires on every reconnect, only register once and keep it off the gateway thread
+            if (!_Registered) {
+                _ = Task.Run(RegisterAsync);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private async Task RegisterAsync() {
             try {
                 // Guild commands update right away, global commands can take up to an hour
                 foreach (ulong guildId in new ulong[] { WubbysFunHouse.ServerId, Constants.XathzDiscordGuild }) {
@@ -34,6 +45,8 @@ namespace HeadNonSub.Clients.Discord {
                         LoggingManager.Log.Info($"Registered {_Interactions.SlashCommands.Count} slash commands in {guild.Name}");
                     }
                 }
+
+                _Registered = true;
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex, "Failed to register slash commands");
             }
@@ -69,14 +82,30 @@ namespace HeadNonSub.Clients.Discord {
             string message = result.Error == InteractionCommandError.Exception ? "Something went wrong running that command." : result.ErrorReason;
 
             try {
-                if (context.Interaction.HasResponded) {
-                    await context.Interaction.FollowupAsync(message, ephemeral: true, allowedMentions: DiscordClient.UserMentionsOnly);
-                } else {
-                    await context.Interaction.RespondAsync(message, ephemeral: true, allowedMentions: DiscordClient.UserMentionsOnly);
-                }
+                await EphemeralReplyAsync(context.Interaction, message);
             } catch (Exception replyEx) {
                 LoggingManager.Log.Error(replyEx);
             }
+        }
+
+        /// <summary>
+        /// Reply only the user running the command can see.
+        /// </summary>
+        /// <param name="interaction">Interaction to reply to.</param>
+        /// <param name="message">Contents of the message.</param>
+        public static async Task EphemeralReplyAsync(IDiscordInteraction interaction, string message) {
+            if (!interaction.HasResponded) {
+                await interaction.RespondAsync(message, ephemeral: true, allowedMentions: DiscordClient.UserMentionsOnly);
+                return;
+            }
+
+            // The first follow up replaces a public "thinking" message and ignores ephemeral, so remove it first
+            IUserMessage original = await interaction.GetOriginalResponseAsync();
+            if (original.Flags.HasValue && original.Flags.Value.HasFlag(MessageFlags.Loading) && !original.Flags.Value.HasFlag(MessageFlags.Ephemeral)) {
+                await interaction.DeleteOriginalResponseAsync();
+            }
+
+            await interaction.FollowupAsync(message, ephemeral: true, allowedMentions: DiscordClient.UserMentionsOnly);
         }
 
     }

@@ -38,15 +38,18 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
             await DeferAsync(true);
 
-            Task<MemoryStream> download = Http.GetStreamAsync(user.GetDisplayAvatarUrl(ImageFormat.Png, 256));
-            using MemoryStream avatar = await download;
-
-            if (!download.IsCompletedSuccessfully) {
+            MemoryStream avatar;
+            try {
+                avatar = await Http.GetStreamAsync(user.GetDisplayAvatarUrl(ImageFormat.Png, 256));
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
                 await EphemeralReplyAsync("Failed to download their avatar.");
                 return;
             }
 
-            RestWebhook webhook = await channel.CreateWebhookAsync(BetterUserFormat(user, true), avatar);
+            using MemoryStream avatarStream = avatar;
+
+            RestWebhook webhook = await channel.CreateWebhookAsync(BetterUserFormat(user, true), avatarStream);
 
             try {
                 using (DiscordWebhookClient webhookClient = new DiscordWebhookClient(webhook)) {
@@ -125,6 +128,8 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
         [SlashCommand("bong", "Post a bong trap")]
         public async Task BongTrap() {
+            await DeferAsync(true);
+
             IUserMessage message = await Context.Channel.SendMessageAsync("Bong!");
             DiscordClient.BongTrapMessageId = message.Id;
             await message.AddReactionAsync(new Emoji("⏰"));

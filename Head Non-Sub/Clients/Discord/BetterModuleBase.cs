@@ -88,13 +88,7 @@ namespace HeadNonSub.Clients.Discord {
         /// Reply only the user running the command can see. Not tracked in statistics.
         /// </summary>
         /// <param name="message">Contents of the message.</param>
-        public async Task EphemeralReplyAsync(string message) {
-            if (Context.Interaction.HasResponded) {
-                await FollowupAsync(message, ephemeral: true, allowedMentions: DiscordClient.UserMentionsOnly);
-            } else {
-                await RespondAsync(message, ephemeral: true, allowedMentions: DiscordClient.UserMentionsOnly);
-            }
-        }
+        public Task EphemeralReplyAsync(string message) => SlashCommands.EphemeralReplyAsync(Context.Interaction, message);
 
         /// <summary>
         /// Reply to the command with a file, or send it as a follow up if it was already replied to or deferred.

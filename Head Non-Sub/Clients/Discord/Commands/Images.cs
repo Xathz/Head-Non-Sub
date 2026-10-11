@@ -93,6 +93,9 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 return;
             }
 
+            // Large gifs can take a while to upload
+            await DeferAsync();
+
             if (entry.File is null) {
                 await BetterReplyAsync(entry.Text, command: entry.StatisticsName);
             } else {

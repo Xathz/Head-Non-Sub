@@ -75,13 +75,16 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
             string avatarUrl = user.GetGuildAvatarUrl(ImageFormat.Png, 256) ?? user.GetDisplayAvatarUrl(ImageFormat.Png, 256);
 
-            Task<MemoryStream> download = Http.GetStreamAsync(avatarUrl);
-            using MemoryStream data = await download;
-
-            if (!download.IsCompletedSuccessfully || data is null) {
+            MemoryStream download;
+            try {
+                download = await Http.GetStreamAsync(avatarUrl);
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
                 await BetterReplyAsync("Failed to get their avatar. You've just warmed yourself idiot.", parameters: $"{user} ({user.Id}); {reason}");
                 return;
             }
+
+            using MemoryStream data = download;
 
             using MemoryStream stream = new MemoryStream(256);
             using MagickImage image = new MagickImage(Cache.GetStream("warm.png"));
