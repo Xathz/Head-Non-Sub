@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Discord.Commands;
@@ -15,8 +16,11 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
         private static readonly char[] _TrimChars = new char[] { '0' };
 
+        private const int _MaxEmoji = 5;
+
         [Command("emoji"), Alias("e")]
         [DisallowedChannels(WubbysFunHouse.MainChannelId)]
+        [Cooldown(10, true)]
         public async Task EnlargeEmoji([Remainder] string emoji) {
             if (string.IsNullOrWhiteSpace(emoji)) {
                 await BetterReplyAsync("You must provide an emote or emoji to enlarge.");
@@ -25,7 +29,8 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
 
             await Context.Channel.TriggerTypingAsync();
 
-            List<EmoteOrEmoji> items = Context.Message.Content.ParseDiscordMessageEmotes();
+            // Limit how many files one message can make the bot upload
+            List<EmoteOrEmoji> items = Context.Message.Content.ParseDiscordMessageEmotes().Take(_MaxEmoji).ToList();
 
             foreach (EmoteOrEmoji item in items) {
                 if (item.IsEmote) {
