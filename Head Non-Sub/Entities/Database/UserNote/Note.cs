@@ -6,6 +6,7 @@ namespace HeadNonSub.Entities.Database.UserNote {
     public class Note {
 
         [JsonPropertyName("id")]
+        [JsonInclude]
         public string Id { get; protected set; } = Guid.NewGuid().ToString("N").Substring(0, 12);
 
         [JsonPropertyName("datetime")]

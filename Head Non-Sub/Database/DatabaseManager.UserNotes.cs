@@ -53,11 +53,9 @@ namespace HeadNonSub.Database {
                 try {
                     using DatabaseContext database = new DatabaseContext();
 
-                    if (database.UserNotes.AsNoTracking().Any(x => x.ServerId == serverId & x.UserId == userId)) {
-                        return database.UserNotes.AsNoTracking().Where(x => x.ServerId == serverId & x.UserId == userId).SelectMany(x => x.Notes).OrderByDescending(x => x.DateTime).ToList();
-                    } else {
-                        return new List<Note>();
-                    }
+                    // Notes are stored as json so flatten them after loading
+                    List<UserNote> userNotes = database.UserNotes.AsNoTracking().Where(x => x.ServerId == serverId & x.UserId == userId).ToList();
+                    return userNotes.SelectMany(x => x.Notes).OrderByDescending(x => x.DateTime).ToList();
                 } catch (Exception ex) {
                     LoggingManager.Log.Error(ex);
                     return new List<Note>();
@@ -77,7 +75,9 @@ namespace HeadNonSub.Database {
 
                     if (database.UserNotes.AsNoTracking().Any(x => x.ServerId == serverId & x.UserId == userId)) {
                         UserNote userNote = database.UserNotes.AsNoTracking().FirstOrDefault(x => x.ServerId == serverId & x.UserId == userId);
-                        userNote.Notes.RemoveAll(x => x.Id == noteId);
+                        if (userNote.Notes.RemoveAll(x => x.Id == noteId) == 0) {
+                            return false;
+                        }
 
                         database.UserNotes.Update(userNote);
                         database.SaveChanges();
