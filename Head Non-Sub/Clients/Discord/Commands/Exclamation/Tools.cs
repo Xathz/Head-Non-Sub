@@ -8,7 +8,6 @@ using Discord.Commands;
 using Discord.Rest;
 using Discord.WebSocket;
 using HeadNonSub.Clients.Discord.Attributes;
-using HeadNonSub.Clients.Twitch;
 using HeadNonSub.Extensions;
 using Humanizer;
 
@@ -109,29 +108,6 @@ namespace HeadNonSub.Clients.Discord.Commands.Exclamation {
                 await BetterReplyAsync("Failed to select a random user.", parameters: type);
             }
         }
-
-        /*
-        [Command("timer")]
-        public async Task Timer(TimeSpan input, [Remainder] string message) {
-            if (string.IsNullOrWhiteSpace(message)) {
-                await BetterReplyAsync("You must set a message for the timer. e.g. `!timer 20s boo! too spoopy`");
-            }
-
-            if (input.TotalMinutes > 30) {
-                await BetterReplyAsync("The timer has a maximum duration of 30 minutes. Was too lazy to add data persistence for this.", parameters: $"{input.Humanize()}; {message}");
-                return;
-            }
-
-            await BetterReplyAsync($"A timer has been set for {input.Humanize()}.", parameters: $"{input.Humanize()}; {message}");
-
-            await Task.Delay(Convert.ToInt32(input.TotalMilliseconds));
-
-            await BetterReplyAsync(message, parameters: $"{input.Humanize()}; {message}");
-        }
-        */
-
-        [Command("iswubbylive")]
-        public Task IsWubbyLive() => BetterReplyAsync(TwitchClient.IsLive ? "**Yes**" : "**No**");
 
         [Command("altsniff")]
         [DiscordStaffOnly]

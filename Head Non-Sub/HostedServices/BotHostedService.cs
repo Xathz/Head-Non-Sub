@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using HeadNonSub.Clients.Discord;
-using HeadNonSub.Clients.Twitch;
 using HeadNonSub.Database;
 using HeadNonSub.Settings;
 using HeadNonSub.Statistics;
@@ -41,9 +40,7 @@ namespace HeadNonSub.HostedServices {
                 // Pass service provider to static services
                 SettingsManager.SetServiceProvider(_ServiceProvider);
                 DiscordClient.SetConfigurationOptions(_ConfigurationOptions);
-                TwitchClient.SetConfigurationOptions(_ConfigurationOptions);
                 Http.SetConfigurationOptions(_ConfigurationOptions);
-                HostingMonitor.SetConfigurationOptions(_ConfigurationOptions);
 
                 // Configure Magick.NET
                 MagickNET.SetTempDirectory(Constants.MagickNETDirectory);
@@ -70,9 +67,6 @@ namespace HeadNonSub.HostedServices {
 
                 // Connect to Discord
                 await DiscordClient.ConnectAsync();
-
-                // Connect to Twitch
-                await TwitchClient.ConnectApiAsync();
 
                 LoggingManager.Log.Info("Bot service started successfully");
 
