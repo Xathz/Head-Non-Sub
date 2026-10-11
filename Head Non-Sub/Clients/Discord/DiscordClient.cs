@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -9,7 +8,6 @@ using Discord.Rest;
 using Discord.WebSocket;
 using HeadNonSub.Extensions;
 using HeadNonSub.Settings;
-using HeadNonSub.Statistics;
 using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -91,8 +89,6 @@ namespace HeadNonSub.Clients.Discord {
             _DiscordClient.UserJoined += UserJoined;
             _DiscordClient.UserLeft += UserLeft;
             _DiscordClient.UserBanned += UserBanned;
-            _DiscordClient.UserUpdated += UserUpdated;
-            _DiscordClient.GuildMemberUpdated += GuildMemberUpdated;
 
             _DiscordClient.MessageReceived += MessageReceived;
             _DiscordClient.MessageUpdated += MessageUpdated;
@@ -244,22 +240,6 @@ namespace HeadNonSub.Clients.Discord {
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
-        }
-
-        private static Task UserUpdated(SocketUser oldUser, SocketUser newUser) {
-            //Task runner = Task.Run(async () => {
-            //    await ProcessUserUpdated(oldUser, newUser).ConfigureAwait(false);
-            //});
-
-            return Task.CompletedTask;
-        }
-
-        private static Task GuildMemberUpdated(Cacheable<SocketGuildUser, ulong> oldUser, SocketGuildUser newUser) {
-            //Task runner = Task.Run(async () => {
-            //    await ProcessUserUpdated(oldUser.Value, newUser).ConfigureAwait(false);
-            //});
-
-            return Task.CompletedTask;
         }
 
         private static Task ReactionAdded(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction) {

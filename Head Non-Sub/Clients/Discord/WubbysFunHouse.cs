@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 
@@ -16,12 +14,6 @@ namespace HeadNonSub.Clients.Discord {
         public const ulong ServerId = 328300333010911242;
 
         #region Urls
-
-        public const string IconUrl = "https://cdn.discordapp.com/attachments/559869208976949278/602617867355160667/PaymoneyWubbyLogo.jpg";
-
-        public const string WubbyMoneyEmoteUrl = "https://cdn.discordapp.com/emojis/522586653114499072.png";
-
-        public const string TwitchStocksUrl = "https://twitchstocks.com/stock/pymny";
 
         public const string TwitchSubscribeUrl = "https://wub.by/subttv";
 

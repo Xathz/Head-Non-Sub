@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
 
 namespace HeadNonSub {
@@ -21,11 +19,6 @@ namespace HeadNonSub {
         /// Application creators name. 
         /// </summary>
         public const string Creator = "Xathz (227088829079617536); https://github.com/Xathz";
-
-        /// <summary>
-        /// Discord trims double spaces in embeds, this prevents that.
-        /// </summary>
-        public const string DoubleSpace = " \u200B ";
 
         /// <summary>
         /// Zero width space.
@@ -143,11 +136,6 @@ namespace HeadNonSub {
         public static string TwemojiDirectory => Path.Combine(ContentDirectory, "Twemoji", "v17.0.3");
 
         /// <summary>
-        /// Audio content files for the application.
-        /// </summary>
-        public static string AudioDirectory => Path.Combine(ContentDirectory, "Audio");
-
-        /// <summary>
         /// Font files for the application.
         /// </summary>
         public static string FontsDirectory => Path.Combine(ContentDirectory, "Fonts");
@@ -161,17 +149,6 @@ namespace HeadNonSub {
         /// Process id file location.
         /// </summary>
         public static string ProcessIdFile => Path.Combine(WorkingDirectory, $"{ExecutableName}.pid");
-
-        /// <summary>
-        /// Common words
-        /// </summary>
-        public static List<string> CommonWords => new List<string>() { "a", "able", "about", "after", "all", "an", "and", "as", "ask", "at", "bad", "be", "big", "but",
-            "by", "call", "case", "come", "company", "day", "different", "do", "early", "eye", "fact", "feel", "few", "find", "first", "for", "from", "get",
-            "give", "go", "good", "government", "great", "group", "hand", "have", "he", "her", "high", "his", "i", "important", "in", "into", "it", "know", "large",
-            "last", "leave", "life", "like", "little", "long", "look", "make", "man", "my", "new", "next", "not", "number", "of", "old", "on", "one", "or", "other",
-            "over", "own", "part", "person", "place", "point", "problem", "public", "right", "same", "say", "see", "seem", "she", "small", "take", "tell", "that", "the",
-            "their", "there", "they", "thing", "think", "this", "time", "to", "try", "up", "use", "want", "was", "way", "week", "went", "will", "with", "work",
-            "world", "would", "year", "you", "young" };
 
     }
 
