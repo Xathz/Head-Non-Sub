@@ -11,8 +11,7 @@ namespace HeadNonSub {
 
     public static class Cache {
 
-        private static IMemoryCache _Cache = new MemoryCache(new MemoryCacheOptions());
-        private static HashSet<string> _CacheKeys = new HashSet<string>();
+        private static readonly MemoryCache _Cache = new MemoryCache(new MemoryCacheOptions());
 
         public static IReadOnlyCollection<string> TLDs { get; private set; }
 
@@ -23,7 +22,6 @@ namespace HeadNonSub {
         /// <param name="item">Data for the cache entry.</param>
         /// <param name="expirationMin">Number of minutes the cache will live. If <see langword="null"/> it will never expire.</param>
         public static void Add(string key, object item, int? expirationMin = 5) {
-            _CacheKeys.Add(key);
             if (expirationMin.HasValue) {
                 MemoryCacheEntryOptions cacheOptions = new MemoryCacheEntryOptions()
                     .SetAbsoluteExpiration(TimeSpan.FromMinutes(expirationMin.Value));
@@ -60,7 +58,6 @@ namespace HeadNonSub {
         public static void Remove(string key) {
             if (_Cache.TryGetValue(key, out object _)) {
                 _Cache.Remove(key);
-                _CacheKeys.Remove(key);
 
                 LoggingManager.Log.Debug($"Removed '{key}'");
             } else {
@@ -86,7 +83,7 @@ namespace HeadNonSub {
         /// <summary>
         /// Get a comma separated list of all keys in the cache.
         /// </summary>
-        public static string ListKeys() => string.Join(", ", _CacheKeys.ToList());
+        public static string ListKeys() => string.Join(", ", _Cache.Keys);
 
         /// <summary>
         /// Get a entry from the cache as a new read only <see cref="MemoryStream"/>.
@@ -119,14 +116,13 @@ namespace HeadNonSub {
                 }
 
                 byte[] data = await File.ReadAllBytesAsync(fileInfo.FullName);
-                _CacheKeys.Add(key);
                 _Cache.Set(key, data);
             }
 
             // Download and parse top level domains
             await DownloadTLDsAsync();
 
-            LoggingManager.Log.Info($"Loaded {_CacheKeys.Count} items into cache");
+            LoggingManager.Log.Info($"Loaded {_Cache.Count} items into cache");
         }
 
         private static async Task DownloadTLDsAsync() {
