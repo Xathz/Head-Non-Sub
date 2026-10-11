@@ -102,7 +102,12 @@ namespace HeadNonSub.Clients.Discord {
             await _DiscordClient.StartAsync();
         }
 
-        public static async Task StopAsync() => await _DiscordClient.StopAsync();
+        public static async Task StopAsync() {
+            // Not created when startup failed before connecting
+            if (_DiscordClient != null) {
+                await _DiscordClient.StopAsync();
+            }
+        }
 
         public static async Task<ulong?> SendMessageAsync(ulong id, string message) {
             try {
