@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
@@ -25,6 +28,8 @@ namespace HeadNonSub.Clients.Discord {
         public static readonly AllowedMentions UserMentionsOnly = new AllowedMentions(AllowedMentionTypes.Users);
 
         private static IServiceProvider _CommandProvider;
+
+        private static readonly Regex _InviteRegex = new Regex(@"(?:discord\.gg|discord(?:app)?\.com/invite)/[\w-]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Optional IOptions configuration provider (for dependency injection).
@@ -180,44 +185,48 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static async Task UserJoined(SocketGuildUser user) {
+            if (user.Guild.Id != WubbysFunHouse.ServerId) { return; }
 
-            // Log join
-            if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
-                await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :inbox_tray: {user} (`{user.Id}`) has joined.", allowedMentions: UserMentionsOnly);
-            }
-
+            await SendUserLogAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :inbox_tray: {user} (`{user.Id}`) has joined.");
         }
 
         private static async Task UserLeft(SocketGuild guild, SocketUser user) {
-            if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
-                await logChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :outbox_tray: {user} (`{user.Id}`) left the server.", allowedMentions: UserMentionsOnly);
-            }
+            if (guild.Id != WubbysFunHouse.ServerId) { return; }
+
+            await SendUserLogAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :outbox_tray: {user} (`{user.Id}`) left the server.");
         }
 
         private static async Task UserBanned(SocketUser user, SocketGuild guild) {
-            if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel userLogChannel) {
-                await userLogChannel.SendMessageAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :no_entry: {user} (`{user.Id}`) was banned.", allowedMentions: UserMentionsOnly);
-            }
+            if (guild.Id != WubbysFunHouse.ServerId) { return; }
 
-            try {
-                // Lookup audit log event
-                Task runner = Task.Run(async () => {
+            await SendUserLogAsync($"`[{DateTime.UtcNow.ToString(Constants.DateTimeFormatMedium)}]` :no_entry: {user} (`{user.Id}`) was banned.");
+
+            // Look up who banned them, the audit log entry can take a moment to show up
+            _ = Task.Run(async () => {
+                try {
                     await Task.Delay(4000);
 
                     if (_DiscordClient.GetChannel(WubbysFunHouse.ModLogsChannelId) is IMessageChannel modLogChannel) {
                         IEnumerable<RestAuditLogEntry> userBans = await guild.GetAuditLogsAsync(10, actionType: ActionType.Ban).FlattenAsync();
-                        RestAuditLogEntry bannedEvent = userBans.Where(x => x.Data is BanAuditLogData data && data.Target.Id == user.Id).FirstOrDefault();
+                        RestAuditLogEntry bannedEvent = userBans.FirstOrDefault(x => x.Data is BanAuditLogData data && data.Target?.Id == user.Id);
+
+                        if (bannedEvent is null) {
+                            await modLogChannel.SendMessageAsync($":no_entry: {user} (`{user.Id}`) was banned, the audit log entry was not found.", allowedMentions: UserMentionsOnly);
+                            return;
+                        }
+
+                        string bannedBy = bannedEvent.User is IUser moderator ? $"{moderator} (`{moderator.Id}`)" : "an unknown user";
 
                         if (string.IsNullOrEmpty(bannedEvent.Reason)) {
-                            await modLogChannel.SendMessageAsync($":no_entry: {user} (`{user.Id}`) was banned by {bannedEvent.User} (`{bannedEvent.User.Id}`) with no reason specified.", allowedMentions: UserMentionsOnly);
+                            await modLogChannel.SendMessageAsync($":no_entry: {user} (`{user.Id}`) was banned by {bannedBy} with no reason specified.", allowedMentions: UserMentionsOnly);
                         } else {
-                            await modLogChannel.SendMessageAsync($":no_entry: {user} (`{user.Id}`) was banned by {bannedEvent.User} (`{bannedEvent.User.Id}`) with reason: **{bannedEvent.Reason}**", allowedMentions: UserMentionsOnly);
+                            await modLogChannel.SendMessageAsync($":no_entry: {user} (`{user.Id}`) was banned by {bannedBy} with reason: **{bannedEvent.Reason}**", allowedMentions: UserMentionsOnly);
                         }
                     }
-                });
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-            }
+                } catch (Exception ex) {
+                    LoggingManager.Log.Error(ex);
+                }
+            });
         }
 
         private static Task ReactionAdded(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction) {
@@ -243,9 +252,9 @@ namespace HeadNonSub.Clients.Discord {
                 socketMessage.Channel is SocketTextChannel textChannel &&
                 textChannel.CategoryId.HasValue &&
                 textChannel.CategoryId.Value == WubbysFunHouse.ModMailCategoryId &&
-                socketMessage.Embeds.Any(x => x.Description.ContainsUrls())) {
+                socketMessage.Embeds.FirstOrDefault(x => !string.IsNullOrEmpty(x.Description) && x.Description.ContainsUrls()) is Embed urlEmbed) {
 
-                List<string> urls = socketMessage.Embeds.FirstOrDefault().Description.GetUrls();
+                List<string> urls = urlEmbed.Description.GetUrls();
                 await socketMessage.Channel.SendMessageAsync($"Url detected in `WubbyMail` message, attempting to embed...{Environment.NewLine}{string.Join(Environment.NewLine, urls)}", allowedMentions: UserMentionsOnly);
 
                 return;
@@ -299,21 +308,22 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static async Task MessageUpdated(Cacheable<IMessage, ulong> originalMessage, SocketMessage updatedMessage, ISocketMessageChannel channel) {
+            // Direct messages and other servers are not logged
+            if (!IsWubbysFunHouse(channel)) { return; }
+
             if (originalMessage.HasValue && !string.IsNullOrWhiteSpace(originalMessage.Value.Content) && !string.IsNullOrWhiteSpace(updatedMessage.Content) && !originalMessage.Value.Author.IsBot) {
-                if (originalMessage.Value.Content != updatedMessage.Content) {
-                    string logMessage;
+                IMessage original = originalMessage.Value;
 
-                    if (originalMessage.HasValue) {
-                        logMessage = $"`[{originalMessage.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :pencil: {originalMessage.Value.Author} (`{originalMessage.Value.Author.Id}`) message edited in **#{channel.Name}**:{Environment.NewLine}**B:** {originalMessage.Value.ResolveTags()}{Environment.NewLine}**A:** {updatedMessage.ResolveTags()}";
-                    } else {
-                        logMessage = $":warning: An unknown message was edited in **#{channel.Name}**: {Environment.NewLine}Old id was: {originalMessage.Id}{Environment.NewLine}New id is: {updatedMessage.Id}";
-                    }
+                if (original.Content != updatedMessage.Content) {
+                    string header = $"`[{original.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :pencil: {original.Author} (`{original.Author.Id}`) message edited in **#{channel.Name}**:";
+                    string before = original.ResolveTags();
+                    string after = updatedMessage.ResolveTags();
 
-                    if (!string.IsNullOrEmpty(logMessage)) {
-                        if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
-                            await logChannel.SendMessageAsync(logMessage, allowedMentions: UserMentionsOnly);
-                        }
-                    }
+                    // Split what is left of the message limit between before and after, with room for the labels
+                    int partLength = (DiscordConfig.MaxMessageSize - header.Length - 20) / 2;
+                    string fullText = before.Length > partLength || after.Length > partLength ? $"Before:{Environment.NewLine}{original.Content}{Environment.NewLine}{Environment.NewLine}After:{Environment.NewLine}{updatedMessage.Content}" : null;
+
+                    await SendUserLogAsync($"{header}{Environment.NewLine}**B:** {before.Shorten(partLength)}{Environment.NewLine}**A:** {after.Shorten(partLength)}", fullText);
                 }
             }
         }
@@ -325,20 +335,42 @@ namespace HeadNonSub.Clients.Discord {
                 BongTrapMessageId = null;
             }
 
+            // Direct messages and other servers are not logged
+            if (!IsWubbysFunHouse(channel.Value)) { return; }
+
             if (message.HasValue && !string.IsNullOrWhiteSpace(message.Value.Content) && !message.Value.Author.IsBot) {
-                string logMessage;
+                string header = $"`[{message.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :wastebasket: {message.Value.Author} (`{message.Value.Author.Id}`) message deleted in **#{channel.Value.Name}**:";
+                string content = message.Value.ResolveTags();
 
-                if (message.HasValue) {
-                    logMessage = $"`[{message.Value.CreatedAt.DateTime.ToUniversalTime().ToString(Constants.DateTimeFormatMedium)}]` :wastebasket: {message.Value.Author} (`{message.Value.Author.Id}`) message deleted in **#{channel.Value.Name}**:{Environment.NewLine}{message.Value.ResolveTags()}";
-                } else {
-                    logMessage = $":warning: An unknown message was deleted in **#{channel.Value.Name}**: {Environment.NewLine}Message id was: {message.Id}";
-                }
+                // Room for the header and a new line
+                int contentLength = DiscordConfig.MaxMessageSize - header.Length - 2;
+                string fullText = content.Length > contentLength ? message.Value.Content : null;
 
-                if (_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel) {
-                    await logChannel.SendMessageAsync(logMessage, allowedMentions: UserMentionsOnly);
-                }
+                await SendUserLogAsync($"{header}{Environment.NewLine}{content.Shorten(contentLength)}", fullText);
             }
         }
+
+        /// <summary>
+        /// Send a message to the user logs channel.
+        /// </summary>
+        /// <param name="message">Message to send, must fit in one Discord message.</param>
+        /// <param name="fullText">Attached as a text file when set, for messages that had to be shortened.</param>
+        private static async Task SendUserLogAsync(string message, string fullText = null) {
+            if (!(_DiscordClient.GetChannel(WubbysFunHouse.UserLogsChannelId) is IMessageChannel logChannel)) { return; }
+
+            if (fullText is null) {
+                await logChannel.SendMessageAsync(message, allowedMentions: UserMentionsOnly);
+            } else {
+                using MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(fullText));
+                await logChannel.SendFileAsync(stream, "message.txt", message, allowedMentions: UserMentionsOnly);
+            }
+        }
+
+        /// <summary>
+        /// Check if a channel is in Wubby's Fun House.
+        /// </summary>
+        /// <param name="channel">Channel to check.</param>
+        private static bool IsWubbysFunHouse(IChannel channel) => channel is IGuildChannel guildChannel && guildChannel.GuildId == WubbysFunHouse.ServerId;
 
         /// <summary>
         /// Process additional actions for a message.
@@ -364,8 +396,8 @@ namespace HeadNonSub.Clients.Discord {
 
                 string contentLowercase = message.Content.ToLowerInvariant();
 
-                // Discord invites
-                if (contentLowercase.Contains("https://discord.gg/")) {
+                // Discord invites, with or without https:// and in either link style
+                if (_InviteRegex.IsMatch(message.Content)) {
                     await message.DeleteAsync();
                     await channel.SendMessageAsync($"{user.Mention} No invites allowed.", allowedMentions: UserMentionsOnly);
                     return;

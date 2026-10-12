@@ -16,22 +16,25 @@ namespace HeadNonSub.Extensions {
 
             foreach (ITag tag in input.Tags) {
                 if (tag.Type == TagType.ChannelMention) {
-                    IChannel channel = tag.Value as IChannel;
-                    message.Replace($"<#{tag.Key}>", $"{encaseWith}#{channel.Name}{encaseWith}");
+                    // Null when the channel is not visible to the bot
+                    string name = tag.Value is IChannel channel ? channel.Name : tag.Key.ToString();
+                    message.Replace($"<#{tag.Key}>", $"{encaseWith}#{name}{encaseWith}");
 
                 } else if (tag.Type == TagType.Emoji) {
                     IEmote emote = tag.Value as IEmote;
-                    message.Replace($"<:{emote.Name}::{tag.Key}:>", $"{encaseWith}:{emote.Name}:{encaseWith}");
+                    message.Replace($"<:{emote.Name}:{tag.Key}>", $"{encaseWith}:{emote.Name}:{encaseWith}");
+                    message.Replace($"<a:{emote.Name}:{tag.Key}>", $"{encaseWith}:{emote.Name}:{encaseWith}");
 
                 } else if (tag.Type == TagType.EveryoneMention) {
                     message.Replace("@everyone", $"{encaseWith}@everyone{encaseWith}");
 
                 } else if (tag.Type == TagType.HereMention) {
-                    message.Replace("@here", $"{encaseWith}@everyone{encaseWith}");
+                    message.Replace("@here", $"{encaseWith}@here{encaseWith}");
 
                 } else if (tag.Type == TagType.RoleMention) {
-                    IRole role = tag.Value as IRole;
-                    message.Replace($"<@&{tag.Key}>", $"{encaseWith}@{role.Name}{encaseWith}");
+                    // Null when the role was deleted
+                    string name = tag.Value is IRole role ? role.Name : tag.Key.ToString();
+                    message.Replace($"<@&{tag.Key}>", $"{encaseWith}@{name}{encaseWith}");
 
                 } else if (tag.Type == TagType.UserMention) {
                     IUser user = tag.Value as IUser;
