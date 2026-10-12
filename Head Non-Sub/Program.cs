@@ -22,9 +22,11 @@ namespace HeadNonSub {
 
                 // Create and run the host
                 IHost host = CreateHostBuilder(args).Build();
+                Shutdown.SetLifetime(host.Services.GetRequiredService<IHostApplicationLifetime>());
                 await host.RunAsync();
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex, "Application terminated with error");
+                Environment.ExitCode = Shutdown.RestartExitCode;
             } finally {
                 LoggingManager.Flush();
                 // Ensure all appenders are flushed
@@ -51,6 +53,7 @@ namespace HeadNonSub {
                     // Initialize logging and settings
                     LoggingManager.Initialize();
                     LoggingManager.Log.Info($"{Constants.ApplicationName} v{Constants.ApplicationVersion}, https://github.com/Xathz");
+                    Shutdown.ClearFailFastFile();
                     SettingsManager.Load();
 
                     // Register configuration
