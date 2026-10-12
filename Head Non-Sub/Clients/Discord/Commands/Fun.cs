@@ -50,7 +50,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         public async Task Executie([Summary("user", "Who to executie")] SocketGuildUser user, [Summary("reason", "Why they are being executie'd")] string reason = "") {
             string parameters = $"{user} ({user.Id}); {reason}";
 
-            if (!user.Roles.Any(x => x.Id == WubbysFunHouse.TwitchSubscriberRoleId)) {
+            if (!WubbysFunHouse.IsSubscriber(user)) {
                 await BetterReplyAsync("You can not executie a non-sub. Executie is for someone you like and no one likes a non-sub.", parameters: parameters);
                 return;
             } else if (user.Roles.Any(x => x.Id == WubbysFunHouse.MutedRoleId)) {
@@ -80,8 +80,8 @@ namespace HeadNonSub.Clients.Discord.Commands {
         [SlashCommand("random", "Pick a random user")]
         public async Task Random([Summary("type", "What kind of user to pick")] RandomType type) {
             SocketGuildUser randomUser = type switch {
-                RandomType.Sub => Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == WubbysFunHouse.TwitchSubscriberRoleId)).PickRandom(),
-                RandomType.NonSub => Context.Guild.Users.Where(x => !x.Roles.Any(r => r.Id == WubbysFunHouse.TwitchSubscriberRoleId)).PickRandom(),
+                RandomType.Sub => Context.Guild.Users.Where(x => WubbysFunHouse.IsSubscriber(x)).PickRandom(),
+                RandomType.NonSub => Context.Guild.Users.Where(x => !WubbysFunHouse.IsSubscriber(x)).PickRandom(),
                 RandomType.Tier3 => Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == WubbysFunHouse.TwitchSubscriberTier3RoleId)).PickRandom(),
                 RandomType.Admin => Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == WubbysFunHouse.AdminsRoleId)).PickRandom(),
                 RandomType.Mod => Context.Guild.Users.Where(x => x.Roles.Any(r => r.Id == WubbysFunHouse.ModsRoleId | r.Id == WubbysFunHouse.ModLiteRoleId | r.Id == WubbysFunHouse.TwitchModRoleId | r.Id == WubbysFunHouse.SubredditModRoleId)
