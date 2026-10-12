@@ -311,6 +311,23 @@ namespace HeadNonSub.Clients.Discord {
             // Direct messages and other servers are not logged
             if (!IsWubbysFunHouse(channel)) { return; }
 
+            // Link previews also raise an update, only filter when the text changed or the original is unknown
+            bool filter = !originalMessage.HasValue || originalMessage.Value.Content != updatedMessage.Content;
+
+#if DEBUG
+            filter &= updatedMessage.Author.Id == Constants.XathzUserId;
+#endif
+
+            if (filter && updatedMessage is SocketUserMessage message && message.Source == MessageSource.User &&
+                message.Author is SocketGuildUser user && channel is SocketTextChannel textChannel && !WubbysFunHouse.IsDiscordOrTwitchStaff(user)) {
+                try {
+                    // Otherwise an invite could be edited into a message after it was posted
+                    await FilterMessageAsync(textChannel, message, user);
+                } catch (Exception ex) {
+                    LoggingManager.Log.Error(ex);
+                }
+            }
+
             if (originalMessage.HasValue && !string.IsNullOrWhiteSpace(originalMessage.Value.Content) && !string.IsNullOrWhiteSpace(updatedMessage.Content) && !originalMessage.Value.Author.IsBot) {
                 IMessage original = originalMessage.Value;
 
@@ -386,6 +403,9 @@ namespace HeadNonSub.Clients.Discord {
             }
 
             try {
+                if (await FilterMessageAsync(channel, message, user)) {
+                    return;
+                }
 
                 // Jingle bells
                 if (message.Content.Replace(" ", "").Contains("jingle", StringComparison.OrdinalIgnoreCase)) {
@@ -393,33 +413,44 @@ namespace HeadNonSub.Clients.Discord {
                         await JingleBells(message.Channel.Id).ConfigureAwait(false);
                     });
                 }
-
-                string contentLowercase = message.Content.ToLowerInvariant();
-
-                // Discord invites, with or without https:// and in either link style
-                if (_InviteRegex.IsMatch(message.Content)) {
-                    await message.DeleteAsync();
-                    await channel.SendMessageAsync($"{user.Mention} No invites allowed.", allowedMentions: UserMentionsOnly);
-                    return;
-                }
-
-                // Discord gifts
-                if (contentLowercase.Contains("https://discord.gift/") && WubbysFunHouse.IsSubscriber(user)) {
-                    return;
-                }
-
-                // Too many animated emotes in actual fucking spam
-                if (channel.Id == WubbysFunHouse.ActualFuckingSpamChannelId) {
-                    int count = message.Content.CountStringOccurrences("<a:");
-
-                    if (count > 10) {
-                        await message.DeleteAsync();
-                        await channel.SendMessageAsync($"{user.Mention} Only 10 or less animated emotes/emoji per-message. Having many of them breaks the channel for some people.", allowedMentions: UserMentionsOnly);
-                    }
-                }
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
+        }
+
+        /// <summary>
+        /// Remove a message that breaks the server rules. Used for new and edited messages.
+        /// </summary>
+        /// <param name="channel">Text channel message was sent in.</param>
+        /// <param name="message">Message to check.</param>
+        /// <param name="user">User who sent the message.</param>
+        /// <returns>True if the message was removed.</returns>
+        private static async Task<bool> FilterMessageAsync(SocketTextChannel channel, SocketUserMessage message, SocketGuildUser user) {
+
+            // Discord invites, with or without https:// and in either link style
+            if (_InviteRegex.IsMatch(message.Content)) {
+                await message.DeleteAsync();
+                await channel.SendMessageAsync($"{user.Mention} No invites allowed.", allowedMentions: UserMentionsOnly);
+                return true;
+            }
+
+            // Discord gifts
+            if (message.Content.Contains("https://discord.gift/", StringComparison.OrdinalIgnoreCase) && WubbysFunHouse.IsSubscriber(user)) {
+                return false;
+            }
+
+            // Too many animated emotes in actual fucking spam
+            if (channel.Id == WubbysFunHouse.ActualFuckingSpamChannelId) {
+                int count = message.Content.CountStringOccurrences("<a:");
+
+                if (count > 10) {
+                    await message.DeleteAsync();
+                    await channel.SendMessageAsync($"{user.Mention} Only 10 or less animated emotes/emoji per-message. Having many of them breaks the channel for some people.", allowedMentions: UserMentionsOnly);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static DateTimeOffset _LastJingleBells = DateTimeOffset.UtcNow;
