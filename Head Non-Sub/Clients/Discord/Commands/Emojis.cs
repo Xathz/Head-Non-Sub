@@ -40,7 +40,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
                     if (response.IsSuccessStatusCode) {
                         using HttpContent content = response.Content;
 
-                        Stream stream = await content.ReadAsStreamAsync();
+                        using Stream stream = await content.ReadAsStreamAsync();
 
                         if ((ulong)stream.Length > Context.Interaction.AttachmentSizeLimit) {
                             await BetterReplyAsync("There was an error processing an emoji. Re-upload was too large.", parameters: emoji);

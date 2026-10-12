@@ -28,7 +28,7 @@ namespace HeadNonSub {
         /// <param name="method">Http method for the request.</param>
         /// <returns>Response content as a string. This may be empty based on <see cref="Method"/>.</returns>
         public static async Task<string> SendRequestAsync(string url, Dictionary<string, string> headers = null, Dictionary<string, string> parameters = null, Method method = Method.Get) {
-            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod(method.ToString()), url);
+            using HttpRequestMessage request = new HttpRequestMessage(new HttpMethod(method.ToString()), url);
 
             if (headers != null) {
                 foreach (KeyValuePair<string, string> header in headers) {
@@ -57,7 +57,7 @@ namespace HeadNonSub {
         /// <param name="method">Http method for the request.</param>
         /// <returns>The requested data as a <see cref="MemoryStream"/></returns>
         public static async Task<MemoryStream> GetStreamAsync(string url, Dictionary<string, string> headers = null, Method method = Method.Get) {
-            HttpRequestMessage request = new HttpRequestMessage(new HttpMethod(method.ToString()), url);
+            using HttpRequestMessage request = new HttpRequestMessage(new HttpMethod(method.ToString()), url);
 
             if (headers != null) {
                 foreach (KeyValuePair<string, string> header in headers) {
@@ -71,7 +71,7 @@ namespace HeadNonSub {
                 using Stream stream = await content.ReadAsStreamAsync();
 
                 MemoryStream copyStream = new MemoryStream(256);
-                stream.CopyTo(copyStream);
+                await stream.CopyToAsync(copyStream);
                 copyStream.Seek(0, SeekOrigin.Begin);
 
                 return copyStream;

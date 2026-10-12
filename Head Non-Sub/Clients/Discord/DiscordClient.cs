@@ -163,15 +163,18 @@ namespace HeadNonSub.Clients.Discord {
             }
         }
 
-        private static Task JoinedGuild(SocketGuild guild) {
+        private static async Task JoinedGuild(SocketGuild guild) {
             LoggingManager.Log.Warn($"Joined guild {guild.Name} ({guild.Id})");
 
             // Leave if an invalid guild
             if (guild.Id != Constants.XathzDiscordGuild && guild.Id != WubbysFunHouse.ServerId) {
-                guild.LeaveAsync(new RequestOptions { AuditLogReason = $"This bot is private. This guild needs to be whitelisted. Contact: {Constants.Creator}" });
+                try {
+                    await guild.LeaveAsync(new RequestOptions { AuditLogReason = $"This bot is private. This guild needs to be whitelisted. Contact: {Constants.Creator}" });
+                    LoggingManager.Log.Warn($"Left guild {guild.Name} ({guild.Id}), it is not whitelisted");
+                } catch (Exception ex) {
+                    LoggingManager.Log.Error(ex, $"Failed to leave guild {guild.Name} ({guild.Id})");
+                }
             }
-
-            return Task.CompletedTask;
         }
 
         private static Task GuildAvailable(SocketGuild guild) {
