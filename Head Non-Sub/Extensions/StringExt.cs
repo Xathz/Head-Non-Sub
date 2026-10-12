@@ -197,6 +197,25 @@ namespace HeadNonSub.Extensions {
         }
 
         /// <summary>
+        /// Shorten a string to a maximum length, marking where it was cut.
+        /// </summary>
+        /// <param name="input">String to shorten.</param>
+        /// <param name="maxLength">Maximum length including the marker.</param>
+        public static string Shorten(this string input, int maxLength) {
+            if (input.Length <= maxLength) {
+                return input;
+            }
+
+            // Don't split an emoji in half
+            int length = Math.Max(0, maxLength - 3);
+            if (length > 0 && char.IsHighSurrogate(input[length - 1])) {
+                length--;
+            }
+
+            return $"{input.Substring(0, length)}...";
+        }
+
+        /// <summary>
         /// Sanitizes the string, safely escaping any markdown sequences.
         /// </summary>
         /// <remarks>https://git.io/JeY0Y</remarks>
