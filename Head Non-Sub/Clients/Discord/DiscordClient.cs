@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
+using Discord.Net;
 using Discord.Rest;
 using Discord.WebSocket;
 using HeadNonSub.Extensions;
@@ -28,6 +30,10 @@ namespace HeadNonSub.Clients.Discord {
         public static readonly AllowedMentions UserMentionsOnly = new AllowedMentions(AllowedMentionTypes.Users);
 
         private static IServiceProvider _CommandProvider;
+
+        private static readonly TimeSpan _ReconnectTimeout = TimeSpan.FromMinutes(10);
+        private static DateTimeOffset _LastConnected = DateTimeOffset.MinValue;
+        private static bool _Stopping;
 
         private static readonly Regex _InviteRegex = new Regex(@"(?:discord\.gg|discord(?:app)?\.com/invite)/[\w-]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -85,6 +91,7 @@ namespace HeadNonSub.Clients.Discord {
 
             _DiscordClient.Log += Log;
             _DiscordClient.Connected += Connected;
+            _DiscordClient.Disconnected += Disconnected;
 
             _DiscordClient.JoinedGuild += JoinedGuild;
             _DiscordClient.GuildAvailable += GuildAvailable;
@@ -108,6 +115,8 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         public static async Task StopAsync() {
+            _Stopping = true;
+
             // Not created when startup failed before connecting
             if (_DiscordClient != null) {
                 await _DiscordClient.StopAsync();
@@ -148,6 +157,8 @@ namespace HeadNonSub.Clients.Discord {
         }
 
         private static async Task Connected() {
+            _LastConnected = DateTimeOffset.UtcNow;
+
             try {
                 // Discord only allows a couple of username changes per hour
                 if (_DiscordClient.CurrentUser.Username != GetConfiguration().BotNickname) {
@@ -161,6 +172,55 @@ namespace HeadNonSub.Clients.Discord {
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
+        }
+
+        private static Task Disconnected(Exception exception) {
+            if (_Stopping) { return Task.CompletedTask; }
+
+            // Discord.Net keeps retrying these or stops silently, neither works until the cause is fixed
+            string fatalReason = GetFatalDisconnectReason(exception);
+            if (fatalReason != null) {
+                Shutdown.FailFast(fatalReason);
+                return Task.CompletedTask;
+            }
+
+            // Some closes make Discord.Net stop reconnecting, restart if it has not reconnected after a while
+            DateTimeOffset disconnectedAt = DateTimeOffset.UtcNow;
+            _ = Task.Run(async () => {
+                await Task.Delay(_ReconnectTimeout);
+
+                if (!_Stopping && _LastConnected < disconnectedAt) {
+                    Shutdown.Restart($"Not reconnected to Discord {_ReconnectTimeout.TotalMinutes} minutes after disconnecting");
+                }
+            });
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Get why a disconnect can not be fixed by reconnecting.
+        /// </summary>
+        /// <param name="exception">Exception Discord.Net disconnected with.</param>
+        /// <returns>What needs to be fixed; <see langword="null"/> if reconnecting can work.</returns>
+        public static string GetFatalDisconnectReason(Exception exception) {
+            for (Exception current = exception; current != null; current = current.InnerException) {
+                if (current is WebSocketClosedException closed) {
+                    // https://discord.com/developers/docs/topics/opcodes-and-status-codes#gateway-gateway-close-event-codes
+                    return closed.CloseCode switch {
+                        4004 => "Discord rejected the token (close code 4004), check discordToken in the settings file",
+                        4014 => "Discord refused the privileged intents (close code 4014), enable Server Members Intent and Message Content Intent in the Discord Developer Portal",
+                        4010 or 4011 or 4012 or 4013 => $"Discord closed the connection with code {closed.CloseCode} ({closed.Reason}), this needs a code or Discord.Net update",
+                        _ => null
+                    };
+                }
+
+                // Getting the gateway address fails before connecting when the token is wrong
+                if (current is HttpException http && http.HttpCode == HttpStatusCode.Unauthorized) {
+                    return "Discord rejected the token (HTTP 401), check discordToken in the settings file";
+                }
+            }
+
+            return null;
         }
 
         private static async Task JoinedGuild(SocketGuild guild) {

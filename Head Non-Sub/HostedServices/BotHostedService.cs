@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,7 +50,7 @@ namespace HeadNonSub.HostedServices {
                         LoggingManager.Log.Error(error);
                     }
 
-                    _ApplicationLifetime.StopApplication();
+                    Shutdown.FailFast($"The settings file has {validationErrors.Count} error(s), see above");
                     return;
                 }
 
@@ -67,7 +67,7 @@ namespace HeadNonSub.HostedServices {
                 _ = UserInputAsync(cancellationToken);
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex, "Failed to start bot service");
-                _ApplicationLifetime.StopApplication();
+                Shutdown.Restart("The bot service failed to start");
             }
         }
 

@@ -41,9 +41,7 @@ namespace HeadNonSub.Settings {
                 LoggingManager.Log.Error(ex);
             }
 
-            LoggingManager.Log.Fatal($"Can not load settings file '{Constants.SettingsFile}', please check it or delete it so a new one can be created");
-            LoggingManager.Flush();
-            Environment.Exit(2);
+            Shutdown.FailFast($"Can not load settings file '{Constants.SettingsFile}', check it or delete it so a new one can be created");
         }
 
         private static void LoadJSON(string settingsFile) {

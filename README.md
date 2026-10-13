@@ -34,3 +34,15 @@ Manage Messages | Removing Discord invites and animated emote spam
 Manage Nicknames | The bong trap
 Manage Webhooks | `/xathz puppet`
 View Audit Log | Who banned a user and why in the mod log
+
+## Running
+
+`Watchdog.ps1` starts the bot and restarts it if it stops. Exit codes:
+
+Exit code | Meaning | Watchdog
+--- | --- | ---
+`0` | Stopped normally | Restarts it
+`1` | Lost the connection to Discord and did not reconnect within 10 minutes, or failed to start | Restarts it
+`2` | Needs fixing, like a bad settings file, a token Discord rejects or missing privileged intents | Waits
+
+On exit code `2` the bot writes `HeadNonSub/HeadNonSub.failfast` with the reason. The watchdog does not start the bot while that file exists. Fix the problem then delete the file. Starting the bot by hand also removes it.
