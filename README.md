@@ -37,12 +37,24 @@ View Audit Log | Who banned a user and why in the mod log
 
 ## Running
 
-`Watchdog.ps1` starts the bot and restarts it if it stops. Exit codes:
+`Watchdog.ps1` starts the bot and restarts it when it stops, up to 3 times. It needs [PowerShell 7.4 or newer](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) and the .NET 10 runtime. Put it next to `HeadNonSub.dll` and run:
+
+```powershell
+pwsh ./Watchdog.ps1
+```
+
+Option | Default | Meaning
+--- | --- | ---
+`-MaxRestarts` | `3` | Restarts before the watchdog gives up and exits
+`-RestartDelaySeconds` | `15` | Wait before each restart
+
+The bot runs in the same console, so its console commands (`help`, `cache`, `exit`) still work. The watchdog will not start a second copy if the bot is already running.
+
+What the watchdog does with the bot's exit code:
 
 Exit code | Meaning | Watchdog
 --- | --- | ---
-`0` | Stopped normally | Restarts it
-`1` | Lost the connection to Discord and did not reconnect within 10 minutes, or failed to start | Restarts it
-`2` | Needs fixing, like a bad settings file, a token Discord rejects or missing privileged intents | Waits
-
-On exit code `2` the bot writes `HeadNonSub/HeadNonSub.failfast` with the reason. The watchdog does not start the bot while that file exists. Fix the problem then delete the file. Starting the bot by hand also removes it.
+`0` | Stopped normally, like the `exit` console command | Exits
+`1` | Lost the connection to Discord and did not reconnect within 10 minutes, or failed to start | Restarts it, until the limit
+`2` | Needs fixing, like a bad settings file, a token Discord rejects or missing privileged intents | Exits, the reason is in the bot's log
+Anything else | Crashed | Restarts it, until the limit

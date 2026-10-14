@@ -2,6 +2,7 @@
 
 Discord bot for the PaymoneyWubby server. C# / .NET 10, single project in `Head Non-Sub/`, no tests.
 Build: `dotnet build "Head Non-Sub.sln"`
+Run: `Watchdog.ps1` (PowerShell 7.4+) next to `HeadNonSub.dll`. Exit codes live in `Shutdown.cs` (0 stopped, 1 restart, 2 needs fixing); keep them, the watchdog and the README "Running" section in sync.
 
 ## Working preferences
 

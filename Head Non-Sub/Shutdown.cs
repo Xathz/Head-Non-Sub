@@ -1,11 +1,10 @@
 ﻿using System;
-using System.IO;
 using Microsoft.Extensions.Hosting;
 
 namespace HeadNonSub {
 
     /// <summary>
-    /// Stops the application when it can not keep running. The exit code and fail fast file tell Watchdog.ps1 what to do.
+    /// Stops the application when it can not keep running. The exit code tells Watchdog.ps1 what to do.
     /// </summary>
     public static class Shutdown {
 
@@ -30,14 +29,13 @@ namespace HeadNonSub {
         public static void SetLifetime(IHostApplicationLifetime lifetime) => _Lifetime = lifetime;
 
         /// <summary>
-        /// Stop for a problem that needs a settings or setup change. Writes the fail fast file so the watchdog does not keep restarting.
+        /// Stop for a problem that needs a settings or setup change. The watchdog does not restart it.
         /// </summary>
         /// <param name="reason">What needs to be fixed.</param>
         public static void FailFast(string reason) {
             if (!BeginStop()) { return; }
 
-            LoggingManager.Log.Fatal($"{reason}. Stopping, fix this then delete '{Constants.FailFastFile}' so the watchdog can start it again");
-            WriteFailFastFile(reason);
+            LoggingManager.Log.Fatal($"{reason}. Stopping, fix this then start it again");
             Stop(FailFastExitCode);
         }
 
@@ -50,32 +48,6 @@ namespace HeadNonSub {
 
             LoggingManager.Log.Fatal($"{reason}. Stopping so the watchdog can restart it");
             Stop(RestartExitCode);
-        }
-
-        /// <summary>
-        /// Write the fail fast file, the watchdog will not start the application while it exists.
-        /// </summary>
-        /// <param name="reason">What needs to be fixed.</param>
-        public static void WriteFailFastFile(string reason) {
-            try {
-                File.WriteAllText(Constants.FailFastFile, $"{DateTime.Now.ToString(Constants.DateTimeFormatMedium)} {reason}");
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex, "Failed to write the fail fast file");
-            }
-        }
-
-        /// <summary>
-        /// Remove a fail fast file left from the last run. Starting the application means the problem was fixed.
-        /// </summary>
-        public static void ClearFailFastFile() {
-            try {
-                if (File.Exists(Constants.FailFastFile)) {
-                    LoggingManager.Log.Info($"Removed the fail fast file from the last run: {File.ReadAllText(Constants.FailFastFile)}");
-                    File.Delete(Constants.FailFastFile);
-                }
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex, "Failed to remove the fail fast file");
-            }
         }
 
         private static bool BeginStop() {

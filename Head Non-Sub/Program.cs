@@ -53,7 +53,6 @@ namespace HeadNonSub {
                     // Initialize logging and settings
                     LoggingManager.Initialize();
                     LoggingManager.Log.Info($"{Constants.ApplicationName} v{Constants.ApplicationVersion}, https://github.com/Xathz");
-                    Shutdown.ClearFailFastFile();
                     SettingsManager.Load();
 
                     // Register configuration
