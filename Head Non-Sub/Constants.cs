@@ -140,11 +140,6 @@ namespace HeadNonSub {
         /// </summary>
         public static string ProcessIdFile => Path.Combine(WorkingDirectory, $"{ExecutableName}.pid");
 
-        /// <summary>
-        /// Fail fast file location. Watchdog.ps1 does not start the application while it exists.
-        /// </summary>
-        public static string FailFastFile => Path.Combine(WorkingDirectory, $"{ExecutableName}.failfast");
-
     }
 
 }
