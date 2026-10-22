@@ -8,10 +8,12 @@ namespace HeadNonSub.Clients.Discord {
 
     /// <summary>
     /// A ! text command being run, with helpers to reply like <see cref="BetterModuleBase"/>.
+    /// It is also the context for the slash command's preconditions, there is no interaction.
     /// </summary>
-    public sealed class PrefixContext {
+    public sealed class PrefixContext : IInteractionContext {
 
-        public PrefixContext(SocketTextChannel channel, SocketUserMessage message, SocketGuildUser user, string name, string text) {
+        public PrefixContext(DiscordSocketClient client, SocketTextChannel channel, SocketUserMessage message, SocketGuildUser user, string name, string text) {
+            Client = client;
             Channel = channel;
             Message = message;
             User = user;
@@ -19,6 +21,7 @@ namespace HeadNonSub.Clients.Discord {
             Text = text;
         }
 
+        public DiscordSocketClient Client { get; }
         public SocketTextChannel Channel { get; }
         public SocketUserMessage Message { get; }
         public SocketGuildUser User { get; }
@@ -37,6 +40,12 @@ namespace HeadNonSub.Clients.Discord {
         /// The command as typed, like !ttsays.
         /// </summary>
         public string Command => $"{PrefixCommands.Prefix}{Name}";
+
+        IDiscordClient IInteractionContext.Client => Client;
+        IGuild IInteractionContext.Guild => Channel.Guild;
+        IMessageChannel IInteractionContext.Channel => Channel;
+        IUser IInteractionContext.User => User;
+        IDiscordInteraction IInteractionContext.Interaction => null;
 
         /// <summary>
         /// Reply to the message. Not tracked in statistics.

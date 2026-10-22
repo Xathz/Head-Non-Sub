@@ -13,6 +13,16 @@ namespace HeadNonSub.Clients.Discord {
         private readonly DiscordSocketClient _DiscordClient;
         private readonly IServiceProvider _Services;
 
+        /// <summary>
+        /// Reply while a debug build is running, only Xathz can use commands.
+        /// </summary>
+        public const string DebugMessage = "I am currently being worked on, please try that again later.";
+
+        /// <summary>
+        /// Reply when a command throws.
+        /// </summary>
+        public const string ErrorMessage = "Something went wrong running that command.";
+
         private bool _Registered;
 
         public SlashCommands(IServiceProvider services) {
@@ -56,7 +66,7 @@ namespace HeadNonSub.Clients.Discord {
 #if DEBUG
             if (interaction.User.Id != Constants.XathzUserId) {
                 if (interaction is SocketSlashCommand) {
-                    await interaction.RespondAsync("I am currently being worked on, please try that again later.", ephemeral: true);
+                    await interaction.RespondAsync(DebugMessage, ephemeral: true);
                 }
 
                 return;
@@ -79,7 +89,7 @@ namespace HeadNonSub.Clients.Discord {
             // Autocomplete can't be replied to with a message
             if (context.Interaction is IAutocompleteInteraction) { return; }
 
-            string message = result.Error == InteractionCommandError.Exception ? "Something went wrong running that command." : result.ErrorReason;
+            string message = result.Error == InteractionCommandError.Exception ? ErrorMessage : result.ErrorReason;
 
             try {
                 await EphemeralReplyAsync(context.Interaction, message);
