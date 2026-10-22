@@ -37,7 +37,7 @@ View Audit Log | Who banned a user and why in the mod log
 
 ## Running
 
-`Watchdog.ps1` starts the bot and restarts it when it stops, up to 3 times. It needs [PowerShell 7.4 or newer](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) and the .NET 10 runtime. Put it next to `HeadNonSub.dll` and run:
+`Watchdog.ps1` starts the bot and restarts it when it stops, up to 3 times in a row. A run of an hour or more resets the count, so only crashes close together add up. It needs [PowerShell 7.4 or newer](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) and the .NET 10 runtime. Put it next to `HeadNonSub.dll` and run:
 
 ```powershell
 pwsh ./Watchdog.ps1
@@ -47,6 +47,7 @@ Option | Default | Meaning
 --- | --- | ---
 `-MaxRestarts` | `3` | Restarts before the watchdog gives up and exits
 `-RestartDelaySeconds` | `15` | Wait before each restart
+`-HealthyRunMinutes` | `60` | A run at least this long resets the restart count, `0` never resets it
 
 The bot runs in the same console, so its console commands (`help`, `cache`, `exit`) still work. The watchdog will not start a second copy if the bot is already running.
 
