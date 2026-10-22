@@ -2,7 +2,7 @@
 
 <#
 .SYNOPSIS
-Starts Head Non-Sub and restarts it when it stops, up to a limit.
+Starts Head Non-Sub and restarts it when it stops, up to a limit. A long enough run resets the count.
 
 .DESCRIPTION
 Run from anywhere, it expects to sit next to HeadNonSub.dll.
@@ -21,7 +21,11 @@ param(
 
     # Seconds to wait before each restart
     [ValidateRange(0, [int]::MaxValue)]
-    [int] $RestartDelaySeconds = 15
+    [int] $RestartDelaySeconds = 15,
+
+    # A run at least this long resets the restart count, 0 never resets it
+    [ValidateRange(0, [double]::MaxValue)]
+    [double] $HealthyRunMinutes = 60
 )
 
 Set-StrictMode -Version Latest
@@ -65,8 +69,10 @@ while ($true) {
     Write-WatchdogLog -Level Info -Message 'Starting Head Non-Sub'
 
     # Runs in this console so the bot's console commands still work
+    $started = Get-Date
     & dotnet exec $appPath
     $exitCode = $LASTEXITCODE
+    $ranFor = (Get-Date) - $started
 
     switch ($exitCode) {
         0 {
@@ -77,6 +83,12 @@ while ($true) {
             Write-WatchdogLog -Level Error -Message 'Head Non-Sub needs fixing, the reason is in its log above. Fix it then start the watchdog again'
             exit 2
         }
+    }
+
+    # Only crashes close together count towards the limit
+    if ($restarts -gt 0 -and $HealthyRunMinutes -gt 0 -and $ranFor.TotalMinutes -ge $HealthyRunMinutes) {
+        Write-WatchdogLog -Level Info -Message "Head Non-Sub ran for $([math]::Round($ranFor.TotalMinutes, 1)) minutes, resetting the restart count"
+        $restarts = 0
     }
 
     if ($restarts -ge $MaxRestarts) {
