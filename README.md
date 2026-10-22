@@ -16,7 +16,7 @@ Made for the [PaymoneyWubby](https://www.twitch.tv/paymoneywubby) [discord](http
 Enable these in the [Discord Developer Portal](https://discord.com/developers/applications) under **Bot**.
 
 * **Server Members** - member list, join and leave logs, user options in commands
-* **Message Content** - invite and spam filters, message edit and delete logs, `@Head Non-Sub` replies
+* **Message Content** - invite and spam filters, message edit and delete logs, `@Head Non-Sub` replies, `!` aliases of slash commands like `!ttsays`
 
 ### Bot permissions
 
@@ -27,8 +27,8 @@ Permission | Used for
 View Channels | Everything
 Send Messages | Command replies and logs
 Embed Links | `/help`, `/random` and mod log embeds
-Attach Files | `/image`, `/says`, `/warm` and `/emoji`
-Read Message History | `/xathz react`
+Attach Files | `/image`, `/says` and its `!` aliases, `/warm` and `/emoji`
+Read Message History | `/xathz react`, replying to `!` commands
 Add Reactions | `/dating`, `/executie` and `/xathz`
 Manage Messages | Removing Discord invites and animated emote spam
 Manage Nicknames | The bong trap

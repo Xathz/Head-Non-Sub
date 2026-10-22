@@ -3,6 +3,7 @@
 ### General
 
 - All commands are slash commands, type `/` in Discord to see them
+- Some commands also work the old way with `!`, like `!ttsays <text>`, these are listed under **Also** on the command
 - Some commands have cooldowns either server wide or per-user
 - Not all commands are listed, some are excluded here to prevent abuse
 - Staff commands are hidden from members without the `Manage Messages` permission, server admins can change this in **Server Settings > Integrations**
@@ -64,7 +65,7 @@ Name | Description | Access
 
 Command | Options | Description | Access
 --- | --- | --- | ---
-`/says` | `who` `text` | Render text on a template. **Who:** `tt2468` (reflect upon something), `1024` (1024's screen), `Amanda` (engrave Amanda's plate), `Satazero` (now with icecream), `jiberjiber` (wet and waiting to reflect), `Strong Bad` (Strong Bad and his computer) | Sub
+`/says` | `who` `text` | Render text on a template. **Who:** `tt2468` (reflect upon something), `1024` (1024's screen), `Amanda` (engrave Amanda's plate), `Satazero` (now with icecream), `jiberjiber` (wet and waiting to reflect), `Strong Bad` (Strong Bad and his computer). **Also:** `!ttsays`, `!1024says`, `!amandasays`, `!satasays`, `!jibersays` and `!sbsays` followed by the text, with the same cooldowns | Sub
 `/warm` | `user` `reason` | Warm someone up | Sub
 `/executie` | `user` `reason` | A parody of the `!execute` command in [WubbyBot](https://github.com/tt2468/WubbyBot) | Sub
 `/wubbysays` | | When to watch wubby live | Sub

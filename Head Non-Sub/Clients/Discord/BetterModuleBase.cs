@@ -48,9 +48,15 @@ namespace HeadNonSub.Clients.Discord {
         /// <param name="user">Optional user, if <see langword="null" /> use the user running the command.</param>
         /// <param name="nicknameOnly">Only return the display name.</param>
         /// <param name="formatChar">Character to wrap the username in.</param>
-        public string BetterUserFormat(IUser user = null, bool nicknameOnly = false, string formatChar = "`") {
-            user ??= Context.User;
+        public string BetterUserFormat(IUser user = null, bool nicknameOnly = false, string formatChar = "`") => FormatUser(user ?? Context.User, nicknameOnly, formatChar);
 
+        /// <summary>
+        /// Formats a user's display name and username, for code outside a command module.
+        /// </summary>
+        /// <param name="user">User to format.</param>
+        /// <param name="nicknameOnly">Only return the display name.</param>
+        /// <param name="formatChar">Character to wrap the username in.</param>
+        public static string FormatUser(IUser user, bool nicknameOnly = false, string formatChar = "`") {
             // Server nickname, then global display name, then username
             string displayName = user is SocketGuildUser guildUser ? guildUser.DisplayName : user.GlobalName ?? user.Username;
 
