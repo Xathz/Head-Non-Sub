@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
@@ -32,17 +34,51 @@ namespace HeadNonSub.Clients.Discord.Commands {
             StrongBad
         }
 
+        /// <summary>
+        /// Cooldown and statistics details for a template.
+        /// </summary>
+        /// <param name="who">Template to describe.</param>
+        public static (string CooldownKey, int CooldownSeconds, string StatisticsName) Describe(Template who) => who switch {
+            // Cooldown keys and statistics names match the old text commands
+            Template.TT => ("ttsays", 86400, "TTSays"),
+            Template.TenTwentyFour => ("1024says", 1200, "TenTwentyFourSays"),
+            Template.Amanda => ("amandasays", 1200, "AmandaSays"),
+            Template.Sata => ("satasays", 1200, "SataSays"),
+            Template.Jiber => ("jibersays", 1200, "JiberSays"),
+            _ => ("sbsays", 1200, "StrongBadSays")
+        };
+
+        /// <summary>
+        /// The old text command names, like ttsays, used as ! aliases for /says.
+        /// </summary>
+        public static readonly IReadOnlyDictionary<string, Template> Aliases = Enum.GetValues<Template>().ToDictionary(x => Describe(x).CooldownKey, x => x, StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Render a template.
+        /// </summary>
+        /// <param name="who">Template to render.</param>
+        /// <param name="text">What they should say.</param>
+        /// <returns>The image and its file name, the stream is <see langword="null"/> if the template is missing from the cache.</returns>
+        public static (MemoryStream Stream, string FileName) Render(Template who, string text) {
+            // 1024's screen never finds anything
+            if (who == Template.TenTwentyFour) {
+                return (Cache.GetStream("1024notfound.gif"), "1024notfound.gif");
+            }
+
+            MemoryStream stream = who switch {
+                Template.TT => DrawText(Random.Shared.Next(0, 100) >= 95 ? "ttsays.png" : "ttsays_old.png", null, text, 26, 150, "Sloppy-Hand.otf", 40, "#B0AEAD", 218, 45),
+                Template.Amanda => DrawText("amandasays.png", null, text, 30, 220, "ConcertOne-Regular.ttf", 48, "#404040", 730, 260),
+                Template.Sata => DrawText("satasays_ariana.png", null, text, 34, 230, "ConcertOne-Regular.ttf", 48, "#EFE1E1", 440, 62),
+                Template.Jiber => DrawText("jibersays.png", null, text, 33, 245, "Courgette-Regular.ttf", 64, "#CFB491", 500, 290),
+                _ => DrawText("strongbadsays.png", "strongbadsays_overlay.png", text, 47, 580, "VT323-Regular.ttf", 58, "#CECCCC", 290, 190)
+            };
+
+            return (stream, $"{Describe(who).StatisticsName}.png");
+        }
+
         [SlashCommand("says", "Make someone say something")]
         public async Task SaysCommand([Summary("who", "Who should say it")] Template who, [Summary("text", "What they should say")] string text) {
-            // Cooldown keys and statistics names match the old text commands
-            (string cooldownKey, int cooldownSeconds, string statisticsName) = who switch {
-                Template.TT => ("ttsays", 86400, "TTSays"),
-                Template.TenTwentyFour => ("1024says", 1200, "TenTwentyFourSays"),
-                Template.Amanda => ("amandasays", 1200, "AmandaSays"),
-                Template.Sata => ("satasays", 1200, "SataSays"),
-                Template.Jiber => ("jibersays", 1200, "JiberSays"),
-                _ => ("sbsays", 1200, "StrongBadSays")
-            };
+            (string cooldownKey, int cooldownSeconds, string statisticsName) = Describe(who);
 
             string cooldown = Cooldowns.Check((SocketGuildUser)Context.User, cooldownKey, cooldownSeconds, true);
             if (cooldown != null) {
@@ -52,20 +88,10 @@ namespace HeadNonSub.Clients.Discord.Commands {
 
             await DeferAsync();
 
-            if (who == Template.TenTwentyFour) {
-                await BetterSendFileAsync(Cache.GetStream("1024notfound.gif"), "1024notfound.gif", $"● {BetterUserFormat()}", parameters: text, command: statisticsName);
-                return;
+            (MemoryStream stream, string fileName) = Render(who, text);
+            using (stream) {
+                await BetterSendFileAsync(stream, fileName, $"● {BetterUserFormat()}", parameters: text, command: statisticsName);
             }
-
-            using MemoryStream stream = who switch {
-                Template.TT => DrawText(Random.Shared.Next(0, 100) >= 95 ? "ttsays.png" : "ttsays_old.png", null, text, 26, 150, "Sloppy-Hand.otf", 40, "#B0AEAD", 218, 45),
-                Template.Amanda => DrawText("amandasays.png", null, text, 30, 220, "ConcertOne-Regular.ttf", 48, "#404040", 730, 260),
-                Template.Sata => DrawText("satasays_ariana.png", null, text, 34, 230, "ConcertOne-Regular.ttf", 48, "#EFE1E1", 440, 62),
-                Template.Jiber => DrawText("jibersays.png", null, text, 33, 245, "Courgette-Regular.ttf", 64, "#CFB491", 500, 290),
-                _ => DrawText("strongbadsays.png", "strongbadsays_overlay.png", text, 47, 580, "VT323-Regular.ttf", 58, "#CECCCC", 290, 190)
-            };
-
-            await BetterSendFileAsync(stream, $"{statisticsName}.png", $"● {BetterUserFormat()}", parameters: text, command: statisticsName);
         }
 
         [SlashCommand("warm", "Warm someone up")]
