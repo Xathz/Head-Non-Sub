@@ -3,7 +3,7 @@
 ### General
 
 - All commands are slash commands, type `/` in Discord to see them
-- `/says` also works the old way with `!`, like `!ttsays <text>`, see [Shitposting](#shitposting)
+- Some commands also work the old way with `!`, like `!ttsays <text>`, these are listed under **Also** on the command
 - Some commands have cooldowns either server wide or per-user
 - Not all commands are listed, some are excluded here to prevent abuse
 - Staff commands are hidden from members without the `Manage Messages` permission, server admins can change this in **Server Settings > Integrations**

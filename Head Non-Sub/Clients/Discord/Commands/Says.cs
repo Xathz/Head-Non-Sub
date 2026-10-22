@@ -49,9 +49,9 @@ namespace HeadNonSub.Clients.Discord.Commands {
         };
 
         /// <summary>
-        /// The old text command names, like ttsays, used as ! aliases for /says.
+        /// ! aliases for /says using the old text command names, like !ttsays.
         /// </summary>
-        public static readonly IReadOnlyDictionary<string, Template> Aliases = Enum.GetValues<Template>().ToDictionary(x => Describe(x).CooldownKey, x => x, StringComparer.OrdinalIgnoreCase);
+        public static IEnumerable<PrefixAlias> PrefixAliases => Enum.GetValues<Template>().Select(x => new PrefixAlias(Describe(x).CooldownKey, context => SaysAliasAsync(context, x)));
 
         /// <summary>
         /// Render a template.
@@ -129,6 +129,34 @@ namespace HeadNonSub.Clients.Discord.Commands {
             stream.Seek(0, SeekOrigin.Begin);
 
             await BetterSendFileAsync(stream, "warm.png", $"{BetterUserFormat(user)} has been warmed{(string.IsNullOrWhiteSpace(reason) ? "" : $" for `{reason.Replace("`", "")}`")}.", parameters: $"{user} ({user.Id}); {reason}");
+        }
+
+        private static async Task SaysAliasAsync(PrefixContext context, Template who) {
+            // Same checks as /says
+            if (!WubbysFunHouse.IsSubscriber(context.User)) {
+                await context.ReplyAsync(SubscriberOnly.Message);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(context.Text)) {
+                await context.ReplyAsync($"What should they say? `{context.Command} <text>`, or use `/says`.");
+                return;
+            }
+
+            (string cooldownKey, int cooldownSeconds, string statisticsName) = Describe(who);
+
+            string cooldown = Cooldowns.Check(context.User, cooldownKey, cooldownSeconds, true);
+            if (cooldown != null) {
+                await context.ReplyAsync(cooldown);
+                return;
+            }
+
+            using IDisposable typing = context.Channel.EnterTypingState();
+
+            (MemoryStream stream, string fileName) = Render(who, context.Text);
+            using (stream) {
+                await context.SendFileAsync(stream, fileName, $"● {BetterModuleBase.FormatUser(context.User)}", statisticsName, context.Text);
+            }
         }
 
         /// <summary>

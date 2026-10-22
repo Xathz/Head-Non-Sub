@@ -89,8 +89,8 @@ namespace HeadNonSub.Clients.Discord {
             // Subscribes to message events for @bot replies
             new MentionReplies(_DiscordClient);
 
-            // Subscribes to message events for the !ttsays style aliases of /says
-            new SaysAliases(_DiscordClient);
+            // Subscribes to message events for ! aliases of slash commands
+            new PrefixCommands(_DiscordClient);
 
             _DiscordClient.Log += Log;
             _DiscordClient.Connected += Connected;

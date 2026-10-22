@@ -25,6 +25,8 @@ Run: `Watchdog.ps1` (PowerShell 7.4+) next to `HeadNonSub.dll`. Exit codes live 
 - Expression-bodied members for simple one-liners.
 - `if/else` chains with `} else {` on one line.
 - Discord commands live in `Clients/Discord/Commands`, inherit `BetterModuleBase`, and reply with `BetterReplyAsync`.
+- Slash commands are the main way to use the bot. A `!` text command is only an alias for one: the module exposes `public static IEnumerable<PrefixAlias> PrefixAliases`
+  (reusing the slash command's logic, checks, cooldown keys and statistics names, replying through `PrefixContext`), and is added to the list in `PrefixCommands`. See `Says.PrefixAliases`.
 - Line endings are normalized by `.gitattributes` (`* text=auto`); older files have a UTF-8 BOM, so keep a file's existing encoding.
 
 ## Commits
