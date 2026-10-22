@@ -25,6 +25,10 @@ namespace HeadNonSub.Statistics {
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder.Entity<Command>().ToTable("commands");
             modelBuilder.Entity<Command>().HasKey(x => x.Id);
+
+            // Varchar so the index alone can answer the /stats counts, see Database/Tables/commands_v3.sql
+            modelBuilder.Entity<Command>().Property(x => x.CommandName).HasMaxLength(255).IsRequired();
+            modelBuilder.Entity<Command>().HasIndex(x => new { x.ServerId, x.CommandName }).HasDatabaseName("server_id_command");
         }
 
     }
