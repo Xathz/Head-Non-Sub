@@ -20,29 +20,18 @@ namespace HeadNonSub.Clients.Discord {
                 return null;
             }
 
-            DateTimeOffset? offset = DatabaseManager.Cooldowns.Check(user.Guild.Id, user.Id, key, perUser);
+            DateTimeOffset? started = DatabaseManager.Cooldowns.TryStart(user.Guild.Id, user.Id, key, perUser, TimeSpan.FromSeconds(seconds));
 
-            if (offset.HasValue) {
-                if (offset.Value.AddSeconds(seconds) >= DateTimeOffset.UtcNow) {
-                    string remaining = (offset.Value.AddSeconds(seconds) - DateTimeOffset.UtcNow).TotalSeconds.Seconds().Humanize();
+            if (started.HasValue) {
+                string remaining = (started.Value.AddSeconds(seconds) - DateTimeOffset.UtcNow).TotalSeconds.Seconds().Humanize();
 
-                    if (perUser) {
-                        return $"You need to wait {remaining} before you can use `{key}` again. Cooldown is per-user.";
-                    } else {
-                        return $"You need to wait {remaining} before you can use `{key}` again. Cooldown is server wide.";
-                    }
+                if (perUser) {
+                    return $"You need to wait {remaining} before you can use `{key}` again. Cooldown is per-user.";
                 } else {
-                    LoggingManager.Log.Debug($"Command \"{key}\" {(perUser ? "per-user" : "server wide")} cooldown finished {(perUser ? $"for {user} " : "")}in {user.Guild.Name}");
-
-                    // Start a new cooldown for this use
-                    DatabaseManager.Cooldowns.Delete(user.Guild.Id, user.Id, key, perUser);
-                    DatabaseManager.Cooldowns.Insert(user.Guild.Id, user.Id, key);
-                    return null;
+                    return $"You need to wait {remaining} before you can use `{key}` again. Cooldown is server wide.";
                 }
             } else {
                 LoggingManager.Log.Debug($"Command \"{key}\" ({seconds}sec) {(perUser ? "per-user" : "server wide")} cooldown started {(perUser ? $"for {user} " : "")}in {user.Guild.Name}");
-
-                DatabaseManager.Cooldowns.Insert(user.Guild.Id, user.Id, key);
                 return null;
             }
         }
