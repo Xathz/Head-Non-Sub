@@ -41,6 +41,11 @@ namespace HeadNonSub.Clients.Discord {
         /// </summary>
         public string Command => $"{PrefixCommands.Prefix}{Name}";
 
+        /// <summary>
+        /// True once the command posted its result, the command message is then removed.
+        /// </summary>
+        public bool Completed { get; private set; }
+
         IDiscordClient IInteractionContext.Client => Client;
         IGuild IInteractionContext.Guild => Channel.Guild;
         IMessageChannel IInteractionContext.Channel => Channel;
@@ -48,14 +53,27 @@ namespace HeadNonSub.Clients.Discord {
         IDiscordInteraction IInteractionContext.Interaction => null;
 
         /// <summary>
-        /// Reply to the message. Not tracked in statistics.
+        /// Reply to the message, for errors and hints. Not tracked in statistics and the message is kept.
         /// </summary>
         /// <param name="message">Contents of the message.</param>
         public async Task<IUserMessage> ReplyAsync(string message) =>
             await Channel.SendMessageAsync(message, allowedMentions: DiscordClient.UserMentionsOnly, messageReference: new MessageReference(Message.Id));
 
         /// <summary>
-        /// Reply to the message with a file and track it in statistics.
+        /// Post the command's text result and track it in statistics. The command message is removed after, so the result should name the user.
+        /// </summary>
+        /// <param name="message">Contents of the message.</param>
+        /// <param name="statisticsName">Command name recorded in statistics, use the same one as the slash command.</param>
+        /// <param name="parameters">Additional parameters passed to the command.</param>
+        public async Task<IUserMessage> SendAsync(string message, string statisticsName, string parameters = "") {
+            IUserMessage sentMessage = await Channel.SendMessageAsync(message, allowedMentions: DiscordClient.UserMentionsOnly);
+
+            Complete(statisticsName, parameters, sentMessage.Id);
+            return sentMessage;
+        }
+
+        /// <summary>
+        /// Post the command's file result and track it in statistics. The command message is removed after, so the result should name the user.
         /// </summary>
         /// <param name="stream">The stream of the file to be sent.</param>
         /// <param name="fileName">The name of the attachment.</param>
@@ -69,10 +87,16 @@ namespace HeadNonSub.Clients.Discord {
                 return null;
             }
 
-            IUserMessage sentMessage = await Channel.SendFileAsync(stream, fileName, message, allowedMentions: DiscordClient.UserMentionsOnly, messageReference: new MessageReference(Message.Id));
+            // Not a reply, the command message is removed once this is sent
+            IUserMessage sentMessage = await Channel.SendFileAsync(stream, fileName, message, allowedMentions: DiscordClient.UserMentionsOnly);
 
-            TrackStatistics(statisticsName, parameters, sentMessage.Id);
+            Complete(statisticsName, parameters, sentMessage.Id);
             return sentMessage;
+        }
+
+        private void Complete(string statisticsName, string parameters, ulong replyMessageId) {
+            Completed = true;
+            TrackStatistics(statisticsName, parameters, replyMessageId);
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,6 +35,9 @@ namespace HeadNonSub.Clients.Discord {
         private static readonly TimeSpan _ReconnectTimeout = TimeSpan.FromMinutes(10);
         private static DateTimeOffset _LastConnected = DateTimeOffset.MinValue;
         private static bool _Stopping;
+
+        // Messages the bot removes on purpose that the delete log skips, like finished ! commands
+        private static readonly ConcurrentDictionary<ulong, byte> _QuietDeletes = new ConcurrentDictionary<ulong, byte>();
 
         private static readonly Regex _InviteRegex = new Regex(@"(?:discord\.gg|discord(?:app)?\.com/invite)/[\w-]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -123,6 +127,21 @@ namespace HeadNonSub.Clients.Discord {
             // Not created when startup failed before connecting
             if (_DiscordClient != null) {
                 await _DiscordClient.StopAsync();
+            }
+        }
+
+        /// <summary>
+        /// Delete a message without it showing up in the user logs delete log.
+        /// </summary>
+        /// <param name="message">Message to delete.</param>
+        public static async Task DeleteQuietlyAsync(IMessage message) {
+            _QuietDeletes.TryAdd(message.Id, 0);
+
+            try {
+                await message.DeleteAsync();
+            } catch {
+                _QuietDeletes.TryRemove(message.Id, out _);
+                throw;
             }
         }
 
@@ -417,6 +436,8 @@ namespace HeadNonSub.Clients.Discord {
             if (message.Id == BongTrapMessageId) {
                 BongTrapMessageId = null;
             }
+
+            if (_QuietDeletes.TryRemove(message.Id, out _)) { return; }
 
             // Direct messages and other servers are not logged
             if (!IsWubbysFunHouse(channel.Value)) { return; }

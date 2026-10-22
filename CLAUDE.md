@@ -28,6 +28,7 @@ Run: `Watchdog.ps1` (PowerShell 7.4+) next to `HeadNonSub.dll`. Exit codes live 
 - Slash commands are the main way to use the bot. A `!` text command is only an alias for one: the module exposes `public static IEnumerable<PrefixAlias> PrefixAliases`
   naming the slash command each alias is for, and is added to the list in `PrefixCommands`. The slash command's preconditions (and the debug build and error replies)
   run automatically; the alias reuses the rest of the slash command's logic, cooldown keys and statistics names, replying through `PrefixContext`. See `Says.PrefixAliases`.
+  Post the result with `PrefixContext.SendAsync`/`SendFileAsync` (it should name the user, the `!` message is then deleted), use `ReplyAsync` for errors and hints.
 - Line endings are normalized by `.gitattributes` (`* text=auto`); older files have a UTF-8 BOM, so keep a file's existing encoding.
 
 ## Commits
