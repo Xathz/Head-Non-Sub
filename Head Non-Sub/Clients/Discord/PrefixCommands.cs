@@ -113,10 +113,19 @@ namespace HeadNonSub.Clients.Discord {
                 }
 
                 try {
-                    await alias.RunAsync(context);
+                    // Show the bot is typing while it works, like the thinking message for slash commands
+                    using (context.Channel.EnterTypingState()) {
+                        await alias.RunAsync(context);
+                    }
                 } catch (Exception ex) {
                     LoggingManager.Log.Error(ex, $"Command {context.Command} failed");
                     await context.ReplyAsync(SlashCommands.ErrorMessage);
+                    return;
+                }
+
+                // The result names the user, so the command message is not needed anymore
+                if (context.Completed) {
+                    await DiscordClient.DeleteQuietlyAsync(context.Message);
                 }
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);

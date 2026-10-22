@@ -146,8 +146,6 @@ namespace HeadNonSub.Clients.Discord.Commands {
                 return;
             }
 
-            using IDisposable typing = context.Channel.EnterTypingState();
-
             (MemoryStream stream, string fileName) = Render(who, context.Text);
             using (stream) {
                 await context.SendFileAsync(stream, fileName, $"● {BetterModuleBase.FormatUser(context.User)}", statisticsName, context.Text);

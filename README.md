@@ -30,7 +30,7 @@ Embed Links | `/help`, `/random` and mod log embeds
 Attach Files | `/image`, `/says` and its `!` aliases, `/warm` and `/emoji`
 Read Message History | `/xathz react`, replying to `!` commands
 Add Reactions | `/dating`, `/executie` and `/xathz`
-Manage Messages | Removing Discord invites and animated emote spam
+Manage Messages | Removing Discord invites, animated emote spam and `!` command messages once they run
 Manage Nicknames | The bong trap
 Manage Webhooks | `/xathz puppet`
 View Audit Log | Who banned a user and why in the mod log
