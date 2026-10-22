@@ -51,7 +51,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         /// <summary>
         /// ! aliases for /says using the old text command names, like !ttsays.
         /// </summary>
-        public static IEnumerable<PrefixAlias> PrefixAliases => Enum.GetValues<Template>().Select(x => new PrefixAlias(Describe(x).CooldownKey, context => SaysAliasAsync(context, x)));
+        public static IEnumerable<PrefixAlias> PrefixAliases => Enum.GetValues<Template>().Select(x => new PrefixAlias(Describe(x).CooldownKey, "says", context => SaysAliasAsync(context, x)));
 
         /// <summary>
         /// Render a template.
@@ -132,12 +132,7 @@ namespace HeadNonSub.Clients.Discord.Commands {
         }
 
         private static async Task SaysAliasAsync(PrefixContext context, Template who) {
-            // Same checks as /says
-            if (!WubbysFunHouse.IsSubscriber(context.User)) {
-                await context.ReplyAsync(SubscriberOnly.Message);
-                return;
-            }
-
+            // The /says preconditions already ran, these are the checks inside SaysCommand
             if (string.IsNullOrWhiteSpace(context.Text)) {
                 await context.ReplyAsync($"What should they say? `{context.Command} <text>`, or use `/says`.");
                 return;

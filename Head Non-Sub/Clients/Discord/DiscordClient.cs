@@ -89,9 +89,6 @@ namespace HeadNonSub.Clients.Discord {
             // Subscribes to message events for @bot replies
             new MentionReplies(_DiscordClient);
 
-            // Subscribes to message events for ! aliases of slash commands
-            new PrefixCommands(_DiscordClient);
-
             _DiscordClient.Log += Log;
             _DiscordClient.Connected += Connected;
             _DiscordClient.Disconnected += Disconnected;
@@ -112,6 +109,9 @@ namespace HeadNonSub.Clients.Discord {
 
             _CommandProvider.GetRequiredService<InteractionService>().Log += Log;
             await _CommandProvider.GetRequiredService<SlashCommands>().InitializeAsync();
+
+            // Subscribes to message events for ! aliases, after the slash commands are loaded so it can find them
+            new PrefixCommands(_CommandProvider);
 
             await _DiscordClient.LoginAsync(TokenType.Bot, GetConfiguration().DiscordToken);
             await _DiscordClient.StartAsync();
